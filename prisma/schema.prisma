@@ -11,86 +11,6 @@ datasource db {
     referentialIntegrity = "prisma"
 }
 
-model Resume {
-    id              String      @id @default(cuid())
-    template        String
-    title           String
-    about           String
-    createdAt       DateTime    @default(now())
-    updatedAt       DateTime    @updatedAt
-    educations      Education[]
-    jobs            Job[]
-    skills          Skill[]
-    references      Reference[]
-    languages       Language[]
-    userId          String
-    user            User        @relation(fields: [userId], references: [id], onDelete: Cascade)
-}
-
-model Education {
-    id              String      @id @default(cuid())
-    location        String
-    degree          String
-    school          String
-    startDate       DateTime
-    endDate         DateTime
-    toThePresent    Boolean     @default(false)
-    createdAt       DateTime    @default(now())
-    resumeId        String
-    resume          Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-}
-
-model Job {
-    id              String      @id @default(cuid())
-    company         String
-    role            String
-    summary         String
-    startDate       DateTime
-    endDate         DateTime
-    toThePresent    Boolean     @default(false)
-    kpis            JobKpi[]
-    resumeId        String
-    resume          Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-}
-
-model JobKpi {
-    id              String      @id @default(cuid())
-    summary         String
-    createdAt       DateTime    @default(now())
-    jobId           String
-    job             Job         @relation(fields: [jobId], references: [id], onDelete: Cascade)
-}
-
-model Skill {
-    id              String      @id @default(cuid())
-    name            String
-    years           Int
-    level           Int
-    createdAt       DateTime    @default(now())
-    resumeId        String
-    resume          Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-}
-
-model Reference {
-    id              String      @id @default(cuid())
-    name            String
-    phone           String
-    email           String
-    position        String
-    createdAt       DateTime    @default(now())
-    resumeId        String
-    resume          Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-}
-
-model Language {
-    id              String      @id @default(cuid())
-    name            String
-    level           Int
-    createdAt       DateTime    @default(now())
-    resumeId        String
-    resume          Resume      @relation(fields: [resumeId], references: [id], onDelete: Cascade)
-}
-
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -129,7 +49,6 @@ model User {
     website         String?
     accounts        Account[]
     sessions        Session[]
-    resumes         Resume[]
 }
 
 model VerificationToken {

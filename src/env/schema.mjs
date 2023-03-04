@@ -25,6 +25,7 @@ export const serverSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string(),
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
+  STRIPE_API_KEY: z.string(),
 });
 
 /**
@@ -43,6 +44,7 @@ export const serverEnv = {
   GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
+  STRIPE_API_KEY: process.env.STRIPE_API_KEY,
 };
 
 /**
