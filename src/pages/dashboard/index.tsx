@@ -31,11 +31,13 @@ const DashboardPage = () => {
 
   const resolvePricing = (price: Stripe.Price) => {
     if (price.billing_scheme === 'per_unit') {
+      const recurringLabel = price.recurring?.interval === 'month' ? 'mo' : 'yr';
       if (price.transform_quantity) {
-        return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /mo`;
+        // eslint-disable-next-line max-len
+        return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
       }
 
-      return `${formatCurrency(price.unit_amount! / 100, price.currency)} /mo`;
+      return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
     }
 
     switch (price.tiers_mode) {
@@ -79,7 +81,7 @@ const DashboardPage = () => {
       <ul>
         {(prod.prices || []).map((price) => (
           <li key={price.id}>
-            {resolvePricing(price)}
+            <Text weight={prod.default_price === price.id ? 'bold' : 'regular'}>{resolvePricing(price)}</Text>
           </li>
         ))}
       </ul>
