@@ -5,6 +5,9 @@ import { api } from 'utils/api';
 import { formatCurrency } from 'utils/numbers';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
+import RenderIf from '../../components/RenderIf';
+
+const emojies = ['🐢', '🐎', '🚗'];
 
 const DashboardPage = () => {
   const { data: products, isLoading } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
@@ -74,24 +77,30 @@ const DashboardPage = () => {
     }
   };
 
-  const prodElements = products.map((prod) => (
-    <Stack key={prod.id} mb="xl" spacing={2}>
+  const prodElements = products.map((prod, pIndex) => (
+    <Stack key={prod.id} mb="xl" align="center" spacing={2} sx={{ minWidth: '380px' }}>
       <Title order={3}>{prod.name}</Title>
-      <Text>{prod.description}</Text>
-      <ul>
-        {(prod.prices || []).map((price) => (
-          <li key={price.id}>
-            <Text weight={prod.default_price === price.id ? 'bold' : 'regular'}>{resolvePricing(price)}</Text>
-          </li>
-        ))}
-      </ul>
+      <Text mb="xl">{prod.description}</Text>
+      <span style={{ fontSize: '72px' }}>{emojies[pIndex]}</span>
+      {(prod.prices || []).map((price, prIndex) => (
+        <>
+          <Text key={price.id} weight={prod.default_price === price.id ? 'bold' : 'regular'}>
+            {resolvePricing(price)}
+          </Text>
+          <RenderIf condition={prIndex < prod.prices!.length - 1}>
+            or
+          </RenderIf>
+        </>
+      ))}
     </Stack>
   ));
 
   return (
     <BaseLayout>
       <Title mb="xl">DashBoard</Title>
-      {prodElements}
+      <Group mt="xl" position="center">
+        {prodElements}
+      </Group>
     </BaseLayout>
   );
 };

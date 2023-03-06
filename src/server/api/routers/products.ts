@@ -7,7 +7,7 @@ type ExtendedProduct = Stripe.Product & { prices?: Stripe.Price[] };
 
 export const productsRouter = createTRPCRouter({
   list: protectedProcedure.query(async () => {
-    const products: ExtendedProduct[] = (await stripeClient.products.list()).data;
+    const products: ExtendedProduct[] = (await stripeClient.products.list({ active: true })).data;
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const prices = (await stripeClient.prices.search({ query: `${pricesQuery}`, expand: ['data.tiers'] })).data;
@@ -18,7 +18,11 @@ export const productsRouter = createTRPCRouter({
 
       if (!prod) continue;
       if (!prod.prices) prod.prices = [];
-      prod.prices.unshift(price);
+      if (price.id === prod.default_price) {
+        prod.prices.unshift(price);
+      } else {
+        prod.prices.push(price);
+      }
     }
 
     return products;
