@@ -73,7 +73,7 @@ const DashboardPage = () => {
   };
 
   const prodElements = products.map((prod) => (
-    <Stack key={prod.id} mb="xl">
+    <Stack key={prod.id} mb="xl" spacing={2}>
       <Title order={3}>{prod.name}</Title>
       <Text>{prod.description}</Text>
       <ul>

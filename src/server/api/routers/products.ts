@@ -18,7 +18,7 @@ export const productsRouter = createTRPCRouter({
 
       if (!prod) continue;
       if (!prod.prices) prod.prices = [];
-      prod.prices.push(price);
+      prod.prices.unshift(price);
     }
 
     return products;
