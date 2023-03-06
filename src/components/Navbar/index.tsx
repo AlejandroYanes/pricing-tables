@@ -56,7 +56,7 @@ export function CustomNavbar() {
   const { classes } = useStyles();
   return (
     <Header height={64} className={classes.header} mb="xl">
-      <Title order={1} color="blue" style={{ cursor: 'pointer' }}>CV</Title>
+      <Title order={1} color="blue" style={{ cursor: 'pointer' }}>Pricing</Title>
       <Group>
         <NavbarLink icon={IconLayout2} label="Resumes" />
         <NavbarLink icon={IconSettings} label="Settings" />
