@@ -1,4 +1,4 @@
-import { Group, Loader, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Loader, Stack, Text, Title } from '@mantine/core';
 import type Stripe from 'stripe';
 
 import { api } from 'utils/api';
@@ -97,7 +97,10 @@ const DashboardPage = () => {
 
   return (
     <BaseLayout>
-      <Title mb="xl">DashBoard</Title>
+      <Group position="apart" align="center" mb="xl">
+        <Title>Dashboard</Title>
+        <Button variant="filled">Create New</Button>
+      </Group>
       <Group mt="xl" position="center">
         {prodElements}
       </Group>
