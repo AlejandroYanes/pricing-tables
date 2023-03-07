@@ -11,6 +11,42 @@ datasource db {
     referentialIntegrity = "prisma"
 }
 
+model PriceTable {
+    id              String    @id @default(cuid())
+    products        Product[]
+}
+
+model Product {
+    id              String    @id @default(cuid())
+    name            String
+    description     String?
+    defaultPrice    String?
+    recommended     Boolean   @default(false)
+    prices          Price[]
+    tableId         String?
+    table           PriceTable? @relation(fields: [tableId], references: [id])
+}
+
+model Price {
+    id              String    @id @default(cuid())
+    billingScheme   String
+    tiersMode       String
+    unitAmount      Int
+    currency        String
+    productId       String
+    product         Product   @relation(fields: [productId], references: [id])
+    tiers           Tier[]
+}
+
+model Tier {
+  id            String    @id @default(cuid())
+  flatAmount    Int?
+  unitAmount    Int?
+  upTo          Int?
+  priceId       String
+  price         Price     @relation(fields: [priceId], references: [id])
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
