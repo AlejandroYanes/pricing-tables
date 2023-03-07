@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { createStyles, Group, Header, Title, Tooltip, UnstyledButton } from '@mantine/core';
 import type { TablerIcon } from '@tabler/icons';
 import { IconSettings, IconUser, IconLayout2 } from '@tabler/icons';
@@ -56,7 +57,9 @@ export function CustomNavbar() {
   const { classes } = useStyles();
   return (
     <Header height={64} className={classes.header} mb="xl">
-      <Title order={1} color="blue" style={{ cursor: 'pointer' }}>Pricing</Title>
+      <Link href="/dashboard">
+        <Title order={1} color="blue" style={{ cursor: 'pointer' }}>Pricing</Title>
+      </Link>
       <Group>
         <NavbarLink icon={IconLayout2} label="Resumes" />
         <NavbarLink icon={IconSettings} label="Settings" />
