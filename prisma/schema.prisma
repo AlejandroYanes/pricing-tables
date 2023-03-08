@@ -21,6 +21,7 @@ model Product {
     name            String
     description     String?
     defaultPrice    String?
+    unitLabel       String?
     recommended     Boolean   @default(false)
     prices          Price[]
     tableId         String?

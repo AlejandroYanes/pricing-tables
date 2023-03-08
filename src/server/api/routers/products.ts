@@ -1,9 +1,6 @@
-import type Stripe from 'stripe';
-
+import type { ExtendedProduct } from 'models/stripe';
 import stripeClient from 'utils/stripe';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
-
-type ExtendedProduct = Stripe.Product & { prices?: Stripe.Price[] };
 
 export const productsRouter = createTRPCRouter({
   list: protectedProcedure.query(async () => {
