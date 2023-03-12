@@ -10,4 +10,4 @@ export enum TIER_MODE {
   VOLUME = 'volume',
 }
 
-export type ExtendedProduct = Stripe.Product & { prices?: Stripe.Price[] };
+export type ExtendedProduct = Stripe.Product & { prices: Stripe.Price[] };
