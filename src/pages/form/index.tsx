@@ -1,20 +1,20 @@
 /* eslint-disable max-len */
 import { Fragment, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Button, Checkbox, createStyles, Divider, Group, Select, Stack, Text } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, createStyles, Divider, Group, Select, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { IconDeviceDesktop, IconDeviceMobile, IconX } from '@tabler/icons';
 
-import type { ExtendedProduct } from 'models/stripe';
+import type { FormProduct } from 'models/stripe';
 import { api } from 'utils/api';
 import { formatCurrency } from 'utils/numbers';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme, ) => ({
   productBlock: {
     position: 'relative',
-    border: `1px solid ${theme.colors.gray[4]}`,
+    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
     borderRadius: '4px',
     marginBottom: '16px',
   },
@@ -22,6 +22,15 @@ const useStyles = createStyles((theme) => ({
     position: 'absolute',
     top: '4px',
     right: '4px'
+  },
+  addPriceButton: {
+    padding: '8px 0px',
+    fontWeight: 600,
+    fontSize: '14px',
+    ['&:hover']: {
+      cursor: 'pointer',
+      color: theme.colorScheme === 'dark' ? theme.colors.blue[4] : theme.colors.blue[7],
+    },
   },
   productCard: {
     border: `1px solid ${theme.colors.gray[4]}`,
@@ -37,7 +46,7 @@ const useStyles = createStyles((theme) => ({
 const FormPage = () => {
   const { classes, cx } = useStyles();
   const [showProducts, setShowProducts] = useState(false);
-  const [selectedProducts, setSelectedProducts] = useState<ExtendedProduct[]>([]);
+  const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
 
   const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const productsList = data || [];
@@ -49,13 +58,49 @@ const FormPage = () => {
 
     if (!selectedPrice) return;
 
-    const prodCopy = { ...selectedProduct!, prices: [selectedPrice] };
+    const prodCopy = { ...selectedProduct!, prices: [{ ...selectedPrice }] };
     setSelectedProducts(selectedProducts.concat([prodCopy]));
     setShowProducts(false);
   };
 
   const handleRemoveProduct = (productId: string) => {
     setSelectedProducts(selectedProducts.filter((prod) => prod.id !== productId));
+  };
+
+  const handleToggleFreeTrial = (productId: string, priceId: string) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
+
+    if (!selectedProduct || !selectedPrice) return;
+
+    selectedPrice.hasFreeTrial = !selectedPrice.hasFreeTrial;
+
+    if (!selectedPrice.freeTrialDays) selectedPrice.freeTrialDays = 7;
+
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return selectedProduct;
+      }
+
+      return prod;
+    }));
+  };
+
+  const handleChangeFreeTrialDays = (productId: string, priceId: string, value: string) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
+
+    if (!selectedProduct || !selectedPrice) return;
+
+    selectedPrice.freeTrialDays = Number(value);
+
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return selectedProduct;
+      }
+
+      return prod;
+    }))
   };
 
   const resolvePricing = (price: Stripe.Price): string => {
@@ -135,7 +180,18 @@ const FormPage = () => {
                     <Fragment key={price.id}>
                       <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="xs">
                         <Text>{`${resolvePricing(price)}`}</Text>
-                        <Checkbox label="Include free trial" />
+                        <Checkbox
+                          label="Include free trial"
+                          checked={price.hasFreeTrial}
+                          onClick={() => handleToggleFreeTrial(prod.id, price.id)}
+                        />
+                        <RenderIf condition={!!price.hasFreeTrial}>
+                          <TextInput
+                            value={price.freeTrialDays}
+                            onChange={(e) => handleChangeFreeTrialDays(prod.id, price.id, e.target.value)}
+                            rightSection={<span style={{ paddingRight: '24px' }}>days</span>}
+                          />
+                        </RenderIf>
                       </Stack>
                       <RenderIf condition={hasMorePrices}>
                         <Divider orientation="horizontal" />
@@ -148,7 +204,7 @@ const FormPage = () => {
                     <Text color="dimmed" size="sm">
                       {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
                     </Text>
-                    <Button variant="white" style={{ padding: 0 }}>Add another price</Button>
+                    <UnstyledButton className={classes.addPriceButton}>Add another price</UnstyledButton>
                   </Group>
                 </RenderIf>
               </div>
@@ -177,23 +233,28 @@ const FormPage = () => {
             </Group>
           </Group>
           <Group align="center" position="center" spacing="xl">
-            {selectedProducts.map((prod, index) => (
-              <Stack
-                key={prod.id}
-                align="center"
-                className={cx(classes.productCard, { [classes.activeProductCard]: index === selectedProducts.length - 1 })}
-              >
-                <Text weight="bold" color={index === selectedProducts.length - 1 ? 'blue' : 'black'}>{prod.name}</Text>
-                <Text>{prod.description}</Text>
-                <Text
-                  style={{ fontSize: '32px', fontWeight: 'bold' }}
-                  color={index === selectedProducts.length - 1 ? 'blue' : 'black'}
+            {selectedProducts.map((prod, index) => {
+              const hasFreeTrial = prod.prices.some((price) => price.recurring?.interval === 'month' && price.hasFreeTrial);
+              return (
+                <Stack
+                  key={prod.id}
+                  align="center"
+                  className={cx(classes.productCard, { [classes.activeProductCard]: index === selectedProducts.length - 1 })}
                 >
-                  {resolvePricing(prod.prices![0]!)}
-                </Text>
-                <Button mt="xl" variant={index === selectedProducts.length - 1 ? 'filled' : 'outline'}>Subscribe</Button>
-              </Stack>
-            ))}
+                  <Text weight="bold" color={index === selectedProducts.length - 1 ? 'blue' : undefined}>{prod.name}</Text>
+                  <Text>{prod.description}</Text>
+                  <Text
+                    style={{ fontSize: '32px', fontWeight: 'bold' }}
+                    color={index === selectedProducts.length - 1 ? 'blue' : undefined}
+                  >
+                    {resolvePricing(prod.prices![0]!)}
+                  </Text>
+                  <Button mt="xl" variant={index === selectedProducts.length - 1 ? 'filled' : 'outline'}>
+                    {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
+                  </Button>
+                </Stack>
+              )
+            })}
           </Group>
         </Stack>
       </Group>
