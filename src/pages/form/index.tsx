@@ -232,9 +232,9 @@ const FormPage = () => {
               <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
             </Group>
           </Group>
-          <Group align="center" position="center" spacing="xl">
+          <Group align="stretch" position="center" spacing="xl">
             {selectedProducts.map((prod, index) => {
-              const hasFreeTrial = prod.prices.some((price) => price.recurring?.interval === 'month' && price.hasFreeTrial);
+              const { hasFreeTrial, freeTrialDays } = prod.prices[0]!;
               return (
                 <Stack
                   key={prod.id}
@@ -247,9 +247,12 @@ const FormPage = () => {
                     style={{ fontSize: '32px', fontWeight: 'bold' }}
                     color={index === selectedProducts.length - 1 ? 'blue' : undefined}
                   >
-                    {resolvePricing(prod.prices![0]!)}
+                    {resolvePricing(prod.prices[0]!)}
                   </Text>
-                  <Button mt="xl" variant={index === selectedProducts.length - 1 ? 'filled' : 'outline'}>
+                  <RenderIf condition={!!hasFreeTrial}>
+                    <Text color="dimmed">With a {freeTrialDays} days free trial</Text>
+                  </RenderIf>
+                  <Button mt="auto" variant={index === selectedProducts.length - 1 ? 'filled' : 'outline'}>
                     {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
                   </Button>
                 </Stack>
