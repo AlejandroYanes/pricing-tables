@@ -33,7 +33,7 @@ const useStyles = createStyles((theme, ) => ({
     },
   },
   productCard: {
-    border: `1px solid ${theme.colors.gray[4]}`,
+    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
     padding: '48px 32px 24px',
     borderRadius: '4px',
     width: '280px',
@@ -104,6 +104,10 @@ const FormPage = () => {
   };
 
   const resolvePricing = (price: Stripe.Price): string => {
+    if (price.type === 'one_time') {
+      return formatCurrency(price.unit_amount! / 100, price.currency);
+    }
+
     if (price.billing_scheme === 'per_unit') {
       const recurringLabel = price.recurring?.interval === 'month' ? 'mo' : 'yr';
       if (price.transform_quantity) {
@@ -112,40 +116,19 @@ const FormPage = () => {
 
       return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
     }
-    return '';
 
-    // switch (price.tiers_mode) {
-    //   case 'volume':
-    //     return (
-    //       <ul>
-    //         {(price.tiers || []).map((tier, index, arr) => {
-    //           if (index === 0)
-    //             return `${formatCurrency(tier.unit_amount! / 100, price.currency)} for 1 to ${tier.up_to} users`;
-    //
-    //           if (tier.up_to === null)
-    //             return `${formatCurrency(tier.unit_amount! / 100, price.currency)} for ${(arr[index - 1]!.up_to)! + 1} users or more`;
-    //
-    //           // eslint-disable-next-line max-len
-    //           return `${formatCurrency(tier.unit_amount! / 100, price.currency)} for ${(arr[index - 1]!.up_to)! + 1} to ${tier.up_to} users`;
-    //         }).map((value, index) => <li key={index}>{value}</li>)}
-    //       </ul>
-    //     );
-    //   case 'graduated':
-    //     return (
-    //       <ul>
-    //         {(price.tiers || []).map((tier, index, arr) => {
-    //           if (index === 0)
-    //             return `${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} users`;
-    //
-    //           if (tier.up_to === null)
-    //             return `${formatCurrency(tier.unit_amount! / 100, price.currency)} from ${(arr[index - 1]!.up_to)! + 1} users forward`;
-    //
-    //           // eslint-disable-next-line max-len
-    //           return `${formatCurrency(tier.unit_amount! / 100, price.currency)} for the next ${(arr[index - 1]!.up_to)! + 1} to ${tier.up_to} users`;
-    //         }).map((value, index) => <li key={index}>{value}</li>)}
-    //       </ul>
-    //     );
-    // }
+    switch (price.tiers_mode) {
+      case 'volume': {
+        const tier = price.tiers![0]!;
+        return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} users`;
+      }
+      case 'graduated': {
+        const tier = price.tiers![0]!;
+        return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} a month`;
+      }
+      default:
+        return 'No price';
+    }
   };
 
   const productOptions = productsList
@@ -242,13 +225,13 @@ const FormPage = () => {
                   className={cx(classes.productCard, { [classes.activeProductCard]: index === selectedProducts.length - 1 })}
                 >
                   <Text weight="bold" color={index === selectedProducts.length - 1 ? 'blue' : undefined}>{prod.name}</Text>
-                  <Text>{prod.description}</Text>
                   <Text
                     style={{ fontSize: '32px', fontWeight: 'bold' }}
                     color={index === selectedProducts.length - 1 ? 'blue' : undefined}
                   >
                     {resolvePricing(prod.prices[0]!)}
                   </Text>
+                  <Text align="center">{prod.description}</Text>
                   <RenderIf condition={!!hasFreeTrial}>
                     <Text color="dimmed">With a {freeTrialDays} days free trial</Text>
                   </RenderIf>
