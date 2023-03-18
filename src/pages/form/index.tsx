@@ -1,8 +1,8 @@
 /* eslint-disable max-len */
-import { Fragment, useState } from 'react';
+import { useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Button, Checkbox, createStyles, Divider, Group, Select, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
-import { IconDeviceDesktop, IconDeviceMobile, IconX } from '@tabler/icons';
+import { ActionIcon, Button, Divider, Group, Select, Stack, Tabs, Text } from '@mantine/core';
+import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 
 import type { FormProduct } from 'models/stripe';
 import { api } from 'utils/api';
@@ -10,41 +10,13 @@ import { formatCurrency } from 'utils/numbers';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
+import ProductBlock from 'features/form/ProductBlock';
+import BasicTemplate from 'features/templates/Basic';
 
-const useStyles = createStyles((theme, ) => ({
-  productBlock: {
-    position: 'relative',
-    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-    borderRadius: '4px',
-    marginBottom: '16px',
-  },
-  deleteBtn: {
-    position: 'absolute',
-    top: '4px',
-    right: '4px'
-  },
-  addPriceButton: {
-    padding: '8px 0px',
-    fontWeight: 600,
-    fontSize: '14px',
-    ['&:hover']: {
-      cursor: 'pointer',
-      color: theme.colorScheme === 'dark' ? theme.colors.blue[4] : theme.colors.blue[7],
-    },
-  },
-  productCard: {
-    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-    padding: '48px 32px 24px',
-    borderRadius: '4px',
-    width: '280px',
-  },
-  activeProductCard: {
-    border: `1px solid ${theme.colors.blue[5]}`,
-  },
-}));
+type Tabs = 'products' | 'visuals' | 'settings';
 
 const FormPage = () => {
-  const { classes, cx } = useStyles();
+  const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showProducts, setShowProducts] = useState(false);
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
 
@@ -56,11 +28,26 @@ const FormPage = () => {
     const selectedProduct = data!.find((prod) => prod.id === productId);
     const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
 
-    if (!selectedPrice) return;
+    if (!selectedProduct || !selectedPrice) return;
 
-    const prodCopy = { ...selectedProduct!, prices: [{ ...selectedPrice }] };
+    const prodCopy = { ...selectedProduct, prices: [{ ...selectedPrice }] };
     setSelectedProducts(selectedProducts.concat([prodCopy]));
     setShowProducts(false);
+  };
+
+  const handleAddPrice =(productId: string, price: Stripe.Price) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+
+    if (!selectedProduct) return;
+
+    const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.concat([{ ...price }]) };
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return prodCopy;
+      }
+
+      return prod;
+    }));
   };
 
   const handleRemoveProduct = (productId: string) => {
@@ -142,55 +129,29 @@ const FormPage = () => {
 
   return (
     <BaseLayout>
+      <Tabs value={currentTab} onTabChange={setCurrentTab as any} mb="xl">
+        <Tabs.List>
+          <Tabs.Tab value="products">Products</Tabs.Tab>
+          <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
+          <Tabs.Tab value="settings">Settings</Tabs.Tab>
+        </Tabs.List>
+      </Tabs>
       <Group align="flex-start" style={{ minHeight: 'calc(100vh - 110px)' }}>
         <Stack style={{ minWidth: '420px' }}>
           <Text mb="xl">Products</Text>
           {selectedProducts.map((prod) => {
             const baseProduct = productsList.find((p) => p.id === prod.id)!;
-            const hasMorePrices = baseProduct.prices.length - prod.prices.length > 0;
-            const remainingPrices = baseProduct.prices.length - prod.prices.length;
 
             return (
-              <div key={prod.id} className={classes.productBlock}>
-                <div className={classes.deleteBtn}>
-                  <ActionIcon radius="xl" variant="filled" size="xs" onClick={() => handleRemoveProduct(prod.id)}>
-                    <IconX size={14} />
-                  </ActionIcon>
-                </div>
-                <Text weight="bold" p={16}>{prod.name}</Text>
-                <Stack>
-                  {(prod.prices || []).map((price) => (
-                    <Fragment key={price.id}>
-                      <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="xs">
-                        <Text>{`${resolvePricing(price)}`}</Text>
-                        <Checkbox
-                          label="Include free trial"
-                          checked={price.hasFreeTrial}
-                          onClick={() => handleToggleFreeTrial(prod.id, price.id)}
-                        />
-                        <RenderIf condition={!!price.hasFreeTrial}>
-                          <TextInput
-                            value={price.freeTrialDays}
-                            onChange={(e) => handleChangeFreeTrialDays(prod.id, price.id, e.target.value)}
-                            rightSection={<span style={{ paddingRight: '24px' }}>days</span>}
-                          />
-                        </RenderIf>
-                      </Stack>
-                      <RenderIf condition={hasMorePrices}>
-                        <Divider orientation="horizontal" />
-                      </RenderIf>
-                    </Fragment>
-                  ))}
-                </Stack>
-                <RenderIf condition={hasMorePrices}>
-                  <Group px={16} py={4} align="center" position="apart">
-                    <Text color="dimmed" size="sm">
-                      {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
-                    </Text>
-                    <UnstyledButton className={classes.addPriceButton}>Add another price</UnstyledButton>
-                  </Group>
-                </RenderIf>
-              </div>
+              <ProductBlock
+                key={prod.id}
+                value={prod}
+                product={baseProduct}
+                onAddPrice={handleAddPrice}
+                onRemove={handleRemoveProduct}
+                onToggleFreeTrial={handleToggleFreeTrial}
+                onFreeTrialDaysChange={handleChangeFreeTrialDays}
+              />
             );
           })}
           <RenderIf condition={productOptions.length > 0}>
@@ -208,40 +169,15 @@ const FormPage = () => {
         </Stack>
         <Divider orientation="vertical" />
         <Stack style={{ flex: 1 }}>
-          <Group align="center" position="apart" mb="xl">
-            <Text>Template</Text>
-            <Group>
-              <ActionIcon><IconDeviceMobile /></ActionIcon>
-              <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
+          <RenderIf condition={currentTab === 'products'}>
+            <Group align="center" position="right" mb="xl">
+              <Group>
+                <ActionIcon><IconDeviceMobile /></ActionIcon>
+                <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
+              </Group>
             </Group>
-          </Group>
-          <Group align="stretch" position="center" spacing="xl">
-            {selectedProducts.map((prod, index) => {
-              const { hasFreeTrial, freeTrialDays } = prod.prices[0]!;
-              return (
-                <Stack
-                  key={prod.id}
-                  align="center"
-                  className={cx(classes.productCard, { [classes.activeProductCard]: index === selectedProducts.length - 1 })}
-                >
-                  <Text weight="bold" color={index === selectedProducts.length - 1 ? 'blue' : undefined}>{prod.name}</Text>
-                  <Text
-                    style={{ fontSize: '32px', fontWeight: 'bold' }}
-                    color={index === selectedProducts.length - 1 ? 'blue' : undefined}
-                  >
-                    {resolvePricing(prod.prices[0]!)}
-                  </Text>
-                  <Text align="center">{prod.description}</Text>
-                  <RenderIf condition={!!hasFreeTrial}>
-                    <Text color="dimmed">With a {freeTrialDays} days free trial</Text>
-                  </RenderIf>
-                  <Button mt="auto" variant={index === selectedProducts.length - 1 ? 'filled' : 'outline'}>
-                    {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
-                  </Button>
-                </Stack>
-              )
-            })}
-          </Group>
+            <BasicTemplate products={selectedProducts} />
+          </RenderIf>
         </Stack>
       </Group>
     </BaseLayout>
