@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { Button, createStyles, Group, SegmentedControl, Stack, Text } from '@mantine/core';
 import type Stripe from 'stripe';
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 
 import type { FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
@@ -11,6 +11,8 @@ interface Props {
   recommended: number;
   products: FormProduct[];
 }
+
+type Interval =  'one_time' | Stripe.Price.Recurring.Interval;
 
 const useStyles = createStyles((theme, ) => ({
   productBlock: {
@@ -72,8 +74,29 @@ const resolvePricing = (price: Stripe.Price): string => {
   }
 };
 
-const resolvePriceToShow = (prod: FormProduct, interval: string | undefined) => {
+const resolveBillingIntervals = (products: FormProduct[]) => {
+  return products
+    .reduce((list, prod) => {
+      const intervals = prod.prices
+        .map((price) => {
+          if (price.type === 'one_time') {
+            return 'one_time';
+          }
+          return  price.recurring?.interval;
+        })
+        .filter((int) => !!int) as Stripe.Price.Recurring.Interval[];
+
+      return Array.from(new Set([...list, ...intervals]));
+    }, [] as Stripe.Price.Recurring.Interval[])
+    .sort((a, b) => intervalsMap[a].index - intervalsMap[b].index)
+    .map((interval) => ({ value: interval, label: intervalsMap[interval].label }))
+}
+
+const resolvePriceToShow = (prod: FormProduct, interval: Interval | undefined) => {
+  console.log(prod, interval);
   if (!interval) return prod.prices[0]!;
+
+  if (interval === 'one_time') return prod.prices.find((price) => price.type === 'one_time')!;
 
   return prod.prices.find((price) => price.recurring?.interval === interval)!;
 }
@@ -83,30 +106,34 @@ const intervalsMap = {
   week: { label: 'Weekly', index: 1 },
   month: { label: 'Monthly', index: 2 },
   year: { label: 'Yearly', index: 3 },
-  onTime: { label: 'One Time', index: 4 },
+  one_time: { label: 'One Time', index: 4 },
 };
 
 export default function BasicTemplate(props: Props) {
   const { classes, cx } = useStyles();
   const { products, recommended } = props;
 
-  const [currentInterval, setCurrentInterval] = useState<string | undefined>(undefined);
+  const [currentInterval, setCurrentInterval] = useState<Interval | undefined>(undefined);
+  const billingIntervals = useMemo(() => resolveBillingIntervals(products), [products]);
 
-  const billingPeriods = products
-    .reduce((list, prod) => {
-      const intervals = prod.prices
-        .map((price) => price.recurring?.interval)
-        .filter((int) => !!int) as Stripe.Price.Recurring.Interval[];
+  useEffect(() => {
+    if (billingIntervals.length === 0) {
+      setCurrentInterval(undefined);
+    } else {
+      const currentIntervalExists = billingIntervals.find((interval) => interval.value === currentInterval);
 
-      return Array.from(new Set([...list, ...intervals]));
-    }, [] as Stripe.Price.Recurring.Interval[])
-    .sort((a, b) => intervalsMap[a].index - intervalsMap[b].index)
-    .map((interval) => ({ value: interval, label: intervalsMap[interval].label }));
+      if (!currentIntervalExists) {
+        setCurrentInterval(billingIntervals[0]!.value);
+      }
+    }
+  }, [billingIntervals]);
+
+  console.log('currentInterval', currentInterval);
 
   return (
     <Stack>
-      <RenderIf condition={billingPeriods.length > 1}>
-        <SegmentedControl data={billingPeriods} value={currentInterval} onChange={setCurrentInterval} mx="auto" mb="xl" />
+      <RenderIf condition={billingIntervals.length > 1}>
+        <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
       <Group align="stretch" position="center" spacing="xl">
         {products.map((prod, index) => {
