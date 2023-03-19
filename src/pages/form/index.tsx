@@ -15,6 +15,8 @@ import BasicTemplate from 'features/templates/Basic';
 
 type Tabs = 'products' | 'visuals' | 'settings';
 
+const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
+
 const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showProducts, setShowProducts] = useState(false);
@@ -129,7 +131,12 @@ const FormPage = () => {
 
   return (
     <BaseLayout>
-      <Tabs value={currentTab} onTabChange={setCurrentTab as any} mb="xl">
+      <Tabs
+        value={currentTab}
+        onTabChange={setCurrentTab as any}
+        mb="xl"
+        styles={tabsStyles}
+      >
         <Tabs.List>
           <Tabs.Tab value="products">Products</Tabs.Tab>
           <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
@@ -176,7 +183,7 @@ const FormPage = () => {
                 <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
               </Group>
             </Group>
-            <BasicTemplate products={selectedProducts} />
+            <BasicTemplate products={selectedProducts} recommended={1} />
           </RenderIf>
         </Stack>
       </Group>

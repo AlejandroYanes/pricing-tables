@@ -101,10 +101,10 @@ export default function ProductBlock(props: Props) {
         <RenderIf
           condition={!showPriceSelect}
           fallback={
-            <Select radius="xs" data={priceOptions} onChange={handleSelectPrice} />
+            <Select radius="xs" styles={{ input: { border: 'none' } }} data={priceOptions} onChange={handleSelectPrice} />
           }
         >
-          <Group px={16} py={4} align="center" position="apart">
+          <Group px={16} py={2} align="center" position="apart">
             <Text color="dimmed" size="sm">
               {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
             </Text>
