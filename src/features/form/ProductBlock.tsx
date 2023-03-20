@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { Fragment, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Checkbox, createStyles, Divider, Group, Select, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { IconX } from '@tabler/icons';
@@ -73,6 +73,7 @@ export default function ProductBlock(props: Props) {
   const { classes } = useStyles();
 
   const [showPriceSelect, setShowPriceSelect] = useState(false);
+  const interactionTimer = useRef<any>(undefined);
 
   const handleSelectPrice = (priceId: string) => {
     const selectedPrice = product.prices.find((price) => price.id === priceId);
@@ -80,7 +81,26 @@ export default function ProductBlock(props: Props) {
     if (!selectedPrice) return;
     onAddPrice(value.id, selectedPrice);
     setShowPriceSelect(false);
+
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
+    }
   };
+
+  const startInteractionTimer = () => {
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
+    }
+    interactionTimer.current = setTimeout(() => setShowPriceSelect(false), 5000);
+  }
+
+  useEffect(() => {
+    if (showPriceSelect) {
+      startInteractionTimer();
+    }
+  }, [showPriceSelect]);
 
   const showingMultiplePrices = value.prices.length > 1;
   const hasMorePrices = product.prices.length - value.prices.length > 0;
@@ -129,7 +149,13 @@ export default function ProductBlock(props: Props) {
         <RenderIf
           condition={!showPriceSelect}
           fallback={
-            <Select radius="xs" styles={{ input: { border: 'none' } }} data={priceOptions} onChange={handleSelectPrice} />
+            <Select
+              radius="xs"
+              styles={{ input: { border: 'none' } }}
+              data={priceOptions}
+              onChange={handleSelectPrice}
+              onFocus={startInteractionTimer}
+            />
           }
         >
           <Group px={16} py={2} align="center" position="apart">
