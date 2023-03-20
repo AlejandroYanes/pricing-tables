@@ -2,7 +2,7 @@
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Checkbox, createStyles, Divider, Group, Select, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
-import { IconX } from '@tabler/icons';
+import { IconX, IconMinus } from '@tabler/icons';
 
 import type { ExtendedProduct, FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
@@ -13,6 +13,7 @@ interface Props {
   value: FormProduct;
   onAddPrice: (productId: string, price: Stripe.Price) => void;
   onRemove: (productId: string) => void;
+  onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onFreeTrialDaysChange: (productId: string, priceId: string, value: string) => void;
 }
@@ -69,7 +70,7 @@ const resolvePricing = (price: Stripe.Price): string => {
 };
 
 export default function ProductBlock(props: Props) {
-  const { product, value, onAddPrice, onRemove, onToggleFreeTrial, onFreeTrialDaysChange } = props;
+  const { product, value, onAddPrice, onRemove, onRemovePrice, onToggleFreeTrial, onFreeTrialDaysChange } = props;
   const { classes } = useStyles();
 
   const [showPriceSelect, setShowPriceSelect] = useState(false);
@@ -102,7 +103,6 @@ export default function ProductBlock(props: Props) {
     }
   }, [showPriceSelect]);
 
-  const showingMultiplePrices = value.prices.length > 1;
   const hasMorePrices = product.prices.length - value.prices.length > 0;
   const remainingPrices = product.prices.length - value.prices.length;
 
@@ -122,9 +122,17 @@ export default function ProductBlock(props: Props) {
       </div>
       <Text weight="bold" p={16}>{value.name}</Text>
       <Stack>
-        {(value.prices || []).map((price) => (
+        {(value.prices || []).map((price, index, list) => (
           <Fragment key={price.id}>
-            <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="xs">
+            <Divider orientation="horizontal" />
+            <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="xs" style={{ position: 'relative' }}>
+              <RenderIf condition={list.length > 1}>
+                <div className={classes.deleteBtn}>
+                  <ActionIcon radius="xl" variant="filled" size="xs" onClick={() => onRemovePrice(value.id, price.id)}>
+                    <IconMinus size={14} />
+                  </ActionIcon>
+                </div>
+              </RenderIf>
               <Text>{`${resolvePricing(price)}`}</Text>
               <Checkbox
                 label="Include free trial"
@@ -139,7 +147,7 @@ export default function ProductBlock(props: Props) {
                 />
               </RenderIf>
             </Stack>
-            <RenderIf condition={hasMorePrices || showingMultiplePrices}>
+            <RenderIf condition={index === list.length - 1}>
               <Divider orientation="horizontal" />
             </RenderIf>
           </Fragment>

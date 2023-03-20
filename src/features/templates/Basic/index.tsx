@@ -160,7 +160,7 @@ export default function BasicTemplate(props: Props) {
             <Stack
               key={prod.id}
               align="center"
-              className={cx(classes.productCard, { [classes.activeProductCard]: index === recommended })}
+              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended })}
             >
               <Text weight="bold" color={isRecommended ? 'blue' : undefined}>{prod.name}</Text>
               <Text

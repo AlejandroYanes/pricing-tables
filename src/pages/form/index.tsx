@@ -56,6 +56,22 @@ const FormPage = () => {
     setSelectedProducts(selectedProducts.filter((prod) => prod.id !== productId));
   };
 
+  const handleRemovePrice = (productId: string, priceId: string) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
+
+    if (!selectedProduct || !selectedPrice) return;
+
+    const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.filter((price) => price.id !== priceId) };
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return prodCopy;
+      }
+
+      return prod;
+    }));
+  };
+
   const handleToggleFreeTrial = (productId: string, priceId: string) => {
     const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
     const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
@@ -156,6 +172,7 @@ const FormPage = () => {
                 product={baseProduct}
                 onAddPrice={handleAddPrice}
                 onRemove={handleRemoveProduct}
+                onRemovePrice={handleRemovePrice}
                 onToggleFreeTrial={handleToggleFreeTrial}
                 onFreeTrialDaysChange={handleChangeFreeTrialDays}
               />
