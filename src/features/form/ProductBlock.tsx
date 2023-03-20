@@ -40,6 +40,34 @@ const useStyles = createStyles((theme, ) => ({
   },
 }));
 
+const resolvePricing = (price: Stripe.Price): string => {
+  if (price.type === 'one_time') {
+    return formatCurrency(price.unit_amount! / 100, price.currency);
+  }
+
+  if (price.billing_scheme === 'per_unit') {
+    const recurringLabel = price.recurring?.interval === 'month' ? 'mo' : 'yr';
+    if (price.transform_quantity) {
+      return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
+    }
+
+    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
+  }
+
+  switch (price.tiers_mode) {
+    case 'volume': {
+      const tier = price.tiers![0]!;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} users`;
+    }
+    case 'graduated': {
+      const tier = price.tiers![0]!;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} a month`;
+    }
+    default:
+      return 'No price';
+  }
+};
+
 export default function ProductBlock(props: Props) {
   const { product, value, onAddPrice, onRemove, onToggleFreeTrial, onFreeTrialDaysChange } = props;
   const { classes } = useStyles();
@@ -120,31 +148,3 @@ export default function ProductBlock(props: Props) {
     </div>
   );
 }
-
-const resolvePricing = (price: Stripe.Price): string => {
-  if (price.type === 'one_time') {
-    return formatCurrency(price.unit_amount! / 100, price.currency);
-  }
-
-  if (price.billing_scheme === 'per_unit') {
-    const recurringLabel = price.recurring?.interval === 'month' ? 'mo' : 'yr';
-    if (price.transform_quantity) {
-      return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
-    }
-
-    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
-  }
-
-  switch (price.tiers_mode) {
-    case 'volume': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} users`;
-    }
-    case 'graduated': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} a month`;
-    }
-    default:
-      return 'No price';
-  }
-};
