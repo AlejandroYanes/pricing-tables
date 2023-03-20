@@ -154,16 +154,18 @@ export default function BasicTemplate(props: Props) {
           const priceToShow = resolvePriceToShow(prod, currentInterval);
           const { hasFreeTrial, freeTrialDays } = priceToShow;
 
+          const isRecommended = visibleProducts.length === 1 || index === recommended;
+
           return (
             <Stack
               key={prod.id}
               align="center"
               className={cx(classes.productCard, { [classes.activeProductCard]: index === recommended })}
             >
-              <Text weight="bold" color={index === recommended ? 'blue' : undefined}>{prod.name}</Text>
+              <Text weight="bold" color={isRecommended ? 'blue' : undefined}>{prod.name}</Text>
               <Text
                 style={{ fontSize: '32px', fontWeight: 'bold' }}
-                color={index === recommended ? 'blue' : undefined}
+                color={isRecommended ? 'blue' : undefined}
               >
                 {resolvePricing(priceToShow)}
               </Text>
@@ -171,7 +173,7 @@ export default function BasicTemplate(props: Props) {
               <RenderIf condition={!!hasFreeTrial}>
                 <Text color="dimmed">With a {freeTrialDays} days free trial</Text>
               </RenderIf>
-              <Button mt="auto" variant={index === products.length - 1 ? 'filled' : 'outline'}>
+              <Button mt="auto" variant={isRecommended ? 'filled' : 'outline'}>
                 {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
               </Button>
             </Stack>
