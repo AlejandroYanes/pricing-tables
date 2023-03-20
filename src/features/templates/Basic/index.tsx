@@ -12,7 +12,7 @@ interface Props {
   products: FormProduct[];
 }
 
-type Interval =  'one_time' | Stripe.Price.Recurring.Interval;
+type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
 
 const useStyles = createStyles((theme, ) => ({
   productBlock: {
@@ -92,8 +92,20 @@ const resolveBillingIntervals = (products: FormProduct[]) => {
     .map((interval) => ({ value: interval, label: intervalsMap[interval].label }))
 }
 
-const resolvePriceToShow = (prod: FormProduct, interval: Interval | undefined) => {
-  console.log(prod, interval);
+const filterProductsByInterval = (products: FormProduct[], interval: Interval) => {
+  if (!interval) return products;
+
+  return products.filter((prod) => {
+    if (interval === 'one_time') {
+      return prod.prices.some((price) => price.type === 'one_time');
+    }
+
+    return prod.prices.some((price) => price.recurring?.interval === interval);
+  });
+};
+
+const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
+  // console.log(prod, interval);
   if (!interval) return prod.prices[0]!;
 
   if (interval === 'one_time') return prod.prices.find((price) => price.type === 'one_time')!;
@@ -113,7 +125,9 @@ export default function BasicTemplate(props: Props) {
   const { classes, cx } = useStyles();
   const { products, recommended } = props;
 
-  const [currentInterval, setCurrentInterval] = useState<Interval | undefined>(undefined);
+  const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
+
+  const visibleProducts = useMemo(() => filterProductsByInterval(products, currentInterval), [currentInterval, products]);
   const billingIntervals = useMemo(() => resolveBillingIntervals(products), [products]);
 
   useEffect(() => {
@@ -136,8 +150,10 @@ export default function BasicTemplate(props: Props) {
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
       <Group align="stretch" position="center" spacing="xl">
-        {products.map((prod, index) => {
-          const { hasFreeTrial, freeTrialDays } = resolvePriceToShow(prod, currentInterval);
+        {visibleProducts.map((prod, index) => {
+          const priceToShow = resolvePriceToShow(prod, currentInterval);
+          const { hasFreeTrial, freeTrialDays } = priceToShow;
+
           return (
             <Stack
               key={prod.id}
@@ -149,7 +165,7 @@ export default function BasicTemplate(props: Props) {
                 style={{ fontSize: '32px', fontWeight: 'bold' }}
                 color={index === recommended ? 'blue' : undefined}
               >
-                {resolvePricing(prod.prices[0]!)}
+                {resolvePricing(priceToShow)}
               </Text>
               <Text align="center">{prod.description}</Text>
               <RenderIf condition={!!hasFreeTrial}>
