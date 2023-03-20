@@ -91,13 +91,13 @@ const FormPage = () => {
     }));
   };
 
-  const handleChangeFreeTrialDays = (productId: string, priceId: string, value: string) => {
+  const handleChangeFreeTrialDays = (productId: string, priceId: string, days: number) => {
     const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
     const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
 
     if (!selectedProduct || !selectedPrice) return;
 
-    selectedPrice.freeTrialDays = Number(value);
+    selectedPrice.freeTrialDays = days ?? 1;
 
     setSelectedProducts(selectedProducts.map((prod) => {
       if (prod.id === productId) {
@@ -159,7 +159,7 @@ const FormPage = () => {
           <Tabs.Tab value="settings">Settings</Tabs.Tab>
         </Tabs.List>
       </Tabs>
-      <Group align="flex-start" style={{ minHeight: 'calc(100vh - 110px)' }}>
+      <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
         <Stack style={{ minWidth: '420px' }}>
           <Text mb="xl">Products</Text>
           {selectedProducts.map((prod) => {

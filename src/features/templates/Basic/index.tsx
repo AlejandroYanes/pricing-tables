@@ -171,7 +171,7 @@ export default function BasicTemplate(props: Props) {
               </Text>
               <Text align="center">{prod.description}</Text>
               <RenderIf condition={!!hasFreeTrial}>
-                <Text color="dimmed">With a {freeTrialDays} days free trial</Text>
+                <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
               </RenderIf>
               <Button mt="auto" variant={isRecommended ? 'filled' : 'outline'}>
                 {hasFreeTrial ? 'Start free trial' : 'Subscribe'}

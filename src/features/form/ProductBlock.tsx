@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Checkbox, createStyles, Divider, Group, Select, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
+import { ActionIcon, Checkbox, createStyles, Divider, Group, Select, Stack, Text, NumberInput, UnstyledButton } from '@mantine/core';
 import { IconX, IconMinus } from '@tabler/icons';
 
 import type { ExtendedProduct, FormProduct } from 'models/stripe';
@@ -15,7 +15,7 @@ interface Props {
   onRemove: (productId: string) => void;
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
-  onFreeTrialDaysChange: (productId: string, priceId: string, value: string) => void;
+  onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
 }
 
 const useStyles = createStyles((theme, ) => ({
@@ -140,14 +140,15 @@ export default function ProductBlock(props: Props) {
                 onClick={() => onToggleFreeTrial(value.id, price.id)}
               />
               <RenderIf condition={!!price.hasFreeTrial}>
-                <TextInput
+                <NumberInput
+                  min={1}
                   value={price.freeTrialDays}
-                  onChange={(e) => onFreeTrialDaysChange(value.id, price.id, e.target.value)}
-                  rightSection={<span style={{ paddingRight: '24px' }}>days</span>}
+                  onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days!)}
+                  // rightSection={<span style={{ paddingRight: '24px' }}>days</span>}
                 />
               </RenderIf>
             </Stack>
-            <RenderIf condition={index === list.length - 1}>
+            <RenderIf condition={index === list.length - 1 && hasMorePrices}>
               <Divider orientation="horizontal" />
             </RenderIf>
           </Fragment>
