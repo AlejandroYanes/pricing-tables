@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Divider, Group, Stack, Tabs } from '@mantine/core';
+import { ActionIcon, Divider, Group, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 
 import type { FormProduct } from 'models/stripe';
@@ -11,14 +11,18 @@ import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
 import ProductsForm from 'features/form/ProductsForm';
 import BasicTemplate from 'features/templates/Basic';
+import VisualsForm from 'features/form/VisualsForm';
 
 type Tabs = 'products' | 'visuals' | 'settings';
 
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
 const FormPage = () => {
+  const { colors } = useMantineTheme();
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
+  const [recommended, setRecommended] = useState<string | undefined>(undefined);
+  const [color, setColor] = useState<string>(colors.blue[5]);
 
   const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const productsList = data || [];
@@ -133,6 +137,15 @@ const FormPage = () => {
               onChangeFreeTrialDays={handleChangeFreeTrialDays}
             />
           </RenderIf>
+          <RenderIf condition={currentTab === 'visuals'}>
+            <VisualsForm
+              products={selectedProducts}
+              recommended={recommended}
+              onRecommendedChange={setRecommended}
+              color={color}
+              onColorChange={setColor}
+            />
+          </RenderIf>
         </Stack>
         <Divider orientation="vertical" />
         <Stack style={{ flex: 1 }}>
@@ -142,7 +155,7 @@ const FormPage = () => {
               <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
             </Group>
           </Group>
-          <BasicTemplate products={selectedProducts} recommended={1} />
+          <BasicTemplate products={selectedProducts} recommended={recommended} />
         </Stack>
       </Group>
     </BaseLayout>

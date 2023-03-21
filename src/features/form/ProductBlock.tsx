@@ -141,10 +141,12 @@ export default function ProductBlock(props: Props) {
               />
               <RenderIf condition={!!price.hasFreeTrial}>
                 <NumberInput
+                  label="Days"
                   min={1}
+                  stepHoldDelay={500}
+                  stepHoldInterval={100}
                   value={price.freeTrialDays}
                   onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days!)}
-                  // rightSection={<span style={{ paddingRight: '24px' }}>days</span>}
                 />
               </RenderIf>
             </Stack>

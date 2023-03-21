@@ -8,13 +8,14 @@ import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 
 interface Props {
-  recommended: number;
+  recommended: string | undefined;
+  color: string;
   products: FormProduct[];
 }
 
 type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
 
-const useStyles = createStyles((theme, ) => ({
+const useStyles = createStyles((theme) => ({
   productBlock: {
     position: 'relative',
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
@@ -150,11 +151,11 @@ export default function BasicTemplate(props: Props) {
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
       <Group align="stretch" position="center" spacing="xl">
-        {visibleProducts.map((prod, index) => {
+        {visibleProducts.map((prod) => {
           const priceToShow = resolvePriceToShow(prod, currentInterval);
           const { hasFreeTrial, freeTrialDays } = priceToShow;
 
-          const isRecommended = visibleProducts.length === 1 || index === recommended;
+          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
           return (
             <Stack
