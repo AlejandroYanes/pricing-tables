@@ -15,7 +15,7 @@ interface Props {
 
 type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
 
-const useStyles = createStyles((theme) => ({
+const useStyles = createStyles((theme, color: string) => ({
   productBlock: {
     position: 'relative',
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
@@ -43,7 +43,7 @@ const useStyles = createStyles((theme) => ({
     width: '280px',
   },
   activeProductCard: {
-    border: `1px solid ${theme.colors.blue[5]}`,
+    border: `1px solid ${theme.colors![color]![5]}`,
   },
 }));
 
@@ -123,8 +123,8 @@ const intervalsMap = {
 };
 
 export default function BasicTemplate(props: Props) {
-  const { classes, cx } = useStyles();
-  const { products, recommended } = props;
+  const { products, recommended, color } = props;
+  const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
@@ -163,10 +163,10 @@ export default function BasicTemplate(props: Props) {
               align="center"
               className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended })}
             >
-              <Text weight="bold" color={isRecommended ? 'blue' : undefined}>{prod.name}</Text>
+              <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
               <Text
                 style={{ fontSize: '32px', fontWeight: 'bold' }}
-                color={isRecommended ? 'blue' : undefined}
+                color={isRecommended ? color : undefined}
               >
                 {resolvePricing(priceToShow)}
               </Text>
@@ -174,7 +174,7 @@ export default function BasicTemplate(props: Props) {
               <RenderIf condition={!!hasFreeTrial}>
                 <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
               </RenderIf>
-              <Button mt="auto" variant={isRecommended ? 'filled' : 'outline'}>
+              <Button mt="auto" color={color} variant={isRecommended ? 'filled' : 'outline'}>
                 {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
               </Button>
             </Stack>

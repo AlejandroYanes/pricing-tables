@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Divider, Group, Stack, Tabs, useMantineTheme } from '@mantine/core';
+import { ActionIcon, Divider, Group, Stack, Tabs } from '@mantine/core';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 
 import type { FormProduct } from 'models/stripe';
@@ -18,11 +18,10 @@ type Tabs = 'products' | 'visuals' | 'settings';
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
 const FormPage = () => {
-  const { colors } = useMantineTheme();
-  const [currentTab, setCurrentTab] = useState<Tabs>('products');
+  const [currentTab, setCurrentTab] = useState<Tabs>('visuals');
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
   const [recommended, setRecommended] = useState<string | undefined>(undefined);
-  const [color, setColor] = useState<string>(colors.blue[5]);
+  const [color, setColor] = useState<string>('blue');
 
   const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const productsList = data || [];
@@ -54,7 +53,11 @@ const FormPage = () => {
   };
 
   const handleRemoveProduct = (productId: string) => {
-    setSelectedProducts(selectedProducts.filter((prod) => prod.id !== productId));
+    const nextProductList = selectedProducts.filter((prod) => prod.id !== productId);
+    setSelectedProducts(nextProductList);
+    if (nextProductList.length === 0) {
+      setRecommended(undefined);
+    }
   };
 
   const handleRemovePrice = (productId: string, priceId: string) => {
@@ -124,7 +127,7 @@ const FormPage = () => {
         </Tabs.List>
       </Tabs>
       <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
-        <Stack style={{ minWidth: '420px' }}>
+        <Stack style={{ minWidth: '420px', maxWidth: '420px' }}>
           <RenderIf condition={currentTab === 'products'}>
             <ProductsForm
               products={productsList}
@@ -155,7 +158,7 @@ const FormPage = () => {
               <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
             </Group>
           </Group>
-          <BasicTemplate products={selectedProducts} recommended={recommended} />
+          <BasicTemplate products={selectedProducts} recommended={recommended} color={color} />
         </Stack>
       </Group>
     </BaseLayout>
