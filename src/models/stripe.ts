@@ -12,4 +12,12 @@ export enum TIER_MODE {
 
 export type ExtendedProduct = Stripe.Product & { prices: Stripe.Price[] };
 
-export type FormProduct = Stripe.Product & { prices: (Stripe.Price & { hasFreeTrial?: boolean; freeTrialDays?: number })[] };
+export type FormPrice = Stripe.Price & {
+  hasFreeTrial?: boolean;
+  freeTrialDays?: number;
+  isPerUnit?: boolean;
+  unitLabel?: string;
+};
+export type FormProduct = Stripe.Product & {
+  prices: FormPrice[];
+};

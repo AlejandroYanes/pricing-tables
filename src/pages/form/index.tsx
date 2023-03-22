@@ -18,7 +18,7 @@ type Tabs = 'products' | 'visuals' | 'settings';
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
 const FormPage = () => {
-  const [currentTab, setCurrentTab] = useState<Tabs>('visuals');
+  const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
   const [recommended, setRecommended] = useState<string | undefined>(undefined);
   const [color, setColor] = useState<string>('blue');
@@ -112,6 +112,42 @@ const FormPage = () => {
     }))
   };
 
+  const handleTogglePerUnit = (productId: string, priceId: string) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
+
+    if (!selectedProduct || !selectedPrice) return;
+
+    selectedPrice.isPerUnit = !selectedPrice.isPerUnit;
+
+    if (!selectedPrice.unitLabel) selectedPrice.unitLabel = 'units';
+
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return selectedProduct;
+      }
+
+      return prod;
+    }));
+  };
+
+  const handleChangeUnitLabel = (productId: string, priceId: string, label: string) => {
+    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
+
+    if (!selectedProduct || !selectedPrice) return;
+
+    selectedPrice.unitLabel = label ?? 'units';
+
+    setSelectedProducts(selectedProducts.map((prod) => {
+      if (prod.id === productId) {
+        return selectedProduct;
+      }
+
+      return prod;
+    }))
+  };
+
   return (
     <BaseLayout>
       <Tabs
@@ -138,6 +174,8 @@ const FormPage = () => {
               onRemovePrice={handleRemovePrice}
               onToggleFreeTrial={handleToggleFreeTrial}
               onChangeFreeTrialDays={handleChangeFreeTrialDays}
+              onTogglePerUnit={handleTogglePerUnit}
+              onUnitLabelChange={handleChangeUnitLabel}
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>

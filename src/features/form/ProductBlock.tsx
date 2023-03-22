@@ -1,7 +1,19 @@
 /* eslint-disable max-len */
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Checkbox, createStyles, Divider, Group, Select, Stack, Text, NumberInput, UnstyledButton } from '@mantine/core';
+import {
+  ActionIcon,
+  Checkbox,
+  createStyles,
+  Divider,
+  Group,
+  Select,
+  Stack,
+  Text,
+  NumberInput,
+  UnstyledButton,
+  TextInput
+} from '@mantine/core';
 import { IconX, IconMinus } from '@tabler/icons';
 
 import type { ExtendedProduct, FormProduct } from 'models/stripe';
@@ -16,6 +28,8 @@ interface Props {
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
+  onTogglePerUnit: (productId: string, priceId: string) => void;
+  onUnitLabelChange: (productId: string, priceId: string, label: string) => void;
 }
 
 const useStyles = createStyles((theme, ) => ({
@@ -70,7 +84,17 @@ const resolvePricing = (price: Stripe.Price): string => {
 };
 
 export default function ProductBlock(props: Props) {
-  const { product, value, onAddPrice, onRemove, onRemovePrice, onToggleFreeTrial, onFreeTrialDaysChange } = props;
+  const {
+    product,
+    value,
+    onAddPrice,
+    onRemove,
+    onRemovePrice,
+    onToggleFreeTrial,
+    onFreeTrialDaysChange,
+    onTogglePerUnit,
+    onUnitLabelChange,
+  } = props;
   const { classes } = useStyles();
 
   const [showPriceSelect, setShowPriceSelect] = useState(false);
@@ -125,7 +149,7 @@ export default function ProductBlock(props: Props) {
         {(value.prices || []).map((price, index, list) => (
           <Fragment key={price.id}>
             <Divider orientation="horizontal" />
-            <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="xs" style={{ position: 'relative' }}>
+            <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="sm" style={{ position: 'relative' }}>
               <RenderIf condition={list.length > 1}>
                 <div className={classes.deleteBtn}>
                   <ActionIcon radius="xl" variant="filled" size="xs" onClick={() => onRemovePrice(value.id, price.id)}>
@@ -141,12 +165,26 @@ export default function ProductBlock(props: Props) {
               />
               <RenderIf condition={!!price.hasFreeTrial}>
                 <NumberInput
+                  mb="xs"
                   label="Days"
                   min={1}
                   stepHoldDelay={500}
                   stepHoldInterval={100}
                   value={price.freeTrialDays}
                   onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days!)}
+                />
+              </RenderIf>
+              <Checkbox
+                label={`Is a per "unit" price`}
+                checked={price.isPerUnit}
+                onClick={() => onTogglePerUnit(value.id, price.id)}
+              />
+              <RenderIf condition={!!price.isPerUnit}>
+                <TextInput
+                  mb="xs"
+                  label="Unit label"
+                  value={price.unitLabel}
+                  onChange={(e) => onUnitLabelChange(value.id, price.id, e.target.value)}
                 />
               </RenderIf>
             </Stack>
