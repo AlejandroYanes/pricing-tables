@@ -129,8 +129,6 @@ export default function BasicTemplate(props: Props) {
     }
   }, [billingIntervals]);
 
-  console.log('currentInterval', currentInterval);
-
   return (
     <Stack>
       <RenderIf condition={billingIntervals.length > 1}>
@@ -147,7 +145,7 @@ export default function BasicTemplate(props: Props) {
             <Stack
               key={prod.id}
               align="center"
-              className={cx(classes.productCard, { [classes.wideCard]: isPerUnit, [classes.activeProductCard]: isRecommended })}
+              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: isPerUnit })}
             >
               <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
               <Text

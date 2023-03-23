@@ -11,7 +11,7 @@ export const productsRouter = createTRPCRouter({
     const products: InitialProduct[] = (await stripeClient.products.list({ active: true })).data;
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
-    const prices = (await stripeClient.prices.search({ query: `${pricesQuery}`, expand: ['data.tiers'] })).data;
+    const prices = (await stripeClient.prices.search({ query: `${pricesQuery}`, expand: ['data.tiers'], limit: 50 })).data;
 
     for (const price of prices) {
       if (!price.active) continue;
