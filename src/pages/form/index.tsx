@@ -12,6 +12,7 @@ import RenderIf from 'components/RenderIf';
 import ProductsForm from 'features/form/ProductsForm';
 import BasicTemplate from 'features/templates/Basic';
 import VisualsForm from 'features/form/VisualsForm';
+import SettingsForm from 'features/form/SettingsForm';
 
 type Tabs = 'products' | 'visuals' | 'settings';
 
@@ -19,8 +20,13 @@ const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottom
 
 const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
+
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
   const [recommended, setRecommended] = useState<string | undefined>(undefined);
+
+  const [usesUnitLabel, setUsesUnitLabel] = useState(false);
+  const [unitLabel, setUnitLabel] = useState<string | undefined>(undefined);
+
   const [color, setColor] = useState<string>('blue');
 
   const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
@@ -112,40 +118,14 @@ const FormPage = () => {
     }))
   };
 
-  const handleTogglePerUnit = (productId: string, priceId: string) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    selectedPrice.isPerUnit = !selectedPrice.isPerUnit;
-
-    if (!selectedPrice.unitLabel) selectedPrice.unitLabel = 'units';
-
-    setSelectedProducts(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return selectedProduct;
-      }
-
-      return prod;
-    }));
+  const handleUnitLabelToggle = () => {
+    console.log('handleUnitLabelToggle');
+    setUsesUnitLabel(!usesUnitLabel);
+    setUnitLabel(!usesUnitLabel ? 'units' : undefined);
   };
 
-  const handleChangeUnitLabel = (productId: string, priceId: string, label: string) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    selectedPrice.unitLabel = label ?? 'units';
-
-    setSelectedProducts(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return selectedProduct;
-      }
-
-      return prod;
-    }))
+  const handleUnitLabelChange = (nextUnit: string) => {
+    setUnitLabel(nextUnit);
   };
 
   return (
@@ -174,8 +154,6 @@ const FormPage = () => {
               onRemovePrice={handleRemovePrice}
               onToggleFreeTrial={handleToggleFreeTrial}
               onChangeFreeTrialDays={handleChangeFreeTrialDays}
-              onTogglePerUnit={handleTogglePerUnit}
-              onUnitLabelChange={handleChangeUnitLabel}
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>
@@ -187,6 +165,15 @@ const FormPage = () => {
               onColorChange={setColor}
             />
           </RenderIf>
+          <RenderIf condition={currentTab === 'settings'}>
+            <SettingsForm
+              products={selectedProducts}
+              unitLabel={unitLabel}
+              usesUnitLabel={usesUnitLabel}
+              onToggleUnitLabels={handleUnitLabelToggle}
+              onUnitLabelChange={handleUnitLabelChange}
+            />
+          </RenderIf>
         </Stack>
         <Divider orientation="vertical" />
         <Stack style={{ flex: 1 }}>
@@ -196,7 +183,7 @@ const FormPage = () => {
               <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
             </Group>
           </Group>
-          <BasicTemplate products={selectedProducts} recommended={recommended} color={color} />
+          <BasicTemplate products={selectedProducts} recommended={recommended} unitLabel={unitLabel} color={color} />
         </Stack>
       </Group>
     </BaseLayout>

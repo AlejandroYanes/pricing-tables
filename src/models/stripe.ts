@@ -15,8 +15,6 @@ export type ExtendedProduct = Stripe.Product & { prices: Stripe.Price[] };
 export type FormPrice = Stripe.Price & {
   hasFreeTrial?: boolean;
   freeTrialDays?: number;
-  isPerUnit?: boolean;
-  unitLabel?: string;
 };
 export type FormProduct = Stripe.Product & {
   prices: FormPrice[];

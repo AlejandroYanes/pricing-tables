@@ -17,8 +17,6 @@ interface Props {
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onChangeFreeTrialDays: (productId: string, priceId: string, days: number) => void;
-  onTogglePerUnit: (productId: string, priceId: string) => void;
-  onUnitLabelChange: (productId: string, priceId: string, label: string) => void;
 }
 
 const resolvePricing = (price: Stripe.Price): string => {
@@ -59,8 +57,6 @@ export default function ProductsForm(props: Props) {
     onRemovePrice,
     onToggleFreeTrial,
     onChangeFreeTrialDays,
-    onTogglePerUnit,
-    onUnitLabelChange,
   } = props;
   const [showProducts, setShowProducts] = useState(false);
 
@@ -94,8 +90,6 @@ export default function ProductsForm(props: Props) {
             onRemovePrice={onRemovePrice}
             onToggleFreeTrial={onToggleFreeTrial}
             onFreeTrialDaysChange={onChangeFreeTrialDays}
-            onTogglePerUnit={onTogglePerUnit}
-            onUnitLabelChange={onUnitLabelChange}
           />
         );
       })}

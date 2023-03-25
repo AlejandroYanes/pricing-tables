@@ -9,6 +9,7 @@ import RenderIf from 'components/RenderIf';
 
 interface Props {
   recommended: string | undefined;
+  unitLabel?: string;
   color: string;
   products: FormProduct[];
 }
@@ -31,30 +32,30 @@ const useStyles = createStyles((theme, color: string) => ({
   },
 }));
 
-const resolvePricing = (price: FormPrice): string => {
-  const { type, tiers_mode, currency, billing_scheme, transform_quantity, recurring, unit_amount, tiers, isPerUnit, unitLabel } = price;
+const resolvePricing = (price: FormPrice, unitLabel?: string): string => {
+  const { type, tiers_mode, currency, billing_scheme, transform_quantity, recurring, unit_amount, tiers } = price;
 
   if (type === 'one_time') {
-    return `${formatCurrency(unit_amount! / 100, currency)}${isPerUnit ? ` per ${unitLabel}` : ''}`;
+    return `${formatCurrency(unit_amount! / 100, currency)}${!!unitLabel ? ` per ${unitLabel}` : ''}`;
   }
 
   if (billing_scheme === 'per_unit') {
     const recurringLabel = recurring?.interval === 'month' ? 'mo' : 'yr';
     if (transform_quantity) {
-      return `${formatCurrency(unit_amount! / 100, currency)} per every ${transform_quantity.divide_by} ${isPerUnit ? unitLabel : 'units'}/${recurringLabel}`;
+      return `${formatCurrency(unit_amount! / 100, currency)} per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}/${recurringLabel}`;
     }
 
-    return `${formatCurrency(unit_amount! / 100, currency)} ${isPerUnit ? ` per ${unitLabel}` : ''}/${recurringLabel}`;
+    return `${formatCurrency(unit_amount! / 100, currency)} ${!!unitLabel ? ` per ${unitLabel}` : ''}/${recurringLabel}`;
   }
 
   switch (tiers_mode) {
     case 'volume': {
       const tier = tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, currency)} for the first ${tier.up_to} ${isPerUnit ? unitLabel : 'units'}`;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, currency)} for the first ${tier.up_to} ${!!unitLabel ? unitLabel : 'units'}`;
     }
     case 'graduated': {
       const tier = tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, currency)} ${isPerUnit ? ` per ${unitLabel}` : ''} a month`;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, currency)} ${!!unitLabel ? ` per ${unitLabel}` : ''} a month`;
     }
     default:
       return 'No price';
@@ -109,7 +110,7 @@ const intervalsMap = {
 };
 
 export default function BasicTemplate(props: Props) {
-  const { products, recommended, color } = props;
+  const { products, recommended, unitLabel, color } = props;
   const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -137,7 +138,7 @@ export default function BasicTemplate(props: Props) {
       <Group align="stretch" position="center" spacing="xl">
         {visibleProducts.map((prod) => {
           const priceToShow = resolvePriceToShow(prod, currentInterval);
-          const { hasFreeTrial, freeTrialDays, isPerUnit } = priceToShow;
+          const { hasFreeTrial, freeTrialDays } = priceToShow;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
@@ -145,14 +146,14 @@ export default function BasicTemplate(props: Props) {
             <Stack
               key={prod.id}
               align="center"
-              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: isPerUnit })}
+              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
             >
               <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
               <Text
                 style={{ fontSize: '32px', fontWeight: 'bold' }}
                 color={isRecommended ? color : undefined}
               >
-                {resolvePricing(priceToShow)}
+                {resolvePricing(priceToShow, unitLabel)}
               </Text>
               <Text align="center">{prod.description}</Text>
               <Stack mt="auto" align="center">

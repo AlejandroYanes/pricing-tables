@@ -12,7 +12,6 @@ import {
   Text,
   NumberInput,
   UnstyledButton,
-  TextInput
 } from '@mantine/core';
 import { IconX, IconMinus } from '@tabler/icons';
 
@@ -28,8 +27,6 @@ interface Props {
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
-  onTogglePerUnit: (productId: string, priceId: string) => void;
-  onUnitLabelChange: (productId: string, priceId: string, label: string) => void;
 }
 
 const useStyles = createStyles((theme, ) => ({
@@ -92,8 +89,6 @@ export default function ProductBlock(props: Props) {
     onRemovePrice,
     onToggleFreeTrial,
     onFreeTrialDaysChange,
-    onTogglePerUnit,
-    onUnitLabelChange,
   } = props;
   const { classes } = useStyles();
 
@@ -172,19 +167,6 @@ export default function ProductBlock(props: Props) {
                   stepHoldInterval={100}
                   value={price.freeTrialDays}
                   onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days!)}
-                />
-              </RenderIf>
-              <Checkbox
-                label={`Is a per "unit" price`}
-                checked={price.isPerUnit}
-                onClick={() => onTogglePerUnit(value.id, price.id)}
-              />
-              <RenderIf condition={!!price.isPerUnit}>
-                <TextInput
-                  mb="xs"
-                  label="Unit label"
-                  value={price.unitLabel}
-                  onChange={(e) => onUnitLabelChange(value.id, price.id, e.target.value)}
                 />
               </RenderIf>
             </Stack>
