@@ -158,9 +158,6 @@ const FormPage = () => {
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>
             <VisualsForm
-              products={selectedProducts}
-              recommended={recommended}
-              onRecommendedChange={setRecommended}
               color={color}
               onColorChange={setColor}
             />
@@ -170,6 +167,8 @@ const FormPage = () => {
               products={selectedProducts}
               unitLabel={unitLabel}
               usesUnitLabel={usesUnitLabel}
+              recommended={recommended}
+              onRecommendedChange={setRecommended}
               onToggleUnitLabels={handleUnitLabelToggle}
               onUnitLabelChange={handleUnitLabelChange}
             />

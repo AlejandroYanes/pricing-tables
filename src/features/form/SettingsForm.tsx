@@ -1,10 +1,12 @@
-import { Checkbox, Text, TextInput } from '@mantine/core';
+import { Checkbox, Select, Text, TextInput } from '@mantine/core';
 
 import type { FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
 
 interface Props {
   products: FormProduct[];
+  recommended: string | undefined;
+  onRecommendedChange: (next: string) => void;
   usesUnitLabel: boolean;
   unitLabel: string | undefined;
   onToggleUnitLabels: () => void;
@@ -12,11 +14,14 @@ interface Props {
 }
 
 export default function SettingsForm(props: Props) {
-  const { usesUnitLabel, unitLabel, onToggleUnitLabels, onUnitLabelChange } = props;
+  const { products, recommended, usesUnitLabel, unitLabel, onToggleUnitLabels, onUnitLabelChange, onRecommendedChange } = props;
+
+  const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
 
   return (
     <>
       <Text mb="xl">Settings</Text>
+      <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
       <Checkbox
         label="Use unit labels"
         checked={usesUnitLabel}

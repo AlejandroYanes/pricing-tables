@@ -4,9 +4,6 @@ import type { FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
 
 interface Props {
-  products: FormProduct[];
-  recommended: string | undefined;
-  onRecommendedChange: (next: string) => void;
   color: string;
   onColorChange: (next: string) => void;
 }
@@ -28,23 +25,11 @@ const baseColors = [
 
 export default function VisualsForm(props: Props) {
   const { colors } = useMantineTheme();
-  const { products, recommended, onRecommendedChange, color, onColorChange } = props;
-
-  const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
-
-  // if (options.length === 0) {
-  //   return (
-  //     <>
-  //       <Text mb="xl">Visuals</Text>
-  //       <Text>Please add some products first</Text>
-  //     </>
-  //   );
-  // }
+  const { color, onColorChange } = props;
 
   return (
     <>
       <Text mb="xl">Visuals</Text>
-      <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
       <div>
         <Text>Pick a color</Text>
         <Grid columns={6} mt="xs">
