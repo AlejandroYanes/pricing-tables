@@ -29,7 +29,7 @@ interface Props {
   onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
 }
 
-const useStyles = createStyles((theme, ) => ({
+const useStyles = createStyles((theme) => ({
   productBlock: {
     position: 'relative',
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
@@ -41,13 +41,12 @@ const useStyles = createStyles((theme, ) => ({
     top: '4px',
     right: '4px'
   },
-  addPriceButton: {
-    padding: '8px 0px',
+  actionButton: {
     fontWeight: 600,
     fontSize: '14px',
     ['&:hover']: {
       cursor: 'pointer',
-      color: theme.colorScheme === 'dark' ? theme.colors.blue[4] : theme.colors.blue[7],
+      color: theme.colorScheme === 'dark' ? theme.colors[theme.primaryColor]![4] : theme.colors[theme.primaryColor]![7],
     },
   },
 }));
@@ -189,12 +188,12 @@ export default function ProductBlock(props: Props) {
             />
           }
         >
-          <Group px={16} py={2} align="center" position="apart">
+          <Group px={16} py={10} align="center" position="apart">
             <Text color="dimmed" size="sm">
               {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
             </Text>
             <UnstyledButton
-              className={classes.addPriceButton}
+              className={classes.actionButton}
               onClick={() => setShowPriceSelect(true)}
             >
               Add another price

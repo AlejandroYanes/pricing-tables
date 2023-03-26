@@ -15,6 +15,8 @@ interface Props {
   onSubscribeLabelChange: (nextLabel: string) => void;
   freeTrialLabel: string;
   onFreeTrialLabelChange: (nextLabel: string) => void;
+  showFeatures: boolean;
+  onShowFeaturesToggle: () => void;
 }
 
 export default function SettingsForm(props: Props) {
@@ -30,6 +32,8 @@ export default function SettingsForm(props: Props) {
     onSubscribeLabelChange,
     freeTrialLabel,
     onFreeTrialLabelChange,
+    showFeatures,
+    onShowFeaturesToggle,
   } = props;
 
   const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
@@ -37,6 +41,11 @@ export default function SettingsForm(props: Props) {
   return (
     <>
       <Text mb="xl">Settings</Text>
+      <Checkbox
+        label="Show product features"
+        checked={showFeatures}
+        onClick={onShowFeaturesToggle}
+      />
       <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
       <TextInput label="Subscribe button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => onFreeTrialLabelChange(e.target.value)} />
