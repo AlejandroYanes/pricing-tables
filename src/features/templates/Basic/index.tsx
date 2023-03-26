@@ -8,10 +8,12 @@ import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 
 interface Props {
+  products: FormProduct[];
   recommended: string | undefined;
   unitLabel?: string;
   color: string;
-  products: FormProduct[];
+  subscribeLabel: string;
+  freeTrialLabel: string;
 }
 
 type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
@@ -110,7 +112,7 @@ const intervalsMap = {
 };
 
 export default function BasicTemplate(props: Props) {
-  const { products, recommended, unitLabel, color } = props;
+  const { products, recommended, unitLabel, color, subscribeLabel, freeTrialLabel } = props;
   const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -161,7 +163,7 @@ export default function BasicTemplate(props: Props) {
                   <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
                 <Button color={color} variant="filled">
-                  {hasFreeTrial ? 'Start free trial' : 'Subscribe'}
+                  {hasFreeTrial ? freeTrialLabel : subscribeLabel}
                 </Button>
               </Stack>
             </Stack>

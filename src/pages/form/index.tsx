@@ -24,10 +24,12 @@ const FormPage = () => {
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
   const [recommended, setRecommended] = useState<string | undefined>(undefined);
 
+  const [color, setColor] = useState<string>('blue');
+
+  const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
+  const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | undefined>(undefined);
-
-  const [color, setColor] = useState<string>('blue');
 
   const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const productsList = data || [];
@@ -165,12 +167,16 @@ const FormPage = () => {
           <RenderIf condition={currentTab === 'settings'}>
             <SettingsForm
               products={selectedProducts}
-              unitLabel={unitLabel}
-              usesUnitLabel={usesUnitLabel}
               recommended={recommended}
               onRecommendedChange={setRecommended}
+              unitLabel={unitLabel}
+              usesUnitLabel={usesUnitLabel}
               onToggleUnitLabels={handleUnitLabelToggle}
               onUnitLabelChange={handleUnitLabelChange}
+              subscribeLabel={subscribeLabel}
+              onSubscribeLabelChange={setSubscribeLabel}
+              freeTrialLabel={freeTrialLabel}
+              onFreeTrialLabelChange={setFreeTrialLabel}
             />
           </RenderIf>
         </Stack>
@@ -182,7 +188,14 @@ const FormPage = () => {
               <ActionIcon color="blue"><IconDeviceDesktop /></ActionIcon>
             </Group>
           </Group>
-          <BasicTemplate products={selectedProducts} recommended={recommended} unitLabel={unitLabel} color={color} />
+          <BasicTemplate
+            products={selectedProducts}
+            recommended={recommended}
+            unitLabel={unitLabel}
+            color={color}
+            subscribeLabel={subscribeLabel}
+            freeTrialLabel={freeTrialLabel}
+          />
         </Stack>
       </Group>
     </BaseLayout>
