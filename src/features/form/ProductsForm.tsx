@@ -1,14 +1,17 @@
 /* eslint-disable max-len */
 import { Button, Group, Select, Text } from '@mantine/core';
 import type Stripe from 'stripe';
+import type { ReactNode} from 'react';
 import { useState } from 'react';
 
 import type { ExtendedProduct, FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 import ProductBlock from './ProductBlock';
+import TwoColumnsLayout from './TwoColumnsLayout';
 
 interface Props {
+  template: ReactNode;
   products: ExtendedProduct[];
   selectedProducts: FormProduct[];
   onAddProduct: (selectedId: string) => void;
@@ -49,6 +52,7 @@ const resolvePricing = (price: Stripe.Price): string => {
 
 export default function ProductsForm(props: Props) {
   const {
+    template,
     products,
     selectedProducts,
     onAddProduct,
@@ -74,9 +78,8 @@ export default function ProductsForm(props: Props) {
       group: price.product,
     })));
 
-  return (
+  const panelContent = (
     <>
-      <Text mb="xl">Products</Text>
       {selectedProducts.map((prod) => {
         const baseProduct = products.find((p) => p.id === prod.id)!;
 
@@ -106,5 +109,12 @@ export default function ProductsForm(props: Props) {
         </RenderIf>
       </RenderIf>
     </>
+  );
+
+  return (
+    <TwoColumnsLayout
+      leftContent={panelContent}
+      rightContent={template}
+    />
   );
 }

@@ -17,6 +17,7 @@ export type FormPrice = Stripe.Price & {
   freeTrialDays?: number;
 };
 export type FormProduct = Stripe.Product & {
-  features: string[];
   prices: FormPrice[];
 };
+
+export type Feature = { name: string; products: string[] };

@@ -1,9 +1,11 @@
-import { CheckIcon, ColorSwatch, Grid, Select, Text, useMantineTheme } from '@mantine/core';
+import type { ReactNode } from 'react';
+import { CheckIcon, ColorSwatch, Grid, Text, useMantineTheme } from '@mantine/core';
 
-import type { FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
+import TwoColumnsLayout from './TwoColumnsLayout';
 
 interface Props {
+  template: ReactNode;
   color: string;
   onColorChange: (next: string) => void;
 }
@@ -25,11 +27,10 @@ const baseColors = [
 
 export default function VisualsForm(props: Props) {
   const { colors } = useMantineTheme();
-  const { color, onColorChange } = props;
+  const { template, color, onColorChange } = props;
 
-  return (
+  const panel = (
     <>
-      <Text mb="xl">Visuals</Text>
       <div>
         <Text>Pick a color</Text>
         <Grid columns={6} mt="xs">
@@ -51,5 +52,9 @@ export default function VisualsForm(props: Props) {
         </Grid>
       </div>
     </>
+  );
+
+  return (
+    <TwoColumnsLayout leftContent={panel} rightContent={template} />
   );
 }

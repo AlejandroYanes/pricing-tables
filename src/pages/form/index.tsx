@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import { useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Divider, Group, Stack, Tabs, MantineProvider } from '@mantine/core';
+import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 
-import type { FormProduct } from 'models/stripe';
+import type { Feature, FormProduct } from 'models/stripe';
 import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
@@ -14,7 +14,7 @@ import ProductsForm from 'features/form/ProductsForm';
 import BasicTemplate from 'features/templates/Basic';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
-import FeaturesForm from '../../features/form/FeaturesForm';
+import FeaturesForm from 'features/form/FeaturesForm';
 
 type Tabs = 'products' | 'features' | 'visuals' | 'settings';
 
@@ -25,11 +25,12 @@ const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
 
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>([]);
-  const [recommended, setRecommended] = useState<string | undefined>(undefined);
+
+  const [features, setFeatures] = useState<Feature[]>([]);
 
   const [color, setColor] = useState<string>('blue');
 
-  const [showFeatures, setShowFeatures] = useState(false);
+  const [recommended, setRecommended] = useState<string | undefined>(undefined);
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
@@ -45,7 +46,7 @@ const FormPage = () => {
 
     if (!selectedProduct || !selectedPrice) return;
 
-    const prodCopy = { ...selectedProduct, prices: [{ ...selectedPrice }] };
+    const prodCopy = { ...selectedProduct, prices: [{ ...selectedPrice }], features: [] };
     setSelectedProducts(selectedProducts.concat([prodCopy]));
   };
 
@@ -134,9 +135,55 @@ const FormPage = () => {
     setUnitLabel(nextUnit);
   };
 
-  const handleShowFeaturesToggle = () => {
-    setShowFeatures(!showFeatures);
-  }
+  const handleAddNewFeature = () => {
+    setFeatures(features.concat([{ name: 'test', products: [] }]));
+  };
+
+  const handleFeatureToggle = (featureIndex: number, productId: string) => {
+    const feature = features.at(featureIndex)!;
+    const hasProduct = feature.products.includes(productId);
+
+    if (hasProduct) {
+      feature.products = feature.products.filter((prod) => prod !== productId);
+    } else {
+      feature.products = feature.products.concat(productId);
+    }
+    setFeatures(features.map((feat, index) => {
+      if (index === featureIndex) {
+        return feature;
+      }
+      return feat;
+    }));
+  };
+
+  const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
+    const feature = features.at(featureIndex)!;
+    setFeatures(features.map((feat, index) => {
+      if (index === featureIndex) {
+        return { ...feature, name: nextLabel };
+      }
+      return feat;
+    }));
+  };
+
+  const template = (
+    <>
+      <Group align="center" position="right" mb="xl">
+        <Group>
+          <ActionIcon><IconDeviceMobile /></ActionIcon>
+          <ActionIcon color="primary"><IconDeviceDesktop /></ActionIcon>
+        </Group>
+      </Group>
+      <BasicTemplate
+        products={selectedProducts}
+        recommended={recommended}
+        unitLabel={unitLabel}
+        color={color}
+        subscribeLabel={subscribeLabel}
+        freeTrialLabel={freeTrialLabel}
+      />
+    </>
+  );
 
   return (
     <BaseLayout>
@@ -149,72 +196,56 @@ const FormPage = () => {
         >
           <Tabs.List>
             <Tabs.Tab value="products">Products</Tabs.Tab>
-            <RenderIf condition={showFeatures}>
-              <Tabs.Tab value="features">Features</Tabs.Tab>
-            </RenderIf>
+            <Tabs.Tab value="features">Features</Tabs.Tab>
             <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
             <Tabs.Tab value="settings">Settings</Tabs.Tab>
           </Tabs.List>
         </Tabs>
         <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
-          <Stack style={{ minWidth: '420px', maxWidth: '420px' }}>
-            <RenderIf condition={currentTab === 'products'}>
-              <ProductsForm
-                products={productsList}
-                selectedProducts={selectedProducts}
-                onAddProduct={handleAddProduct}
-                onAddPrice={handleAddPrice}
-                onRemoveProduct={handleRemoveProduct}
-                onRemovePrice={handleRemovePrice}
-                onToggleFreeTrial={handleToggleFreeTrial}
-                onChangeFreeTrialDays={handleChangeFreeTrialDays}
-              />
-            </RenderIf>
-            <RenderIf condition={currentTab === 'visuals'}>
-              <VisualsForm
-                color={color}
-                onColorChange={setColor}
-              />
-            </RenderIf>
-            <RenderIf condition={currentTab === 'settings'}>
-              <SettingsForm
-                products={selectedProducts}
-                recommended={recommended}
-                onRecommendedChange={setRecommended}
-                unitLabel={unitLabel}
-                usesUnitLabel={usesUnitLabel}
-                onToggleUnitLabels={handleUnitLabelToggle}
-                onUnitLabelChange={handleUnitLabelChange}
-                subscribeLabel={subscribeLabel}
-                onSubscribeLabelChange={setSubscribeLabel}
-                freeTrialLabel={freeTrialLabel}
-                onFreeTrialLabelChange={setFreeTrialLabel}
-                showFeatures={showFeatures}
-                onShowFeaturesToggle={handleShowFeaturesToggle}
-              />
-            </RenderIf>
-          </Stack>
-          <RenderIf condition={currentTab !== 'features'}>
-            <Divider orientation="vertical" />
+          <RenderIf condition={currentTab === 'products'}>
+            <ProductsForm
+              template={template}
+              products={productsList}
+              selectedProducts={selectedProducts}
+              onAddProduct={handleAddProduct}
+              onAddPrice={handleAddPrice}
+              onRemoveProduct={handleRemoveProduct}
+              onRemovePrice={handleRemovePrice}
+              onToggleFreeTrial={handleToggleFreeTrial}
+              onChangeFreeTrialDays={handleChangeFreeTrialDays}
+            />
           </RenderIf>
-          <Stack style={{ flex: 1 }}>
-            <RenderIf condition={currentTab !== 'features'} fallback={<FeaturesForm />}>
-              <Group align="center" position="right" mb="xl">
-                <Group>
-                  <ActionIcon><IconDeviceMobile /></ActionIcon>
-                  <ActionIcon color="primary"><IconDeviceDesktop /></ActionIcon>
-                </Group>
-              </Group>
-              <BasicTemplate
-                products={selectedProducts}
-                recommended={recommended}
-                unitLabel={unitLabel}
-                color={color}
-                subscribeLabel={subscribeLabel}
-                freeTrialLabel={freeTrialLabel}
-              />
-            </RenderIf>
-          </Stack>
+          <RenderIf condition={currentTab === 'visuals'}>
+            <VisualsForm
+              template={template}
+              color={color}
+              onColorChange={setColor}
+            />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'features'}>
+            <FeaturesForm
+              products={selectedProducts}
+              features={features}
+              onAddNew={handleAddNewFeature}
+              onFeatureToggle={handleFeatureToggle}
+              onFeatureUpdate={handleFeatureLabelUpdate}
+            />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'settings'}>
+            <SettingsForm
+              products={selectedProducts}
+              recommended={recommended}
+              onRecommendedChange={setRecommended}
+              unitLabel={unitLabel}
+              usesUnitLabel={usesUnitLabel}
+              onToggleUnitLabels={handleUnitLabelToggle}
+              onUnitLabelChange={handleUnitLabelChange}
+              subscribeLabel={subscribeLabel}
+              onSubscribeLabelChange={setSubscribeLabel}
+              freeTrialLabel={freeTrialLabel}
+              onFreeTrialLabelChange={setFreeTrialLabel}
+            />
+          </RenderIf>
         </Group>
       </MantineProvider>
     </BaseLayout>
