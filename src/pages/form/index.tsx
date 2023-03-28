@@ -5,7 +5,7 @@ import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 
-import type { Feature, FormProduct } from 'models/stripe';
+import type { Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
 import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
@@ -137,31 +137,50 @@ const FormPage = () => {
   };
 
   const handleAddNewFeature = () => {
-    setFeatures(features.concat([{ name: 'test', products: [] }]));
+    const nextFeature: Feature = {
+      name: 'test',
+      type: 'boolean',
+      products: selectedProducts.map((prod) => ({ id: prod.id, value: false })),
+    };
+    setFeatures(features.concat([nextFeature]));
   };
 
-  const handleFeatureToggle = (featureIndex: number, productId: string) => {
-    const feature = features.at(featureIndex)!;
-    const hasProduct = feature.products.includes(productId);
-
-    if (hasProduct) {
-      feature.products = feature.products.filter((prod) => prod !== productId);
-    } else {
-      feature.products = feature.products.concat(productId);
-    }
+  const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
     setFeatures(features.map((feat, index) => {
       if (index === featureIndex) {
-        return feature;
+        return { ...feat, name: nextLabel };
       }
       return feat;
     }));
   };
 
-  const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
-    const feature = features.at(featureIndex)!;
+  const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
+    const initialValue: Record<FeatureType, FeatureValue> = { string: 'test', boolean: false, currency: 1 };
     setFeatures(features.map((feat, index) => {
       if (index === featureIndex) {
-        return { ...feature, name: nextLabel };
+        return {
+          ...feat,
+          type: nextType,
+          products: feat.products.map((prod) => ({ ...prod, value: initialValue[nextType] })),
+        };
+      }
+      return feat;
+    }));
+  };
+
+  const handleFeatureValueChange = (featureIndex: number, productId: string, value: FeatureValue) => {
+    const feature = features.at(featureIndex)!;
+    feature.products = feature.products.map((prod) => {
+      console.log('prod.id', prod.id);
+      if (prod.id === productId) {
+        return { ...prod, value };
+      }
+      return prod;
+    });
+
+    setFeatures(features.map((feat, index) => {
+      if (index === featureIndex) {
+        return feature;
       }
       return feat;
     }));
@@ -229,8 +248,9 @@ const FormPage = () => {
               products={selectedProducts}
               features={features}
               onAddNew={handleAddNewFeature}
-              onFeatureToggle={handleFeatureToggle}
-              onFeatureUpdate={handleFeatureLabelUpdate}
+              onFeatureLabelUpdate={handleFeatureLabelUpdate}
+              onFeatureTypeChange={handleFeatureTypeUpdate}
+              onFeatureValueChange={handleFeatureValueChange}
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'settings'}>
@@ -264,9 +284,9 @@ const mockSelectedProducts = [
   {'id':'prod_NRrwPguKtyHVRl','object':'product','active':true,'attributes':[],'created':1677709991,'default_price':'price_1Mix3vJIZhxRN8vV7cvEddpk','description':'Enterprise Plan description','images':[],'livemode':false,'metadata':{},'name':'Enterprise Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678182255,'url':null,'prices':[{'id':'price_1Mix3vJIZhxRN8vV7cvEddpk','object':'price','active':true,'billing_scheme':'per_unit','created':1678182243,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrwPguKtyHVRl','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':5000,'unit_amount_decimal':'5000'}],'features':[]},
 ];
 
-const mockFeatures = [
-  {'name':'Unlimited private repos','products':['prod_NRrvBSQC0ZoHY7','prod_NRrvLHLkz1aSdI','prod_NRrwPguKtyHVRl']},
-  {'name':'Jira software integration','products':['prod_NRrvLHLkz1aSdI','prod_NRrwPguKtyHVRl']},
-  {'name':'Required merge checks','products':['prod_NRrvLHLkz1aSdI','prod_NRrwPguKtyHVRl']},
-  {'name':'IP Whitelisting','products':['prod_NRrwPguKtyHVRl']},
+const mockFeatures: Feature[] = [
+  {'name':'Unlimited private repos', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: true },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  {'name':'Jira software integration', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  {'name':'Required merge checks', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  {'name':'IP Whitelisting', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
 ];

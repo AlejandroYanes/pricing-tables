@@ -106,7 +106,7 @@ const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
 
 const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
   return features.reduce((acc, feat) => {
-    const hasProduct = feat.products.includes(productId);
+    const hasProduct = feat.products.some((prod) => prod.id === productId && prod.value);
 
     if (hasProduct) {
       return acc.concat(feat.name);
@@ -183,7 +183,7 @@ export default function BasicTemplate(props: Props) {
               </Stack>
               <ul>
                 {featureList.map((feat, index) => (
-                  <li key={index}><Text color={isRecommended ? color : undefined}>{feat}</Text></li>
+                  <li key={index}><Text>{feat}</Text></li>
                 ))}
               </ul>
             </Stack>
