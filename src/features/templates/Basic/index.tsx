@@ -3,11 +3,12 @@ import { Button, createStyles, Group, SegmentedControl, Stack, Text } from '@man
 import type Stripe from 'stripe';
 import { useEffect, useMemo, useState } from 'react';
 
-import type { FormProduct , FormPrice } from 'models/stripe';
+import type { FormProduct, FormPrice, Feature } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 
 interface Props {
+  features: Feature[];
   products: FormProduct[];
   recommended: string | undefined;
   unitLabel?: string;
@@ -103,6 +104,18 @@ const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
   return prod.prices.find((price) => price.recurring?.interval === interval)!;
 }
 
+const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
+  return features.reduce((acc, feat) => {
+    const hasProduct = feat.products.includes(productId);
+
+    if (hasProduct) {
+      return acc.concat(feat.name);
+    }
+
+    return acc;
+  }, [] as string[]);
+};
+
 const intervalsMap = {
   day: { label: 'Daily', index: 0 },
   week: { label: 'Weekly', index: 1 },
@@ -112,7 +125,7 @@ const intervalsMap = {
 };
 
 export default function BasicTemplate(props: Props) {
-  const { products, recommended, unitLabel, color, subscribeLabel, freeTrialLabel } = props;
+  const { features, products, recommended, unitLabel, color, subscribeLabel, freeTrialLabel } = props;
   const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -139,33 +152,40 @@ export default function BasicTemplate(props: Props) {
       </RenderIf>
       <Group align="stretch" position="center" spacing="xl">
         {visibleProducts.map((prod) => {
+          const featureList = resolveFeaturesForProduct(features, prod.id);
           const priceToShow = resolvePriceToShow(prod, currentInterval);
           const { hasFreeTrial, freeTrialDays } = priceToShow;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
           return (
-            <Stack
-              key={prod.id}
-              align="center"
-              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
-            >
-              <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
-              <Text
-                style={{ fontSize: '32px', fontWeight: 'bold' }}
-                color={isRecommended ? color : undefined}
+            <Stack key={prod.id}>
+              <Stack
+                align="center"
+                className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
               >
-                {resolvePricing(priceToShow, unitLabel)}
-              </Text>
-              <Text align="center">{prod.description}</Text>
-              <Stack mt="auto" align="center">
-                <RenderIf condition={!!hasFreeTrial}>
-                  <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
-                </RenderIf>
-                <Button color={color} variant="filled">
-                  {hasFreeTrial ? freeTrialLabel : subscribeLabel}
-                </Button>
+                <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
+                <Text
+                  style={{ fontSize: '32px', fontWeight: 'bold' }}
+                  color={isRecommended ? color : undefined}
+                >
+                  {resolvePricing(priceToShow, unitLabel)}
+                </Text>
+                <Text align="center">{prod.description}</Text>
+                <Stack mt="auto" align="center">
+                  <RenderIf condition={!!hasFreeTrial}>
+                    <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
+                  </RenderIf>
+                  <Button color={color} variant="filled">
+                    {hasFreeTrial ? freeTrialLabel : subscribeLabel}
+                  </Button>
+                </Stack>
               </Stack>
+              <ul>
+                {featureList.map((feat, index) => (
+                  <li key={index}><Text color={isRecommended ? color : undefined}>{feat}</Text></li>
+                ))}
+              </ul>
             </Stack>
           )
         })}
