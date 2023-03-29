@@ -2,7 +2,7 @@ import { type AppType } from 'next/app';
 import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
 import { MantineProvider } from '@mantine/core';
-import { NotificationsProvider } from '@mantine/notifications';
+import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { useColorScheme } from '@mantine/hooks';
 
@@ -40,11 +40,10 @@ const MyApp: AppType<{ session: Session | null }> = (props) => {
           }),
         }}
       >
-        <NotificationsProvider position="top-right">
-          <ModalsProvider>
-            <Component {...pageProps} />
-          </ModalsProvider>
-        </NotificationsProvider>
+        <ModalsProvider>
+          <Component {...pageProps} />
+          <Notifications />
+        </ModalsProvider>
       </MantineProvider>
     </SessionProvider>
   );

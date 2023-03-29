@@ -165,7 +165,7 @@ export default function ProductBlock(props: Props) {
                   stepHoldDelay={500}
                   stepHoldInterval={100}
                   value={price.freeTrialDays}
-                  onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days!)}
+                  onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days! as number)}
                 />
               </RenderIf>
             </Stack>

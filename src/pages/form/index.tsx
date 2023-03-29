@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
-import { useColorScheme } from '@mantine/hooks';
+import { useColorScheme, useListState } from '@mantine/hooks';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
+import type { DropResult } from 'react-beautiful-dnd';
 
 import type { Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
-import { api } from 'utils/api';
+// import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
@@ -22,11 +23,11 @@ const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottom
 
 const FormPage = () => {
   const colorScheme = useColorScheme();
-  const [currentTab, setCurrentTab] = useState<Tabs>('products');
+  const [currentTab, setCurrentTab] = useState<Tabs>('features');
 
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>(mockSelectedProducts as any);
 
-  const [features, setFeatures] = useState<Feature[]>(mockFeatures);
+  const [features, handlers] = useListState<Feature>(mockFeatures);
 
   const [color, setColor] = useState<string>('blue');
 
@@ -138,15 +139,16 @@ const FormPage = () => {
 
   const handleAddNewFeature = () => {
     const nextFeature: Feature = {
+      id: `${Date.now()}`,
       name: 'test',
-      type: 'boolean',
-      products: selectedProducts.map((prod) => ({ id: prod.id, value: false })),
+      type: 'string',
+      products: selectedProducts.map((prod) => ({ id: prod.id, value: '' })),
     };
-    setFeatures(features.concat([nextFeature]));
+    handlers.setState(features.concat([nextFeature]));
   };
 
   const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
-    setFeatures(features.map((feat, index) => {
+    handlers.setState(features.map((feat, index) => {
       if (index === featureIndex) {
         return { ...feat, name: nextLabel };
       }
@@ -155,8 +157,8 @@ const FormPage = () => {
   };
 
   const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
-    const initialValue: Record<FeatureType, FeatureValue> = { string: 'test', boolean: false, currency: 1 };
-    setFeatures(features.map((feat, index) => {
+    const initialValue: Record<FeatureType, FeatureValue> = { string: '', boolean: false };
+    handlers.setState(features.map((feat, index) => {
       if (index === featureIndex) {
         return {
           ...feat,
@@ -171,20 +173,23 @@ const FormPage = () => {
   const handleFeatureValueChange = (featureIndex: number, productId: string, value: FeatureValue) => {
     const feature = features.at(featureIndex)!;
     feature.products = feature.products.map((prod) => {
-      console.log('prod.id', prod.id);
       if (prod.id === productId) {
         return { ...prod, value };
       }
       return prod;
     });
 
-    setFeatures(features.map((feat, index) => {
+    handlers.setState(features.map((feat, index) => {
       if (index === featureIndex) {
         return feature;
       }
       return feat;
     }));
   };
+
+  const handleFeatureReorder = ({ destination, source }: DropResult) => {
+    handlers.reorder({ from: source.index, to: destination?.index || 0 });
+  }
 
   const template = (
     <>
@@ -251,6 +256,7 @@ const FormPage = () => {
               onFeatureLabelUpdate={handleFeatureLabelUpdate}
               onFeatureTypeChange={handleFeatureTypeUpdate}
               onFeatureValueChange={handleFeatureValueChange}
+              onFeatureReorder={handleFeatureReorder}
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'settings'}>
@@ -286,8 +292,8 @@ const mockSelectedProducts = [
 ];
 
 const mockFeatures: Feature[] = [
-  {'name':'Unlimited private repos', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: true },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  {'name':'Jira software integration', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  {'name':'Required merge checks', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  {'name':'IP Whitelisting', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  { id: '1', 'name':'Unlimited private repos', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: true },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  { id: '2', 'name':'Jira software integration', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  {id: '3', 'name':'Required merge checks', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
+  {id: '4', 'name':'IP Whitelisting', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
 ];
