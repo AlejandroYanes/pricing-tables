@@ -144,30 +144,25 @@ const FormPage = () => {
       type: 'string',
       products: selectedProducts.map((prod) => ({ id: prod.id, value: '' })),
     };
-    handlers.setState(features.concat([nextFeature]));
+    handlers.append(nextFeature);
+  };
+
+  const handleDeleteFeature = (featureIndex: number) => {
+    handlers.remove(featureIndex);
   };
 
   const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
-    handlers.setState(features.map((feat, index) => {
-      if (index === featureIndex) {
-        return { ...feat, name: nextLabel };
-      }
-      return feat;
-    }));
+    handlers.setItemProp(featureIndex, 'name', nextLabel);
   };
 
   const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
     const initialValue: Record<FeatureType, FeatureValue> = { string: '', boolean: false };
-    handlers.setState(features.map((feat, index) => {
-      if (index === featureIndex) {
-        return {
-          ...feat,
-          type: nextType,
-          products: feat.products.map((prod) => ({ ...prod, value: initialValue[nextType] })),
-        };
-      }
-      return feat;
-    }));
+    const feature = features.at(featureIndex)!;
+    handlers.setItem(featureIndex, {
+      ...feature,
+      type: nextType,
+      products: feature.products.map((prod) => ({ ...prod, value: initialValue[nextType] })),
+    });
   };
 
   const handleFeatureValueChange = (featureIndex: number, productId: string, value: FeatureValue) => {
@@ -179,12 +174,7 @@ const FormPage = () => {
       return prod;
     });
 
-    handlers.setState(features.map((feat, index) => {
-      if (index === featureIndex) {
-        return feature;
-      }
-      return feat;
-    }));
+    handlers.setItem(featureIndex, feature);
   };
 
   const handleFeatureReorder = ({ destination, source }: DropResult) => {
@@ -253,6 +243,7 @@ const FormPage = () => {
               products={selectedProducts}
               features={features}
               onAddNew={handleAddNewFeature}
+              onDelete={handleDeleteFeature}
               onFeatureLabelUpdate={handleFeatureLabelUpdate}
               onFeatureTypeChange={handleFeatureTypeUpdate}
               onFeatureValueChange={handleFeatureValueChange}

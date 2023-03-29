@@ -1,9 +1,9 @@
-import { Checkbox, Select, Stack, Text, TextInput } from '@mantine/core';
+import type { ReactNode } from 'react';
+import { Checkbox, Divider, Select, TextInput } from '@mantine/core';
 
 import type { FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
 import TwoColumnsLayout from './TwoColumnsLayout';
-import { ReactNode } from 'react';
 
 interface Props {
   template: ReactNode;
@@ -58,6 +58,8 @@ export default function SettingsForm(props: Props) {
           onChange={(e) => onUnitLabelChange(e.target.value)}
         />
       </RenderIf>
+      <Divider label="Callbacks" />
+
     </>
   );
 

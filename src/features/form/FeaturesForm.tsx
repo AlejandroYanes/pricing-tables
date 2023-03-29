@@ -1,7 +1,7 @@
-import { Button, createStyles, Select, Stack, Table, Text, TextInput, rem, Group } from '@mantine/core';
+import { Button, createStyles, Select, Stack, Table, Text, TextInput, rem, Group, ActionIcon } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
-import { IconGripVertical } from '@tabler/icons';
+import { IconGripVertical, IconTrash } from '@tabler/icons';
 
 import type { Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
 import FeatureInput from './FeatureInput';
@@ -11,6 +11,7 @@ interface Props {
   products: FormProduct[];
   features: Feature[];
   onAddNew: () => void;
+  onDelete: (featureIndex: number) => void;
   onFeatureLabelUpdate: (featureIndex: number, nextLabel: string) => void;
   onFeatureTypeChange: (featureIndex: number, nextType: FeatureType) => void;
   onFeatureValueChange: (featureIndex: number, productId: string, nextValue: FeatureValue) => void;
@@ -47,6 +48,7 @@ export default function FeaturesForm(props: Props) {
     products,
     features,
     onAddNew,
+    onDelete,
     onFeatureLabelUpdate,
     onFeatureTypeChange,
     onFeatureValueChange,
@@ -101,6 +103,11 @@ export default function FeaturesForm(props: Props) {
               />
             </td>
             {productsCheck}
+            <td style={{ width: rem(60) }}>
+              <ActionIcon style={{ float: 'right' }} onClick={() => onDelete(index)}>
+                <IconTrash size={18} />
+              </ActionIcon>
+            </td>
           </tr>
         )}
       </Draggable>
@@ -117,6 +124,7 @@ export default function FeaturesForm(props: Props) {
               <th style={{ width: rem(360) }}>Feature</th>
               <th style={{ width: rem(200) }}>Type</th>
               {ths}
+              <th style={{ width: rem(60) }} />
             </tr>
           </thead>
           <CustomDroppable droppableId="dnd-list" direction="vertical">
