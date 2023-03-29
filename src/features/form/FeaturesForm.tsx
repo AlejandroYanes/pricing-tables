@@ -1,6 +1,7 @@
-import { Button, Checkbox, Select, Stack, Table, Text, TextInput } from '@mantine/core';
+import { Button, Select, Stack, Table, Text, TextInput } from '@mantine/core';
 
 import type { FormProduct, Feature, FeatureValue, FeatureType } from 'models/stripe';
+import FeatureInput from './FeatureInput';
 
 interface Props {
   products: FormProduct[];
@@ -11,15 +12,13 @@ interface Props {
   onFeatureValueChange: (featureIndex: number, productId: string, nextValue: FeatureValue) => void;
 }
 
-const resolveFeatureValue = (features: Feature[], prodId: string, featureIndex: number) => {
-  const target = features.at(featureIndex)!;
-  return target.products.find((prod) => prod.id === prodId)!.value;
+const resolveFeatureValue = (feature: Feature, prodId: string) => {
+  return feature.products.find((prod) => prod.id === prodId)!.value;
 };
 
 const featureTypeOptions: { label: string; value: FeatureType }[] = [
-  { label: 'Boolean', value: 'boolean' },
+  { label: 'Check', value: 'boolean' },
   { label: 'Text', value: 'string' },
-  { label: 'Currency', value: 'currency' },
 ];
 
 export default function FeaturesForm(props: Props) {
@@ -39,14 +38,10 @@ export default function FeaturesForm(props: Props) {
 
   const rows = features.map((feat, index) => {
     const productsCheck = products.map((prod) => {
-      const value = resolveFeatureValue(features, prod.id, index);
+      const value = resolveFeatureValue(feat, prod.id);
       return (
         <td key={prod.id}>
-          <Checkbox
-            checked={value as boolean}
-            onChange={() => undefined}
-            onClick={() => onFeatureValueChange(index, prod.id, !value)}
-          />
+          <FeatureInput type={feat.type} value={value} onChange={(value) => onFeatureValueChange(index, prod.id, value)} />
         </td>
       )
     });

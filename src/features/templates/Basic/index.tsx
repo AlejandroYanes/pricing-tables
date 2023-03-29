@@ -106,10 +106,15 @@ const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
 
 const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
   return features.reduce((acc, feat) => {
-    const hasProduct = feat.products.some((prod) => prod.id === productId && prod.value);
+    const targetProduct = feat.products.find((prod) => {
+      if (feat.type === 'boolean')
+        return prod.id === productId && prod.value;
+      return prod.id === productId;
+    });
 
-    if (hasProduct) {
-      return acc.concat(feat.name);
+    if (targetProduct) {
+      const featureLabel = feat.type === 'boolean' ? feat.name : `${targetProduct.value} ${feat.name}`;
+      return acc.concat(featureLabel);
     }
 
     return acc;
@@ -176,7 +181,7 @@ export default function BasicTemplate(props: Props) {
                   <RenderIf condition={!!hasFreeTrial}>
                     <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                   </RenderIf>
-                  <Button color={color} variant="filled">
+                  <Button color={color} variant={isRecommended ? 'filled' : 'outline'}>
                     {hasFreeTrial ? freeTrialLabel : subscribeLabel}
                   </Button>
                 </Stack>

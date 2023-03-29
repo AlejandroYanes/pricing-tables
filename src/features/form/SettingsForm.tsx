@@ -2,8 +2,11 @@ import { Checkbox, Select, Stack, Text, TextInput } from '@mantine/core';
 
 import type { FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
+import TwoColumnsLayout from './TwoColumnsLayout';
+import { ReactNode } from 'react';
 
 interface Props {
+  template: ReactNode;
   products: FormProduct[];
   recommended: string | undefined;
   onRecommendedChange: (next: string) => void;
@@ -19,6 +22,7 @@ interface Props {
 
 export default function SettingsForm(props: Props) {
   const {
+    template,
     products,
     recommended,
     onRecommendedChange,
@@ -34,24 +38,30 @@ export default function SettingsForm(props: Props) {
 
   const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
 
-  return (
-    <Stack mx="auto" pt="xl" style={{ width: '30%', maxWidth: '700px' }}>
+  const panel = (
+    <>
       <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
-      <TextInput label="Subscribe button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
+      <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => onFreeTrialLabelChange(e.target.value)} />
       <Checkbox
+        mt="md"
         label="Use unit labels"
         checked={usesUnitLabel}
+        onChange={() => undefined}
         onClick={onToggleUnitLabels}
       />
       <RenderIf condition={usesUnitLabel}>
         <TextInput
-          mb="xs"
-          label="Unit label"
+          mt={-12}
+          label="Label"
           value={unitLabel}
           onChange={(e) => onUnitLabelChange(e.target.value)}
         />
       </RenderIf>
-    </Stack>
+    </>
+  );
+
+  return (
+    <TwoColumnsLayout leftContent={panel} rightContent={template} />
   );
 }

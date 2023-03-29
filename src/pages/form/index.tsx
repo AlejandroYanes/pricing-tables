@@ -255,6 +255,7 @@ const FormPage = () => {
           </RenderIf>
           <RenderIf condition={currentTab === 'settings'}>
             <SettingsForm
+              template={template}
               products={selectedProducts}
               recommended={recommended}
               onRecommendedChange={setRecommended}
