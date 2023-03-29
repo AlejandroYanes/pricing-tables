@@ -1,7 +1,8 @@
 import type { ReactNode } from 'react';
-import { Checkbox, Divider, Select, TextInput } from '@mantine/core';
+import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { IconQuestionMark, IconTrash } from '@tabler/icons';
 
-import type { FormProduct } from 'models/stripe';
+import type { CTACallback, FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
 import TwoColumnsLayout from './TwoColumnsLayout';
 
@@ -18,7 +19,18 @@ interface Props {
   onSubscribeLabelChange: (nextLabel: string) => void;
   freeTrialLabel: string;
   onFreeTrialLabelChange: (nextLabel: string) => void;
+  callbacks: CTACallback[];
+  onAddNewCallback: () => void;
+  onDeleteCallback: (index: number) => void;
+  onCallbackEnvChange: (index: number, nextEnv: string) => void;
+  onCallbackUrlChange: (index: number, nextUrl: string) => void;
 }
+
+const callbackHelp = `
+Callbacks are used to send all the information about the plan, price and billing period selected by the user.
+The url should be an endpoint of your server that will process this information and redirect the user to a specific page
+to continue the checkout process.
+`;
 
 export default function SettingsForm(props: Props) {
   const {
@@ -34,6 +46,11 @@ export default function SettingsForm(props: Props) {
     onSubscribeLabelChange,
     freeTrialLabel,
     onFreeTrialLabelChange,
+    callbacks,
+    onAddNewCallback,
+    onDeleteCallback,
+    onCallbackEnvChange,
+    onCallbackUrlChange,
   } = props;
 
   const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
@@ -58,8 +75,75 @@ export default function SettingsForm(props: Props) {
           onChange={(e) => onUnitLabelChange(e.target.value)}
         />
       </RenderIf>
-      <Divider label="Callbacks" />
+      <Divider
+        label={
+          <Tooltip
+            transitionProps={{ duration: 200 }}
+            label={callbackHelp}
+            width={280}
+            position="right"
+            multiline
+            withArrow
+          >
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <span>Callbacks</span>
+              <IconQuestionMark size={16} style={{ marginLeft: '8px' }} />
+            </div>
+          </Tooltip>
+        }
+      />
+      <Text>
 
+      </Text>
+      <Stack>
+        {callbacks.map((cb, index) => (
+          <Group key={index} spacing={0}>
+            <TextInput
+              styles={{
+                root: {
+                  width: '30%',
+                },
+                input: {
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                },
+              }}
+              label={index === 0 ? 'Mode' : ''}
+              value={cb.env}
+              disabled={index === 0}
+              onChange={(e) => onCallbackEnvChange(index, e.target.value)}
+            />
+            <TextInput
+              styles={{
+                root: {
+                  flex: 1,
+                },
+                label: {
+                  marginLeft: '8px',
+                },
+                input: {
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                },
+              }}
+              rightSection={
+                index !== 0
+                  ? (
+                    <ActionIcon onClick={() => onDeleteCallback(index)}>
+                      <IconTrash size={14} />
+                    </ActionIcon>
+                  )
+                  : null
+              }
+              placeholder="https://your.server.com/api/price"
+              label={index === 0 ? 'Redirect to' : ''}
+              value={cb.url}
+              onChange={(e) => onCallbackUrlChange(index, e.target.value)}
+            />
+          </Group>
+        ))}
+        <Button mt="xs" ml="auto" onClick={onAddNewCallback}>Add callback</Button>
+      </Stack>
     </>
   );
 

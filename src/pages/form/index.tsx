@@ -6,7 +6,7 @@ import { useColorScheme, useListState } from '@mantine/hooks';
 import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
 
-import type { Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
+import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
 // import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
@@ -23,11 +23,11 @@ const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottom
 
 const FormPage = () => {
   const colorScheme = useColorScheme();
-  const [currentTab, setCurrentTab] = useState<Tabs>('features');
+  const [currentTab, setCurrentTab] = useState<Tabs>('settings');
 
   const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>(mockSelectedProducts as any);
 
-  const [features, handlers] = useListState<Feature>(mockFeatures);
+  const [features, featureHandlers] = useListState<Feature>(mockFeatures);
 
   const [color, setColor] = useState<string>('blue');
 
@@ -36,6 +36,9 @@ const FormPage = () => {
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | undefined>(undefined);
+  const [callbacks, callbackHandlers] = useListState<CTACallback>([
+    { env: 'production', url: '' },
+  ]);
 
   // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const data: any = mockProducts;
@@ -144,21 +147,21 @@ const FormPage = () => {
       type: 'string',
       products: selectedProducts.map((prod) => ({ id: prod.id, value: '' })),
     };
-    handlers.append(nextFeature);
+    featureHandlers.append(nextFeature);
   };
 
   const handleDeleteFeature = (featureIndex: number) => {
-    handlers.remove(featureIndex);
+    featureHandlers.remove(featureIndex);
   };
 
   const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
-    handlers.setItemProp(featureIndex, 'name', nextLabel);
+    featureHandlers.setItemProp(featureIndex, 'name', nextLabel);
   };
 
   const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
     const initialValue: Record<FeatureType, FeatureValue> = { string: '', boolean: false };
     const feature = features.at(featureIndex)!;
-    handlers.setItem(featureIndex, {
+    featureHandlers.setItem(featureIndex, {
       ...feature,
       type: nextType,
       products: feature.products.map((prod) => ({ ...prod, value: initialValue[nextType] })),
@@ -174,12 +177,28 @@ const FormPage = () => {
       return prod;
     });
 
-    handlers.setItem(featureIndex, feature);
+    featureHandlers.setItem(featureIndex, feature);
   };
 
   const handleFeatureReorder = ({ destination, source }: DropResult) => {
-    handlers.reorder({ from: source.index, to: destination?.index || 0 });
+    featureHandlers.reorder({ from: source.index, to: destination?.index || 0 });
   }
+
+  const addNewCallback = () => {
+    callbackHandlers.append({ env: '', url: '' });
+  };
+
+  const deleteCallback = (index: number) => {
+    callbackHandlers.remove(index);
+  };
+
+  const handleCallbackEnvChange = (index: number, nextEnv: string) => {
+    callbackHandlers.setItemProp(index, 'env', nextEnv);
+  };
+
+  const handleCallbackUrlChange = (index: number, nextUrl: string) => {
+    callbackHandlers.setItemProp(index, 'url', nextUrl);
+  };
 
   const template = (
     <>
@@ -264,6 +283,11 @@ const FormPage = () => {
               onSubscribeLabelChange={setSubscribeLabel}
               freeTrialLabel={freeTrialLabel}
               onFreeTrialLabelChange={setFreeTrialLabel}
+              callbacks={callbacks}
+              onAddNewCallback={addNewCallback}
+              onDeleteCallback={deleteCallback}
+              onCallbackEnvChange={handleCallbackEnvChange}
+              onCallbackUrlChange={handleCallbackUrlChange}
             />
           </RenderIf>
         </Group>
