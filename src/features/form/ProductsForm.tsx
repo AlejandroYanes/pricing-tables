@@ -1,14 +1,16 @@
 /* eslint-disable max-len */
-import { Button, Group, Select, Text } from '@mantine/core';
+import { ActionIcon, Button, Group, Menu, Select } from '@mantine/core';
 import type Stripe from 'stripe';
 import type { ReactNode} from 'react';
 import { useState } from 'react';
+import { IconChevronDown } from '@tabler/icons';
 
 import type { ExtendedProduct, FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
+import CustomProductBlock from './CustomProductBlock';
 
 interface Props {
   template: ReactNode;
@@ -16,10 +18,14 @@ interface Props {
   selectedProducts: FormProduct[];
   onAddProduct: (selectedId: string) => void;
   onAddPrice: (productId: string, price: Stripe.Price) => void;
-  onRemoveProduct: (productId: string) => void;
+  onRemoveProduct: (index: number) => void;
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onChangeFreeTrialDays: (productId: string, priceId: string, days: number) => void;
+  onAddCustomProduct: () => void;
+  onCustomCTALabelChange: (index: number, nextLabel: string) => void;
+  onCustomCTAUrlChange: (index: number, nextLabel: string) => void;
+  onCustomCTADescriptionChange: (index: number, nextDescription: string) => void;
 }
 
 const resolvePricing = (price: Stripe.Price): string => {
@@ -56,11 +62,15 @@ export default function ProductsForm(props: Props) {
     products,
     selectedProducts,
     onAddProduct,
+    onAddCustomProduct,
     onAddPrice,
     onRemoveProduct,
     onRemovePrice,
     onToggleFreeTrial,
     onChangeFreeTrialDays,
+    onCustomCTALabelChange,
+    onCustomCTAUrlChange,
+    onCustomCTADescriptionChange,
   } = props;
   const [showProducts, setShowProducts] = useState(false);
 
@@ -80,8 +90,21 @@ export default function ProductsForm(props: Props) {
 
   const panelContent = (
     <>
-      {selectedProducts.map((prod) => {
+      {selectedProducts.map((prod, index) => {
         const baseProduct = products.find((p) => p.id === prod.id)!;
+
+        if (prod.isCustom) {
+          return (
+            <CustomProductBlock
+              key={prod.id}
+              value={prod}
+              onRemove={() => onRemoveProduct(index)}
+              onCTALabelChange={(value) => onCustomCTALabelChange(index, value)}
+              onCTAUrlChange={(value) => onCustomCTAUrlChange(index, value)}
+              onDescriptionChange={(value) => onCustomCTADescriptionChange(index, value)}
+            />
+          );
+        }
 
         return (
           <ProductBlock
@@ -89,7 +112,7 @@ export default function ProductsForm(props: Props) {
             value={prod}
             product={baseProduct}
             onAddPrice={onAddPrice}
-            onRemove={onRemoveProduct}
+            onRemove={() => onRemoveProduct(index)}
             onRemovePrice={onRemovePrice}
             onToggleFreeTrial={onToggleFreeTrial}
             onFreeTrialDaysChange={onChangeFreeTrialDays}
@@ -99,9 +122,31 @@ export default function ProductsForm(props: Props) {
       <RenderIf condition={productOptions.length > 0}>
         <RenderIf condition={!showProducts}>
           <Group position="right" align="center">
-            <Button onClick={() => setShowProducts(true)}>
-              {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
-            </Button>
+            {/*<Button onClick={() => setShowProducts(true)}>*/}
+            {/*  {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}*/}
+            {/*</Button>*/}
+            <Group noWrap spacing={1}>
+              <Button onClick={() => setShowProducts(true)} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+                {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
+              </Button>
+              <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
+                <Menu.Target>
+                  <ActionIcon
+                    variant="filled"
+                    color="primary"
+                    size={36}
+                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                  >
+                    <IconChevronDown size="1rem" stroke={1.5} />
+                  </ActionIcon>
+                </Menu.Target>
+                <Menu.Dropdown>
+                  <Menu.Item onClick={onAddCustomProduct}>
+                    Add a custom product
+                  </Menu.Item>
+                </Menu.Dropdown>
+              </Menu>
+            </Group>
           </Group>
         </RenderIf>
         <RenderIf condition={showProducts}>

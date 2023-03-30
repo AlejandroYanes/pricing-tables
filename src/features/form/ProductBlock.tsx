@@ -23,7 +23,7 @@ interface Props {
   product: ExtendedProduct;
   value: FormProduct;
   onAddPrice: (productId: string, price: Stripe.Price) => void;
-  onRemove: (productId: string) => void;
+  onRemove: () => void;
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
@@ -134,7 +134,7 @@ export default function ProductBlock(props: Props) {
   return (
     <div className={classes.productBlock}>
       <div className={classes.deleteBtn}>
-        <ActionIcon radius="xl" variant="filled" size="xs" onClick={() => onRemove(value.id)}>
+        <ActionIcon radius="xl" variant="filled" size="xs" onClick={onRemove}>
           <IconX size={14} />
         </ActionIcon>
       </div>

@@ -68,6 +68,8 @@ const resolvePricing = (price: FormPrice, unitLabel?: string): string => {
 const resolveBillingIntervals = (products: FormProduct[]) => {
   return products
     .reduce((list, prod) => {
+      if (prod.isCustom) return list;
+
       const intervals = prod.prices
         .map((price) => {
           if (price.type === 'one_time') {
@@ -87,6 +89,8 @@ const filterProductsByInterval = (products: FormProduct[], interval: Interval) =
   if (!interval) return products;
 
   return products.filter((prod) => {
+    if (prod.isCustom) return prod;
+
     if (interval === 'one_time') {
       return prod.prices.some((price) => price.type === 'one_time');
     }
@@ -157,8 +161,9 @@ export default function BasicTemplate(props: Props) {
       </RenderIf>
       <Group align="stretch" position="center" spacing="xl">
         {visibleProducts.map((prod) => {
-          const featureList = resolveFeaturesForProduct(features, prod.id);
-          const priceToShow = resolvePriceToShow(prod, currentInterval);
+          const { isCustom } = prod;
+          const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
+          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as any;
           const { hasFreeTrial, freeTrialDays } = priceToShow;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
@@ -176,13 +181,15 @@ export default function BasicTemplate(props: Props) {
                 >
                   {prod.name}
                 </Text>
-                <Text
-                  style={{ fontSize: '32px' }}
-                  weight="bold"
-                  color={isRecommended ? color : undefined}
-                >
-                  {resolvePricing(priceToShow, unitLabel)}
-                </Text>
+                <RenderIf condition={!isCustom}>
+                  <Text
+                    style={{ fontSize: '32px' }}
+                    weight="bold"
+                    color={isRecommended ? color : undefined}
+                  >
+                    {resolvePricing(priceToShow, unitLabel)}
+                  </Text>
+                </RenderIf>
                 <Text align="center">{prod.description}</Text>
                 <Stack mt="auto" align="center">
                   <RenderIf condition={!!hasFreeTrial}>

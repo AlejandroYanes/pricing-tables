@@ -23,9 +23,9 @@ const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottom
 
 const FormPage = () => {
   const colorScheme = useColorScheme();
-  const [currentTab, setCurrentTab] = useState<Tabs>('settings');
+  const [currentTab, setCurrentTab] = useState<Tabs>('products');
 
-  const [selectedProducts, setSelectedProducts] = useState<FormProduct[]>(mockSelectedProducts as any);
+  const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
 
   const [features, featureHandlers] = useListState<Feature>(mockFeatures);
 
@@ -51,8 +51,15 @@ const FormPage = () => {
 
     if (!selectedProduct || !selectedPrice) return;
 
-    const prodCopy = { ...selectedProduct, prices: [{ ...selectedPrice }], features: [] };
-    setSelectedProducts(selectedProducts.concat([prodCopy]));
+    const copy = { ...selectedProduct, prices: [{ ...selectedPrice }], features: [] };
+    productHandlers.append(copy);
+  };
+
+  const handleRemoveProduct = (index: number) => {
+    productHandlers.remove(index);
+    if (selectedProducts.length === 1) {
+      setRecommended(undefined);
+    }
   };
 
   const handleAddPrice = (productId: string, price: Stripe.Price) => {
@@ -61,21 +68,13 @@ const FormPage = () => {
     if (!selectedProduct) return;
 
     const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.concat([{ ...price }]) };
-    setSelectedProducts(selectedProducts.map((prod) => {
+    productHandlers.setState(selectedProducts.map((prod) => {
       if (prod.id === productId) {
         return prodCopy;
       }
 
       return prod;
     }));
-  };
-
-  const handleRemoveProduct = (productId: string) => {
-    const nextProductList = selectedProducts.filter((prod) => prod.id !== productId);
-    setSelectedProducts(nextProductList);
-    if (nextProductList.length === 0) {
-      setRecommended(undefined);
-    }
   };
 
   const handleRemovePrice = (productId: string, priceId: string) => {
@@ -85,7 +84,7 @@ const FormPage = () => {
     if (!selectedProduct || !selectedPrice) return;
 
     const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.filter((price) => price.id !== priceId) };
-    setSelectedProducts(selectedProducts.map((prod) => {
+    productHandlers.setState(selectedProducts.map((prod) => {
       if (prod.id === productId) {
         return prodCopy;
       }
@@ -104,7 +103,7 @@ const FormPage = () => {
 
     if (!selectedPrice.freeTrialDays) selectedPrice.freeTrialDays = 7;
 
-    setSelectedProducts(selectedProducts.map((prod) => {
+    productHandlers.setState(selectedProducts.map((prod) => {
       if (prod.id === productId) {
         return selectedProduct;
       }
@@ -121,13 +120,39 @@ const FormPage = () => {
 
     selectedPrice.freeTrialDays = days ?? 1;
 
-    setSelectedProducts(selectedProducts.map((prod) => {
+    productHandlers.setState(selectedProducts.map((prod) => {
       if (prod.id === productId) {
         return selectedProduct;
       }
 
       return prod;
     }))
+  };
+
+  const handleAddCustomProduct = () => {
+    const customProduct: Partial<FormProduct> = {
+      id: 'custom',
+      object: 'product',
+      isCustom: true,
+      active: true,
+      name: 'Custom Product',
+      description: 'Custom product used to present an extra option for users to contact the team',
+      ctaLabel: 'Contact Us',
+      ctaUrl: 'https://your.domain.com/quote'
+    };
+    productHandlers.append(customProduct as FormProduct);
+  };
+
+  const handleCustomCTALabelChange = (index: number, nextLabel: string) => {
+    productHandlers.setItemProp(index, 'ctaLabel', nextLabel);
+  };
+
+  const handleCustomCTAUrlChange = (index: number, nextUrl: string) => {
+    productHandlers.setItemProp(index, 'ctaUrl', nextUrl);
+  };
+
+  const handleCustomDescriptionChange = (index: number, nextDescription: string) => {
+    productHandlers.setItemProp(index, 'description', nextDescription);
   };
 
   const handleUnitLabelToggle = () => {
@@ -243,11 +268,15 @@ const FormPage = () => {
               products={productsList}
               selectedProducts={selectedProducts}
               onAddProduct={handleAddProduct}
+              onAddCustomProduct={handleAddCustomProduct}
               onAddPrice={handleAddPrice}
               onRemoveProduct={handleRemoveProduct}
               onRemovePrice={handleRemovePrice}
               onToggleFreeTrial={handleToggleFreeTrial}
               onChangeFreeTrialDays={handleChangeFreeTrialDays}
+              onCustomCTALabelChange={handleCustomCTALabelChange}
+              onCustomCTAUrlChange={handleCustomCTAUrlChange}
+              onCustomCTADescriptionChange={handleCustomDescriptionChange}
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>

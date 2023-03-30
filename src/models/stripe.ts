@@ -18,6 +18,9 @@ export type FormPrice = Stripe.Price & {
 };
 export type FormProduct = Stripe.Product & {
   prices: FormPrice[];
+  isCustom?: boolean;
+  ctaLabel?: string;
+  ctaUrl?: string;
 };
 
 export type FeatureType = 'boolean' | 'string';
