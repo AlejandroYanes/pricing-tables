@@ -7,6 +7,7 @@ import RenderIf from 'components/RenderIf';
 import TwoColumnsLayout from './TwoColumnsLayout';
 
 interface Props {
+  showPanel: boolean;
   template: ReactNode;
   products: FormProduct[];
   recommended: string | undefined;
@@ -34,6 +35,7 @@ to continue the checkout process.
 
 export default function SettingsForm(props: Props) {
   const {
+    showPanel,
     template,
     products,
     recommended,
@@ -148,6 +150,6 @@ export default function SettingsForm(props: Props) {
   );
 
   return (
-    <TwoColumnsLayout leftContent={panel} rightContent={template} />
+    <TwoColumnsLayout leftContent={showPanel ? panel : null} rightContent={template} />
   );
 }

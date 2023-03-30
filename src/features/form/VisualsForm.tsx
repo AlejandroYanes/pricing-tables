@@ -5,6 +5,7 @@ import RenderIf from 'components/RenderIf';
 import TwoColumnsLayout from './TwoColumnsLayout';
 
 interface Props {
+  showPanel: boolean;
   template: ReactNode;
   color: string;
   onColorChange: (next: string) => void;
@@ -27,7 +28,7 @@ const baseColors = [
 
 export default function VisualsForm(props: Props) {
   const { colors } = useMantineTheme();
-  const { template, color, onColorChange } = props;
+  const { showPanel, template, color, onColorChange } = props;
 
   const panel = (
     <>
@@ -55,6 +56,6 @@ export default function VisualsForm(props: Props) {
   );
 
   return (
-    <TwoColumnsLayout leftContent={panel} rightContent={template} />
+    <TwoColumnsLayout leftContent={showPanel ? panel : null} rightContent={template} />
   );
 }

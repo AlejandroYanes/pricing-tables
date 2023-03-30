@@ -3,7 +3,7 @@ import { useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
-import { IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
+import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
 
 import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
@@ -11,8 +11,8 @@ import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } fro
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
-import ProductsForm from 'features/form/ProductsForm';
 import BasicTemplate from 'features/templates/Basic';
+import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
 import FeaturesForm from 'features/form/FeaturesForm';
@@ -24,6 +24,7 @@ const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottom
 const FormPage = () => {
   const colorScheme = useColorScheme();
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
+  const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
 
@@ -136,7 +137,7 @@ const FormPage = () => {
       isCustom: true,
       active: true,
       name: 'Custom Product',
-      description: 'Custom product used to present an extra option for users to contact the team',
+      description: 'Custom product used to present an extra option for users to contact the sales team',
       ctaLabel: 'Contact Us',
       ctaUrl: 'https://your.domain.com/quote'
     };
@@ -227,7 +228,12 @@ const FormPage = () => {
 
   const template = (
     <>
-      <Group align="center" position="right" mb="xl">
+      <Group align="center" position="apart" mb="xl">
+        <ActionIcon onClick={() => setShowPanel(!showPanel)}>
+          <RenderIf condition={showPanel} fallback={<IconArrowBarToRight />}>
+            <IconArrowBarToLeft />
+          </RenderIf>
+        </ActionIcon>
         <Group>
           <ActionIcon><IconDeviceMobile /></ActionIcon>
           <ActionIcon color="primary"><IconDeviceDesktop /></ActionIcon>
@@ -264,6 +270,7 @@ const FormPage = () => {
         <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
           <RenderIf condition={currentTab === 'products'}>
             <ProductsForm
+              showPanel={showPanel}
               template={template}
               products={productsList}
               selectedProducts={selectedProducts}
@@ -281,6 +288,7 @@ const FormPage = () => {
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>
             <VisualsForm
+              showPanel={showPanel}
               template={template}
               color={color}
               onColorChange={setColor}
@@ -300,6 +308,7 @@ const FormPage = () => {
           </RenderIf>
           <RenderIf condition={currentTab === 'settings'}>
             <SettingsForm
+              showPanel={showPanel}
               template={template}
               products={selectedProducts}
               recommended={recommended}

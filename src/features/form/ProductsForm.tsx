@@ -13,6 +13,7 @@ import TwoColumnsLayout from './TwoColumnsLayout';
 import CustomProductBlock from './CustomProductBlock';
 
 interface Props {
+  showPanel: boolean;
   template: ReactNode;
   products: ExtendedProduct[];
   selectedProducts: FormProduct[];
@@ -58,6 +59,7 @@ const resolvePricing = (price: Stripe.Price): string => {
 
 export default function ProductsForm(props: Props) {
   const {
+    showPanel,
     template,
     products,
     selectedProducts,
@@ -158,7 +160,7 @@ export default function ProductsForm(props: Props) {
 
   return (
     <TwoColumnsLayout
-      leftContent={panelContent}
+      leftContent={showPanel ? panelContent : null}
       rightContent={template}
     />
   );
