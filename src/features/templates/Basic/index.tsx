@@ -169,9 +169,16 @@ export default function BasicTemplate(props: Props) {
                 align="center"
                 className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
               >
-                <Text weight="bold" color={isRecommended ? color : undefined}>{prod.name}</Text>
                 <Text
-                  style={{ fontSize: '32px', fontWeight: 'bold' }}
+                  style={{ fontSize: '18px' }}
+                  weight="bold"
+                  color={isRecommended ? color : undefined}
+                >
+                  {prod.name}
+                </Text>
+                <Text
+                  style={{ fontSize: '32px' }}
+                  weight="bold"
                   color={isRecommended ? color : undefined}
                 >
                   {resolvePricing(priceToShow, unitLabel)}
