@@ -21,8 +21,9 @@ export default function FeatureInput(props: Props) {
         />
       );
     case 'string':
+    case 'compose':
       return (
-        <TextInput value={value as string} onChange={(e) => onChange(e.target.value)} />
+        <TextInput value={value as string} onChange={(e) => onChange(e.target.value)}/>
       );
     default:
       return null;

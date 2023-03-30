@@ -24,7 +24,6 @@ const useStyles = createStyles((theme) => ({
   },
   dragHandle: {
     ...theme.fn.focusStyles(),
-    // width: '28px',
     width: rem(40),
     display: 'flex',
     alignItems: 'center',
@@ -35,12 +34,18 @@ const useStyles = createStyles((theme) => ({
 }));
 
 const resolveFeatureValue = (feature: Feature, prodId: string) => {
-  return feature.products.find((prod) => prod.id === prodId)!.value;
+  const prod = feature.products.find((prod) => prod.id === prodId);
+
+  if (!prod) {
+    return feature.type === 'boolean' ? false : '';
+  }
+  return prod.value;
 };
 
 const featureTypeOptions: { label: string; value: FeatureType }[] = [
   { label: 'Check', value: 'boolean' },
   { label: 'Text', value: 'string' },
+  { label: 'Compose', value: 'compose' },
 ];
 
 export default function FeaturesForm(props: Props) {

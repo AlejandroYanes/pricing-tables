@@ -5,6 +5,7 @@ import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
+import { showNotification } from '@mantine/notifications';
 
 import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
 // import { api } from 'utils/api';
@@ -131,6 +132,15 @@ const FormPage = () => {
   };
 
   const handleAddCustomProduct = () => {
+    const hasCustomProduct = selectedProducts.some((prod) => prod.isCustom);
+
+    if (hasCustomProduct) {
+      showNotification({
+        message: 'There is already a custom product',
+      });
+      return;
+    }
+
     const customProduct: Partial<FormProduct> = {
       id: 'custom',
       object: 'product',
@@ -185,7 +195,7 @@ const FormPage = () => {
   };
 
   const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
-    const initialValue: Record<FeatureType, FeatureValue> = { string: '', boolean: false };
+    const initialValue: Record<FeatureType, FeatureValue> = { string: '', compose: '', boolean: false };
     const feature = features.at(featureIndex)!;
     featureHandlers.setItem(featureIndex, {
       ...feature,
@@ -196,12 +206,13 @@ const FormPage = () => {
 
   const handleFeatureValueChange = (featureIndex: number, productId: string, value: FeatureValue) => {
     const feature = features.at(featureIndex)!;
-    feature.products = feature.products.map((prod) => {
-      if (prod.id === productId) {
-        return { ...prod, value };
-      }
-      return prod;
-    });
+    const product = feature.products.find((prod) => prod.id === productId);
+
+    if (product) {
+      product.value = value;
+    } else {
+      feature.products.push({ id: productId, value });
+    }
 
     featureHandlers.setItem(featureIndex, feature);
   };

@@ -23,7 +23,7 @@ export type FormProduct = Stripe.Product & {
   ctaUrl?: string;
 };
 
-export type FeatureType = 'boolean' | 'string';
+export type FeatureType = 'boolean' | 'string' | 'compose';
 export type FeatureValue = boolean | string;
 export type Feature = { id: string; name: string; type: FeatureType; products: { id: string; value: FeatureValue }[] };
 

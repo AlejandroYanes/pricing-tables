@@ -111,13 +111,27 @@ const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
 const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
   return features.reduce((acc, feat) => {
     const targetProduct = feat.products.find((prod) => {
-      if (feat.type === 'boolean')
-        return prod.id === productId && prod.value;
       return prod.id === productId;
     });
 
     if (targetProduct) {
-      const featureLabel = feat.type === 'boolean' ? feat.name : `${targetProduct.value} ${feat.name}`;
+      let featureLabel: string | undefined;
+      switch (feat.type) {
+        case 'boolean':
+          featureLabel = targetProduct.value ? feat.name : undefined;
+          break;
+        case 'compose':
+          featureLabel = `${targetProduct.value} ${feat.name}`;
+          break;
+        case 'string':
+          featureLabel = targetProduct.value as string;
+          break;
+        default:
+          featureLabel = '';
+      }
+
+      if (!featureLabel) return acc;
+
       return acc.concat(featureLabel);
     }
 
@@ -208,8 +222,7 @@ export default function BasicTemplate(props: Props) {
           )
         })}
         {visibleProducts.map((prod) => {
-          const { isCustom } = prod;
-          const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
+          const featureList = resolveFeaturesForProduct(features, prod.id);
 
           return (
             <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
