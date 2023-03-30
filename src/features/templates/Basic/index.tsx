@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
-import { Button, createStyles, Group, SegmentedControl, Stack, Text } from '@mantine/core';
-import type Stripe from 'stripe';
 import { useEffect, useMemo, useState } from 'react';
+import type Stripe from 'stripe';
+import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
 
-import type { FormProduct, FormPrice, Feature } from 'models/stripe';
+import type { Feature, FormPrice, FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 
@@ -155,60 +155,71 @@ export default function BasicTemplate(props: Props) {
   }, [billingIntervals]);
 
   return (
-    <Stack>
+    <Stack align="center">
       <RenderIf condition={billingIntervals.length > 1}>
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
-      <Group align="stretch" position="center" spacing="xl">
+      <SimpleGrid style={{ justifyItems: 'center' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
           const { isCustom } = prod;
-          const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
+          // const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as any;
           const { hasFreeTrial, freeTrialDays } = priceToShow;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
+          const resolveBtnLabel = () => {
+            if (isCustom) return prod.ctaLabel;
+            return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+          };
+
           return (
-            <Stack key={prod.id}>
-              <Stack
-                align="center"
-                className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
+            <Stack
+              key={prod.id}
+              align="center"
+              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
+            >
+              <Text
+                style={{ fontSize: '18px' }}
+                weight="bold"
+                color={isRecommended ? color : undefined}
               >
+                {prod.name}
+              </Text>
+              <RenderIf condition={!isCustom}>
                 <Text
-                  style={{ fontSize: '18px' }}
+                  style={{ fontSize: '32px' }}
                   weight="bold"
                   color={isRecommended ? color : undefined}
                 >
-                  {prod.name}
+                  {resolvePricing(priceToShow, unitLabel)}
                 </Text>
-                <RenderIf condition={!isCustom}>
-                  <Text
-                    style={{ fontSize: '32px' }}
-                    weight="bold"
-                    color={isRecommended ? color : undefined}
-                  >
-                    {resolvePricing(priceToShow, unitLabel)}
-                  </Text>
+              </RenderIf>
+              <Text align="center">{prod.description}</Text>
+              <Stack mt="auto" align="center">
+                <RenderIf condition={!!hasFreeTrial}>
+                  <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
-                <Text align="center">{prod.description}</Text>
-                <Stack mt="auto" align="center">
-                  <RenderIf condition={!!hasFreeTrial}>
-                    <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
-                  </RenderIf>
-                  <Button color={color} variant={isRecommended ? 'filled' : 'outline'}>
-                    {hasFreeTrial ? freeTrialLabel : subscribeLabel}
-                  </Button>
-                </Stack>
+                <Button color={color} variant={isRecommended ? 'filled' : 'outline'}>
+                  {resolveBtnLabel()}
+                </Button>
               </Stack>
-              <ul>
-                {featureList.map((feat, index) => (
-                  <li key={index}><Text>{feat}</Text></li>
-                ))}
-              </ul>
             </Stack>
           )
         })}
-      </Group>
+        {visibleProducts.map((prod) => {
+          const { isCustom } = prod;
+          const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
+
+          return (
+            <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
+              {featureList.map((feat, index) => (
+                <li key={index}><Text>{feat}</Text></li>
+              ))}
+            </ul>
+          );
+        })}
+      </SimpleGrid>
     </Stack>
   );
 }
