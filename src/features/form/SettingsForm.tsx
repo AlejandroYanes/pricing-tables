@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
-import { IconQuestionMark, IconTrash } from '@tabler/icons';
+import { IconInfoCircle, IconTrash } from '@tabler/icons';
 
 import type { CTACallback, FormProduct } from 'models/stripe';
 import RenderIf from 'components/RenderIf';
@@ -87,7 +87,7 @@ export default function SettingsForm(props: Props) {
           >
             <div style={{ display: 'flex', alignItems: 'center' }}>
               <span>Callbacks</span>
-              <IconQuestionMark size={16} style={{ marginLeft: '8px' }} />
+              <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
             </div>
           </Tooltip>
         }
@@ -135,7 +135,7 @@ export default function SettingsForm(props: Props) {
                   )
                   : null
               }
-              placeholder="https://your.server.com/api/price"
+              placeholder="https://your.server.com/api/product"
               label={index === 0 ? 'Redirect to' : ''}
               value={cb.url}
               onChange={(e) => onCallbackUrlChange(index, e.target.value)}
