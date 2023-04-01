@@ -77,23 +77,23 @@ const StripePage = () => {
     }
   };
 
-  const prodElements = products.map((prod, pIndex) => (
-    <Stack key={prod.id} mb="xl" align="center" spacing={2} sx={{ minWidth: '380px' }}>
-      <Title order={3}>{prod.name}</Title>
-      <Text mb="xl">{prod.description}</Text>
-      <span style={{ fontSize: '72px' }}>{emojies[pIndex]}</span>
-      {(prod.prices || []).map((price, prIndex) => (
-        <>
-          <Text key={price.id} weight={prod.default_price === price.id ? 'bold' : 'regular'}>
-            {resolvePricing(price)}
-          </Text>
-          <RenderIf condition={prIndex < prod.prices!.length - 1}>
-            or
-          </RenderIf>
-        </>
-      ))}
-    </Stack>
-  ));
+  // const prodElements = products.map((prod, pIndex) => (
+  //   <Stack key={prod.id} mb="xl" align="center" spacing={2} sx={{ minWidth: '380px' }}>
+  //     <Title order={3}>{prod.name}</Title>
+  //     <Text mb="xl">{prod.description}</Text>
+  //     <span style={{ fontSize: '72px' }}>{emojies[pIndex]}</span>
+  //     {(prod.prices || []).map((price, prIndex) => (
+  //       <>
+  //         <Text key={price.id} weight={prod.default_price === price.id ? 'bold' : 'regular'}>
+  //           {resolvePricing(price)}
+  //         </Text>
+  //         <RenderIf condition={prIndex < prod.prices!.length - 1}>
+  //           or
+  //         </RenderIf>
+  //       </>
+  //     ))}
+  //   </Stack>
+  // ));
 
   return (
     <BaseLayout>
@@ -101,8 +101,11 @@ const StripePage = () => {
         <Title>Stripe integration</Title>
         <Button variant="filled">Create New</Button>
       </Group>
-      <Group mt="xl" position="center">
-        {prodElements}
+      <Group mt="xl" position="center" style={{ maxWidth: '100vw', boxSizing: 'border-box' }}>
+        {/*{prodElements}*/}
+        <span>
+          {JSON.stringify(products)}
+        </span>
       </Group>
     </BaseLayout>
   );

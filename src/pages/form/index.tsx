@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { useMemo, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Group, MantineProvider, Tabs } from '@mantine/core';
+import { ActionIcon, Alert, Group, MantineProvider, Select, Tabs } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
@@ -39,8 +39,10 @@ const FormPage = () => {
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | undefined>(undefined);
   const [callbacks, callbackHandlers] = useListState<CTACallback>([
+    { env: 'development', url: '' },
     { env: 'production', url: '' },
   ]);
+  const [selectedEnv, setSelectedEnv] = useState<string>('development');
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -58,7 +60,9 @@ const FormPage = () => {
 
   const handleAddProduct = (selectedId: string) => {
     const [productId, priceId] = selectedId.split('-');
+    // @ts-ignore
     const selectedProduct = data!.find((prod) => prod.id === productId);
+    // @ts-ignore
     const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
 
     if (!selectedProduct || !selectedPrice) return;
@@ -83,9 +87,9 @@ const FormPage = () => {
       isCustom: true,
       active: true,
       name: 'Custom Product',
-      description: 'Custom product used to present an extra option for users to contact the sales team',
+      description: 'Custom product are used to present an extra option for users to contact the sales team',
       ctaLabel: 'Contact Us',
-      ctaUrl: 'https://your.domain.com/quote'
+      ctaUrl: 'https://your.domain.com/get-quote'
     };
     productHandlers.append(customProduct as FormProduct);
   };
@@ -255,11 +259,17 @@ const FormPage = () => {
             <IconArrowBarToLeft />
           </RenderIf>
         </ActionIcon>
-        <Group>
-          <ActionIcon>
+        <Group align="flex-end" mb="xl">
+          <Select
+            label="Modes"
+            data={callbacks.map((cb) => cb.env)}
+            value={selectedEnv}
+            onChange={(value) => setSelectedEnv(value!)}
+          />
+          <ActionIcon mb={4}>
             <IconDeviceMobile />
           </ActionIcon>
-          <ActionIcon>
+          <ActionIcon mb={4}>
             <IconDeviceDesktop />
           </ActionIcon>
         </Group>
@@ -278,6 +288,8 @@ const FormPage = () => {
         color={color}
         subscribeLabel={subscribeLabel}
         freeTrialLabel={freeTrialLabel}
+        callbacks={callbacks}
+        environment={selectedEnv}
       />
     </>
   );

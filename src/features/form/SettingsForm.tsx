@@ -112,7 +112,7 @@ export default function SettingsForm(props: Props) {
               }}
               label={index === 0 ? 'Mode' : ''}
               value={cb.env}
-              disabled={index === 0}
+              disabled={index < 2}
               onChange={(e) => onCallbackEnvChange(index, e.target.value)}
             />
             <TextInput
@@ -129,7 +129,7 @@ export default function SettingsForm(props: Props) {
                 },
               }}
               rightSection={
-                index !== 0
+                index > 1
                   ? (
                     <ActionIcon onClick={() => onDeleteCallback(index)}>
                       <IconTrash size={14} />

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type Stripe from 'stripe';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
 
-import type { Feature, FormPrice, FormProduct } from 'models/stripe';
+import type { CTACallback, Feature, FormPrice, FormProduct } from 'models/stripe';
 import { formatCurrency } from 'utils/numbers';
 import RenderIf from 'components/RenderIf';
 
@@ -15,6 +15,8 @@ interface Props {
   color: string;
   subscribeLabel: string;
   freeTrialLabel: string;
+  callbacks: CTACallback[];
+  environment?: string;
 }
 
 type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
@@ -148,7 +150,17 @@ const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
 };
 
 export default function BasicTemplate(props: Props) {
-  const { features, products, recommended, unitLabel, color, subscribeLabel, freeTrialLabel } = props;
+  const {
+    features,
+    products,
+    recommended,
+    unitLabel,
+    color,
+    subscribeLabel,
+    freeTrialLabel,
+    callbacks,
+    environment = 'production',
+  } = props;
   const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -180,6 +192,7 @@ export default function BasicTemplate(props: Props) {
           const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
+          const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
 
           const resolveBtnLabel = () => {
             if (type === 'one_time') return 'Buy Now';
@@ -215,7 +228,7 @@ export default function BasicTemplate(props: Props) {
                 <RenderIf condition={!!hasFreeTrial}>
                   <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
-                <Button color={color} variant={isRecommended ? 'filled' : 'outline'}>
+                <Button component="a" href={callbackUrl} color={color} variant={isRecommended ? 'filled' : 'outline'}>
                   {resolveBtnLabel()}
                 </Button>
               </Stack>
