@@ -35,6 +35,14 @@ const useStyles = createStyles((theme, color: string) => ({
   },
 }));
 
+const intervalsMap = {
+  day: { label: 'Daily', short: 'day', index: 0 },
+  week: { label: 'Weekly', short: 'we', index: 1 },
+  month: { label: 'Monthly', short: 'mo', index: 2 },
+  year: { label: 'Yearly', short: 'yr', index: 3 },
+  one_time: { label: 'One Time', index: 4 },
+};
+
 const resolvePricing = (price: FormPrice, unitLabel?: string): string => {
   const { type, tiers_mode, currency, billing_scheme, transform_quantity, recurring, unit_amount, tiers } = price;
 
@@ -42,8 +50,9 @@ const resolvePricing = (price: FormPrice, unitLabel?: string): string => {
     return `${formatCurrency(unit_amount! / 100, currency)}${!!unitLabel ? ` per ${unitLabel}` : ''}`;
   }
 
+  const recurringLabel = intervalsMap[recurring!.interval].short;
+
   if (billing_scheme === 'per_unit') {
-    const recurringLabel = recurring?.interval === 'month' ? 'mo' : 'yr';
     if (transform_quantity) {
       return `${formatCurrency(unit_amount! / 100, currency)} per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}/${recurringLabel}`;
     }
@@ -136,14 +145,6 @@ const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
 
     return acc;
   }, [] as string[]);
-};
-
-const intervalsMap = {
-  day: { label: 'Daily', index: 0 },
-  week: { label: 'Weekly', index: 1 },
-  month: { label: 'Monthly', index: 2 },
-  year: { label: 'Yearly', index: 3 },
-  one_time: { label: 'One Time', index: 4 },
 };
 
 export default function BasicTemplate(props: Props) {
