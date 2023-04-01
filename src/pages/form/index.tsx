@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Group, MantineProvider, Tabs } from '@mantine/core';
+import { ActionIcon, Alert, Group, MantineProvider, Tabs } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
@@ -31,7 +31,7 @@ const FormPage = () => {
 
   const [features, featureHandlers] = useListState<Feature>(mockFeatures);
 
-  const [color, setColor] = useState<string>('blue');
+  const [color, setColor] = useState<string>('teal');
 
   const [recommended, setRecommended] = useState<string | undefined>('prod_NRrvLHLkz1aSdI');
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
@@ -41,6 +41,16 @@ const FormPage = () => {
   const [callbacks, callbackHandlers] = useListState<CTACallback>([
     { env: 'production', url: '' },
   ]);
+
+  const hasSeveralPricesWithSameInterval = useMemo(() => {
+    const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
+      const intervals = prod.prices.map((price) => price.recurring?.interval);
+      const uniqueIntervals = new Set(intervals);
+
+      return uniqueIntervals.size !== intervals.length;
+    });
+    return productsWithMultipleIntervalsPerPrice.length > 0;
+  }, [selectedProducts]);
 
   // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
   const data: any = mockProducts;
@@ -55,6 +65,29 @@ const FormPage = () => {
 
     const copy = { ...selectedProduct, prices: [{ ...selectedPrice }], features: [] };
     productHandlers.append(copy);
+  };
+
+  const handleAddCustomProduct = () => {
+    const hasCustomProduct = selectedProducts.some((prod) => prod.isCustom);
+
+    if (hasCustomProduct) {
+      showNotification({
+        message: 'There is already a custom product',
+      });
+      return;
+    }
+
+    const customProduct: Partial<FormProduct> = {
+      id: 'custom',
+      object: 'product',
+      isCustom: true,
+      active: true,
+      name: 'Custom Product',
+      description: 'Custom product used to present an extra option for users to contact the sales team',
+      ctaLabel: 'Contact Us',
+      ctaUrl: 'https://your.domain.com/quote'
+    };
+    productHandlers.append(customProduct as FormProduct);
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -129,29 +162,6 @@ const FormPage = () => {
 
       return prod;
     }))
-  };
-
-  const handleAddCustomProduct = () => {
-    const hasCustomProduct = selectedProducts.some((prod) => prod.isCustom);
-
-    if (hasCustomProduct) {
-      showNotification({
-        message: 'There is already a custom product',
-      });
-      return;
-    }
-
-    const customProduct: Partial<FormProduct> = {
-      id: 'custom',
-      object: 'product',
-      isCustom: true,
-      active: true,
-      name: 'Custom Product',
-      description: 'Custom product used to present an extra option for users to contact the sales team',
-      ctaLabel: 'Contact Us',
-      ctaUrl: 'https://your.domain.com/quote'
-    };
-    productHandlers.append(customProduct as FormProduct);
   };
 
   const handleCustomCTALabelChange = (index: number, nextLabel: string) => {
@@ -246,10 +256,20 @@ const FormPage = () => {
           </RenderIf>
         </ActionIcon>
         <Group>
-          <ActionIcon><IconDeviceMobile /></ActionIcon>
-          <ActionIcon color="primary"><IconDeviceDesktop /></ActionIcon>
+          <ActionIcon>
+            <IconDeviceMobile />
+          </ActionIcon>
+          <ActionIcon>
+            <IconDeviceDesktop />
+          </ActionIcon>
         </Group>
       </Group>
+      <RenderIf condition={hasSeveralPricesWithSameInterval}>
+        <Alert title="Regarding prices and intervals" variant="outline" color="orange" mb="xl">
+          We currently only show one price per interval, taking the first one from the list.
+          This is a limitation of the current API and we plan to address it in the future.
+        </Alert>
+      </RenderIf>
       <BasicTemplate
         features={features}
         products={selectedProducts}

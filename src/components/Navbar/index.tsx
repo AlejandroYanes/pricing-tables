@@ -58,7 +58,7 @@ export function CustomNavbar() {
   return (
     <Header height={64} className={classes.header} mb="xl">
       <Link href="/dashboard">
-        <Title order={1} color="blue" style={{ cursor: 'pointer' }}>Pricing</Title>
+        <Title order={1} color="teal" style={{ cursor: 'pointer' }}>Pricing</Title>
       </Link>
       <Group>
         <NavbarLink icon={IconLayout2} label="Resumes" />

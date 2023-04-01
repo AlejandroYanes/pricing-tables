@@ -21,6 +21,7 @@ const MyApp: AppType<{ session: Session | null }> = (props) => {
         withNormalizeCSS
         theme={{
           colorScheme,
+          primaryColor: 'teal',
           globalStyles: (theme) => ({
             '*, *::before, *::after': {
               boxSizing: 'border-box',

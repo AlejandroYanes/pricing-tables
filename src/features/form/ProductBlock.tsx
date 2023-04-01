@@ -51,13 +51,21 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
+  day: 'day',
+  week: 'we',
+  month: 'mo',
+  year: 'yr',
+};
+
 const resolvePricing = (price: Stripe.Price): string => {
   if (price.type === 'one_time') {
     return formatCurrency(price.unit_amount! / 100, price.currency);
   }
 
+  const recurringLabel = intervalMap[price.recurring!.interval];
+
   if (price.billing_scheme === 'per_unit') {
-    const recurringLabel = price.recurring?.interval === 'month' ? 'mo' : 'yr';
     if (price.transform_quantity) {
       return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
     }
@@ -68,11 +76,11 @@ const resolvePricing = (price: Stripe.Price): string => {
   switch (price.tiers_mode) {
     case 'volume': {
       const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} users`;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
     }
     case 'graduated': {
       const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} a month`;
+      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
     }
     default:
       return 'No price';

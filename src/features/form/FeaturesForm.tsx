@@ -1,4 +1,4 @@
-import { Button, createStyles, Select, Stack, Table, Text, TextInput, rem, Group, ActionIcon } from '@mantine/core';
+import { Button, createStyles, Select, Stack, Table, Text, TextInput, rem, Group, ActionIcon, ScrollArea } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
@@ -121,30 +121,32 @@ export default function FeaturesForm(props: Props) {
   return (
     <Stack mx="auto" pt="xl" style={{ width: '90%' }}>
       <Text mb="xl">Features</Text>
-      <DragDropContext onDragEnd={onFeatureReorder}>
-        <Table style={{ tableLayout: 'fixed' }}>
-          <thead>
-            <tr>
-              <th style={{ width: rem(40) }} />
-              <th style={{ width: rem(360) }}>Feature</th>
-              <th style={{ width: rem(200) }}>Type</th>
-              {ths}
-              <th style={{ width: rem(60) }} />
-            </tr>
-          </thead>
-          <CustomDroppable droppableId="dnd-list" direction="vertical">
-            {(provided) => (
-              <tbody {...provided.droppableProps} ref={provided.innerRef}>
-                {rows}
-                {provided.placeholder}
-              </tbody>
-            )}
-          </CustomDroppable>
-        </Table>
-      </DragDropContext>
-      <Group>
-        <Button variant="outline" onClick={onAddNew}>Add new feature</Button>
-      </Group>
+      <ScrollArea type="scroll" scrollbarSize={6} style={{ width: '100%' }}>
+        <DragDropContext onDragEnd={onFeatureReorder}>
+          <Table style={{ tableLayout: 'fixed', marginBottom: '12px' }}>
+            <thead>
+              <tr>
+                <th style={{ width: rem(40) }} />
+                <th style={{ width: rem(360) }}>Feature</th>
+                <th style={{ width: rem(200) }}>Type</th>
+                {ths}
+                <th style={{ width: rem(60) }} />
+              </tr>
+            </thead>
+            <CustomDroppable droppableId="dnd-list" direction="vertical">
+              {(provided) => (
+                <tbody {...provided.droppableProps} ref={provided.innerRef}>
+                  {rows}
+                  {provided.placeholder}
+                </tbody>
+              )}
+            </CustomDroppable>
+          </Table>
+        </DragDropContext>
+      </ScrollArea>
+      <Button variant="filled" mr="auto" onClick={onAddNew}>
+        Add new feature
+      </Button>
     </Stack>
   );
 }

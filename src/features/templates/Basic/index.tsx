@@ -100,7 +100,6 @@ const filterProductsByInterval = (products: FormProduct[], interval: Interval) =
 };
 
 const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
-  // console.log(prod, interval);
   if (!interval) return prod.prices[0]!;
 
   if (interval === 'one_time') return prod.prices.find((price) => price.type === 'one_time')!;
@@ -166,7 +165,7 @@ export default function BasicTemplate(props: Props) {
         setCurrentInterval(billingIntervals[0]!.value);
       }
     }
-  }, [billingIntervals]);
+  }, [products]);
 
   return (
     <Stack align="center">
@@ -176,13 +175,13 @@ export default function BasicTemplate(props: Props) {
       <SimpleGrid style={{ justifyItems: 'center' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
           const { isCustom } = prod;
-          // const featureList = !isCustom ? resolveFeaturesForProduct(features, prod.id) : [];
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as any;
-          const { hasFreeTrial, freeTrialDays } = priceToShow;
+          const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
           const resolveBtnLabel = () => {
+            if (type === 'one_time') return 'Buy Now';
             if (isCustom) return prod.ctaLabel;
             return hasFreeTrial ? freeTrialLabel : subscribeLabel;
           };
@@ -202,8 +201,9 @@ export default function BasicTemplate(props: Props) {
               </Text>
               <RenderIf condition={!isCustom}>
                 <Text
-                  style={{ fontSize: '32px' }}
                   weight="bold"
+                  align="center"
+                  style={{ fontSize: '32px' }}
                   color={isRecommended ? color : undefined}
                 >
                   {resolvePricing(priceToShow, unitLabel)}
