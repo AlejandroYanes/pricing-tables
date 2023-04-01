@@ -46,7 +46,12 @@ export default function CustomProductBlock(props: Props) {
       <Divider orientation="horizontal" />
       <Stack p={16}>
         <TextInput label="Button Label" value={value.ctaLabel} onChange={(e) => onCTALabelChange(e.target.value)} />
-        <TextInput label="Button URL" value={value.ctaUrl} onChange={(e) => onCTAUrlChange(e.target.value)} />
+        <TextInput
+          label="Button URL"
+          placeholder="https://your.domain.com/get-quote"
+          value={value.ctaUrl}
+          onChange={(e) => onCTAUrlChange(e.target.value)}
+        />
         <Textarea label="Description" value={value.description!} onChange={(e) => onDescriptionChange(e.target.value)} />
       </Stack>
     </div>

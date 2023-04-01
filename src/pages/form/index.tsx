@@ -1,14 +1,14 @@
 /* eslint-disable max-len */
 import { useMemo, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Group, MantineProvider, Select, Tabs } from '@mantine/core';
+import { ActionIcon, Alert, Group, MantineProvider, Select, Tabs, Tooltip } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
-import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile } from '@tabler/icons';
+import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
 import { showNotification } from '@mantine/notifications';
 
 import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models/stripe';
-// import { api } from 'utils/api';
+import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import RenderIf from 'components/RenderIf';
@@ -27,9 +27,9 @@ const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
-  const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
+  const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
 
-  const [features, featureHandlers] = useListState<Feature>(mockFeatures);
+  const [features, featureHandlers] = useListState<Feature>([]);
 
   const [color, setColor] = useState<string>('teal');
 
@@ -42,7 +42,9 @@ const FormPage = () => {
     { env: 'development', url: '' },
     { env: 'production', url: '' },
   ]);
+
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -54,8 +56,19 @@ const FormPage = () => {
     return productsWithMultipleIntervalsPerPrice.length > 0;
   }, [selectedProducts]);
 
-  // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
-  const data: any = mockProducts;
+  const currencies = useMemo(() => {
+    const currencies = selectedProducts.reduce((acc, prod) => {
+      const currencyOptions = prod.prices
+        .map((price) => price.currency_options)
+        .filter((option) => !!option)
+        .map((option) => Object.keys(option!)).flat();
+      return acc.concat(currencyOptions);
+    }, [] as string[]);
+    return Array.from(new Set(currencies)).map((currency: string) => ({ label: currency.toUpperCase(), value: currency }));
+  }, [selectedProducts]);
+
+  const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
+  // const data: any = mockProducts;
   const productsList = data || [];
 
   const handleAddProduct = (selectedId: string) => {
@@ -88,8 +101,9 @@ const FormPage = () => {
       active: true,
       name: 'Custom Product',
       description: 'Custom product are used to present an extra option for users to contact the sales team',
+      prices: [],
       ctaLabel: 'Contact Us',
-      ctaUrl: 'https://your.domain.com/get-quote'
+      ctaUrl: ''
     };
     productHandlers.append(customProduct as FormProduct);
   };
@@ -194,8 +208,8 @@ const FormPage = () => {
     const nextFeature: Feature = {
       id: `${Date.now()}`,
       name: 'test',
-      type: 'string',
-      products: selectedProducts.map((prod) => ({ id: prod.id, value: '' })),
+      type: 'boolean',
+      products: selectedProducts.map((prod) => ({ id: prod.id, value: false })),
     };
     featureHandlers.append(nextFeature);
   };
@@ -254,14 +268,38 @@ const FormPage = () => {
   const template = (
     <>
       <Group align="center" position="apart" mb="xl">
-        <ActionIcon onClick={() => setShowPanel(!showPanel)}>
+        <ActionIcon mb={4} onClick={() => setShowPanel(!showPanel)}>
           <RenderIf condition={showPanel} fallback={<IconArrowBarToRight />}>
             <IconArrowBarToLeft />
           </RenderIf>
         </ActionIcon>
         <Group align="flex-end" mb="xl">
+          <RenderIf condition={currencies.length > 1}>
+            <Select
+              clearable
+              label={
+                <Tooltip
+                  transitionProps={{ duration: 200 }}
+                  label="Select a currency to display prices in. If no currency is selected, prices will be displayed in the default currency of your Stripe account."
+                  width={280}
+                  position="right"
+                  multiline
+                  withArrow
+                >
+                  <div style={{ display: 'flex', alignItems: 'center' }}>
+                    <span>Currency</span>
+                    <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
+                  </div>
+                </Tooltip>
+              }
+              data={currencies}
+              value={selectedCurrency}
+              onChange={setSelectedCurrency}
+            />
+          </RenderIf>
           <Select
             label="Modes"
+            disabled={selectedProducts.length === 0}
             data={callbacks.map((cb) => cb.env)}
             value={selectedEnv}
             onChange={(value) => setSelectedEnv(value!)}
@@ -290,6 +328,7 @@ const FormPage = () => {
         freeTrialLabel={freeTrialLabel}
         callbacks={callbacks}
         environment={selectedEnv}
+        currency={selectedCurrency}
       />
     </>
   );

@@ -64,8 +64,19 @@ export default function FeaturesForm(props: Props) {
 
   if (products.length === 0) {
     return (
-      <Stack mx="auto" pt="xl" style={{ width: '30%', maxWidth: '700px' }}>
+      <Stack mx="auto" pt="xl" style={{ minWidth: '90%' }}>
+        <Text>Features</Text>
         <Text mb="xl">Please add products first</Text>
+      </Stack>
+    );
+  }
+
+  if (features.length === 0) {
+    return (
+      <Stack mx="auto" pt="xl" style={{ minWidth: '90%' }}>
+        <Text>Features</Text>
+        <Text color="dimmed" mb="xl">No features added yet</Text>
+        <Button mr="auto" onClick={onAddNew}>Add new feature</Button>
       </Stack>
     );
   }
@@ -121,9 +132,9 @@ export default function FeaturesForm(props: Props) {
   return (
     <Stack mx="auto" pt="xl" style={{ width: '90%' }}>
       <Text mb="xl">Features</Text>
-      <ScrollArea type="scroll" scrollbarSize={6} style={{ width: '100%' }}>
+      <ScrollArea type="scroll" scrollbarSize={6} style={{ width: '100%', paddingBottom: '160px' }}>
         <DragDropContext onDragEnd={onFeatureReorder}>
-          <Table style={{ tableLayout: 'fixed', marginBottom: '12px' }}>
+          <Table style={{ tableLayout: 'fixed' }}>
             <thead>
               <tr>
                 <th style={{ width: rem(40) }} />

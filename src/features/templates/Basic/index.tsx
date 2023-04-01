@@ -17,6 +17,7 @@ interface Props {
   freeTrialLabel: string;
   callbacks: CTACallback[];
   environment?: string;
+  currency?: string | null;
 }
 
 type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
@@ -45,8 +46,22 @@ const intervalsMap = {
   one_time: { label: 'One Time', index: 4 },
 };
 
-const resolvePricing = (price: FormPrice, unitLabel?: string): string => {
-  const { type, tiers_mode, currency, billing_scheme, transform_quantity, recurring, unit_amount, tiers } = price;
+const resolvePricing = (options: { price: FormPrice; unitLabel?: string; currency?: string | null }): string => {
+  const { price, unitLabel, currency: selectedCurrency } = options;
+  const {
+    type,
+    tiers_mode,
+    currency: baseCurrency,
+    currency_options,
+    billing_scheme,
+    transform_quantity,
+    recurring,
+    unit_amount: baseAmount,
+    tiers,
+  } = price;
+
+  const currency = selectedCurrency || baseCurrency;
+  const unit_amount = selectedCurrency ? currency_options![selectedCurrency]!.unit_amount : baseAmount;
 
   if (type === 'one_time') {
     return `${formatCurrency(unit_amount! / 100, currency)}${!!unitLabel ? ` per ${unitLabel}` : ''}`;
@@ -160,6 +175,7 @@ export default function BasicTemplate(props: Props) {
     freeTrialLabel,
     callbacks,
     environment = 'production',
+    currency,
   } = props;
   const { classes, cx } = useStyles(color);
 
@@ -188,16 +204,22 @@ export default function BasicTemplate(props: Props) {
       <SimpleGrid style={{ justifyItems: 'center' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
           const { isCustom } = prod;
-          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as any;
+          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
           const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
-          const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
 
           const resolveBtnLabel = () => {
             if (type === 'one_time') return 'Buy Now';
             if (isCustom) return prod.ctaLabel;
             return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+          };
+
+          const resolveBtnUrl = () => {
+            if (isCustom) return prod.ctaUrl;
+
+            const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+            return `${callbackUrl}?product_id=${prod.id}&price_id=${priceToShow.id}`;
           };
 
           return (
@@ -220,7 +242,7 @@ export default function BasicTemplate(props: Props) {
                   style={{ fontSize: '32px' }}
                   color={isRecommended ? color : undefined}
                 >
-                  {resolvePricing(priceToShow, unitLabel)}
+                  {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
                 </Text>
               </RenderIf>
               <Text align="center">{prod.description}</Text>
@@ -228,7 +250,7 @@ export default function BasicTemplate(props: Props) {
                 <RenderIf condition={!!hasFreeTrial}>
                   <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
-                <Button component="a" href={callbackUrl} color={color} variant={isRecommended ? 'filled' : 'outline'}>
+                <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
                   {resolveBtnLabel()}
                 </Button>
               </Stack>
