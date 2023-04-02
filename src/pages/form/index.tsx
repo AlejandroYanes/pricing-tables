@@ -27,7 +27,7 @@ const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
-  const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
+  const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
 
   const [features, featureHandlers] = useListState<Feature>([]);
 
@@ -67,8 +67,8 @@ const FormPage = () => {
     return Array.from(new Set(currencies)).map((currency: string) => ({ label: currency.toUpperCase(), value: currency }));
   }, [selectedProducts]);
 
-  const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
-  // const data: any = mockProducts;
+  // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
+  const data: any = mockProducts;
   const productsList = data || [];
 
   const handleAddProduct = (selectedId: string) => {
