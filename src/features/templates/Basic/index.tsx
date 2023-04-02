@@ -181,8 +181,11 @@ export default function BasicTemplate(props: Props) {
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
-  const visibleProducts = useMemo(() => filterProductsByInterval(products, currentInterval), [currentInterval, products]);
   const billingIntervals = useMemo(() => resolveBillingIntervals(products), [products]);
+  const visibleProducts = useMemo(
+    () => filterProductsByInterval(products, currentInterval),
+    [currentInterval, products],
+  );
 
   useEffect(() => {
     if (billingIntervals.length === 0) {
