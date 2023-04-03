@@ -8,7 +8,8 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "dev:main": "turbo run dev --filter main",
+    "dev:cards": "turbo run dev --filter cards-widget",
     "lint": "turbo run lint"
   },
   "devDependencies": {
