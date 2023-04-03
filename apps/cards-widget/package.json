@@ -9,6 +9,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "models": "*",
+    "helpers": "*",
+    "ui": "*",
+    "templates": "*",
+    "@emotion/react": "11.10.5",
+    "@emotion/server": "11.10.0",
+    "@mantine/core": "6.0.5",
+    "@mantine/hooks": "6.0.5",
     "react": "18.2.0",
     "react-dom": "18.2.0"
   },

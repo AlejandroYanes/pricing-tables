@@ -265,7 +265,7 @@ export function BasicTemplate(props: Props) {
           return (
             <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
               {featureList.map((feat, index) => (
-                <li key={index}><Text>{feat}</Text></li>
+                <li key={index}><Text align="left">{feat}</Text></li>
               ))}
             </ul>
           );
