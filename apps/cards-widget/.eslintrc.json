@@ -1,4 +1,5 @@
 {
+  "ignorePatterns": ["vite.config.ts", "node_modules/", "dist/", "build/", "coverage/", "public/"],
   "parser": "@typescript-eslint/parser",
   "parserOptions": {
     "project": "./tsconfig.json"

@@ -1,10 +1,11 @@
 /* eslint-disable max-len */
-import { BasicTemplate } from 'templates';
 import type { Feature } from 'models';
+import { PricingThemeProvider } from 'ui';
+import { BasicTemplate } from 'templates';
 
 function App() {
   return (
-    <div className="App">
+    <PricingThemeProvider>
       <BasicTemplate
         features={mockFeatures}
         products={mockSelectedProducts as any}
@@ -17,7 +18,7 @@ function App() {
           { env: 'production', url: '' },
         ]}
       />
-    </div>
+    </PricingThemeProvider>
   )
 }
 
