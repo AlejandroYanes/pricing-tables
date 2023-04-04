@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+
+  <script>
+    function fetchStreamedComponent() {
+      fetch('http://localhost:3000/api/cards/streamed')
+        .then(response => response.text())
+        .then(text => {
+          // Parse the HTML response to extract the styles
+          const parser = new DOMParser();
+          const parsedDoc = parser.parseFromString(text, 'text/html');
+          const styles = parsedDoc.querySelector('style[data-emotion]');
+
+          // Inject the extracted styles into the <head> tag
+          document.head.appendChild(styles);
+
+          // Inject the component's HTML into the container
+          const container = document.getElementById('container');
+          container.innerHTML = parsedDoc.querySelector('#container').innerHTML;
+        });
+    }
+
+    fetchStreamedComponent();
+  </script>
+</head>
+<body>
+  <div id="container"></div>
+</body>
+</html>

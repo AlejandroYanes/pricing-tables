@@ -16,14 +16,14 @@ const mockFeatures: Feature[] = [
   {id: '4', 'name':'IP Whitelisting', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
 ];
 
-export default function handler(req: any, res: any) {
-  res.status(200).send(
-    <PricingThemeProvider>
+export default function SimpleTemplate() {
+  return (
+    <PricingThemeProvider colorScheme="light">
       <BasicTemplate
         features={mockFeatures}
         products={mockSelectedProducts as any}
         recommended="prod_NRrvLHLkz1aSdI"
-        color="teal"
+        color="indigo"
         subscribeLabel="Subscribe"
         freeTrialLabel="Free trial"
         callbacks={[

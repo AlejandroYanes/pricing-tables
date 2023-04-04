@@ -14,7 +14,7 @@ const MyApp: AppType<{ session: Session | null }> = (props) => {
   } = props;
   return (
     <SessionProvider session={session}>
-      <PricingThemeProvider>
+      <PricingThemeProvider withGlobalStyles withNormalizeCSS>
         <ModalsProvider>
           <Component {...pageProps} />
           <Notifications />
