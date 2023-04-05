@@ -1,23 +1,24 @@
-import type { ReactNode } from 'react';
 import { MantineProvider } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 
 interface Props {
+  children: any;
   colorScheme?: 'system' | 'light' | 'dark';
-  children: ReactNode;
+  withGlobalStyles?: boolean;
+  withNormalizeCSS?: boolean;
 }
 
 export function PricingThemeProvider(props: Props) {
-  const { colorScheme = 'system', children } = props;
+  const { colorScheme = 'system', children, withNormalizeCSS = true, withGlobalStyles = true } = props;
   const systemColorScheme = useColorScheme();
   return (
     <MantineProvider
-      withGlobalStyles
-      withNormalizeCSS
+      withGlobalStyles={withGlobalStyles}
+      withNormalizeCSS={withNormalizeCSS}
       theme={{
         colorScheme: colorScheme === 'system' ? systemColorScheme : colorScheme,
         primaryColor: 'teal',
-        globalStyles: (theme) => ({
+        globalStyles: withGlobalStyles ? (theme) => ({
           '*, *::before, *::after': {
             boxSizing: 'border-box',
           },
@@ -33,7 +34,7 @@ export function PricingThemeProvider(props: Props) {
             color: 'inherit',
             textDecoration: 'none',
           }
-        }),
+        }) : undefined,
       }}
     >
       {children}

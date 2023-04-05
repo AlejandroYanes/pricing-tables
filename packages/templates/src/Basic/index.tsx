@@ -23,6 +23,7 @@ type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval;
 
 const useStyles = createStyles((theme, color: string) => ({
   productCard: {
+    boxSizing: 'border-box',
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
     padding: '48px 32px 24px',
     borderRadius: '4px',
@@ -203,7 +204,7 @@ export function BasicTemplate(props: Props) {
       <RenderIf condition={billingIntervals.length > 1}>
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
-      <SimpleGrid style={{ justifyItems: 'center' }} cols={visibleProducts.length} spacing="sm">
+      <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
           const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;

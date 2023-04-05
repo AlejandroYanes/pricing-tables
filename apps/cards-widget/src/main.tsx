@@ -1,10 +1,10 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-
-import App from './App'
+import './PricingCards';
 
 ReactDOM.createRoot(document.getElementById('pricing-cards') as HTMLElement).render(
   <React.StrictMode>
-    <App />
+    {/* @ts-ignore */}
+    <pricing-cards />
   </React.StrictMode>,
-)
+);
