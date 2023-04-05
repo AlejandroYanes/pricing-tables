@@ -11,7 +11,6 @@
     "build:cards": "turbo run build --filter cards-widget",
     "dev:main": "turbo run dev --filter main",
     "dev:cards": "turbo run dev --filter cards-widget",
-    "dev:cards-preact": "turbo run dev --filter cards-widget-preact",
     "lint": "turbo run lint"
   },
   "devDependencies": {
