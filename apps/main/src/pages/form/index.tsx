@@ -9,7 +9,6 @@ import type { DropResult } from 'react-beautiful-dnd';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
 import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models';
-import BasicMiniature from 'templates/src/Basic/BasicMiniature';
 
 import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
@@ -331,7 +330,6 @@ const FormPage = () => {
         environment={selectedEnv}
         currency={selectedCurrency}
       />
-      <BasicMiniature />
     </>
   );
 
