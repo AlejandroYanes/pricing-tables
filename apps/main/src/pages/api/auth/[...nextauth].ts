@@ -14,9 +14,7 @@ export const authOptions: NextAuthOptions = {
     session({ session, user }) {
       if (session.user) {
         session.user.id = user.id;
-        session.user.address = (user as any).address;
-        session.user.phone = (user as any).phone;
-        session.user.website = (user as any).website;
+        session.user.isSetup = !!(user as any).stripeKey;
       }
       return session;
     },

@@ -29,6 +29,7 @@ import superjson from 'superjson';
 
 import { getServerAuthSession } from '../auth';
 import { prisma } from '../db';
+import initStripe from '../../utils/stripe';
 
 type CreateContextOptions = {
   session: Session | null;
@@ -121,3 +122,21 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  * @see https://trpc.io/docs/procedures
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
+
+export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  const data = await ctx.prisma.user.findUnique({
+    where: { id: ctx.session?.user?.id },
+    select: { stripeKey: true },
+  });
+  if (!data || !data.stripeKey) {
+    throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+  }
+
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+      stripe: initStripe(data.stripeKey),
+    },
+  });
+});

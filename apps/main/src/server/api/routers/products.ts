@@ -1,18 +1,18 @@
 import type Stripe from 'stripe';
+import type { ExtendedProduct } from 'models';
 
-import type { ExtendedProduct } from 'models/stripe';
-import stripeClient from 'utils/stripe';
-import { createTRPCRouter, protectedProcedure } from '../trpc';
+import { createTRPCRouter, stripeProcedure } from '../trpc';
 
 type InitialProduct = Stripe.Product & { prices?: Stripe.Price[] };
 
 export const productsRouter = createTRPCRouter({
-  list: protectedProcedure.query(async () => {
-    const products: InitialProduct[] = (await stripeClient.products.list({ active: true })).data;
+  list: stripeProcedure.query(async ({ ctx }) => {
+
+    const products: InitialProduct[] = (await ctx.stripe.products.list({ active: true })).data;
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const prices = (
-      await stripeClient.prices.search({
+      await ctx.stripe.prices.search({
         query: `${pricesQuery}`,
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,

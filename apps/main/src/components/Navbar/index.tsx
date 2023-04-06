@@ -56,7 +56,7 @@ function NavbarLink({ icon: Icon, label, active, onClick }: NavbarLinkProps) {
 export function CustomNavbar() {
   const { classes } = useStyles();
   return (
-    <Header height={64} className={classes.header} mb="xl">
+    <Header height={64} className={classes.header} mb="xl" zIndex={1}>
       <Link href="/dashboard">
         <Title order={1} color="teal" style={{ cursor: 'pointer' }}>Pricing</Title>
       </Link>

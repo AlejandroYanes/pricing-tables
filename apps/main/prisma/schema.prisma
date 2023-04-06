@@ -8,20 +8,23 @@ generator client {
 datasource db {
     provider = "mysql"
     url      = env("DATABASE_URL")
-    referentialIntegrity = "prisma"
+    relationMode = "prisma"
 }
 
 model PriceTable {
     id              String    @id @default(cuid())
+    templateId      String
+    unitLabel       String?
+    recommended     String?
     products        Product[]
+    userId          String
+    user            User      @relation(fields: [userId], references: [id])
 }
 
 model Product {
     id              String    @id @default(cuid())
     name            String
     description     String?
-    defaultPrice    String?
-    unitLabel       String?
     recommended     Boolean   @default(false)
     prices          Price[]
     tableId         String?
@@ -33,19 +36,18 @@ model Price {
     billingScheme   String
     tiersMode       String
     unitAmount      Int
-    currency        String
+    currencies      Currency[]
     productId       String
     product         Product   @relation(fields: [productId], references: [id])
-    tiers           Tier[]
 }
 
-model Tier {
-  id            String    @id @default(cuid())
-  flatAmount    Int?
-  unitAmount    Int?
-  upTo          Int?
-  priceId       String
-  price         Price     @relation(fields: [priceId], references: [id])
+model Currency {
+    id              String    @id @default(cuid())
+    name            String
+    code            String
+    unitAmount      Int
+    priceId         String
+    price           Price @relation(fields: [priceId], references: [id])
 }
 
 // Necessary for Next auth
@@ -55,12 +57,12 @@ model Account {
     type              String
     provider          String
     providerAccountId String
-    refresh_token     String? // @db.Text
-    access_token      String? // @db.Text
+    refresh_token     String? @db.Text
+    access_token      String? @db.Text
     expires_at        Int?
     token_type        String?
     scope             String?
-    id_token          String? // @db.Text
+    id_token          String? @db.Text
     session_state     String?
     user              User    @relation(fields: [userId], references: [id], onDelete: Cascade)
 
@@ -84,8 +86,10 @@ model User {
     phone           String?
     address         String?
     website         String?
+    stripeKey       String?
     accounts        Account[]
     sessions        Session[]
+    tables          PriceTable[]
 }
 
 model VerificationToken {

@@ -19,10 +19,6 @@
     "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   },
   "dependencies": {
-    "ui": "*",
-    "helpers": "*",
-    "templates": "*",
-    "models": "*",
     "@emotion/react": "11.10.5",
     "@emotion/server": "11.10.0",
     "@emotion/styled": "11.10.5",
@@ -44,6 +40,8 @@
     "@trpc/react-query": "10.9.0",
     "@trpc/server": "10.9.0",
     "dayjs": "1.11.7",
+    "helpers": "*",
+    "models": "*",
     "next": "13.1.2",
     "next-auth": "4.20.1",
     "react": "18.2.0",
@@ -51,6 +49,8 @@
     "react-dom": "18.2.0",
     "stripe": "11.13.0",
     "superjson": "1.9.1",
+    "templates": "*",
+    "ui": "*",
     "zod": "3.20.2"
   },
   "devDependencies": {
