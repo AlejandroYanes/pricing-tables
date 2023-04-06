@@ -9,6 +9,7 @@ import type { DropResult } from 'react-beautiful-dnd';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
 import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models';
+import BasicMiniature from 'templates/src/Basic/BasicMiniature';
 
 import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
@@ -27,13 +28,13 @@ const FormPage = () => {
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
-  const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
+  const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
 
-  const [features, featureHandlers] = useListState<Feature>([]);
+  const [features, featureHandlers] = useListState<Feature>(mockFeatures);
 
   const [color, setColor] = useState<string>('teal');
 
-  const [recommended, setRecommended] = useState<string | undefined>(undefined);
+  const [recommended, setRecommended] = useState<string | undefined>('prod_NRrvLHLkz1aSdI');
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
@@ -67,8 +68,8 @@ const FormPage = () => {
     return Array.from(new Set(currencies)).map((currency: string) => ({ label: currency.toUpperCase(), value: currency }));
   }, [selectedProducts]);
 
-  const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
-  // const data: any = mockProducts;
+  // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
+  const data: any = mockProducts;
   const productsList = data || [];
 
   const handleAddProduct = (selectedId: string) => {
@@ -330,6 +331,7 @@ const FormPage = () => {
         environment={selectedEnv}
         currency={selectedCurrency}
       />
+      <BasicMiniature />
     </>
   );
 

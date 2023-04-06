@@ -1,8 +1,9 @@
-import { createStyles, Text } from '@mantine/core';
+import { createStyles, Text, UnstyledButton } from '@mantine/core';
 import { IconNewSection } from '@tabler/icons';
 
 interface Props {
   label: string;
+  onClick?: () => void;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -18,13 +19,13 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function AddBlock(props: Props) {
-  const { label } = props;
+  const { label, onClick } = props;
   const { classes } = useStyles();
 
   return (
-    <div className={classes.block}>
+    <UnstyledButton className={classes.block} onClick={onClick}>
       <IconNewSection size={60} />
       <Text size="xl">{label}</Text>
-    </div>
+    </UnstyledButton>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Stripe from 'stripe';
-import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';
+import { Alert, Anchor, Button, Group, Modal, Text, TextInput, Title } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
@@ -53,7 +53,6 @@ export default function SetupModal() {
       message:'Hooray! Your account is now setup.'
     });
     setOpen(false);
-    router.reload();
   };
 
   if (!open) return null;
@@ -67,7 +66,7 @@ export default function SetupModal() {
       closeOnEscape={false}
       closeOnClickOutside={false}
       onClose={() => undefined}
-      title="Hi there"
+      title={<Title order={3}>Hi there</Title>}
     >
       <Text>
         In order to help you, we need to be able to connect to your Stripe account to read your products and prices,

@@ -11,7 +11,7 @@ datasource db {
     relationMode = "prisma"
 }
 
-model PriceTable {
+model PriceWidget {
     id              String    @id @default(cuid())
     templateId      String
     unitLabel       String?
@@ -27,8 +27,8 @@ model Product {
     description     String?
     recommended     Boolean   @default(false)
     prices          Price[]
-    tableId         String?
-    table           PriceTable? @relation(fields: [tableId], references: [id])
+    widgetId        String?
+    widget          PriceWidget? @relation(fields: [widgetId], references: [id])
 }
 
 model Price {
@@ -89,7 +89,7 @@ model User {
     stripeKey       String?
     accounts        Account[]
     sessions        Session[]
-    tables          PriceTable[]
+    widgets          PriceWidget[]
 }
 
 model VerificationToken {
