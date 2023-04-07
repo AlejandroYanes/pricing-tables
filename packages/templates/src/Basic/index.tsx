@@ -31,7 +31,7 @@ const useStyles = createStyles((theme, color: string) => ({
   },
   activeProductCard: {
     border: `1px solid ${theme.colors![color]![5]}`,
-    width: '320px',
+    width: '300px',
   },
   wideCard: {
     width: 'auto',

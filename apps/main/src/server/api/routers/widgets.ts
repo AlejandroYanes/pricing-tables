@@ -17,6 +17,20 @@ export const widgetsRouter = createTRPCRouter({
         color: 'teal',
       },
     });
+    await ctx.prisma.callback.createMany({
+      data: [
+        {
+          widgetId: widget.id,
+          env: 'production',
+          url: 'https://example.com',
+        },
+        {
+          widgetId: widget.id,
+          env: 'development',
+          url: 'http://example.com',
+        }
+      ],
+    });
     return widget.id;
   }),
 
