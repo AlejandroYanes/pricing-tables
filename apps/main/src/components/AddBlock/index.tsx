@@ -14,7 +14,7 @@ const useStyles = createStyles((theme) => ({
     alignItems: 'center',
     justifyContent: 'center',
     gap: '24px',
-    border: `1px dashed ${theme.colors.gray[1]}`,
+    border: `1px dashed ${theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[5]}`,
   },
 }));
 

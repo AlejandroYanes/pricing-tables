@@ -1,14 +1,16 @@
 /* eslint-disable max-len */
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Group, MantineProvider, Select, Tabs, Tooltip } from '@mantine/core';
+import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Tooltip } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { showNotification } from '@mantine/notifications';
-import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
 import type { DropResult } from 'react-beautiful-dnd';
+import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
-import type { CTACallback, Feature, FeatureType, FeatureValue, FormProduct } from 'models';
+import type { CTACallback, FormFeature, FeatureType, FormProduct } from 'models';
 
 import { api } from 'utils/api';
 import authGuard from 'utils/hoc/authGuard';
@@ -22,22 +24,55 @@ type Tabs = 'products' | 'features' | 'visuals' | 'settings';
 
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
+const errorScreen = (
+  <BaseLayout>
+    <Stack mt={60} justify="center" align="center">
+      <Alert title="Ooops..." variant="outline" color="gray">
+        Seems like {`you're`} lost, {`there's`} nothing here to see.
+        Please go back to the {' '}
+        <Anchor component="span" color="teal" weight="bold">
+          <Link href="/dashboard">
+            Dashboard
+          </Link>
+        </Anchor>
+        {' '}
+        and start creating.
+      </Alert>
+    </Stack>
+  </BaseLayout>
+);
+
 const FormPage = () => {
   const colorScheme = useColorScheme();
+
+  const { query } = useRouter();
+  const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = api.widgets.fetchInfo.useQuery(query.id as string, {
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+  });
+
+  const { data } = api.products.list.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    enabled: isFetchingWidgetInfo,
+  });
+  // const data: any = mockProducts;
+  const productsList = data || [];
+
+  const [isLoaded, setIsLoaded] = useState(false);
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
-  const [selectedProducts, productHandlers] = useListState<FormProduct>(mockSelectedProducts as any);
+  const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
 
-  const [features, featureHandlers] = useListState<Feature>(mockFeatures);
+  const [features, featureHandlers] = useListState<FormFeature>([]);
 
   const [color, setColor] = useState<string>('teal');
 
-  const [recommended, setRecommended] = useState<string | undefined>('prod_NRrvLHLkz1aSdI');
+  const [recommended, setRecommended] = useState<string | null>(null);
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
-  const [unitLabel, setUnitLabel] = useState<string | undefined>(undefined);
+  const [unitLabel, setUnitLabel] = useState<string | null>(null);
   const [callbacks, callbackHandlers] = useListState<CTACallback>([
     { env: 'development', url: '' },
     { env: 'production', url: '' },
@@ -45,6 +80,22 @@ const FormPage = () => {
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!isFetchingWidgetInfo && widgetInfo) {
+      productHandlers.setState(widgetInfo!.products);
+      featureHandlers.setState(widgetInfo!.features);
+      setColor(widgetInfo!.color);
+      setRecommended(widgetInfo!.recommended);
+      setSubscribeLabel(widgetInfo!.subscribeLabel);
+      setFreeTrialLabel(widgetInfo!.freeTrialLabel);
+      setUsesUnitLabel(widgetInfo!.usesUnitLabel);
+      setUnitLabel(widgetInfo!.unitLabel);
+      callbackHandlers.setState(widgetInfo!.callbacks);
+      setSelectedCurrency(widgetInfo!.currency);
+      setIsLoaded(true);
+    }
+  }, [isFetchingWidgetInfo, widgetInfo]);
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -66,10 +117,6 @@ const FormPage = () => {
     }, [] as string[]);
     return Array.from(new Set(currencies)).map((currency: string) => ({ label: currency.toUpperCase(), value: currency }));
   }, [selectedProducts]);
-
-  // const { data } = api.products.list.useQuery(undefined, { refetchOnWindowFocus: false });
-  const data: any = mockProducts;
-  const productsList = data || [];
 
   const handleAddProduct = (selectedId: string) => {
     const [productId, priceId] = selectedId.split('-');
@@ -111,7 +158,7 @@ const FormPage = () => {
   const handleRemoveProduct = (index: number) => {
     productHandlers.remove(index);
     if (selectedProducts.length === 1) {
-      setRecommended(undefined);
+      setRecommended(null);
     }
   };
 
@@ -197,7 +244,7 @@ const FormPage = () => {
   const handleUnitLabelToggle = () => {
     console.log('handleUnitLabelToggle');
     setUsesUnitLabel(!usesUnitLabel);
-    setUnitLabel(!usesUnitLabel ? 'units' : undefined);
+    setUnitLabel(!usesUnitLabel ? 'units' : null);
   };
 
   const handleUnitLabelChange = (nextUnit: string) => {
@@ -205,11 +252,11 @@ const FormPage = () => {
   };
 
   const handleAddNewFeature = () => {
-    const nextFeature: Feature = {
+    const nextFeature: FormFeature = {
       id: `${Date.now()}`,
       name: 'test',
       type: 'boolean',
-      products: selectedProducts.map((prod) => ({ id: prod.id, value: false })),
+      products: selectedProducts.map((prod) => ({ id: prod.id, value: 'false' })),
     };
     featureHandlers.append(nextFeature);
   };
@@ -223,7 +270,7 @@ const FormPage = () => {
   };
 
   const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
-    const initialValue: Record<FeatureType, FeatureValue> = { string: '', compose: '', boolean: false };
+    const initialValue: Record<FeatureType, string> = { string: '', compose: '', boolean: 'false' };
     const feature = features.at(featureIndex)!;
     featureHandlers.setItem(featureIndex, {
       ...feature,
@@ -232,7 +279,7 @@ const FormPage = () => {
     });
   };
 
-  const handleFeatureValueChange = (featureIndex: number, productId: string, value: FeatureValue) => {
+  const handleFeatureValueChange = (featureIndex: number, productId: string, value: string) => {
     const feature = features.at(featureIndex)!;
     const product = feature.products.find((prod) => prod.id === productId);
 
@@ -264,6 +311,10 @@ const FormPage = () => {
   const handleCallbackUrlChange = (index: number, nextUrl: string) => {
     callbackHandlers.setItemProp(index, 'url', nextUrl);
   };
+
+  if (isError) {
+    return errorScreen;
+  }
 
   const template = (
     <>
@@ -411,24 +462,12 @@ const FormPage = () => {
             />
           </RenderIf>
         </Group>
+        <RenderIf condition={!isLoaded}>
+          <LoadingOverlay visible overlayBlur={2} />
+        </RenderIf>
       </MantineProvider>
     </BaseLayout>
   );
 };
 
 export default authGuard(FormPage);
-
-const mockProducts = [{'id':'prod_NZk3fmc36zKJqc','object':'product','active':true,'attributes':[],'created':1679525739,'default_price':'price_1MoaZEJIZhxRN8vV9PGqLBPk','description':'Paying per users, starts at 3 users.','images':[],'livemode':false,'metadata':{},'name':'Per user','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':'user','updated':1679526037,'url':null,'prices':[{'id':'price_1MoaZEJIZhxRN8vV9PGqLBPk','object':'price','active':true,'billing_scheme':'per_unit','created':1679525740,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NZk3fmc36zKJqc','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':250,'unit_amount_decimal':'250'}]},{'id':'prod_NWWy4clNk7Enso','object':'product','active':true,'attributes':[],'created':1678785169,'default_price':null,'description':'You will be buying a life time license','images':[],'livemode':false,'metadata':{},'name':'One Time Buy','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678825865,'url':null,'prices':[{'id':'price_1MlTuXJIZhxRN8vVrm00VlhQ','object':'price','active':true,'billing_scheme':'per_unit','created':1678785169,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NWWy4clNk7Enso','recurring':null,'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'one_time','unit_amount':500000,'unit_amount_decimal':'500000'}]},{'id':'prod_NRrwPguKtyHVRl','object':'product','active':true,'attributes':[],'created':1677709991,'default_price':'price_1Mix3vJIZhxRN8vV7cvEddpk','description':'Enterprise Plan description','images':[],'livemode':false,'metadata':{},'name':'Enterprise Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678182255,'url':null,'prices':[{'id':'price_1Mix3vJIZhxRN8vV7cvEddpk','object':'price','active':true,'billing_scheme':'per_unit','created':1678182243,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrwPguKtyHVRl','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':5000,'unit_amount_decimal':'5000'},{'id':'price_1MlU0eJIZhxRN8vVFgYZnF02','object':'price','active':true,'billing_scheme':'tiered','created':1678785548,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrwPguKtyHVRl','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers':[{'flat_amount':null,'flat_amount_decimal':null,'unit_amount':50,'unit_amount_decimal':'50','up_to':1000},{'flat_amount':null,'flat_amount_decimal':null,'unit_amount':35,'unit_amount_decimal':'35','up_to':null}],'tiers_mode':'graduated','transform_quantity':null,'type':'recurring','unit_amount':null,'unit_amount_decimal':null},{'id':'price_1MjUu3JIZhxRN8vVva09rpdo','object':'price','active':true,'billing_scheme':'per_unit','created':1678312327,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrwPguKtyHVRl','recurring':{'aggregate_usage':null,'interval':'year','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':50000,'unit_amount_decimal':'50000'}]},{'id':'prod_NRrvLHLkz1aSdI','object':'product','active':true,'attributes':[],'created':1677709939,'default_price':'price_1Mix3QJIZhxRN8vVmiM3xH4p','description':'Premium plan description','images':[],'livemode':false,'metadata':{},'name':'Premium Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678621159,'url':null,'prices':[{'id':'price_1Mix3QJIZhxRN8vVmiM3xH4p','object':'price','active':true,'billing_scheme':'per_unit','created':1678182212,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvLHLkz1aSdI','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':2500,'unit_amount_decimal':'2500'},{'id':'price_1Mlea4JIZhxRN8vVPzF2csYG','object':'price','active':true,'billing_scheme':'tiered','created':1678826184,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvLHLkz1aSdI','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers':[{'flat_amount':null,'flat_amount_decimal':null,'unit_amount':35,'unit_amount_decimal':'35','up_to':1000},{'flat_amount':null,'flat_amount_decimal':null,'unit_amount':15,'unit_amount_decimal':'15','up_to':null}],'tiers_mode':'volume','transform_quantity':null,'type':'recurring','unit_amount':null,'unit_amount_decimal':null},{'id':'price_1MilSyJIZhxRN8vVeLS9NaAk','object':'price','active':true,'billing_scheme':'per_unit','created':1678137668,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvLHLkz1aSdI','recurring':{'aggregate_usage':null,'interval':'year','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':25000,'unit_amount_decimal':'25000'}]},{'id':'prod_NRrvBSQC0ZoHY7','object':'product','active':true,'attributes':[],'created':1677709893,'default_price':'price_1Mix29JIZhxRN8vVWAiQKwWu','description':'Basic plan description','images':[],'livemode':false,'metadata':{},'name':'Basic Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678621196,'url':null,'prices':[{'id':'price_1Mix29JIZhxRN8vVWAiQKwWu','object':'price','active':true,'billing_scheme':'per_unit','created':1678182133,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvBSQC0ZoHY7','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':1000,'unit_amount_decimal':'1000'},{'id':'price_1MilUCJIZhxRN8vVyTUym4ZP','object':'price','active':true,'billing_scheme':'per_unit','created':1678137744,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvBSQC0ZoHY7','recurring':{'aggregate_usage':null,'interval':'year','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':10000,'unit_amount_decimal':'10000'}]}]
-
-const mockSelectedProducts = [
-  {'id':'prod_NRrvBSQC0ZoHY7',object:'product','active':true,'attributes':[],'created':1677709893,'default_price':'price_1Mix29JIZhxRN8vVWAiQKwWu','description':'Basic plan description','images':[],'livemode':false,'metadata':{},'name':'Basic Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678621196,'url':null,'prices':[{'id':'price_1Mix29JIZhxRN8vVWAiQKwWu','object':'price','active':true,'billing_scheme':'per_unit','created':1678182133,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvBSQC0ZoHY7','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':1000,'unit_amount_decimal':'1000'}],'features':[]},
-  {'id':'prod_NRrvLHLkz1aSdI','object':'product','active':true,'attributes':[],'created':1677709939,'default_price':'price_1Mix3QJIZhxRN8vVmiM3xH4p','description':'Premium plan description','images':[],'livemode':false,'metadata':{},'name':'Premium Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678621159,'url':null,'prices':[{'id':'price_1Mix3QJIZhxRN8vVmiM3xH4p','object':'price','active':true,'billing_scheme':'per_unit','created':1678182212,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrvLHLkz1aSdI','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':2500,'unit_amount_decimal':'2500'}],'features':[]},
-  {'id':'prod_NRrwPguKtyHVRl','object':'product','active':true,'attributes':[],'created':1677709991,'default_price':'price_1Mix3vJIZhxRN8vV7cvEddpk','description':'Enterprise Plan description','images':[],'livemode':false,'metadata':{},'name':'Enterprise Plan','package_dimensions':null,'shippable':null,'statement_descriptor':null,'tax_code':null,'type':'service','unit_label':null,'updated':1678182255,'url':null,'prices':[{'id':'price_1Mix3vJIZhxRN8vV7cvEddpk','object':'price','active':true,'billing_scheme':'per_unit','created':1678182243,'currency':'gbp','custom_unit_amount':null,'livemode':false,'lookup_key':null,'metadata':{},'nickname':null,'product':'prod_NRrwPguKtyHVRl','recurring':{'aggregate_usage':null,'interval':'month','interval_count':1,'trial_period_days':null,'usage_type':'licensed'},'tax_behavior':'unspecified','tiers_mode':null,'transform_quantity':null,'type':'recurring','unit_amount':5000,'unit_amount_decimal':'5000'}],'features':[]},
-];
-
-const mockFeatures: Feature[] = [
-  { id: '1', 'name':'Unlimited private repos', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: true },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  { id: '2', 'name':'Jira software integration', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: true },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  {id: '3', 'name':'Required merge checks', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-  {id: '4', 'name':'IP Whitelisting', type: 'boolean','products':[{ id: 'prod_NRrvBSQC0ZoHY7', value: false },{ id: 'prod_NRrvLHLkz1aSdI', value: false },{ id: 'prod_NRrwPguKtyHVRl', value: true }]},
-];

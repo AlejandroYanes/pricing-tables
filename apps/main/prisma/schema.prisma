@@ -12,42 +12,55 @@ datasource db {
 }
 
 model PriceWidget {
-    id              String    @id @default(cuid())
-    templateId      String
+    id              String        @id @default(cuid())
+    template        String
+    usesUnitLabel   Boolean       @default(false)
     unitLabel       String?
+    color           String
     recommended     String?
+    subscribeLabel  String
+    freeTrialLabel  String
+    currency        String?
     products        Product[]
+    callbacks       Callback[]
     userId          String
-    user            User      @relation(fields: [userId], references: [id])
+    user            User          @relation(fields: [userId], references: [id])
 }
 
 model Product {
-    id              String    @id @default(cuid())
-    name            String
-    description     String?
-    recommended     Boolean   @default(false)
+    id              String        @id @default(cuid())
     prices          Price[]
+    isCustom        Boolean       @default(false)
+    ctaLabel        String?
+    ctaUrl          String?
+    features        Feature[]
     widgetId        String?
-    widget          PriceWidget? @relation(fields: [widgetId], references: [id])
+    widget          PriceWidget?  @relation(fields: [widgetId], references: [id])
 }
 
 model Price {
-    id              String    @id @default(cuid())
-    billingScheme   String
-    tiersMode       String
-    unitAmount      Int
-    currencies      Currency[]
+    id              String        @id @default(cuid())
     productId       String
-    product         Product   @relation(fields: [productId], references: [id])
+    hasFreeTrial    Boolean       @default(false)
+    freeTrialDays   Int           @default(0)
+    product         Product       @relation(fields: [productId], references: [id])
 }
 
-model Currency {
-    id              String    @id @default(cuid())
+model Feature {
+    id              String        @id @default(cuid())
     name            String
-    code            String
-    unitAmount      Int
-    priceId         String
-    price           Price @relation(fields: [priceId], references: [id])
+    type            String
+    value           String
+    productId       String
+    product         Product       @relation(fields: [productId], references: [id])
+}
+
+model Callback {
+    id              String        @id @default(cuid())
+    env             String
+    url             String
+    widgetId        String
+    widget          PriceWidget   @relation(fields: [widgetId], references: [id])
 }
 
 // Necessary for Next auth

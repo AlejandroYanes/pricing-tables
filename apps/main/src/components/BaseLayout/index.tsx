@@ -8,6 +8,7 @@ const useStyles = createStyles(() => ({
     display: 'flex',
     flexDirection: 'column',
     padding: '0 48px 24px',
+    position: 'relative',
   },
 }));
 

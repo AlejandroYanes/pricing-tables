@@ -1,10 +1,10 @@
 import { Checkbox, TextInput } from '@mantine/core';
-import type { FeatureType, FeatureValue } from 'models';
+import type { FeatureType } from 'models';
 
 interface Props {
   type: FeatureType;
-  value: FeatureValue;
-  onChange: (nextValue: FeatureValue) => void;
+  value: string;
+  onChange: (nextValue: string) => void;
 }
 
 export default function FeatureInput(props: Props) {
@@ -14,9 +14,9 @@ export default function FeatureInput(props: Props) {
     case 'boolean':
       return (
         <Checkbox
-          checked={value as boolean}
+          checked={value === 'true'}
           onChange={() => undefined}
-          onClick={() => onChange(!value)}
+          onClick={() => onChange(value === 'true' ? 'false' : 'true')}
         />
       );
     case 'string':

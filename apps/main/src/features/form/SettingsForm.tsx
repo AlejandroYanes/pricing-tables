@@ -10,10 +10,10 @@ interface Props {
   showPanel: boolean;
   template: ReactNode;
   products: FormProduct[];
-  recommended: string | undefined;
+  recommended: string | null;
   onRecommendedChange: (next: string) => void;
   usesUnitLabel: boolean;
-  unitLabel: string | undefined;
+  unitLabel: string | null;
   onToggleUnitLabels: () => void;
   onUnitLabelChange: (nextLabel: string) => void;
   subscribeLabel: string;
@@ -73,7 +73,7 @@ export default function SettingsForm(props: Props) {
         <TextInput
           mt={-12}
           label="Label"
-          value={unitLabel}
+          value={unitLabel || ''}
           onChange={(e) => onUnitLabelChange(e.target.value)}
         />
       </RenderIf>

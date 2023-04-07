@@ -2,19 +2,19 @@ import { Button, createStyles, Select, Stack, Table, Text, TextInput, rem, Actio
 import type { DropResult } from 'react-beautiful-dnd';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconTrash } from '@tabler/icons';
-import type { Feature, FeatureType, FeatureValue, FormProduct } from 'models';
+import type { FormFeature, FeatureType, FormProduct } from 'models';
 
 import FeatureInput from './FeatureInput';
 import CustomDroppable from './CustomDroppable';
 
 interface Props {
   products: FormProduct[];
-  features: Feature[];
+  features: FormFeature[];
   onAddNew: () => void;
   onDelete: (featureIndex: number) => void;
   onFeatureLabelUpdate: (featureIndex: number, nextLabel: string) => void;
   onFeatureTypeChange: (featureIndex: number, nextType: FeatureType) => void;
-  onFeatureValueChange: (featureIndex: number, productId: string, nextValue: FeatureValue) => void;
+  onFeatureValueChange: (featureIndex: number, productId: string, nextValue: string) => void;
   onFeatureReorder: (result: DropResult) => void;
 }
 
@@ -33,12 +33,8 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const resolveFeatureValue = (feature: Feature, prodId: string) => {
-  const prod = feature.products.find((prod) => prod.id === prodId);
-
-  if (!prod) {
-    return feature.type === 'boolean' ? false : '';
-  }
+const resolveFeatureValue = (feature: FormFeature, prodId: string) => {
+  const prod = feature.products.find((prod) => prod.id === prodId)!;
   return prod.value;
 };
 

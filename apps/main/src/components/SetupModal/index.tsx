@@ -66,7 +66,7 @@ export default function SetupModal() {
       closeOnEscape={false}
       closeOnClickOutside={false}
       onClose={() => undefined}
-      title={<Title order={3}>Hi there</Title>}
+      title={<Text size="lg" weight="bold">Hi there</Text>}
     >
       <Text>
         In order to help you, we need to be able to connect to your Stripe account to read your products and prices,
