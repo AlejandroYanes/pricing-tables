@@ -2,15 +2,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import type Stripe from 'stripe';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { CTACallback, Feature, FormPrice, FormProduct } from 'models';
+import type { CTACallback, FormFeature, FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
 
 interface Props {
-  features: Feature[];
+  features: FormFeature[];
   products: FormProduct[];
-  recommended: string | undefined;
-  unitLabel?: string;
+  recommended: string | null;
+  unitLabel: string | null;
   color: string;
   subscribeLabel: string;
   freeTrialLabel: string;
@@ -46,7 +46,7 @@ const intervalsMap = {
   one_time: { label: 'One Time', index: 4 },
 };
 
-const resolvePricing = (options: { price: FormPrice; unitLabel?: string; currency?: string | null }): string => {
+const resolvePricing = (options: { price: FormPrice; unitLabel: string | null; currency?: string | null }): string => {
   const { price, unitLabel, currency: selectedCurrency } = options;
   const {
     type,
@@ -133,7 +133,7 @@ const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
   return prod.prices.find((price) => price.recurring?.interval === interval)!;
 }
 
-const resolveFeaturesForProduct = (features: Feature[], productId: string) => {
+const resolveFeaturesForProduct = (features: FormFeature[], productId: string) => {
   return features.reduce((acc, feat) => {
     const targetProduct = feat.products.find((prod) => {
       return prod.id === productId;
@@ -219,7 +219,7 @@ export function BasicTemplate(props: Props) {
           };
 
           const resolveBtnUrl = () => {
-            if (isCustom) return prod.ctaUrl;
+            if (isCustom) return prod.ctaUrl || '';
 
             const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
             return `${callbackUrl}?product_id=${prod.id}&price_id=${priceToShow.id}`;

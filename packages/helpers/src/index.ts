@@ -1,7 +1,6 @@
-export * from './functions/numbers';
-export * from './functions/prisma';
-export * from './functions/pagiantion';
-export * from './functions/prop-types';
-export * from './functions/strings';
-
-export * from '../../templates/src/constants/templates';
+export * from './numbers';
+export * from './prisma';
+export * from './pagiantion';
+export * from './prop-types';
+export * from './strings';
+export * from './constants';

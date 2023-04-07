@@ -10,6 +10,7 @@ export enum TIER_MODE {
   VOLUME = 'volume',
 }
 
+export type InitialProduct = Stripe.Product & { prices?: Stripe.Price[] };
 export type ExtendedProduct = Stripe.Product & { prices: Stripe.Price[] };
 
 export type FormPrice = Stripe.Price & {
@@ -19,12 +20,11 @@ export type FormPrice = Stripe.Price & {
 export type FormProduct = Stripe.Product & {
   prices: FormPrice[];
   isCustom?: boolean;
-  ctaLabel?: string;
-  ctaUrl?: string;
+  ctaLabel?: string | null;
+  ctaUrl?: string | null;
 };
 
 export type FeatureType = 'boolean' | 'string' | 'compose';
-export type FeatureValue = boolean | string;
-export type Feature = { id: string; name: string; type: FeatureType; products: { id: string; value: FeatureValue }[] };
+export type FormFeature = { id: string; name: string; type: FeatureType; products: { id: string; value: string }[] };
 
 export type CTACallback = { env: string; url: string };
