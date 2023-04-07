@@ -90,5 +90,8 @@
         "project": "./"
       }
     }
-  }
+  },
+  "ignorePatterns": [
+    "node_modules/", "dist/", "public/", "jest.config.js", "jest.setup.js"
+  ]
 }

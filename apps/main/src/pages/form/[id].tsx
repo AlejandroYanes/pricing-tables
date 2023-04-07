@@ -51,11 +51,10 @@ const FormPage = () => {
     refetchInterval: false,
   });
 
-  const { data } = api.products.list.useQuery(undefined, {
+  const { data } = api.stripe.list.useQuery(undefined, {
     refetchOnWindowFocus: false,
     enabled: isFetchingWidgetInfo,
   });
-  // const data: any = mockProducts;
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -73,10 +72,7 @@ const FormPage = () => {
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
-  const [callbacks, callbackHandlers] = useListState<CTACallback>([
-    { env: 'development', url: '' },
-    { env: 'production', url: '' },
-  ]);
+  const [callbacks, callbackHandlers] = useListState<CTACallback>([]);
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);

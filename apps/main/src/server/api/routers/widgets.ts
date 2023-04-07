@@ -90,6 +90,50 @@ export const widgetsRouter = createTRPCRouter({
       features: normaliseFeatures(widget.products.flatMap((prod) => prod.features)),
     };
   }),
+
+  updateProducts: protectedProcedure
+    .input(z.array(
+      z.object({
+        id: z.string(),
+        isCustom: z.boolean().nullish(),
+        ctaLabel: z.string().nullish(),
+        ctaUrl: z.string().nullish(),
+        prices: z.array(
+          z.object({
+            id: z.string(),
+            hasFreeTrial: z.boolean().nullish(),
+            freeTrialDays: z.number().nullish(),
+          }),
+        ),
+      }),
+    ))
+    .mutation(async ({ ctx, input: products }) => {
+      const hasFlakyValue = (value: any) => value !== undefined;
+      const hasStrictValue = (value: any) => value !== undefined && value !== null;
+
+      for (let pIndex = 0; pIndex < products.length; pIndex++) {
+        const product = products[pIndex]!;
+        await ctx.prisma.product.update({
+          where: { id: product.id },
+          data: {
+            ...(hasStrictValue(product.isCustom) ? { isCustom: product.isCustom as boolean } : {}),
+            ...(hasFlakyValue(product.ctaLabel) ? { ctaLabel: product.ctaLabel as string } : {}),
+            ...(hasFlakyValue(product.ctaUrl) ? { ctaUrl: product.ctaUrl as string } : {}),
+            ...(product.prices.length > 0 ? {
+              prices: {
+                updateMany: product.prices.map((price) => ({
+                  where: { id: price.id },
+                  data: {
+                    ...(hasStrictValue(price.hasFreeTrial) ? { hasFreeTrial: price.hasFreeTrial as boolean } : {}),
+                    ...(hasStrictValue(price.freeTrialDays) ? { freeTrialDays: price.freeTrialDays as number } : {}),
+                  },
+                })),
+              }
+            } : {})
+          },
+        });
+      }
+    }),
 });
 
 type ProductsList = Prisma.ProductGetPayload<{

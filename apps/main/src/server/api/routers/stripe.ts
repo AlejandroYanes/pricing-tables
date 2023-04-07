@@ -2,7 +2,7 @@ import type { ExtendedProduct, InitialProduct } from 'models';
 
 import { createTRPCRouter, stripeProcedure } from '../trpc';
 
-export const productsRouter = createTRPCRouter({
+export const stripeRouter = createTRPCRouter({
   list: stripeProcedure.query(async ({ ctx }) => {
 
     const products: InitialProduct[] = (await ctx.stripe.products.list({ active: true })).data;
