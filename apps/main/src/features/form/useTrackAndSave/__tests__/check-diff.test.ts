@@ -24,33 +24,55 @@ describe('checkDiff function', () => {
     expect(diff).toEqual({ c: 4, d: { e: 6, f: { i: null } } });
   });
 
-  it('should return true when the values are arrays and have different content', () => {
-    const trackedValue = [1, 2, 3];
-    const newValue = [1, 2, 4];
-    const { isDiff, diff } = checkDiff(trackedValue, newValue);
+  it.only('should return the object tree with the differences', () => {
+    const products = [
+      { id: '1', name: 'prod-1', prices: [{ id: '1', value: 10 }, { id: '2', value: 20 }] },
+    ];
+    const nextProducts = [
+      { id: '1', name: 'prod-1', prices: [{ id: '1', value: 15 }, { id: '2', value: 20 }] },
+    ];
+
+    const { isDiff, diff } = checkDiff(products, nextProducts, 'id');
+    console.log(JSON.stringify(diff));
     expect(isDiff).toBe(true);
-    expect(diff).toEqual([4]);
+    expect(diff).toEqual([{ id: '1', prices: [{ id: '1', value: 15 }] }]);
   });
 
-  it('should return false if the arrays only have different lengths', () => {
-    const trackedValue = [1, 2, 3];
-    const newValue = [1, 2, 3, 4];
-    const { isDiff } = checkDiff(trackedValue, newValue);
-    expect(isDiff).toBe(false);
-  });
-
-  it('should return false if the arrays only have different lengths (w/ the new one being shorter)', () => {
-    const trackedValue = [1, 2, 3];
-    const newValue = [1, 2];
-    const { isDiff } = checkDiff(trackedValue, newValue);
-    expect(isDiff).toBe(false);
-  });
-
-  it('should return true if the objects inside are different', () => {
+  it('should return true when the values are arrays and have different content', () => {
     const trackedValue = [{ a: 1 }, { b: 2 }, { c: 3 }];
     const newValue = [{ a: 1 }, { b: 2 }, { c: 4 }];
     const { isDiff, diff } = checkDiff(trackedValue, newValue);
     expect(isDiff).toBe(true);
     expect(diff).toEqual([{ c: 4 }]);
+  });
+
+  it('should return false if the arrays only have different lengths', () => {
+    const trackedValue = [{ a: 1 }, { b: 2 }, { c: 3 }];
+    const newValue = [{ a: 1 }, { b: 2 }, { c: 3 }, { d: 4 }];
+    const { isDiff } = checkDiff(trackedValue, newValue);
+    expect(isDiff).toBe(false);
+  });
+
+  it('should return false if the arrays only have different lengths (w/ the new one being shorter)', () => {
+    const trackedValue = [{ a: 1 }, { b: 2 }, { c: 3 }];
+    const newValue = [{ a: 1 }, { b: 2 }];
+    const { isDiff } = checkDiff(trackedValue, newValue);
+    expect(isDiff).toBe(false);
+  });
+
+  it('should return true if the objects inside are different', () => {
+    const trackedValue = [{ a: 1 }, { b: 2 }, { c: 3, d: 4 }];
+    const newValue = [{ a: 1 }, { b: 2 }, { c: 4 }];
+    const { isDiff, diff } = checkDiff(trackedValue, newValue);
+    expect(isDiff).toBe(true);
+    expect(diff).toEqual([{ c: 4 }]);
+  });
+
+  it('should return true if the objects inside are different (when using idField)', () => {
+    const trackedValue = [{ id: 1, a: 1 }, { id: 2, b: 2 }, { id: 3, c: 3, d: 4 }];
+    const newValue = [{ id: 1, a: 1 }, { id: 2, b: 2 }, { id: 3, c: 4 }];
+    const { isDiff, diff } = checkDiff(trackedValue, newValue, 'id');
+    expect(isDiff).toBe(true);
+    expect(diff).toEqual([{ id: 3, c: 4 }]);
   });
 });

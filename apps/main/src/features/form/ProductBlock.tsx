@@ -162,6 +162,7 @@ export default function ProductBlock(props: Props) {
               <Checkbox
                 label="Include free trial"
                 checked={price.hasFreeTrial}
+                onChange={() => undefined}
                 onClick={() => onToggleFreeTrial(value.id, price.id)}
               />
               <RenderIf condition={!!price.hasFreeTrial}>

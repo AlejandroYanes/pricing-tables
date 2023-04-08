@@ -10,6 +10,7 @@ import type { DropResult } from 'react-beautiful-dnd';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
+import { mockProducts } from 'helpers';
 import type { CTACallback, FormFeature, FeatureType, FormProduct } from 'models';
 
 import { api } from 'utils/api';
@@ -19,6 +20,7 @@ import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
 import FeaturesForm from 'features/form/FeaturesForm';
+import useTrackAndSave from 'features/form/useTrackAndSave';
 
 type Tabs = 'products' | 'features' | 'visuals' | 'settings';
 
@@ -45,16 +47,17 @@ const errorScreen = (
 const FormPage = () => {
   const colorScheme = useColorScheme();
 
-  const { query } = useRouter();
-  const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = api.widgets.fetchInfo.useQuery(query.id as string, {
-    refetchOnWindowFocus: false,
-    refetchInterval: false,
-  });
+  // const { query } = useRouter();
+  // const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = api.widgets.fetchInfo.useQuery(query.id as string, {
+  //   refetchOnWindowFocus: false,
+  //   refetchInterval: false,
+  // });
 
-  const { data } = api.stripe.list.useQuery(undefined, {
-    refetchOnWindowFocus: false,
-    enabled: isFetchingWidgetInfo,
-  });
+  // const { data } = api.stripe.list.useQuery(undefined, {
+  //   refetchOnWindowFocus: false,
+  //   enabled: isFetchingWidgetInfo,
+  // });
+  const data = mockProducts as any;
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
@@ -72,26 +75,49 @@ const FormPage = () => {
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
-  const [callbacks, callbackHandlers] = useListState<CTACallback>([]);
+  const [callbacks, callbackHandlers] = useListState<CTACallback>([
+    {
+      env: 'development',
+      url: 'https://example.com',
+    },
+    {
+      env: 'production',
+      url: 'https://example.com',
+    },
+  ]);
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!isFetchingWidgetInfo && widgetInfo) {
-      productHandlers.setState(widgetInfo!.products);
-      featureHandlers.setState(widgetInfo!.features);
-      setColor(widgetInfo!.color);
-      setRecommended(widgetInfo!.recommended);
-      setSubscribeLabel(widgetInfo!.subscribeLabel);
-      setFreeTrialLabel(widgetInfo!.freeTrialLabel);
-      setUsesUnitLabel(widgetInfo!.usesUnitLabel);
-      setUnitLabel(widgetInfo!.unitLabel);
-      callbackHandlers.setState(widgetInfo!.callbacks);
-      setSelectedCurrency(widgetInfo!.currency);
-      setIsLoaded(true);
-    }
-  }, [isFetchingWidgetInfo, widgetInfo]);
+  useTrackAndSave({
+    selectedProducts,
+    features,
+    color,
+    recommended,
+    subscribeLabel,
+    freeTrialLabel,
+    usesUnitLabel,
+    unitLabel,
+    callbacks,
+    currency: selectedCurrency,
+    // widgetId: query.id as string,
+  });
+
+  // useEffect(() => {
+  //   if (!isFetchingWidgetInfo && widgetInfo) {
+  //     productHandlers.setState(widgetInfo!.products);
+  //     featureHandlers.setState(widgetInfo!.features);
+  //     setColor(widgetInfo!.color);
+  //     setRecommended(widgetInfo!.recommended);
+  //     setSubscribeLabel(widgetInfo!.subscribeLabel);
+  //     setFreeTrialLabel(widgetInfo!.freeTrialLabel);
+  //     setUsesUnitLabel(widgetInfo!.usesUnitLabel);
+  //     setUnitLabel(widgetInfo!.unitLabel);
+  //     callbackHandlers.setState(widgetInfo!.callbacks);
+  //     setSelectedCurrency(widgetInfo!.currency);
+  //     setIsLoaded(true);
+  //   }
+  // }, [isFetchingWidgetInfo, widgetInfo]);
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -123,7 +149,7 @@ const FormPage = () => {
 
     if (!selectedProduct || !selectedPrice) return;
 
-    const copy = { ...selectedProduct, prices: [{ ...selectedPrice }], features: [] };
+    const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
     productHandlers.append(copy);
   };
 
@@ -138,7 +164,7 @@ const FormPage = () => {
     }
 
     const customProduct: Partial<FormProduct> = {
-      id: 'custom',
+      id: `custom-${Date.now()}`,
       object: 'product',
       isCustom: true,
       active: true,
@@ -225,6 +251,10 @@ const FormPage = () => {
     }))
   };
 
+  const handleCustomCTANameChange = (index: number, nextName: string) => {
+    productHandlers.setItemProp(index, 'name', nextName);
+  };
+
   const handleCustomCTALabelChange = (index: number, nextLabel: string) => {
     productHandlers.setItemProp(index, 'ctaLabel', nextLabel);
   };
@@ -238,7 +268,6 @@ const FormPage = () => {
   };
 
   const handleUnitLabelToggle = () => {
-    console.log('handleUnitLabelToggle');
     setUsesUnitLabel(!usesUnitLabel);
     setUnitLabel(!usesUnitLabel ? 'units' : null);
   };
@@ -308,9 +337,9 @@ const FormPage = () => {
     callbackHandlers.setItemProp(index, 'url', nextUrl);
   };
 
-  if (isError) {
-    return errorScreen;
-  }
+  // if (isError) {
+  //   return errorScreen;
+  // }
 
   const template = (
     <>
@@ -410,6 +439,7 @@ const FormPage = () => {
               onRemovePrice={handleRemovePrice}
               onToggleFreeTrial={handleToggleFreeTrial}
               onChangeFreeTrialDays={handleChangeFreeTrialDays}
+              onCustomCTANameChange={handleCustomCTANameChange}
               onCustomCTALabelChange={handleCustomCTALabelChange}
               onCustomCTAUrlChange={handleCustomCTAUrlChange}
               onCustomCTADescriptionChange={handleCustomDescriptionChange}
@@ -458,9 +488,9 @@ const FormPage = () => {
             />
           </RenderIf>
         </Group>
-        <RenderIf condition={!isLoaded}>
-          <LoadingOverlay visible overlayBlur={2} />
-        </RenderIf>
+        {/*<RenderIf condition={!isLoaded}>*/}
+        {/*  <LoadingOverlay visible overlayBlur={2} />*/}
+        {/*</RenderIf>*/}
       </MantineProvider>
     </BaseLayout>
   );

@@ -91,6 +91,179 @@ export const widgetsRouter = createTRPCRouter({
     };
   }),
 
+  addProduct: protectedProcedure.input(
+    z.object({
+      widgetId: z.string(),
+      productId: z.string(),
+      priceId: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.create({
+      data: {
+        id: input.productId,
+        widgetId: input.widgetId,
+        prices: {
+          create: {
+            id: input.priceId,
+          },
+        },
+      },
+    });
+  }),
+
+  addCustomProduct: protectedProcedure.input(
+    z.object({
+      widgetId: z.string(),
+      productId: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.create({
+      data: {
+        isCustom: true,
+        id: input.productId,
+        widgetId: input.widgetId,
+        name: 'Custom Product',
+        description: 'Custom product are used to present an extra option for users to contact the sales team',
+        ctaLabel: 'Contact Us',
+        ctaUrl: '',
+      },
+    });
+  }),
+
+  removeProduct: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.delete({ where: { id: input } });
+  }),
+
+  addPrice: protectedProcedure.input(
+    z.object({
+      productId: z.string(),
+      priceId: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.price.create({
+      data: {
+        id: input.priceId,
+        productId: input.productId,
+      },
+    });
+  }),
+
+  removePrice: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.price.delete({ where: { id: input } });
+  }),
+
+  toggleFreeTrial: protectedProcedure.input(
+    z.object({
+      priceId: z.string(),
+      value: z.boolean(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.price.update({
+      where: { id: input.priceId },
+      data: {
+        hasFreeTrial: input.value,
+      },
+    });
+  }),
+
+  setFreeTrialDays: protectedProcedure.input(
+    z.object({
+      priceId: z.string(),
+      value: z.number(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.price.update({
+      where: { id: input.priceId },
+      data: {
+        freeTrialDays: input.value,
+      },
+    });
+  }),
+
+  updateCustomCtaLabel: protectedProcedure.input(
+    z.object({
+      productId: z.string(),
+      value: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.update({
+      where: { id: input.productId },
+      data: {
+        ctaLabel: input.value,
+      },
+    });
+  }),
+
+  updateCustomCtaUrl: protectedProcedure.input(
+    z.object({
+      productId: z.string(),
+      value: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.update({
+      where: { id: input.productId },
+      data: {
+        ctaUrl: input.value,
+      },
+    });
+  }),
+
+  updateCustomName: protectedProcedure.input(
+    z.object({
+      productId: z.string(),
+      value: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.update({
+      where: { id: input.productId },
+      data: {
+        name: input.value,
+      },
+    });
+  }),
+
+  updateCustomDescription: protectedProcedure.input(
+    z.object({
+      productId: z.string(),
+      value: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.product.update({
+      where: { id: input.productId },
+      data: {
+        description: input.value,
+      },
+    });
+  }),
+
+  toggleUnitLabel: protectedProcedure.input(
+    z.object({
+      widgetId: z.string(),
+      value: z.boolean(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.priceWidget.update({
+      where: { id: input.widgetId },
+      data: {
+        usesUnitLabel: input.value,
+      },
+    });
+  }),
+
+  updateUnitLabel: protectedProcedure.input(
+    z.object({
+      widgetId: z.string(),
+      value: z.string(),
+    })
+  ).mutation(async ({ ctx, input }) => {
+    return ctx.prisma.priceWidget.update({
+      where: { id: input.widgetId },
+      data: {
+        unitLabel: input.value,
+      },
+    });
+  }),
+
   updateProducts: protectedProcedure
     .input(z.array(
       z.object({
@@ -134,6 +307,52 @@ export const widgetsRouter = createTRPCRouter({
         });
       }
     }),
+
+  updateFeatures: protectedProcedure.input(
+    z.array(
+      z.object({
+        id: z.string(),
+        name: z.string().nullish(),
+        type: z.string().nullish(),
+        value: z.string().nullish(),
+        productId: z.string().nullish(),
+      }),
+    )
+  ).mutation(async ({ ctx, input: features }) => {
+    for (let fIndex = 0; fIndex < features.length; fIndex++) {
+      const feature = features[fIndex]!;
+      await ctx.prisma.feature.update({
+        where: { id: feature.id },
+        data: {
+          ...(feature.name !== undefined ? { name: feature.name as string } : {}),
+          ...(feature.type !== undefined ? { type: feature.type as string } : {}),
+          ...(feature.value !== undefined ? { value: feature.value as string } : {}),
+          ...(feature.productId !== undefined ? { productId: feature.productId as string } : {}),
+        },
+      });
+    }
+  }),
+
+  updateCallbacks: protectedProcedure.input(
+    z.array(
+      z.object({
+        id: z.string(),
+        env: z.string().nullish(),
+        url: z.string().nullish(),
+      })
+    )
+  ).mutation(async ({ ctx, input: callbacks }) => {
+    for (let cIndex = 0; cIndex < callbacks.length; cIndex++) {
+      const callback = callbacks[cIndex]!;
+      await ctx.prisma.callback.update({
+        where: { id: callback.id },
+        data: {
+          ...(callback.env !== undefined ? { env: callback.env as string } : {}),
+          ...(callback.url !== undefined ? { url: callback.url as string } : {}),
+        },
+      });
+    }
+  }),
 });
 
 type ProductsList = Prisma.ProductGetPayload<{

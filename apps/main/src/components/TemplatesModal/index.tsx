@@ -50,8 +50,6 @@ function TemplatesModal(props: Props) {
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
   const Template = selectedTemplate ? templatesMap[selectedTemplate] : () => null;
 
-  console.log(Template);
-
   const { classes, cx } = useStyles();
 
   return (

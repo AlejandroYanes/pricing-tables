@@ -24,6 +24,7 @@ interface Props {
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onChangeFreeTrialDays: (productId: string, priceId: string, days: number) => void;
   onAddCustomProduct: () => void;
+  onCustomCTANameChange: (index: number, nextName: string) => void;
   onCustomCTALabelChange: (index: number, nextLabel: string) => void;
   onCustomCTAUrlChange: (index: number, nextLabel: string) => void;
   onCustomCTADescriptionChange: (index: number, nextDescription: string) => void;
@@ -78,6 +79,7 @@ export default function ProductsForm(props: Props) {
     onRemovePrice,
     onToggleFreeTrial,
     onChangeFreeTrialDays,
+    onCustomCTANameChange,
     onCustomCTALabelChange,
     onCustomCTAUrlChange,
     onCustomCTADescriptionChange,
@@ -111,6 +113,7 @@ export default function ProductsForm(props: Props) {
               key={prod.id}
               value={prod}
               onRemove={() => onRemoveProduct(index)}
+              onCTANameChange={(value) => onCustomCTANameChange(index, value)}
               onCTALabelChange={(value) => onCustomCTALabelChange(index, value)}
               onCTAUrlChange={(value) => onCustomCTAUrlChange(index, value)}
               onDescriptionChange={(value) => onCustomCTADescriptionChange(index, value)}

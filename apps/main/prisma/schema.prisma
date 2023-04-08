@@ -31,6 +31,8 @@ model Product {
     id              String        @id @default(cuid())
     prices          Price[]
     isCustom        Boolean       @default(false)
+    name            String?
+    description     String?
     ctaLabel        String?
     ctaUrl          String?
     features        Feature[]

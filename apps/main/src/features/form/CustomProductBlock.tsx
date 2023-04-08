@@ -5,6 +5,7 @@ import type { FormProduct } from 'models';
 interface Props {
   value: FormProduct;
   onRemove: () => void;
+  onCTANameChange: (nextName: string) => void;
   onCTALabelChange: (nextLabel: string) => void;
   onCTAUrlChange: (nextUrl: string) => void;
   onDescriptionChange: (nextDesc: string) => void;
@@ -41,14 +42,14 @@ export default function CustomProductBlock(props: Props) {
           <IconX size={14} />
         </ActionIcon>
       </div>
-      <Text weight="bold" p={16}>{value.name}</Text>
+      <TextInput label="Name" value={value.name || ''} onChange={(e) => onCTALabelChange(e.target.value)} />
       <Divider orientation="horizontal" />
       <Stack p={16}>
-        <TextInput label="Button Label" value={value.ctaLabel} onChange={(e) => onCTALabelChange(e.target.value)} />
+        <TextInput label="Button Label" value={value.ctaLabel || ''} onChange={(e) => onCTALabelChange(e.target.value)} />
         <TextInput
           label="Button URL"
           placeholder="https://your.domain.com/get-quote"
-          value={value.ctaUrl}
+          value={value.ctaUrl || ''}
           onChange={(e) => onCTAUrlChange(e.target.value)}
         />
         <Textarea label="Description" value={value.description!} onChange={(e) => onDescriptionChange(e.target.value)} />
