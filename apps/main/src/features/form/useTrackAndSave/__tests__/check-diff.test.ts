@@ -24,7 +24,7 @@ describe('checkDiff function', () => {
     expect(diff).toEqual({ c: 4, d: { e: 6, f: { i: null } } });
   });
 
-  it.only('should return the object tree with the differences', () => {
+  it('should return the object tree with the differences', () => {
     const products = [
       { id: '1', name: 'prod-1', prices: [{ id: '1', value: 10 }, { id: '2', value: 20 }] },
     ];
