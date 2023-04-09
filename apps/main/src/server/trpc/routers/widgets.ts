@@ -95,118 +95,6 @@ export const widgetsRouter = createTRPCRouter({
     };
   }),
 
-  // toggleFreeTrial: protectedProcedure.input(
-  //   z.object({
-  //     priceId: z.string(),
-  //     value: z.boolean(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.price.update({
-  //     where: { id: input.priceId },
-  //     data: {
-  //       hasFreeTrial: input.value,
-  //     },
-  //   });
-  // }),
-
-  // setFreeTrialDays: protectedProcedure.input(
-  //   z.object({
-  //     priceId: z.string(),
-  //     value: z.number(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.price.update({
-  //     where: { id: input.priceId },
-  //     data: {
-  //       freeTrialDays: input.value,
-  //     },
-  //   });
-  // }),
-
-  // updateCustomCtaLabel: protectedProcedure.input(
-  //   z.object({
-  //     productId: z.string(),
-  //     value: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.update({
-  //     where: { id: input.productId },
-  //     data: {
-  //       ctaLabel: input.value,
-  //     },
-  //   });
-  // }),
-
-  // updateCustomCtaUrl: protectedProcedure.input(
-  //   z.object({
-  //     productId: z.string(),
-  //     value: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.update({
-  //     where: { id: input.productId },
-  //     data: {
-  //       ctaUrl: input.value,
-  //     },
-  //   });
-  // }),
-
-  // updateCustomName: protectedProcedure.input(
-  //   z.object({
-  //     productId: z.string(),
-  //     value: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.update({
-  //     where: { id: input.productId },
-  //     data: {
-  //       name: input.value,
-  //     },
-  //   });
-  // }),
-
-  // updateCustomDescription: protectedProcedure.input(
-  //   z.object({
-  //     productId: z.string(),
-  //     value: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.update({
-  //     where: { id: input.productId },
-  //     data: {
-  //       description: input.value,
-  //     },
-  //   });
-  // }),
-
-  // toggleUnitLabel: protectedProcedure.input(
-  //   z.object({
-  //     widgetId: z.string(),
-  //     value: z.boolean(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.priceWidget.update({
-  //     where: { id: input.widgetId },
-  //     data: {
-  //       usesUnitLabel: input.value,
-  //     },
-  //   });
-  // }),
-
-  // updateUnitLabel: protectedProcedure.input(
-  //   z.object({
-  //     widgetId: z.string(),
-  //     value: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.priceWidget.update({
-  //     where: { id: input.widgetId },
-  //     data: {
-  //       unitLabel: input.value,
-  //     },
-  //   });
-  // }),
-
   updateProducts: protectedProcedure
     .input(
       z.object({
@@ -214,6 +102,8 @@ export const widgetsRouter = createTRPCRouter({
         products: z.array(
           z.object({
             id: z.string(),
+            name: z.string().nullish(),
+            description: z.string().nullish(),
             isCustom: z.boolean().nullish(),
             ctaLabel: z.string().nullish(),
             ctaUrl: z.string().nullish(),
@@ -223,7 +113,7 @@ export const widgetsRouter = createTRPCRouter({
                 hasFreeTrial: z.boolean().nullish(),
                 freeTrialDays: z.number().nullish(),
               }),
-            ),
+            ).nullish(),
           }),
         )
       })
@@ -238,9 +128,11 @@ export const widgetsRouter = createTRPCRouter({
           where: { id_widgetId: { id: product.id, widgetId } },
           data: {
             ...(hasStrictValue(product.isCustom) ? { isCustom: product.isCustom as boolean } : {}),
+            ...(hasFlakyValue(product.name) ? { name: product.name as string } : {}),
+            ...(hasFlakyValue(product.description) ? { ctaLabel: product.description as string } : {}),
             ...(hasFlakyValue(product.ctaLabel) ? { ctaLabel: product.ctaLabel as string } : {}),
             ...(hasFlakyValue(product.ctaUrl) ? { ctaUrl: product.ctaUrl as string } : {}),
-            ...(product.prices.length > 0 ? {
+            ...(product.prices ? {
               prices: {
                 updateMany: product.prices.map((price) => ({
                   where: { id: price.id },

@@ -29,6 +29,7 @@ export default function CustomProductBlock(props: Props) {
   const {
     value,
     onRemove,
+    onCTANameChange,
     onCTALabelChange,
     onCTAUrlChange,
     onDescriptionChange,
@@ -42,7 +43,7 @@ export default function CustomProductBlock(props: Props) {
           <IconX size={14} />
         </ActionIcon>
       </div>
-      <TextInput m={16} label="Name" value={value.name || ''} onChange={(e) => onCTALabelChange(e.target.value)} />
+      <TextInput m={16} label="Name" value={value.name || ''} onChange={(e) => onCTANameChange(e.target.value)} />
       <Divider orientation="horizontal" />
       <Stack p={16}>
         <TextInput label="Button Label" value={value.ctaLabel || ''} onChange={(e) => onCTALabelChange(e.target.value)} />

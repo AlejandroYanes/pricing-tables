@@ -84,16 +84,7 @@ const FormPage = () => {
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
-  const [callbacks, callbackHandlers] = useListState<CTACallback>([
-    {
-      env: 'development',
-      url: 'https://example.com',
-    },
-    {
-      env: 'production',
-      url: 'https://example.com',
-    },
-  ]);
+  const [callbacks, callbackHandlers] = useListState<CTACallback>([]);
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);

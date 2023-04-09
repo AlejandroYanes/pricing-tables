@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import type { CTACallback, FormFeature, FormProduct } from 'models';
 
 import useDiff from './useDiff';
@@ -38,7 +37,10 @@ export default function useTrackAndSave(params: Params) {
     value: selectedProducts,
     idField: 'id',
     keysToTrack: ['name', 'description', 'prices', 'hasFreeTrial', 'freeTrialDays', 'ctaLabel', 'ctaUrl'],
-    onChange: (diff) => updateProducts({ widgetId, products: diff as any })
+    onChange: (diff) => {
+      console.log(diff);
+      updateProducts({ widgetId, products: diff as any });
+    }
   });
 
   // const { mutate: updateFeatures } = api.widgets.updateFeatures.useMutation();
