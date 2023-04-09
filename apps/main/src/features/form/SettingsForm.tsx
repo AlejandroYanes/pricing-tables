@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
-import type { CTACallback, FormProduct } from 'models';
+import type { FormCallback, FormProduct } from 'models';
 import { RenderIf } from 'ui';
 
 import TwoColumnsLayout from './TwoColumnsLayout';
@@ -20,7 +20,7 @@ interface Props {
   onSubscribeLabelChange: (nextLabel: string) => void;
   freeTrialLabel: string;
   onFreeTrialLabelChange: (nextLabel: string) => void;
-  callbacks: CTACallback[];
+  callbacks: FormCallback[];
   onAddNewCallback: () => void;
   onDeleteCallback: (index: number) => void;
   onCallbackEnvChange: (index: number, nextEnv: string) => void;
@@ -99,7 +99,7 @@ export default function SettingsForm(props: Props) {
       </Text>
       <Stack>
         {callbacks.map((cb, index) => (
-          <Group key={index} spacing={0}>
+          <Group key={index} spacing={0} align="flex-start">
             <TextInput
               styles={{
                 root: {
@@ -113,6 +113,7 @@ export default function SettingsForm(props: Props) {
               label={index === 0 ? 'Mode' : ''}
               value={cb.env}
               disabled={index < 2}
+              error={!!cb.error}
               onChange={(e) => onCallbackEnvChange(index, e.target.value)}
             />
             <TextInput
@@ -140,8 +141,12 @@ export default function SettingsForm(props: Props) {
               placeholder="https://your.server.com/api/product"
               label={index === 0 ? 'Redirect to' : ''}
               value={cb.url}
+              error={!!cb.error}
               onChange={(e) => onCallbackUrlChange(index, e.target.value)}
             />
+            <RenderIf condition={!!cb.error}>
+              <Text size="sm" color="red">{cb.error}</Text>
+            </RenderIf>
           </Group>
         ))}
         <Button mt="xs" ml="auto" onClick={onAddNewCallback}>Add callback</Button>

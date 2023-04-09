@@ -20,11 +20,13 @@ export const widgetsRouter = createTRPCRouter({
     await ctx.prisma.callback.createMany({
       data: [
         {
+          id: `${Date.now()}`,
           widgetId: widget.id,
           env: 'production',
           url: 'https://example.com',
         },
         {
+          id: `${Date.now() + 1}`,
           widgetId: widget.id,
           env: 'development',
           url: 'http://example.com',
@@ -46,8 +48,15 @@ export const widgetsRouter = createTRPCRouter({
         unitLabel: true,
         subscribeLabel: true,
         freeTrialLabel: true,
-        callbacks: true,
         currency: true,
+        callbacks: {
+          orderBy: { createdAt: 'asc' },
+          select: {
+            id: true,
+            env: true,
+            url: true,
+          },
+        },
         products: {
           orderBy: { createdAt: 'asc' },
           select: {

@@ -19,7 +19,7 @@ import {
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
 import { mockProducts } from 'helpers';
-import type { CTACallback, FeatureType, FormFeature, FormProduct } from 'models';
+import type { FormCallback, FeatureType, FormFeature, FormProduct } from 'models';
 
 import { trpc } from 'utils/trpc';
 import { callAPI } from 'utils/fetch';
@@ -70,7 +70,7 @@ const FormPage = () => {
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('features');
+  const [currentTab, setCurrentTab] = useState<Tabs>('settings');
   const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
@@ -84,7 +84,7 @@ const FormPage = () => {
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
-  const [callbacks, callbackHandlers] = useListState<CTACallback>([]);
+  const [callbacks, callbackHandlers] = useListState<FormCallback>([]);
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
@@ -413,14 +413,48 @@ const FormPage = () => {
   }
 
   const addNewCallback = () => {
-    callbackHandlers.append({ env: '', url: '' });
+    const newId = `${Date.now()}`;
+    const alreadyExists = callbacks.some((cb) => cb.env === '' );
+    callbackHandlers.append({
+      id: newId,
+      env: '',
+      url: '',
+      error: alreadyExists ? 'There can only be one callback per mode' : undefined,
+    });
+
+    if (!alreadyExists) {
+      callAPI({
+        url: `/api/widgets/${query.id}/add-callback`,
+        method: 'POST',
+        body: { id: newId, env: '', url: '' },
+      }).catch(() => {
+        handleAPIError();
+      });
+    }
   };
 
   const deleteCallback = (index: number) => {
     callbackHandlers.remove(index);
+
+    const targetCallback = callbacks.at(index)!;
+    callAPI({
+      url: `/api/widgets/${query.id}/remove-callback`,
+      method: 'POST',
+      body: { env: targetCallback.env },
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleCallbackEnvChange = (index: number, nextEnv: string) => {
+    const alreadyExists = callbacks.some((cb) => cb.env === nextEnv );
+    if (alreadyExists) {
+      callbackHandlers.setItemProp(index, 'error', 'There can only be one callback per mode');
+    }
+    if (callbacks.at(index)?.error) {
+      callbackHandlers.setItemProp(index, 'error', undefined);
+    }
+
     callbackHandlers.setItemProp(index, 'env', nextEnv);
   };
 

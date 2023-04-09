@@ -1,14 +1,14 @@
-import { Feature } from '@prisma/client';
-import type { CTACallback, FormFeature, FormProduct } from 'models';
+import type { Feature } from '@prisma/client';
+import type { FormCallback, FormFeature, FormProduct } from 'models';
 
-import useDiff from './useDiff';
 import { trpc } from 'utils/trpc';
+import useDiff from './useDiff';
 
 interface Params {
   widgetId: string;
   selectedProducts: FormProduct[];
   features: FormFeature[];
-  callbacks: CTACallback[];
+  callbacks: FormCallback[];
   color: string;
   recommended: string | null;
   usesUnitLabel: boolean;
@@ -23,7 +23,7 @@ export default function useTrackAndSave(params: Params) {
     widgetId,
     selectedProducts,
     features,
-    // callbacks,
+    callbacks,
     // color,
     // recommended,
     // usesUnitLabel,
@@ -73,16 +73,21 @@ export default function useTrackAndSave(params: Params) {
       updateFeatures({ widgetId, features: featureUpdates as any });
     },
   });
-  //
-  // const { mutate: updateCallbacks } = api.widgets.updateCallbacks.useMutation();
-  // const { isDiff: callbacksChanged, diff: callbacksDiff } = useDiff(callbacks, 'env');
-  //
-  // useEffect(() => {
-  //   if (callbacksChanged) {
-  //     console.log(callbacksDiff);
-  //     updateCallbacks(callbacksDiff as any);
-  //   }
-  // }, [callbacksChanged]);
+
+  const { mutate: updateCallbacks } = trpc.widgets.updateCallbacks.useMutation();
+  useDiff({
+    value: callbacks,
+    idField: 'id',
+    keysToTrack: ['env', 'url'],
+    onChange: (diff) => {
+      const updates = diff
+        .filter((cb: FormCallback) => callbacks.some((c) => c.id === cb.id && !c.error ))
+        .map((cb: FormCallback) => ({ id: cb.id, env: cb.env, url: cb.url }));
+      if (updates.length) {
+        updateCallbacks(updates as any);
+      }
+    },
+  });
   //
   // const { mutate: mutateGValues } = api.widgets.updateGeneralValues.useMutation();
   // const { isDiff: gValuesChanged, diff: gValuesDiff } = useDiff({

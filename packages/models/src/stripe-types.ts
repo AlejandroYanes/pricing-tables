@@ -27,4 +27,4 @@ export type FormProduct = Stripe.Product & {
 export type FeatureType = 'boolean' | 'string' | 'compose';
 export type FormFeature = { id: string; name: string; type: FeatureType; products: { id: string; value: string }[] };
 
-export type CTACallback = { env: string; url: string };
+export type FormCallback = { id: string; env: string; url: string; error?: string };

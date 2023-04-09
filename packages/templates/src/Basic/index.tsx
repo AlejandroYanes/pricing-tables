@@ -2,7 +2,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import type Stripe from 'stripe';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { CTACallback, FormFeature, FormPrice, FormProduct } from 'models';
+import type { FormCallback, FormFeature, FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
 
@@ -14,7 +14,7 @@ interface Props {
   color: string;
   subscribeLabel: string;
   freeTrialLabel: string;
-  callbacks: CTACallback[];
+  callbacks: FormCallback[];
   environment?: string;
   currency?: string | null;
 }

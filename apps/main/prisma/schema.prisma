@@ -66,9 +66,10 @@ model Feature {
 }
 
 model Callback {
-    id              String        @id @default(cuid())
-    env             String
+    id              String        @id
+    env             String        @unique
     url             String
+    createdAt       DateTime      @default(now())
     widgetId        String
     widget          PriceWidget   @relation(fields: [widgetId], references: [id])
 }

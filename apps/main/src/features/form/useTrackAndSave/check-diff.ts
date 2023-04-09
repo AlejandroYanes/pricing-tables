@@ -16,6 +16,7 @@ export function checkDiff(params: DiffParams) {
     trackedValue.forEach((value, i) => {
       const newItem = newValue.find((item, j) => idField ? item[idField] === value[idField] : i === j);
       if (newItem) {
+        // if value is an object and not null, we recursively check for differences
         if (typeof value === 'object' && value !== null) {
           const recursiveValue = checkDiff({
             trackedValue: value,
@@ -24,6 +25,7 @@ export function checkDiff(params: DiffParams) {
             keysToTrack,
           });
 
+          // if there are deeper differences, we add the new item to the diff
           if (recursiveValue.isDiff) {
             diff.push(recursiveValue.diff);
             isDiff = true;
@@ -31,6 +33,7 @@ export function checkDiff(params: DiffParams) {
           return;
         }
 
+        // if value is not an object, we check for differences
         if (value !== newItem) {
           diff.push(newItem);
           isDiff = true;
@@ -43,13 +46,16 @@ export function checkDiff(params: DiffParams) {
 
   diff = {};
   for (const key in trackedValue) {
+    // skips keys that are not in the keysToTrack array
     if (keysToTrack && key !== idField && !keysToTrack.includes(key)) continue;
 
-    if (key === idField) {
+    // if the key is the idField, and it's not in the keysToTrack array, we add it to the diff
+    if (key === idField && !keysToTrack?.includes(idField)) {
       diff[key] = trackedValue[key];
       continue;
     }
 
+    // if value is an object and not null, we recursively check for differences
     if (typeof trackedValue[key] === 'object' && trackedValue[key] !== null) {
       const recursiveValue = checkDiff({
         trackedValue: trackedValue[key],
@@ -58,6 +64,7 @@ export function checkDiff(params: DiffParams) {
         keysToTrack,
       });
 
+      // if there are deeper differences, we add the new item to the diff
       if (recursiveValue.isDiff) {
         diff[key] = recursiveValue.diff;
         isDiff = true;
@@ -65,6 +72,7 @@ export function checkDiff(params: DiffParams) {
       continue;
     }
 
+    // if the value is not an object, we check for differences
     if (trackedValue[key] !== newValue[key]) {
       diff[key] = newValue[key];
       isDiff = true;
