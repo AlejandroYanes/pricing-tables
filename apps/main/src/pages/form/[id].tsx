@@ -397,6 +397,19 @@ const FormPage = () => {
 
   const handleFeatureReorder = ({ destination, source }: DropResult) => {
     featureHandlers.reorder({ from: source.index, to: destination?.index || 0 });
+
+    const sourceFeature = features.at(source.index)!;
+    const destinationFeature = features.at(destination?.index || 0)!;
+    callAPI({
+      url: `/api/widgets/${query.id}/reorder-feature`,
+      method: 'POST',
+      body: {
+        source: sourceFeature.id,
+        destination: destinationFeature.id,
+      },
+    }).catch(() => {
+      handleAPIError();
+    });
   }
 
   const addNewCallback = () => {
