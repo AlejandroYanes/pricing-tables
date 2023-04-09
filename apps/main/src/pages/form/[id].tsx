@@ -182,8 +182,8 @@ const FormPage = () => {
       url: `/api/widgets/${query.id}/add-product`,
       method: 'POST',
       body: { productId: selectedProduct.id, priceId: selectedPrice.id }
-    }).catch((err) => {
-      console.log(err);
+    }).catch(() => {
+      handleAPIError();
     });
   };
 
