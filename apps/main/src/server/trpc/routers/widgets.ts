@@ -91,150 +91,150 @@ export const widgetsRouter = createTRPCRouter({
     };
   }),
 
-  addProduct: protectedProcedure.input(
-    z.object({
-      widgetId: z.string(),
-      productId: z.string(),
-      priceId: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.create({
-      data: {
-        id: input.productId,
-        widgetId: input.widgetId,
-        prices: {
-          create: {
-            id: input.priceId,
-          },
-        },
-      },
-    });
-  }),
+  // addProduct: protectedProcedure.input(
+  //   z.object({
+  //     widgetId: z.string(),
+  //     productId: z.string(),
+  //     priceId: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.create({
+  //     data: {
+  //       id: input.productId,
+  //       widgetId: input.widgetId,
+  //       prices: {
+  //         create: {
+  //           id: input.priceId,
+  //         },
+  //       },
+  //     },
+  //   });
+  // }),
 
-  addCustomProduct: protectedProcedure.input(
-    z.object({
-      widgetId: z.string(),
-      productId: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.create({
-      data: {
-        isCustom: true,
-        id: input.productId,
-        widgetId: input.widgetId,
-        name: 'Custom Product',
-        description: 'Custom product are used to present an extra option for users to contact the sales team',
-        ctaLabel: 'Contact Us',
-        ctaUrl: '',
-      },
-    });
-  }),
+  // addCustomProduct: protectedProcedure.input(
+  //   z.object({
+  //     widgetId: z.string(),
+  //     productId: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.create({
+  //     data: {
+  //       isCustom: true,
+  //       id: input.productId,
+  //       widgetId: input.widgetId,
+  //       name: 'Custom Product',
+  //       description: 'Custom product are used to present an extra option for users to contact the sales team',
+  //       ctaLabel: 'Contact Us',
+  //       ctaUrl: '',
+  //     },
+  //   });
+  // }),
 
-  removeProduct: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.delete({ where: { id: input } });
-  }),
+  // removeProduct: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.delete({ where: { id: input } });
+  // }),
 
-  addPrice: protectedProcedure.input(
-    z.object({
-      productId: z.string(),
-      priceId: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.price.create({
-      data: {
-        id: input.priceId,
-        productId: input.productId,
-      },
-    });
-  }),
+  // addPrice: protectedProcedure.input(
+  //   z.object({
+  //     productId: z.string(),
+  //     priceId: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.price.create({
+  //     data: {
+  //       stripeId: input.priceId,
+  //       productId: input.productId,
+  //     },
+  //   });
+  // }),
 
-  removePrice: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.price.delete({ where: { id: input } });
-  }),
+  // removePrice: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.price.delete({ where: { id: input } });
+  // }),
 
-  toggleFreeTrial: protectedProcedure.input(
-    z.object({
-      priceId: z.string(),
-      value: z.boolean(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.price.update({
-      where: { id: input.priceId },
-      data: {
-        hasFreeTrial: input.value,
-      },
-    });
-  }),
+  // toggleFreeTrial: protectedProcedure.input(
+  //   z.object({
+  //     priceId: z.string(),
+  //     value: z.boolean(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.price.update({
+  //     where: { id: input.priceId },
+  //     data: {
+  //       hasFreeTrial: input.value,
+  //     },
+  //   });
+  // }),
 
-  setFreeTrialDays: protectedProcedure.input(
-    z.object({
-      priceId: z.string(),
-      value: z.number(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.price.update({
-      where: { id: input.priceId },
-      data: {
-        freeTrialDays: input.value,
-      },
-    });
-  }),
+  // setFreeTrialDays: protectedProcedure.input(
+  //   z.object({
+  //     priceId: z.string(),
+  //     value: z.number(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.price.update({
+  //     where: { id: input.priceId },
+  //     data: {
+  //       freeTrialDays: input.value,
+  //     },
+  //   });
+  // }),
 
-  updateCustomCtaLabel: protectedProcedure.input(
-    z.object({
-      productId: z.string(),
-      value: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.update({
-      where: { id: input.productId },
-      data: {
-        ctaLabel: input.value,
-      },
-    });
-  }),
+  // updateCustomCtaLabel: protectedProcedure.input(
+  //   z.object({
+  //     productId: z.string(),
+  //     value: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.update({
+  //     where: { id: input.productId },
+  //     data: {
+  //       ctaLabel: input.value,
+  //     },
+  //   });
+  // }),
 
-  updateCustomCtaUrl: protectedProcedure.input(
-    z.object({
-      productId: z.string(),
-      value: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.update({
-      where: { id: input.productId },
-      data: {
-        ctaUrl: input.value,
-      },
-    });
-  }),
+  // updateCustomCtaUrl: protectedProcedure.input(
+  //   z.object({
+  //     productId: z.string(),
+  //     value: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.update({
+  //     where: { id: input.productId },
+  //     data: {
+  //       ctaUrl: input.value,
+  //     },
+  //   });
+  // }),
 
-  updateCustomName: protectedProcedure.input(
-    z.object({
-      productId: z.string(),
-      value: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.update({
-      where: { id: input.productId },
-      data: {
-        name: input.value,
-      },
-    });
-  }),
+  // updateCustomName: protectedProcedure.input(
+  //   z.object({
+  //     productId: z.string(),
+  //     value: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.update({
+  //     where: { id: input.productId },
+  //     data: {
+  //       name: input.value,
+  //     },
+  //   });
+  // }),
 
-  updateCustomDescription: protectedProcedure.input(
-    z.object({
-      productId: z.string(),
-      value: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.product.update({
-      where: { id: input.productId },
-      data: {
-        description: input.value,
-      },
-    });
-  }),
+  // updateCustomDescription: protectedProcedure.input(
+  //   z.object({
+  //     productId: z.string(),
+  //     value: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.product.update({
+  //     where: { id: input.productId },
+  //     data: {
+  //       description: input.value,
+  //     },
+  //   });
+  // }),
 
   toggleUnitLabel: protectedProcedure.input(
     z.object({
@@ -267,6 +267,7 @@ export const widgetsRouter = createTRPCRouter({
   updateProducts: protectedProcedure
     .input(z.array(
       z.object({
+        widgetId: z.string(),
         id: z.string(),
         isCustom: z.boolean().nullish(),
         ctaLabel: z.string().nullish(),
@@ -287,7 +288,7 @@ export const widgetsRouter = createTRPCRouter({
       for (let pIndex = 0; pIndex < products.length; pIndex++) {
         const product = products[pIndex]!;
         await ctx.prisma.product.update({
-          where: { id: product.id },
+          where: { id_widgetId: { id: product.id, widgetId: product.widgetId } },
           data: {
             ...(hasStrictValue(product.isCustom) ? { isCustom: product.isCustom as boolean } : {}),
             ...(hasFlakyValue(product.ctaLabel) ? { ctaLabel: product.ctaLabel as string } : {}),
@@ -388,7 +389,8 @@ async function normaliseProducts(stripe: Stripe, products: ProductsList) {
       })
     ).data;
 
-    const pricesQuery = stripeProducts.map((prod) => `product: "${prod.id}"`).join(' OR ');
+    const prices = products!.flatMap((prod) => prod.prices);
+    const pricesQuery = prices.map((price) => `id: "${price.id}"`).join(' OR ');
     const stripePrices = (
       await stripe.prices.search({
         query: `${pricesQuery}`,
