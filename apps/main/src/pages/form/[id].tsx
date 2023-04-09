@@ -70,7 +70,7 @@ const FormPage = () => {
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('products');
+  const [currentTab, setCurrentTab] = useState<Tabs>('features');
   const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>([]);

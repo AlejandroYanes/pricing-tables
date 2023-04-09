@@ -2,14 +2,7 @@ import { useEffect, useRef } from 'react';
 
 import { useDebounce } from 'utils/hooks/useDebounce';
 import { checkDiff } from './check-diff';
-import type { TrackedValue } from './types';
-
-interface Params {
-  value: TrackedValue;
-  idField?: string;
-  keysToTrack?: string[];
-  onChange: (diff: TrackedValue) => void;
-}
+import type { Params, TrackedValue } from './types';
 
 export default function useDiff(params: Params) {
   const { value, idField, keysToTrack, onChange } = params;
@@ -20,7 +13,7 @@ export default function useDiff(params: Params) {
   const { debounceCall } = useDebounce(500);
 
   useEffect(() => {
-    const response = checkDiff(trackedValue.current, value, idField, keysToTrack);
+    const response = checkDiff({ trackedValue: trackedValue.current, newValue: value, idField, keysToTrack });
     trackedValue.current = JSON.parse(JSON.stringify(value));
     isDiff.current = response.isDiff;
     diff.current = response.diff;

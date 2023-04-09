@@ -1,3 +1,4 @@
+import { Feature } from '@prisma/client';
 import type { CTACallback, FormFeature, FormProduct } from 'models';
 
 import useDiff from './useDiff';
@@ -21,7 +22,7 @@ export default function useTrackAndSave(params: Params) {
   const {
     widgetId,
     selectedProducts,
-    // features,
+    features,
     // callbacks,
     // color,
     // recommended,
@@ -37,21 +38,41 @@ export default function useTrackAndSave(params: Params) {
     value: selectedProducts,
     idField: 'id',
     keysToTrack: ['name', 'description', 'prices', 'hasFreeTrial', 'freeTrialDays', 'ctaLabel', 'ctaUrl'],
-    onChange: (diff) => {
-      console.log(diff);
-      updateProducts({ widgetId, products: diff as any });
-    }
+    onChange: (diff) => updateProducts({ widgetId, products: diff as any }),
   });
 
-  // const { mutate: updateFeatures } = api.widgets.updateFeatures.useMutation();
-  // const { isDiff: featuresChanged, diff: featuresDiff } = useDiff(features, 'id');
-  //
-  // useEffect(() => {
-  //   if (featuresChanged) {
-  //     console.log(featuresDiff);
-  //     updateFeatures(featuresDiff as any);
-  //   }
-  // }, [featuresChanged]);
+  const { mutate: updateFeatures } = trpc.widgets.updateFeatures.useMutation();
+  useDiff({
+    value: features,
+    idField: 'id',
+    onChange: (diff) => {
+      let featureUpdates;
+
+      if ((diff as any)[0].products) {
+        type FeatureUpdate = Partial<Pick<Feature, 'id' | 'name' | 'type' | 'productId'>>;
+        featureUpdates = diff.reduce((list: FeatureUpdate[], feat: Partial<FormFeature>) => {
+          const extended = (feat as any).products.map((prod: any) => ({
+            id: feat.id, name:
+            feat.name,
+            type: feat.type,
+            productId: prod.id,
+            value: prod.value,
+          }));
+          list.push(...extended);
+          return list;
+        }, []);
+      } else {
+        type FeatureUpdate = Partial<Pick<Feature, 'id' | 'name' | 'type' | 'productId'>>;
+        featureUpdates = diff.reduce((list: FeatureUpdate[], feat: Partial<FormFeature>) => {
+          const extended = selectedProducts.map((prod) => ({ id: feat.id, name: feat.name, type: feat.type, productId: prod.id }));
+          list.push(...extended);
+          return list;
+        }, []);
+      }
+
+      updateFeatures({ widgetId, features: featureUpdates as any });
+    },
+  });
   //
   // const { mutate: updateCallbacks } = api.widgets.updateCallbacks.useMutation();
   // const { isDiff: callbacksChanged, diff: callbacksDiff } = useDiff(callbacks, 'env');

@@ -1,6 +1,7 @@
-import type { TrackedValue } from './types';
+import type { DiffParams, TrackedValue } from './types';
 
-export function checkDiff(trackedValue: TrackedValue, newValue: TrackedValue, idField?: string, keysToTrack?: string[]) {
+export function checkDiff(params: DiffParams) {
+  const { trackedValue, newValue, idField, keysToTrack } = params;
   let diff: TrackedValue;
   let isDiff = false;
 
@@ -16,7 +17,13 @@ export function checkDiff(trackedValue: TrackedValue, newValue: TrackedValue, id
       const newItem = newValue.find((item, j) => idField ? item[idField] === value[idField] : i === j);
       if (newItem) {
         if (typeof value === 'object' && value !== null) {
-          const recursiveValue = checkDiff(value, newItem, idField, keysToTrack);
+          const recursiveValue = checkDiff({
+            trackedValue: value,
+            newValue: newItem,
+            idField,
+            keysToTrack,
+          });
+
           if (recursiveValue.isDiff) {
             diff.push(recursiveValue.diff);
             isDiff = true;
@@ -44,13 +51,20 @@ export function checkDiff(trackedValue: TrackedValue, newValue: TrackedValue, id
     }
 
     if (typeof trackedValue[key] === 'object' && trackedValue[key] !== null) {
-      const recursiveValue = checkDiff(trackedValue[key], newValue[key], idField, keysToTrack);
+      const recursiveValue = checkDiff({
+        trackedValue: trackedValue[key],
+        newValue: newValue[key],
+        idField,
+        keysToTrack,
+      });
+
       if (recursiveValue.isDiff) {
         diff[key] = recursiveValue.diff;
         isDiff = true;
       }
       continue;
     }
+
     if (trackedValue[key] !== newValue[key]) {
       diff[key] = newValue[key];
       isDiff = true;
