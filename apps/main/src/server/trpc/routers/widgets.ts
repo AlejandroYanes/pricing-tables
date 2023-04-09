@@ -49,12 +49,16 @@ export const widgetsRouter = createTRPCRouter({
         callbacks: true,
         currency: true,
         products: {
+          orderBy: { createdAt: 'asc' },
           select: {
             id: true,
             isCustom: true,
+            name: true,
+            description: true,
             ctaLabel: true,
             ctaUrl: true,
             prices: {
+              orderBy: { createdAt: 'asc' },
               select: {
                 id: true,
                 hasFreeTrial: true,
@@ -90,67 +94,6 @@ export const widgetsRouter = createTRPCRouter({
       features: normaliseFeatures(widget.products.flatMap((prod) => prod.features)),
     };
   }),
-
-  // addProduct: protectedProcedure.input(
-  //   z.object({
-  //     widgetId: z.string(),
-  //     productId: z.string(),
-  //     priceId: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.create({
-  //     data: {
-  //       id: input.productId,
-  //       widgetId: input.widgetId,
-  //       prices: {
-  //         create: {
-  //           id: input.priceId,
-  //         },
-  //       },
-  //     },
-  //   });
-  // }),
-
-  // addCustomProduct: protectedProcedure.input(
-  //   z.object({
-  //     widgetId: z.string(),
-  //     productId: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.create({
-  //     data: {
-  //       isCustom: true,
-  //       id: input.productId,
-  //       widgetId: input.widgetId,
-  //       name: 'Custom Product',
-  //       description: 'Custom product are used to present an extra option for users to contact the sales team',
-  //       ctaLabel: 'Contact Us',
-  //       ctaUrl: '',
-  //     },
-  //   });
-  // }),
-
-  // removeProduct: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.product.delete({ where: { id: input } });
-  // }),
-
-  // addPrice: protectedProcedure.input(
-  //   z.object({
-  //     productId: z.string(),
-  //     priceId: z.string(),
-  //   })
-  // ).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.price.create({
-  //     data: {
-  //       stripeId: input.priceId,
-  //       productId: input.productId,
-  //     },
-  //   });
-  // }),
-
-  // removePrice: protectedProcedure.input(z.string()).mutation(async ({ ctx, input }) => {
-  //   return ctx.prisma.price.delete({ where: { id: input } });
-  // }),
 
   // toggleFreeTrial: protectedProcedure.input(
   //   z.object({
@@ -236,33 +179,33 @@ export const widgetsRouter = createTRPCRouter({
   //   });
   // }),
 
-  toggleUnitLabel: protectedProcedure.input(
-    z.object({
-      widgetId: z.string(),
-      value: z.boolean(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.priceWidget.update({
-      where: { id: input.widgetId },
-      data: {
-        usesUnitLabel: input.value,
-      },
-    });
-  }),
+  // toggleUnitLabel: protectedProcedure.input(
+  //   z.object({
+  //     widgetId: z.string(),
+  //     value: z.boolean(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.priceWidget.update({
+  //     where: { id: input.widgetId },
+  //     data: {
+  //       usesUnitLabel: input.value,
+  //     },
+  //   });
+  // }),
 
-  updateUnitLabel: protectedProcedure.input(
-    z.object({
-      widgetId: z.string(),
-      value: z.string(),
-    })
-  ).mutation(async ({ ctx, input }) => {
-    return ctx.prisma.priceWidget.update({
-      where: { id: input.widgetId },
-      data: {
-        unitLabel: input.value,
-      },
-    });
-  }),
+  // updateUnitLabel: protectedProcedure.input(
+  //   z.object({
+  //     widgetId: z.string(),
+  //     value: z.string(),
+  //   })
+  // ).mutation(async ({ ctx, input }) => {
+  //   return ctx.prisma.priceWidget.update({
+  //     where: { id: input.widgetId },
+  //     data: {
+  //       unitLabel: input.value,
+  //     },
+  //   });
+  // }),
 
   updateProducts: protectedProcedure
     .input(z.array(
@@ -360,6 +303,8 @@ type ProductsList = Prisma.ProductGetPayload<{
   select: {
     id: true;
     isCustom: true;
+    name: true;
+    description: true;
     ctaLabel: true;
     ctaUrl: true;
     prices: {
@@ -384,13 +329,12 @@ type ProductsList = Prisma.ProductGetPayload<{
 async function normaliseProducts(stripe: Stripe, products: ProductsList) {
   if (products!.length > 0) {
     const stripeProducts: InitialProduct[] = (
-      await stripe.products.search({
-        query: products!.filter((prod) => !prod.isCustom).map((prod) => `id: "${prod.id}"`).join(' OR '),
+      await stripe.products.list({
+        ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
       })
     ).data;
 
-    const prices = products!.flatMap((prod) => prod.prices);
-    const pricesQuery = prices.map((price) => `id: "${price.id}"`).join(' OR ');
+    const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const stripePrices = (
       await stripe.prices.search({
         query: `${pricesQuery}`,
@@ -401,21 +345,21 @@ async function normaliseProducts(stripe: Stripe, products: ProductsList) {
 
     const finalProducts: FormProduct[] = [];
 
-    for (let pIndex = 0; pIndex < finalProducts.length; pIndex++) {
-      let widgetProd = finalProducts[pIndex]!;
+    for (let pIndex = 0; pIndex < products.length; pIndex++) {
+      let widgetProd = products[pIndex]!;
       const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
 
       if (!widgetProd.isCustom) {
-        widgetProd = { ...widgetProd, ...stripeProd, prices: widgetProd.prices };
+        widgetProd = Object.assign(widgetProd, stripeProd, { prices: widgetProd.prices });
 
         for (let priceIndex = 0; priceIndex < widgetProd.prices.length; priceIndex++) {
           let widgetPrice = widgetProd.prices[priceIndex]!;
           const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id);
-          widgetPrice = { ...widgetPrice, ...stripePrice };
+          widgetPrice = Object.assign(widgetPrice, stripePrice);
         }
       }
 
-      finalProducts.push(widgetProd as FormProduct);
+      finalProducts.push(widgetProd as any);
     }
 
     return finalProducts;

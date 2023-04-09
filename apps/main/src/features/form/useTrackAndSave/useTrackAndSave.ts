@@ -2,7 +2,7 @@ import { useEffect } from 'react';
 import type { CTACallback, FormFeature, FormProduct } from 'models';
 
 import useDiff from './useDiff';
-import { api } from 'utils/api';
+import { trpc } from 'utils/trpc';
 
 interface Params {
   selectedProducts: FormProduct[];
@@ -31,7 +31,7 @@ export default function useTrackAndSave(params: Params) {
     // currency,
   } = params;
 
-  // const { mutate: updateProducts } = api.widgets.updateProducts.useMutation();
+  const { mutate: updateProducts } = trpc.widgets.updateProducts.useMutation();
   const { isDiff: productsChanged, diff: productsDiff } = useDiff(
     selectedProducts,
     'id',
@@ -40,8 +40,7 @@ export default function useTrackAndSave(params: Params) {
 
   useEffect(() => {
     if (productsChanged) {
-      console.log(productsDiff);
-      // updateProducts(productsDiff as any);
+      updateProducts(productsDiff as any);
     }
   }, [productsChanged]);
 

@@ -35,6 +35,7 @@ model Product {
     description     String?
     ctaLabel        String?
     ctaUrl          String?
+    createdAt       DateTime      @default(now())
     features        Feature[]
     widgetId        String
     widget          PriceWidget  @relation(fields: [widgetId], references: [id])
@@ -45,6 +46,7 @@ model Price {
     id              String
     hasFreeTrial    Boolean       @default(false)
     freeTrialDays   Int           @default(0)
+    createdAt       DateTime      @default(now())
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId])

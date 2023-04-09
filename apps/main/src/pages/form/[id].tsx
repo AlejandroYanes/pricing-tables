@@ -3,17 +3,26 @@ import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Tooltip } from '@mantine/core';
+import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
+import { modals } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
+import {
+  IconAlertTriangle,
+  IconArrowBarToLeft,
+  IconArrowBarToRight,
+  IconDeviceDesktop,
+  IconDeviceMobile,
+  IconInfoCircle
+} from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
 import { mockProducts } from 'helpers';
-import type { CTACallback, FormFeature, FeatureType, FormProduct } from 'models';
+import type { CTACallback, FeatureType, FormFeature, FormProduct } from 'models';
 
-import { api } from 'utils/api';
+import { trpc } from 'utils/trpc';
+import { callAPI } from 'utils/fetch';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
@@ -47,13 +56,13 @@ const errorScreen = (
 const FormPage = () => {
   const colorScheme = useColorScheme();
 
-  // const { query } = useRouter();
-  // const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = api.widgets.fetchInfo.useQuery(query.id as string, {
-  //   refetchOnWindowFocus: false,
-  //   refetchInterval: false,
-  // });
+  const { query } = useRouter();
+  const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = trpc.widgets.fetchInfo.useQuery(query.id as string, {
+    refetchOnWindowFocus: false,
+    refetchInterval: false,
+  });
 
-  // const { data } = api.stripe.list.useQuery(undefined, {
+  // const { data } = trpc.stripe.list.useQuery(undefined, {
   //   refetchOnWindowFocus: false,
   //   enabled: isFetchingWidgetInfo,
   // });
@@ -103,21 +112,21 @@ const FormPage = () => {
     // widgetId: query.id as string,
   });
 
-  // useEffect(() => {
-  //   if (!isFetchingWidgetInfo && widgetInfo) {
-  //     productHandlers.setState(widgetInfo!.products);
-  //     featureHandlers.setState(widgetInfo!.features);
-  //     setColor(widgetInfo!.color);
-  //     setRecommended(widgetInfo!.recommended);
-  //     setSubscribeLabel(widgetInfo!.subscribeLabel);
-  //     setFreeTrialLabel(widgetInfo!.freeTrialLabel);
-  //     setUsesUnitLabel(widgetInfo!.usesUnitLabel);
-  //     setUnitLabel(widgetInfo!.unitLabel);
-  //     callbackHandlers.setState(widgetInfo!.callbacks);
-  //     setSelectedCurrency(widgetInfo!.currency);
-  //     setIsLoaded(true);
-  //   }
-  // }, [isFetchingWidgetInfo, widgetInfo]);
+  useEffect(() => {
+    if (!isFetchingWidgetInfo && widgetInfo) {
+      productHandlers.setState(widgetInfo!.products);
+      featureHandlers.setState(widgetInfo!.features);
+      setColor(widgetInfo!.color);
+      setRecommended(widgetInfo!.recommended);
+      setSubscribeLabel(widgetInfo!.subscribeLabel);
+      setFreeTrialLabel(widgetInfo!.freeTrialLabel);
+      setUsesUnitLabel(widgetInfo!.usesUnitLabel);
+      setUnitLabel(widgetInfo!.unitLabel);
+      callbackHandlers.setState(widgetInfo!.callbacks);
+      setSelectedCurrency(widgetInfo!.currency);
+      setIsLoaded(true);
+    }
+  }, [isFetchingWidgetInfo, widgetInfo]);
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -140,6 +149,23 @@ const FormPage = () => {
     return Array.from(new Set(currencies)).map((currency: string) => ({ label: currency.toUpperCase(), value: currency }));
   }, [selectedProducts]);
 
+  const handleAPIError = () => {
+    modals.open({
+      centered: true,
+      withCloseButton: false,
+      children:(
+        <Stack>
+          <IconAlertTriangle color="orange" size={60} style={{ margin: '0 auto' }} />
+          <Text>
+            There was an error while saving your changes, please do not make any more changes.
+            First, try to refresh the page and check your network connection.
+            If the problem still persist, <Anchor color="orange" href="mailto: alejandro.yanes94@gmail.com">contact us</Anchor>.
+          </Text>
+        </Stack>
+      ),
+    });
+  };
+
   const handleAddProduct = (selectedId: string) => {
     const [productId, priceId] = selectedId.split('-');
     // @ts-ignore
@@ -151,6 +177,14 @@ const FormPage = () => {
 
     const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
     productHandlers.append(copy);
+
+    callAPI({
+      url: `/api/widgets/${query.id}/add-product`,
+      method: 'POST',
+      body: { productId: selectedProduct.id, priceId: selectedPrice.id }
+    }).catch((err) => {
+      console.log(err);
+    });
   };
 
   const handleAddCustomProduct = () => {
@@ -163,8 +197,9 @@ const FormPage = () => {
       return;
     }
 
+    const id = `custom-${Date.now()}`;
     const customProduct: Partial<FormProduct> = {
-      id: `custom-${Date.now()}`,
+      id,
       object: 'product',
       isCustom: true,
       active: true,
@@ -175,6 +210,14 @@ const FormPage = () => {
       ctaUrl: ''
     };
     productHandlers.append(customProduct as FormProduct);
+
+    callAPI({
+      url: `/api/widgets/${query.id}/add-custom-product`,
+      method: 'POST',
+      body: { productId: id }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleRemoveProduct = (index: number) => {
@@ -182,6 +225,14 @@ const FormPage = () => {
     if (selectedProducts.length === 1) {
       setRecommended(null);
     }
+
+    callAPI({
+      url: `/api/widgets/${query.id}/remove-product`,
+      method: 'POST',
+      body: { productId: selectedProducts[index]!.id }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleAddPrice = (productId: string, price: Stripe.Price) => {
@@ -197,6 +248,14 @@ const FormPage = () => {
 
       return prod;
     }));
+
+    callAPI({
+      url: `/api/widgets/${query.id}/add-price`,
+      method: 'POST',
+      body: { productId, priceId: price.id }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleRemovePrice = (productId: string, priceId: string) => {
@@ -213,6 +272,14 @@ const FormPage = () => {
 
       return prod;
     }));
+
+    callAPI({
+      url: `/api/widgets/${query.id}/remove-price`,
+      method: 'POST',
+      body: { productId, priceId }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleToggleFreeTrial = (productId: string, priceId: string) => {
@@ -337,9 +404,9 @@ const FormPage = () => {
     callbackHandlers.setItemProp(index, 'url', nextUrl);
   };
 
-  // if (isError) {
-  //   return errorScreen;
-  // }
+  if (isError) {
+    return errorScreen;
+  }
 
   const template = (
     <>
@@ -488,9 +555,9 @@ const FormPage = () => {
             />
           </RenderIf>
         </Group>
-        {/*<RenderIf condition={!isLoaded}>*/}
-        {/*  <LoadingOverlay visible overlayBlur={2} />*/}
-        {/*</RenderIf>*/}
+        <RenderIf condition={!isLoaded}>
+          <LoadingOverlay visible overlayBlur={2} />
+        </RenderIf>
       </MantineProvider>
     </BaseLayout>
   );
