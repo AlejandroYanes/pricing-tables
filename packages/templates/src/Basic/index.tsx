@@ -143,7 +143,7 @@ const resolveFeaturesForProduct = (features: FormFeature[], productId: string) =
       let featureLabel: string | undefined;
       switch (feat.type) {
         case 'boolean':
-          featureLabel = targetProduct.value ? feat.name : undefined;
+          featureLabel = targetProduct.value === 'true' ? feat.name : undefined;
           break;
         case 'compose':
           featureLabel = `${targetProduct.value} ${feat.name}`;

@@ -66,6 +66,7 @@ export const widgetsRouter = createTRPCRouter({
               },
             },
             features: {
+              orderBy: { createdAt: 'asc' },
               select: {
                 id: true,
                 name: true,
@@ -149,20 +150,23 @@ export const widgetsRouter = createTRPCRouter({
     }),
 
   updateFeatures: protectedProcedure.input(
-    z.array(
-      z.object({
-        id: z.string(),
-        name: z.string().nullish(),
-        type: z.string().nullish(),
-        value: z.string().nullish(),
-        productId: z.string().nullish(),
-      }),
-    )
-  ).mutation(async ({ ctx, input: features }) => {
+    z.object({
+      widgetId: z.string(),
+      features: z.array(
+        z.object({
+          id: z.string(),
+          productId: z.string(),
+          name: z.string().nullish(),
+          type: z.string().nullish(),
+          value: z.string().nullish(),
+        }),
+      )
+    }),
+  ).mutation(async ({ ctx, input: { widgetId, features } }) => {
     for (let fIndex = 0; fIndex < features.length; fIndex++) {
       const feature = features[fIndex]!;
       await ctx.prisma.feature.update({
-        where: { id: feature.id },
+        where: { id_productId_widgetId: { id: feature.id, productId: feature.productId, widgetId } },
         data: {
           ...(feature.name !== undefined ? { name: feature.name as string } : {}),
           ...(feature.type !== undefined ? { type: feature.type as string } : {}),

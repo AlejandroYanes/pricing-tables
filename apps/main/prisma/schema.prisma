@@ -54,13 +54,15 @@ model Price {
 }
 
 model Feature {
-    id              String        @id @default(cuid())
+    id              String
     name            String
     type            String
     value           String
+    createdAt       DateTime      @default(now())
     productId       String
     widgetId        String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId])
+    @@id([id, productId, widgetId])
 }
 
 model Callback {

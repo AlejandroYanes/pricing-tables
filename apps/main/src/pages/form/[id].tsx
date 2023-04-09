@@ -342,10 +342,30 @@ const FormPage = () => {
       products: selectedProducts.map((prod) => ({ id: prod.id, value: 'false' })),
     };
     featureHandlers.append(nextFeature);
+
+    callAPI({
+      url: `/api/widgets/${query.id}/add-feature`,
+      method: 'POST',
+      body: {
+        ...nextFeature,
+        products: selectedProducts.map((prod) => ({ id: prod.id, value: 'false' })),
+      }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleDeleteFeature = (featureIndex: number) => {
     featureHandlers.remove(featureIndex);
+
+    const targetFeature = features.at(featureIndex)!;
+    callAPI({
+      url: `/api/widgets/${query.id}/remove-feature`,
+      method: 'POST',
+      body: { id: targetFeature.id }
+    }).catch(() => {
+      handleAPIError();
+    });
   };
 
   const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
