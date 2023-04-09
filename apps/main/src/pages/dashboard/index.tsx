@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/router';
 import { Group, SimpleGrid, Title } from '@mantine/core';
 
-import { api } from 'utils/api';
+import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import AddBlock from 'components/AddBlock';
@@ -12,7 +12,7 @@ const DashboardPage = () => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  const { mutate, isLoading } = api.widgets.create.useMutation({
+  const { mutate, isLoading } = trpc.widgets.create.useMutation({
     onSuccess: (widgetId: string) => router.push(`/form/${widgetId}`),
   });
 

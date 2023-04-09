@@ -28,7 +28,7 @@ model PriceWidget {
 }
 
 model Product {
-    id              String        @id @default(cuid())
+    id              String
     prices          Price[]
     isCustom        Boolean       @default(false)
     name            String?
@@ -36,16 +36,19 @@ model Product {
     ctaLabel        String?
     ctaUrl          String?
     features        Feature[]
-    widgetId        String?
-    widget          PriceWidget?  @relation(fields: [widgetId], references: [id])
+    widgetId        String
+    widget          PriceWidget  @relation(fields: [widgetId], references: [id])
+    @@id([id, widgetId])
 }
 
 model Price {
-    id              String        @id @default(cuid())
-    productId       String
+    id              String
     hasFreeTrial    Boolean       @default(false)
     freeTrialDays   Int           @default(0)
-    product         Product       @relation(fields: [productId], references: [id])
+    widgetId        String
+    productId       String
+    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId])
+    @@id([id, widgetId])
 }
 
 model Feature {
@@ -54,7 +57,8 @@ model Feature {
     type            String
     value           String
     productId       String
-    product         Product       @relation(fields: [productId], references: [id])
+    widgetId        String
+    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId])
 }
 
 model Callback {
@@ -98,9 +102,6 @@ model User {
     email           String?   @unique
     emailVerified   DateTime?
     image           String?
-    phone           String?
-    address         String?
-    website         String?
     stripeKey       String?
     accounts        Account[]
     sessions        Session[]

@@ -1,15 +1,13 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
 import Stripe from 'stripe';
-import { Alert, Anchor, Button, Group, Modal, Text, TextInput, Title } from '@mantine/core';
+import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 
-import { api } from 'utils/api';
+import { trpc } from 'utils/trpc';
 
 export default function SetupModal() {
-  const router = useRouter();
 
   const [open, setOpen] = useState<boolean>(true);
   const [apiKey, setApiKey] = useState<string>('');
@@ -18,7 +16,9 @@ export default function SetupModal() {
   const [showList, setShowList] = useState<boolean>(false);
   const [products, setProducts] = useState<Stripe.Product[]>([]);
 
-  const { mutate } = api.user.setup.useMutation();
+  const { mutate } = trpc.user.setup.useMutation({
+    onSuccess: () => window.location.reload(),
+  });
 
   const handleSetup = async () => {
     try {

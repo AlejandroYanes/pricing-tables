@@ -5,7 +5,7 @@ import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { PricingThemeProvider } from 'ui';
 
-import { api } from 'utils/api';
+import { trpc } from 'utils/trpc';
 
 const MyApp: AppType<{ session: Session | null }> = (props) => {
   const {
@@ -24,4 +24,4 @@ const MyApp: AppType<{ session: Session | null }> = (props) => {
   );
 };
 
-export default api.withTRPC(MyApp);
+export default trpc.withTRPC(MyApp);
