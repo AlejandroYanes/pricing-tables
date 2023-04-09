@@ -109,7 +109,7 @@ const FormPage = () => {
     unitLabel,
     callbacks,
     currency: selectedCurrency,
-    // widgetId: query.id as string,
+    widgetId: query.id as string,
   });
 
   useEffect(() => {

@@ -5,6 +5,7 @@ import useDiff from './useDiff';
 import { trpc } from 'utils/trpc';
 
 interface Params {
+  widgetId: string;
   selectedProducts: FormProduct[];
   features: FormFeature[];
   callbacks: CTACallback[];
@@ -19,6 +20,7 @@ interface Params {
 
 export default function useTrackAndSave(params: Params) {
   const {
+    widgetId,
     selectedProducts,
     // features,
     // callbacks,
@@ -32,17 +34,12 @@ export default function useTrackAndSave(params: Params) {
   } = params;
 
   const { mutate: updateProducts } = trpc.widgets.updateProducts.useMutation();
-  const { isDiff: productsChanged, diff: productsDiff } = useDiff(
-    selectedProducts,
-    'id',
-    ['name', 'description', 'prices', 'hasFreeTrial', 'freeTrialDays', 'ctaLabel', 'ctaUrl'],
-  );
-
-  useEffect(() => {
-    if (productsChanged) {
-      updateProducts(productsDiff as any);
-    }
-  }, [productsChanged]);
+  useDiff({
+    value: selectedProducts,
+    idField: 'id',
+    keysToTrack: ['name', 'description', 'prices', 'hasFreeTrial', 'freeTrialDays', 'ctaLabel', 'ctaUrl'],
+    onChange: (diff) => updateProducts({ widgetId, products: diff as any })
+  });
 
   // const { mutate: updateFeatures } = api.widgets.updateFeatures.useMutation();
   // const { isDiff: featuresChanged, diff: featuresDiff } = useDiff(features, 'id');

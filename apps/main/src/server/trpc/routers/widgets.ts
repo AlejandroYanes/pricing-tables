@@ -208,30 +208,34 @@ export const widgetsRouter = createTRPCRouter({
   // }),
 
   updateProducts: protectedProcedure
-    .input(z.array(
+    .input(
       z.object({
         widgetId: z.string(),
-        id: z.string(),
-        isCustom: z.boolean().nullish(),
-        ctaLabel: z.string().nullish(),
-        ctaUrl: z.string().nullish(),
-        prices: z.array(
+        products: z.array(
           z.object({
             id: z.string(),
-            hasFreeTrial: z.boolean().nullish(),
-            freeTrialDays: z.number().nullish(),
+            isCustom: z.boolean().nullish(),
+            ctaLabel: z.string().nullish(),
+            ctaUrl: z.string().nullish(),
+            prices: z.array(
+              z.object({
+                id: z.string(),
+                hasFreeTrial: z.boolean().nullish(),
+                freeTrialDays: z.number().nullish(),
+              }),
+            ),
           }),
-        ),
-      }),
-    ))
-    .mutation(async ({ ctx, input: products }) => {
+        )
+      })
+    )
+    .mutation(async ({ ctx, input: { products, widgetId } }) => {
       const hasFlakyValue = (value: any) => value !== undefined;
       const hasStrictValue = (value: any) => value !== undefined && value !== null;
 
       for (let pIndex = 0; pIndex < products.length; pIndex++) {
         const product = products[pIndex]!;
         await ctx.prisma.product.update({
-          where: { id_widgetId: { id: product.id, widgetId: product.widgetId } },
+          where: { id_widgetId: { id: product.id, widgetId } },
           data: {
             ...(hasStrictValue(product.isCustom) ? { isCustom: product.isCustom as boolean } : {}),
             ...(hasFlakyValue(product.ctaLabel) ? { ctaLabel: product.ctaLabel as string } : {}),
