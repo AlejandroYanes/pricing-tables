@@ -12,9 +12,9 @@ const Home: NextPage = () => {
   const { status } = useSession();
   const router = useRouter();
 
-  // if (status === 'authenticated') {
-  //   router.push('/dashboard');
-  // }
+  if (status === 'authenticated') {
+    router.push('/dashboard');
+  }
 
   return (
     <>
