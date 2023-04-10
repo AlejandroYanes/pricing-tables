@@ -2,10 +2,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import Cors from 'cors';
 import type Stripe from 'stripe';
-import type { FormFeature, FormProduct, InitialProduct } from 'models';
+import type { FormFeature, FormProduct } from 'models';
 
 import initDb from 'utils/planet-scale';
-import initStripe from 'utils/stripe';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 // Initializing the cors middleware
 // You can read more about the available options here: https://github.com/expressjs/cors#configuration-options
@@ -106,11 +106,11 @@ async function getWidgetData(widgetId: string) {
 
 async function normaliseProducts(stripe: Stripe, products: Product[], prices: Price[]) {
   if (products!.length > 0) {
-    const stripeProducts: InitialProduct[] = (
+    const stripeProducts: FormProduct[] = (
       await stripe.products.list({
         ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
       })
-    ).data;
+    ).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const stripePrices = (
@@ -119,7 +119,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,
       })
-    ).data;
+    ).data.map(reduceStripePrice);
 
     const finalProducts: FormProduct[] = [];
 

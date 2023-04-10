@@ -5,20 +5,27 @@ export enum BILLING_SCHEME {
   TIERED = 'tiered',
 }
 
-export enum TIER_MODE {
-  GRADUATED = 'graduated',
-  VOLUME = 'volume',
-}
-
-export type InitialProduct = Stripe.Product & { prices?: Stripe.Price[] };
-export type ExtendedProduct = Stripe.Product & { prices: Stripe.Price[] };
-
-export type FormPrice = Stripe.Price & {
+export type FormPrice = {
+  id: string;
+  type: string;
+  active: boolean;
+  product: string;
   hasFreeTrial?: boolean;
   freeTrialDays?: number;
+  unit_amount: number;
+  currency: string;
+  currency_options?: { [key: string]: string };
+  recurring?: { interval: Stripe.Price.Recurring.Interval; interval_count: number };
+  billing_scheme?: BILLING_SCHEME;
+  transform_quantity?: { divide_by: number; round: string };
 };
-export type FormProduct = Stripe.Product & {
+export type FormProduct = {
+  id: string;
+  name: string;
+  active: boolean;
+  description: string;
   prices: FormPrice[];
+  default_price?: any;
   isCustom?: boolean;
   ctaLabel?: string | null;
   ctaUrl?: string | null;

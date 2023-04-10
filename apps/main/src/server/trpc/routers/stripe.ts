@@ -1,20 +1,19 @@
-import type { ExtendedProduct, InitialProduct } from 'models';
-
+import { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 import { createTRPCRouter, stripeProcedure } from '../trpc';
 
 export const stripeRouter = createTRPCRouter({
   list: stripeProcedure.query(async ({ ctx }) => {
 
-    const products: InitialProduct[] = (await ctx.stripe.products.list({ active: true, limit: 50 })).data;
+    const products = (await ctx.stripe.products.list({ active: true, limit: 50 })).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const prices = (
       await ctx.stripe.prices.search({
         query: `${pricesQuery}`,
-        expand: ['data.tiers', 'data.currency_options'],
+        expand: ['data.currency_options'],
         limit: 50,
       })
-    ).data;
+    ).data.map(reduceStripePrice);
 
     for (const price of prices) {
       if (!price.active) continue;
@@ -31,6 +30,6 @@ export const stripeRouter = createTRPCRouter({
       }
     }
 
-    return products as ExtendedProduct[];
+    return products;
   }),
 });

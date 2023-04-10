@@ -3,7 +3,7 @@ import type Stripe from 'stripe';
 import type { ReactNode} from 'react';
 import { useState } from 'react';
 import { IconChevronDown } from '@tabler/icons';
-import type { ExtendedProduct, FormProduct } from 'models';
+import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
 
@@ -14,10 +14,10 @@ import CustomProductBlock from './CustomProductBlock';
 interface Props {
   showPanel: boolean;
   template: ReactNode;
-  products: ExtendedProduct[];
+  products: FormProduct[];
   selectedProducts: FormProduct[];
   onAddProduct: (selectedId: string) => void;
-  onAddPrice: (productId: string, price: Stripe.Price) => void;
+  onAddPrice: (productId: string, price: FormPrice) => void;
   onRemoveProduct: (index: number) => void;
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
@@ -36,7 +36,7 @@ const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
   year: 'yr',
 };
 
-const resolvePricing = (price: Stripe.Price): string => {
+const resolvePricing = (price: FormPrice): string => {
   if (price.type === 'one_time') {
     if (price.transform_quantity) {
       return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units`;
@@ -62,7 +62,7 @@ const resolvePricing = (price: Stripe.Price): string => {
 
     const sections = [
       formatCurrency(price.unit_amount! / 100, price.currency),
-      '/',
+      ' /',
       intervalCount > 1 ? `${intervalCount} ` : '',
       recurringLabel,
     ];

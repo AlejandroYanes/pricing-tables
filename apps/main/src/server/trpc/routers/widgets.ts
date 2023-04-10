@@ -2,8 +2,9 @@ import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
 import type Stripe from 'stripe';
 import type { Prisma } from '@prisma/client';
-import type { FormFeature, FormProduct, InitialProduct } from 'models';
+import type { FormFeature, FormProduct } from 'models';
 
+import { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 import { createTRPCRouter, protectedProcedure, stripeProcedure } from '../trpc';
 
 export const widgetsRouter = createTRPCRouter({
@@ -280,11 +281,11 @@ type ProductsList = Prisma.ProductGetPayload<{
 
 async function normaliseProducts(stripe: Stripe, products: ProductsList) {
   if (products!.length > 0) {
-    const stripeProducts: InitialProduct[] = (
+    const stripeProducts: FormProduct[] = (
       await stripe.products.list({
         ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
       })
-    ).data;
+    ).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const stripePrices = (
@@ -293,7 +294,7 @@ async function normaliseProducts(stripe: Stripe, products: ProductsList) {
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,
       })
-    ).data;
+    ).data.map(reduceStripePrice);
 
     const finalProducts: FormProduct[] = [];
 

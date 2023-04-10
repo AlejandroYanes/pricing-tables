@@ -2,7 +2,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import type Stripe from 'stripe';
 import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
@@ -18,7 +17,7 @@ import {
 } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
-import type { FormCallback, FeatureType, FormFeature, FormProduct } from 'models';
+import type { FormCallback, FeatureType, FormFeature, FormProduct, FormPrice } from 'models';
 import { callAPI } from 'helpers';
 
 import { trpc } from 'utils/trpc';
@@ -193,7 +192,6 @@ const FormPage = () => {
     const id = `custom-${Date.now()}`;
     const customProduct: Partial<FormProduct> = {
       id,
-      object: 'product',
       isCustom: true,
       active: true,
       name: 'Custom Product',
@@ -228,7 +226,7 @@ const FormPage = () => {
     });
   };
 
-  const handleAddPrice = (productId: string, price: Stripe.Price) => {
+  const handleAddPrice = (productId: string, price: FormPrice) => {
     const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
 
     if (!selectedProduct) return;

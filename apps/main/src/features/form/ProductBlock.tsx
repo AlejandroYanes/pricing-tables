@@ -13,14 +13,14 @@ import {
   UnstyledButton,
 } from '@mantine/core';
 import { IconX, IconMinus } from '@tabler/icons';
-import type { ExtendedProduct, FormProduct } from 'models';
+import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
 
 interface Props {
-  product: ExtendedProduct;
+  product: FormProduct;
   value: FormProduct;
-  onAddPrice: (productId: string, price: Stripe.Price) => void;
+  onAddPrice: (productId: string, price: FormPrice) => void;
   onRemove: () => void;
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
@@ -56,7 +56,7 @@ const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
   year: 'yr',
 };
 
-const resolvePricing = (price: Stripe.Price): string => {
+const resolvePricing = (price: FormPrice): string => {
   if (price.type === 'one_time') {
     return formatCurrency(price.unit_amount! / 100, price.currency);
   }
