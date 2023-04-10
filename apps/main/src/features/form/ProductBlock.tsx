@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { Fragment, useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import {
@@ -63,27 +62,39 @@ const resolvePricing = (price: Stripe.Price): string => {
   }
 
   const recurringLabel = intervalMap[price.recurring!.interval];
+  const intervalCount = price.recurring!.interval_count;
 
   if (price.billing_scheme === 'per_unit') {
     if (price.transform_quantity) {
-      return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
+      const sections = [
+        formatCurrency(price.unit_amount! / 100, price.currency),
+        ' per every ',
+        price.transform_quantity.divide_by,
+        ' units /',
+        intervalCount > 1 ? ` ${intervalCount}` : '',
+        recurringLabel
+      ];
+      return sections.join('');
     }
 
-    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
+    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`;
   }
 
-  switch (price.tiers_mode) {
-    case 'volume': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
-    }
-    case 'graduated': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
-    }
-    default:
-      return 'No price';
-  }
+  return 'Unable to resolve pricing';
+
+  // disabled for now (https://github.com/AlejandroYanes/pricing-tables/issues/22)
+  // switch (price.tiers_mode) {
+  //   case 'volume': {
+  //     const tier = price.tiers![0]!;
+  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
+  //   }
+  //   case 'graduated': {
+  //     const tier = price.tiers![0]!;
+  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
+  //   }
+  //   default:
+  //     return 'No price';
+  // }
 };
 
 export default function ProductBlock(props: Props) {
@@ -158,7 +169,7 @@ export default function ProductBlock(props: Props) {
                   </ActionIcon>
                 </div>
               </RenderIf>
-              <Text>{`${resolvePricing(price)}`}</Text>
+              <Text>{resolvePricing(price)}</Text>
               <Checkbox
                 label="Include free trial"
                 checked={price.hasFreeTrial}

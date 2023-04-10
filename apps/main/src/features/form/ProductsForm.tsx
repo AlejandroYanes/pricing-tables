@@ -1,4 +1,3 @@
-/* eslint-disable max-len */
 import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type Stripe from 'stripe';
 import type { ReactNode} from 'react';
@@ -39,31 +38,52 @@ const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
 
 const resolvePricing = (price: Stripe.Price): string => {
   if (price.type === 'one_time') {
+    if (price.transform_quantity) {
+      return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units`;
+    }
     return formatCurrency(price.unit_amount! / 100, price.currency);
   }
 
   const recurringLabel = intervalMap[price.recurring!.interval];
+  const intervalCount = price.recurring!.interval_count;
 
   if (price.billing_scheme === 'per_unit') {
     if (price.transform_quantity) {
-      return `${formatCurrency(price.unit_amount! / 100, price.currency)} per every ${price.transform_quantity.divide_by} units /${recurringLabel}`;
+      const sections = [
+        formatCurrency(price.unit_amount! / 100, price.currency),
+        ' per every ',
+        price.transform_quantity.divide_by,
+        ' units every /',
+        intervalCount > 1 ? `${intervalCount} ` : '',
+        recurringLabel
+      ];
+      return sections.join('');
     }
 
-    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${recurringLabel}`;
+    const sections = [
+      formatCurrency(price.unit_amount! / 100, price.currency),
+      '/',
+      intervalCount > 1 ? `${intervalCount} ` : '',
+      recurringLabel,
+    ];
+    return sections.join('');
   }
 
-  switch (price.tiers_mode) {
-    case 'volume': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
-    }
-    case 'graduated': {
-      const tier = price.tiers![0]!;
-      return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
-    }
-    default:
-      return 'No price';
-  }
+  return 'Unable to resolve pricing';
+
+  // disabled for now (https://github.com/AlejandroYanes/pricing-tables/issues/22)
+  // switch (price.tiers_mode) {
+  //   case 'volume': {
+  //     const tier = price.tiers![0]!;
+  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
+  //   }
+  //   case 'graduated': {
+  //     const tier = price.tiers![0]!;
+  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
+  //   }
+  //   default:
+  //     return 'No price';
+  // }
 };
 
 export default function ProductsForm(props: Props) {
@@ -93,6 +113,7 @@ export default function ProductsForm(props: Props) {
     setShowProducts(false);
   };
 
+  console.log(products);
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
