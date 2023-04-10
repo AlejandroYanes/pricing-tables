@@ -13,6 +13,7 @@ datasource db {
 
 model PriceWidget {
     id              String        @id @default(cuid())
+    name            String
     template        String
     usesUnitLabel   Boolean       @default(false)
     unitLabel       String?
@@ -21,6 +22,7 @@ model PriceWidget {
     subscribeLabel  String
     freeTrialLabel  String
     currency        String?
+    createdAt       DateTime      @default(now())
     products        Product[]
     callbacks       Callback[]
     userId          String
@@ -67,11 +69,12 @@ model Feature {
 
 model Callback {
     id              String        @id
-    env             String        @unique
+    env             String
     url             String
     createdAt       DateTime      @default(now())
     widgetId        String
     widget          PriceWidget   @relation(fields: [widgetId], references: [id])
+    @@unique([env, widgetId])
 }
 
 // Necessary for Next auth

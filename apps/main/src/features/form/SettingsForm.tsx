@@ -10,10 +10,12 @@ interface Props {
   showPanel: boolean;
   template: ReactNode;
   products: FormProduct[];
+  name: string;
   recommended: string | null;
   onRecommendedChange: (next: string) => void;
   usesUnitLabel: boolean;
   unitLabel: string | null;
+  onNameChange: (nextName: string) => void;
   onToggleUnitLabels: () => void;
   onUnitLabelChange: (nextLabel: string) => void;
   subscribeLabel: string;
@@ -38,10 +40,12 @@ export default function SettingsForm(props: Props) {
     showPanel,
     template,
     products,
+    name,
     recommended,
     onRecommendedChange,
     usesUnitLabel,
     unitLabel,
+    onNameChange,
     onToggleUnitLabels,
     onUnitLabelChange,
     subscribeLabel,
@@ -59,6 +63,7 @@ export default function SettingsForm(props: Props) {
 
   const panel = (
     <>
+      <TextInput label="Template name" value={name} onChange={(e) => onNameChange(e.target.value)} />
       <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
       <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => onFreeTrialLabelChange(e.target.value)} />

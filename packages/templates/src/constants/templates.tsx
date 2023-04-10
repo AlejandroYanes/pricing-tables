@@ -1,6 +1,6 @@
 import type { Templates } from 'models';
 
-import { BasicTemplate } from '../Basic';
+import { BasicTemplate, BasicSkeleton } from '../Basic';
 
 export enum TEMPLATE_IDS {
   BASIC = '1',
@@ -21,3 +21,9 @@ export const templatesMap: Record<string, (props?: any) => JSX.Element> = {
   [TEMPLATE_IDS.FAKE_1]: () => <>Fake 1</>,
   [TEMPLATE_IDS.FAKE_2]: () => <>Fake 2</>,
 };
+
+export const skeletonMap: Record<string, (props?: any) => JSX.Element> = {
+  [TEMPLATE_IDS.BASIC]: BasicSkeleton,
+  [TEMPLATE_IDS.FAKE_1]: () => <>Skeleton 2</>,
+  [TEMPLATE_IDS.FAKE_2]: () => <>Skeleton 3</>,
+}

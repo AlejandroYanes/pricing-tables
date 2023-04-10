@@ -78,6 +78,7 @@ const FormPage = () => {
 
   const [color, setColor] = useState<string>('teal');
 
+  const [name, setName] = useState<string>('');
   const [recommended, setRecommended] = useState<string | null>(null);
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
@@ -92,6 +93,7 @@ const FormPage = () => {
     selectedProducts,
     features,
     color,
+    name,
     recommended,
     subscribeLabel,
     freeTrialLabel,
@@ -106,6 +108,7 @@ const FormPage = () => {
     if (!isFetchingWidgetInfo && widgetInfo) {
       productHandlers.setState(widgetInfo!.products);
       featureHandlers.setState(widgetInfo!.features);
+      setName(widgetInfo!.name);
       setColor(widgetInfo!.color);
       setRecommended(widgetInfo!.recommended);
       setSubscribeLabel(widgetInfo!.subscribeLabel);
@@ -594,6 +597,8 @@ const FormPage = () => {
               showPanel={showPanel}
               template={template}
               products={selectedProducts}
+              name={name}
+              onNameChange={setName}
               recommended={recommended}
               onRecommendedChange={setRecommended}
               unitLabel={unitLabel}

@@ -1,17 +1,14 @@
 /* eslint-disable max-len */
-import type { ReactNode } from 'react';
-import { Fragment, useState } from 'react';
-import { Button, createStyles, Divider, Group, Modal, rem, ScrollArea, Stack, Text, TextInput, Title, UnstyledButton } from '@mantine/core';
+import { useState } from 'react';
+import { Button, createStyles, Divider, Group, Modal, rem, ScrollArea, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { IconSearch } from '@tabler/icons';
-import type { FormFeature } from 'models';
-import { templatesList, templatesMap } from 'templates';
+import { skeletonMap, templatesList } from 'templates';
 import { RenderIf } from 'ui';
-import { mockFeatures, mockSelectedProducts } from 'helpers';
 
 interface Props {
   opened: boolean;
   loading: boolean;
-  onSelect: (template: string) => Promise<any>;
+  onSelect: (values: { name: string; template: string }) => any;
   onClose: () => void;
 }
 
@@ -37,20 +34,24 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-const TemplatePreview = ({ children }: { children: ReactNode }) => (
-  <div style={{ position: 'relative', transform: 'scale(1)' }}>
-    {children}
-    <div onClick={(e) => e.stopPropagation()} style={{ position: 'absolute', left: 0, right: 0, top: 0, bottom: 0 }} />
-  </div>
-);
-
 function TemplatesModal(props: Props) {
   const { loading, onSelect, onClose } = props;
 
   const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
-  const Template = selectedTemplate ? templatesMap[selectedTemplate] : () => null;
+  const [name, setName] = useState('');
+  const [showError, setShowError] = useState(false);
+
+  const Skeleton = selectedTemplate ? skeletonMap[selectedTemplate] : () => null;
 
   const { classes, cx } = useStyles();
+
+  const handleSelect = () => {
+    if (!name) {
+      setShowError(true);
+      return;
+    }
+    onSelect({ name, template: selectedTemplate! });
+  };
 
   return (
     <Modal
@@ -84,29 +85,26 @@ function TemplatesModal(props: Props) {
           <ScrollArea style={{ flex: 1 }}>
             <Stack align="center">
               <RenderIf condition={selectedTemplate !== null}>
-                <TemplatePreview>
-                  {/* @ts-ignore */}
-                  <Template
-                    features={mockFeatures}
-                    products={mockSelectedProducts}
-                    recommended="prod_NRrvLHLkz1aSdI"
-                    color="teal"
-                    subscribeLabel="Subscribe"
-                    freeTrialLabel="Start free trial"
-                    callbacks={[
-                      { env: 'development', url: '' },
-                      { env: 'production', url: '' },
-                    ]}
-                  />
-                </TemplatePreview>
+                {/* @ts-ignore */}
+                <Skeleton scale={0.8} />
               </RenderIf>
             </Stack>
           </ScrollArea>
-          <Group mt="auto" position="right">
+          <Group mt="auto" position="right" align="flex-end">
+            <TextInput
+              label="Name"
+              value={name}
+              error={showError}
+              disabled={!selectedTemplate || loading}
+              onChange={(e) => {
+                setName(e.target.value);
+                setShowError(false);
+              }}
+            />
             <Button
               loading={loading}
               disabled={!selectedTemplate}
-              onClick={() => onSelect(selectedTemplate!)}
+              onClick={handleSelect}
             >
               Select
             </Button>

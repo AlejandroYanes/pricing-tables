@@ -1,18 +1,63 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
-import { Group, SimpleGrid, Title } from '@mantine/core';
+import Link from 'next/link';
+import { createStyles, Group, LoadingOverlay, SimpleGrid, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { IconNewSection } from '@tabler/icons';
+import { skeletonMap } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
-import AddBlock from 'components/AddBlock';
 import TemplatesModal from 'components/TemplatesModal';
+
+const useStyles = createStyles((theme) => ({
+  block: {
+    padding: '16px',
+    borderRadius: theme.radius.sm,
+    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[5]}`,
+    transition: 'all 100ms ease-out',
+    ['&:hover']: {
+      borderColor: theme.colors.teal[5],
+    }
+  },
+  addBlock: {
+    minHeight: '200px',
+    height: '100%',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '24px',
+    borderRadius: theme.radius.sm,
+    border: `1px dashed ${theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[5]}`,
+    transition: 'all 100ms ease-out',
+    ['&:hover']: {
+      borderColor: theme.colors.teal[5],
+    }
+  },
+}));
+
+function AddBlock(props: { label: string; onClick: () => void }) {
+  const { label, onClick } = props;
+  const { classes } = useStyles();
+
+  return (
+    <UnstyledButton className={classes.addBlock} onClick={onClick}>
+      <IconNewSection size={60} />
+      <Text size="xl">{label}</Text>
+    </UnstyledButton>
+  );
+}
 
 const DashboardPage = () => {
   const router = useRouter();
   const [showModal, setShowModal] = useState(false);
 
-  const { mutate, isLoading } = trpc.widgets.create.useMutation({
+  const { classes } = useStyles();
+
+  const { isLoading, data = [] } = trpc.widgets.list.useQuery();
+
+  const { mutate, isLoading: isMutating } = trpc.widgets.create.useMutation({
     onSuccess: (widgetId: string) => router.push(`/form/${widgetId}`),
   });
 
@@ -21,15 +66,30 @@ const DashboardPage = () => {
       <Group position="apart" align="center" mb="xl">
         <Title>Dashboard</Title>
       </Group>
-      <SimpleGrid cols={4}>
+      <SimpleGrid cols={5} spacing="xl">
+        {data.map((widget) => {
+          const { id, name, template } = widget;
+          const Skeleton = skeletonMap[template];
+
+          return (
+            <Link href={`/form/${id}`} key={id}>
+              <Stack key={id} align="center" className={classes.block}>
+                {/* @ts-ignore */}
+                <Skeleton scale={0.3} />
+                <Text size="sm">{name}</Text>
+              </Stack>
+            </Link>
+          )
+        })}
         <AddBlock label="Add new" onClick={() => setShowModal(true)} />
       </SimpleGrid>
       <TemplatesModal
         opened={showModal}
-        loading={isLoading}
-        onSelect={async (template: string) => mutate({ template })}
+        loading={isMutating}
+        onSelect={(values) => mutate(values)}
         onClose={() => setShowModal(false)}
       />
+      <LoadingOverlay visible={isLoading} />
     </BaseLayout>
   );
 };

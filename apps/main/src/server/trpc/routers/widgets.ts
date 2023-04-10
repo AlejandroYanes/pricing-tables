@@ -7,13 +7,14 @@ import type { FormFeature, FormProduct, InitialProduct } from 'models';
 import { createTRPCRouter, protectedProcedure, stripeProcedure } from '../trpc';
 
 export const widgetsRouter = createTRPCRouter({
-  create: protectedProcedure.input(z.object({ template: z.string() })).mutation(async ({ ctx, input }) => {
+  create: protectedProcedure.input(z.object({ name: z.string(), template: z.string() })).mutation(async ({ ctx, input }) => {
     const widget = await ctx.prisma.priceWidget.create({
       data: {
         userId: ctx.session.user.id,
+        name: input.name,
         template: input.template,
         subscribeLabel: 'Subscribe',
-        freeTrialLabel: 'Free trial',
+        freeTrialLabel: 'Start free trial',
         color: 'teal',
       },
     });
@@ -36,11 +37,24 @@ export const widgetsRouter = createTRPCRouter({
     return widget.id;
   }),
 
+  list: protectedProcedure.query(async ({ ctx }) => {
+    return ctx.prisma.priceWidget.findMany({
+      where: { userId: ctx.session.user.id },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        template: true,
+      },
+    });
+  }),
+
   fetchInfo: stripeProcedure.input(z.string()).query(async ({ ctx, input }) => {
     const widget = await ctx.prisma.priceWidget.findUnique({
       where: { id: input },
       select: {
         id: true,
+        name: true,
         template: true,
         recommended: true,
         color: true,
@@ -92,6 +106,7 @@ export const widgetsRouter = createTRPCRouter({
     if (!widget) throw new TRPCError({ code: 'NOT_FOUND' });
 
     return {
+      name: widget.name,
       color: widget.color,
       callbacks: widget.callbacks,
       recommended: widget.recommended,
@@ -207,6 +222,7 @@ export const widgetsRouter = createTRPCRouter({
   updateGeneralValues: protectedProcedure.input(
     z.object({
       widgetId: z.string(),
+      name: z.string().nullish(),
       color: z.string().nullish(),
       recommended: z.string().nullish(),
       usesUnitLabel: z.boolean().nullish(),
@@ -219,6 +235,7 @@ export const widgetsRouter = createTRPCRouter({
     return ctx.prisma.priceWidget.update({
       where: { id: input.widgetId },
       data: {
+        ...(hasStrictUpdate(input.name, 'name')),
         ...(hasStrictUpdate(input.usesUnitLabel, 'usesUnitLabel')),
         ...(hasFlakyUpdate(input.color, 'color')),
         ...(hasFlakyUpdate(input.recommended, 'recommended')),
