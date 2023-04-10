@@ -31,23 +31,23 @@ export const resolvePricing = (options: { price: FormPrice; unitLabel: string | 
         formatCurrency(unit_amount! / 100, currency),
         ' per every ',
         transform_quantity.divide_by,
-        ` ${!!unitLabel ? unitLabel : 'units'}/`,
-        intervalCount == 1 ? '' : `${intervalCount} `,
+        ` ${!!unitLabel ? unitLabel : 'units'} /`,
+        intervalCount == 1 ? '' : `${intervalCount}`,
         ' ',
         recurringLabel
       ];
-      return sections.join();
+      return sections.join('');
     }
 
     const sections = [
       formatCurrency(unit_amount! / 100, currency),
       ` ${!!unitLabel ? ` per ${unitLabel}` : ''}`,
-      `/`,
-      intervalCount == 1 ? '' : `${intervalCount} `,
+      ` /`,
+      intervalCount == 1 ? '' : ` ${intervalCount}`,
       recurringLabel,
     ];
 
-    return sections.join();
+    return sections.join('');
   }
 
   return 'Unable to resolve pricing';

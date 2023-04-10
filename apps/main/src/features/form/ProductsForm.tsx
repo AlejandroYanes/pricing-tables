@@ -113,7 +113,6 @@ export default function ProductsForm(props: Props) {
     setShowProducts(false);
   };
 
-  console.log(products);
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))

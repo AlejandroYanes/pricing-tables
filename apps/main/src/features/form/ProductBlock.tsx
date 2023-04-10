@@ -71,13 +71,19 @@ const resolvePricing = (price: Stripe.Price): string => {
         ' per every ',
         price.transform_quantity.divide_by,
         ' units /',
-        intervalCount > 1 ? ` ${intervalCount}` : '',
+        intervalCount > 1 ? `${intervalCount} ` : '',
         recurringLabel
       ];
       return sections.join('');
     }
 
-    return `${formatCurrency(price.unit_amount! / 100, price.currency)} /${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`;
+    const sections = [
+      formatCurrency(price.unit_amount! / 100, price.currency),
+      ' /',
+      intervalCount > 1 ? `${intervalCount} ` : '',
+      recurringLabel,
+    ];
+    return sections.join('');
   }
 
   return 'Unable to resolve pricing';
