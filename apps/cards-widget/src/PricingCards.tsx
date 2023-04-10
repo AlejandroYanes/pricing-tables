@@ -1,32 +1,66 @@
-/* eslint-disable max-len */
+import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client'
 import { PricingThemeProvider } from 'ui';
 import { BasicTemplate } from 'templates';
-import { mockFeatures, mockSelectedProducts } from 'helpers';
+import { callAPI } from 'helpers';
+import type { FormCallback, FormFeature, FormProduct } from 'models';
 
 interface Props {
-  colorScheme: 'system' | 'light' | 'dark';
+  widget: string;
+  theme: 'system' | 'light' | 'dark';
   currency: string | null;
 }
 
+type WidgetInfo = {
+  id: string;
+  template: string;
+  recommended: string;
+  color: string;
+  currency: string;
+  unitLabel: string;
+  subscribeLabel: string;
+  freeTrialLabel: string;
+  products: FormProduct[];
+  features: FormFeature[];
+  callbacks: FormCallback[];
+};
+
 const PricingCards = (props: Props) => {
-  const { colorScheme = 'dark', currency = 'gbp' } = props;
+  const { widget, theme: colorScheme = 'dark' } = props;
+  const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
+
+  useEffect(() => {
+    if (widget) {
+      callAPI({
+        url: `http://localhost:3000/api/widgets/${widget}`,
+        method: 'GET',
+      })
+        .then((res) => {
+          setWidgetInfo(res as any);
+        })
+        .catch((err) => {
+          console.log(err);
+        });
+    }
+  }, [widget]);
+
+  if (!widgetInfo) return null;
+
+  const { products, features, recommended, color, currency, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
+
   return (
-    <PricingThemeProvider colorScheme={colorScheme} withGlobalStyles={true} withNormalizeCSS={false}>
+    <PricingThemeProvider colorScheme={colorScheme} withGlobalStyles={false} withNormalizeCSS={false}>
       <BasicTemplate
-        features={mockFeatures}
-        products={mockSelectedProducts as any}
-        recommended="prod_NRrvLHLkz1aSdI"
-        color="indigo"
+        features={features}
+        products={products}
+        recommended={recommended}
+        color={color}
         currency={currency}
-        unitLabel={null}
-        subscribeLabel="Subscribe"
-        freeTrialLabel="Free trial"
-        callbacks={[
-          { env: 'development', url: '' },
-          { env: 'production', url: '' },
-        ]}
+        unitLabel={unitLabel}
+        subscribeLabel={subscribeLabel}
+        freeTrialLabel={freeTrialLabel}
+        callbacks={callbacks}
       />
     </PricingThemeProvider>
   );
@@ -35,14 +69,16 @@ const PricingCards = (props: Props) => {
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
   props: Props = {
-    colorScheme: 'system',
+    widget: '',
+    theme: 'system',
     currency: null,
   };
 
   constructor() {
     super();
     this.props = {
-      colorScheme: (this.getAttribute('theme') || 'system') as any,
+      widget: this.getAttribute('widget') || '',
+      theme: (this.getAttribute('theme') || 'system') as any,
       currency: this.getAttribute('currency'),
     };
     this.domRoot = ReactDOM.createRoot(this);
@@ -53,7 +89,7 @@ class Wrapper extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'currency'];
+    return ['theme', 'currency', 'widget'];
   }
 
   attributeChangedCallback(name: string, oldValue: any, newValue: any) {

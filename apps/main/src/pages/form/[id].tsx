@@ -19,9 +19,9 @@ import {
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
 import type { FormCallback, FeatureType, FormFeature, FormProduct } from 'models';
+import { callAPI } from 'helpers';
 
 import { trpc } from 'utils/trpc';
-import { callAPI } from 'utils/fetch';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
