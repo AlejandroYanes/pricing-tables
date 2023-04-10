@@ -129,26 +129,23 @@ export const widgetsRouter = createTRPCRouter({
       })
     )
     .mutation(async ({ ctx, input: { products, widgetId } }) => {
-      const hasFlakyValue = (value: any) => value !== undefined;
-      const hasStrictValue = (value: any) => value !== undefined && value !== null;
-
       for (let pIndex = 0; pIndex < products.length; pIndex++) {
         const product = products[pIndex]!;
         await ctx.prisma.product.update({
           where: { id_widgetId: { id: product.id, widgetId } },
           data: {
-            ...(hasStrictValue(product.isCustom) ? { isCustom: product.isCustom as boolean } : {}),
-            ...(hasFlakyValue(product.name) ? { name: product.name as string } : {}),
-            ...(hasFlakyValue(product.description) ? { ctaLabel: product.description as string } : {}),
-            ...(hasFlakyValue(product.ctaLabel) ? { ctaLabel: product.ctaLabel as string } : {}),
-            ...(hasFlakyValue(product.ctaUrl) ? { ctaUrl: product.ctaUrl as string } : {}),
+            ...(hasFlakyUpdate(product.isCustom, 'isCustom')),
+            ...(hasFlakyUpdate(product.name, 'name')),
+            ...(hasFlakyUpdate(product.description, 'description')),
+            ...(hasFlakyUpdate(product.ctaLabel, 'ctaLabel')),
+            ...(hasFlakyUpdate(product.ctaUrl, 'ctaUrl')),
             ...(product.prices ? {
               prices: {
                 updateMany: product.prices.map((price) => ({
                   where: { id: price.id },
                   data: {
-                    ...(hasStrictValue(price.hasFreeTrial) ? { hasFreeTrial: price.hasFreeTrial as boolean } : {}),
-                    ...(hasStrictValue(price.freeTrialDays) ? { freeTrialDays: price.freeTrialDays as number } : {}),
+                    ...(hasStrictUpdate(price.hasFreeTrial, 'hasFreeTrial')),
+                    ...(hasStrictUpdate(price.freeTrialDays, 'freeTrialDays')),
                   },
                 })),
               }
@@ -177,10 +174,10 @@ export const widgetsRouter = createTRPCRouter({
       await ctx.prisma.feature.update({
         where: { id_productId_widgetId: { id: feature.id, productId: feature.productId, widgetId } },
         data: {
-          ...(feature.name !== undefined ? { name: feature.name as string } : {}),
-          ...(feature.type !== undefined ? { type: feature.type as string } : {}),
-          ...(feature.value !== undefined ? { value: feature.value as string } : {}),
-          ...(feature.productId !== undefined ? { productId: feature.productId as string } : {}),
+          ...(hasFlakyUpdate(feature.name, 'name')),
+          ...(hasFlakyUpdate(feature.type, 'type')),
+          ...(hasFlakyUpdate(feature.value, 'value')),
+          ...(hasFlakyUpdate(feature.productId, 'productId')),
         },
       });
     }
@@ -200,13 +197,42 @@ export const widgetsRouter = createTRPCRouter({
       await ctx.prisma.callback.update({
         where: { id: callback.id },
         data: {
-          ...(callback.env !== undefined ? { env: callback.env as string } : {}),
-          ...(callback.url !== undefined ? { url: callback.url as string } : {}),
+          ...(hasFlakyUpdate(callback.env, 'env')),
+          ...(hasFlakyUpdate(callback.url, 'url')),
         },
       });
     }
   }),
+
+  updateGeneralValues: protectedProcedure.input(
+    z.object({
+      widgetId: z.string(),
+      color: z.string().nullish(),
+      recommended: z.string().nullish(),
+      usesUnitLabel: z.boolean().nullish(),
+      unitLabel: z.string().nullish(),
+      subscribeLabel: z.string().nullish(),
+      freeTrialLabel: z.string().nullish(),
+      currency: z.string().nullish(),
+    })
+  ).mutation(({ ctx, input }) => {
+    return ctx.prisma.priceWidget.update({
+      where: { id: input.widgetId },
+      data: {
+        ...(hasStrictUpdate(input.usesUnitLabel, 'usesUnitLabel')),
+        ...(hasFlakyUpdate(input.color, 'color')),
+        ...(hasFlakyUpdate(input.recommended, 'recommended')),
+        ...(hasFlakyUpdate(input.unitLabel, 'unitLabel')),
+        ...(hasFlakyUpdate(input.subscribeLabel, 'subscribeLabel')),
+        ...(hasFlakyUpdate(input.freeTrialLabel, 'freeTrialLabel')),
+        ...(hasFlakyUpdate(input.currency, 'currency')),
+      },
+    });
+  }),
 });
+
+const hasFlakyUpdate = (value: any, key: string) => value !== undefined ? { [key]: value } : {};
+const hasStrictUpdate = (value: any, key: string) => value !== undefined && value !== null ? { [key]: value } : {};
 
 type ProductsList = Prisma.ProductGetPayload<{
   select: {

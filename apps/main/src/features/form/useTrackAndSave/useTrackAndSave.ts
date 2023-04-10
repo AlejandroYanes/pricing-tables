@@ -24,13 +24,13 @@ export default function useTrackAndSave(params: Params) {
     selectedProducts,
     features,
     callbacks,
-    // color,
-    // recommended,
-    // usesUnitLabel,
-    // unitLabel,
-    // subscribeLabel,
-    // freeTrialLabel,
-    // currency,
+    color,
+    recommended,
+    usesUnitLabel,
+    unitLabel,
+    subscribeLabel,
+    freeTrialLabel,
+    currency,
   } = params;
 
   const { mutate: updateProducts } = trpc.widgets.updateProducts.useMutation();
@@ -88,22 +88,10 @@ export default function useTrackAndSave(params: Params) {
       }
     },
   });
-  //
-  // const { mutate: mutateGValues } = api.widgets.updateGeneralValues.useMutation();
-  // const { isDiff: gValuesChanged, diff: gValuesDiff } = useDiff({
-  //   color,
-  //   recommended,
-  //   usesUnitLabel,
-  //   unitLabel,
-  //   subscribeLabel,
-  //   freeTrialLabel,
-  //   currency,
-  // });
-  //
-  // useEffect(() => {
-  //   if (gValuesChanged) {
-  //     console.log(gValuesDiff);
-  //     mutateGValues(gValuesDiff as any);
-  //   }
-  // }, [gValuesChanged]);
+
+  const { mutate: mutateGValues } = trpc.widgets.updateGeneralValues.useMutation();
+  useDiff({
+    value: { color, recommended, usesUnitLabel, unitLabel, subscribeLabel, freeTrialLabel, currency },
+    onChange: (diff) => mutateGValues({ widgetId, ...diff }),
+  });
 }

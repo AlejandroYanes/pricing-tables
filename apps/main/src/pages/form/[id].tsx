@@ -18,7 +18,6 @@ import {
 } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { BasicTemplate } from 'templates';
-import { mockProducts } from 'helpers';
 import type { FormCallback, FeatureType, FormFeature, FormProduct } from 'models';
 
 import { trpc } from 'utils/trpc';
@@ -62,15 +61,15 @@ const FormPage = () => {
     refetchInterval: false,
   });
 
-  // const { data } = trpc.stripe.list.useQuery(undefined, {
-  //   refetchOnWindowFocus: false,
-  //   enabled: isFetchingWidgetInfo,
-  // });
-  const data = mockProducts as any;
+  const { data } = trpc.stripe.list.useQuery(undefined, {
+    refetchOnWindowFocus: false,
+    enabled: isFetchingWidgetInfo,
+  });
+  // const data = mockProducts as any;
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('settings');
+  const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
