@@ -42,6 +42,7 @@ const useStyles = createStyles((theme) => ({
   },
 
   controls: {
+    // @ts-ignore
     marginTop: theme.spacing.xl * 2,
 
     [BREAKPOINT]: {
@@ -70,8 +71,8 @@ export default function HeroTitle() {
     <Container className={classes.inner}>
       <h1 className={classes.title}>
         Want to get a nice clean {' '}
-        <Text component="span" variant="gradient" gradient={{ from: 'blue', to: 'cyan' }} inherit>
-          CV
+        <Text component="span" color="teal" inherit>
+          pricing widget
         </Text>{' '}
         ?
       </h1>
