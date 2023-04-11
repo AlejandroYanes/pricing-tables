@@ -8,7 +8,7 @@
   ],
   "scripts": {
     "build": "turbo run build",
-    "build:cards": "turbo run build --filter cards-widget",
+    "build:cards": "turbo run build --force --filter cards-widget",
     "dev:main": "turbo run dev --filter main",
     "dev:cards": "turbo run dev --filter cards-widget",
     "lint": "turbo run lint"
