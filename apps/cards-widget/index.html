@@ -4,9 +4,37 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/vite.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Vite + React + TS</title>
+    <title>Pricing Tables widget</title>
+    <style>
+      html {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
+      }
+      .message-container {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+      }
+      .message {
+        display: flex;
+        flex-direction: column;
+        max-width: 700px;
+      }
+    </style>
   </head>
   <body>
+    <div class="message-container">
+      <div class="message">
+        <h1>Hi there</h1>
+        <p>
+          There's not much to see here, this project is meant to generate the script our clients need
+          in order to integrate our pricing tables into their website.
+          If you're interested in how this works,
+          check out our <a href="https://pricing-tables-main.vercel.app/">platform</a>
+        </p>
+      </div>
+    </div>
     <div id="pricing-cards"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
