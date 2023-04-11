@@ -43,7 +43,6 @@
     "@trpc/react-query": "10.9.0",
     "@trpc/server": "10.9.0",
     "@vercel/og": "0.5.0",
-    "cors": "2.8.5",
     "dayjs": "1.11.7",
     "helpers": "*",
     "models": "*",

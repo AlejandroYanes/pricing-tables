@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
+import { hashString } from 'utils/hash';
 
 async function addPrice(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
@@ -11,8 +12,8 @@ async function addPrice(req: NextApiRequest, res: NextApiResponse) {
     const db = initDb();
     await db.transaction(async (tx) => {
       await tx.execute(
-        'INSERT INTO `pricing-tables`.`Price` (`id`, `productId`, `widgetId`) VALUES(?, ?, ?)',
-        [priceId, productId, widget],
+        'INSERT INTO `pricing-tables`.`Price` (`id`, `productId`, `widgetId`, `mask`) VALUES(?, ?, ?, ?)',
+        [priceId, productId, widget, hashString(priceId)],
       );
     });
     res.status(201).json({ widget, productId, priceId });

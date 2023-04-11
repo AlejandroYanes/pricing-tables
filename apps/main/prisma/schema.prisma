@@ -38,6 +38,7 @@ model Product {
     ctaLabel        String?
     ctaUrl          String?
     createdAt       DateTime      @default(now())
+    mask            String        @unique
     features        Feature[]
     widgetId        String
     widget          PriceWidget  @relation(fields: [widgetId], references: [id])
@@ -49,6 +50,7 @@ model Price {
     hasFreeTrial    Boolean       @default(false)
     freeTrialDays   Int           @default(0)
     createdAt       DateTime      @default(now())
+    mask            String        @unique
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId])
@@ -111,9 +113,10 @@ model User {
     emailVerified   DateTime?
     image           String?
     stripeKey       String?
+    apiKey          String?   @unique
     accounts        Account[]
     sessions        Session[]
-    widgets          PriceWidget[]
+    widgets         PriceWidget[]
 }
 
 model VerificationToken {

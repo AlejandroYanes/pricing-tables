@@ -1,42 +1,13 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import Cors from 'cors';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
 
 import initDb from 'utils/planet-scale';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import { corsMiddleware } from 'utils/api';
 
-// Initializing the cors middleware
-// You can read more about the available options here: https://github.com/expressjs/cors#configuration-options
-const cors = Cors({
-  methods: ['POST', 'GET', 'HEAD'],
-  allowedHeaders: ['*'],
-});
-
-// Helper method to wait for a middleware to execute before continuing
-// And to throw an error when an error happens in a middleware
-function runMiddleware(
-  req: NextApiRequest,
-  res: NextApiResponse,
-  fn: any
-) {
-  return new Promise((resolve, reject) => {
-    fn(req, res, (result: any) => {
-      if (result instanceof Error) {
-        return reject(result)
-      }
-
-      return resolve(result)
-    })
-  })
-}
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // Run the middleware to check for CORS
-  await runMiddleware(req, res, cors);
-
-  // if CORS is allowed, continue
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
 
   if (!widget) {
@@ -49,6 +20,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   res.setHeader('Cache-Control', `s-maxage=${secondsInADay}, stale-while-revalidate=360`);
   res.status(200).json(widgetData);
 }
+
+export default corsMiddleware(handler);
 
 async function getWidgetData(widgetId: string) {
   const db = initDb();
@@ -77,12 +50,12 @@ async function getWidgetData(widgetId: string) {
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`createdAt`', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
   const prices = (
-    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
   ).rows as Price[];
 
   const widgetUser = (
@@ -90,17 +63,18 @@ async function getWidgetData(widgetId: string) {
   ).rows[0] as { stripeKey: string };
 
   const stripe = initStripe(widgetUser.stripeKey);
+  const maskedRecommended = products.find((p) => p.id === widget.recommended)!.mask;
 
   return {
     color: widget.color,
     callbacks: callbacks,
-    recommended: widget.recommended,
+    recommended: maskedRecommended,
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
     currency: widget.currency,
     products: await normaliseProducts(stripe, products, prices),
-    features: normaliseFeatures(features),
+    features: normaliseFeatures(features, products),
   };
 }
 
@@ -129,12 +103,25 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
-        widgetProd = Object.assign(widgetProd, stripeProd, { prices: widgetPrices });
+        widgetProd = Object.assign(
+          widgetProd,
+          stripeProd,
+          { id: widgetProd.mask, prices: widgetPrices, mask: undefined, default_price: undefined },
+        );
 
-        for (let priceIndex = 0; priceIndex < prices.length; priceIndex++) {
-          let widgetPrice = prices[priceIndex]!;
+        for (let priceIndex = 0; priceIndex < widgetPrices.length; priceIndex++) {
+          const widgetPrice = widgetPrices[priceIndex]!;
           const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id);
-          widgetPrice = Object.assign(widgetPrice, stripePrice);
+          widgetPrices[priceIndex] = {
+            ...widgetPrice,
+            ...stripePrice,
+            ...({
+              id: widgetPrice.mask,
+              productId: widgetProd.id,
+              mask: undefined,
+              product: undefined,
+            }),
+          } as any;
         }
       }
 
@@ -147,17 +134,18 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
   return [] as FormProduct[];
 }
 
-function normaliseFeatures(features: Feature[]) {
+function normaliseFeatures(features: Feature[], products: Product[]) {
   return features.reduce((acc: FormFeature[], feature) => {
-    const existing = acc.find((f) => f.id === feature.id);
-    if (existing) {
-      existing.products.push({ id: feature.productId, value: feature.value });
+    const featureInList = acc.find((f) => f.id === feature.id);
+    const existingProduct = products.find((p) => p.id === feature.productId)!;
+    if (featureInList) {
+      featureInList.products.push({ id: existingProduct.mask, value: feature.value });
     } else {
       acc.push({
         id: feature.id,
         name: feature.name,
         type: feature.type as any,
-        products: [{ id: feature.productId, value: feature.value }],
+        products: [{ id: existingProduct.mask, value: feature.value }],
       });
     }
     return acc;
@@ -167,5 +155,5 @@ function normaliseFeatures(features: Feature[]) {
 type Widget = { id: string; template: string; recommended: string; color: string; currency: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
 type Callback = { env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string };
-type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string };
-type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string };
+type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string };
+type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string; mask: string };
