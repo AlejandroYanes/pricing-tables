@@ -1,8 +1,8 @@
 import Link from 'next/link';
-import { createStyles, Group, Header, Menu, Text, Title, UnstyledButton } from '@mantine/core';
+import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, Tooltip, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
-import { IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
+import { IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
 import { signOut, useSession } from 'next-auth/react';
 import { RenderIf } from 'ui';
 
@@ -90,6 +90,19 @@ export function CustomNavbar() {
       </Link>
       <RenderIf condition={status === 'authenticated'}>
         <Group>
+          <HoverCard width={280} shadow="md">
+            <HoverCard.Target>
+              <div>
+                <NavbarLink icon={IconInfoCircle} />
+              </div>
+            </HoverCard.Target>
+            <HoverCard.Dropdown>
+              <Text size="sm">
+                This platform is still in beta, so if you find any bugs or have any suggestions,
+                please let us know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
+              </Text>
+            </HoverCard.Dropdown>
+          </HoverCard>
           <Menu shadow="md" width={200} offset={18} position="bottom-end">
             <Menu.Target>
               <div>
