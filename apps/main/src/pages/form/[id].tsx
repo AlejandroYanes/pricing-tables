@@ -28,8 +28,9 @@ import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
 import FeaturesForm from 'features/form/FeaturesForm';
 import useTrackAndSave from 'features/form/useTrackAndSave';
+import IntegrationPanel from '../../features/form/IntegrationPanel';
 
-type Tabs = 'products' | 'features' | 'visuals' | 'settings';
+type Tabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';
 
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
@@ -68,7 +69,7 @@ const FormPage = () => {
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('products');
+  const [currentTab, setCurrentTab] = useState<Tabs>('integration');
   const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
@@ -571,6 +572,7 @@ const FormPage = () => {
             <Tabs.Tab value="features">Features</Tabs.Tab>
             <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
             <Tabs.Tab value="settings">Settings</Tabs.Tab>
+            <Tabs.Tab value="integration">Integration</Tabs.Tab>
           </Tabs.List>
         </Tabs>
         <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
@@ -636,6 +638,9 @@ const FormPage = () => {
               onCallbackEnvChange={handleCallbackEnvChange}
               onCallbackUrlChange={handleCallbackUrlChange}
             />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'integration'}>
+            <IntegrationPanel widgetId={query.id as string} />
           </RenderIf>
         </Group>
         <RenderIf condition={!isLoaded}>
