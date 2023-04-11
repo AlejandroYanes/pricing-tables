@@ -90,7 +90,7 @@ export function CustomNavbar() {
       </Link>
       <RenderIf condition={status === 'authenticated'}>
         <Group>
-          <HoverCard width={280} shadow="md">
+          <HoverCard width={280} shadow="md" position="bottom-end">
             <HoverCard.Target>
               <div>
                 <NavbarLink icon={IconInfoCircle} />
