@@ -14,7 +14,14 @@ export type FormPrice = {
   freeTrialDays?: number;
   unit_amount: number;
   currency: string;
-  currency_options?: { [key: string]: string };
+  currency_options?: {
+    [key: string]: {
+      custom_unit_amount: string | null;
+      tax_behavior: string;
+      unit_amount: number;
+      unit_amount_decimal: string;
+    };
+  };
   recurring?: { interval: Stripe.Price.Recurring.Interval; interval_count: number };
   billing_scheme?: BILLING_SCHEME;
   transform_quantity?: { divide_by: number; round: string };

@@ -27,7 +27,7 @@ type WidgetInfo = {
 };
 
 const PricingCards = (props: Props) => {
-  const { widget, theme: colorScheme = 'dark' } = props;
+  const { widget, currency, theme: colorScheme = 'dark' } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -47,7 +47,7 @@ const PricingCards = (props: Props) => {
 
   if (!widgetInfo) return null;
 
-  const { products, features, recommended, color, currency, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
+  const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
 
   return (
     <PricingThemeProvider colorScheme={colorScheme} withGlobalStyles={false} withNormalizeCSS={false}>

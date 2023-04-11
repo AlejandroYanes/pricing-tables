@@ -21,7 +21,6 @@ model PriceWidget {
     recommended     String?
     subscribeLabel  String
     freeTrialLabel  String
-    currency        String?
     createdAt       DateTime      @default(now())
     products        Product[]
     callbacks       Callback[]

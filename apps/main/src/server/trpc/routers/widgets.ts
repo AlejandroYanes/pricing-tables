@@ -63,7 +63,6 @@ export const widgetsRouter = createTRPCRouter({
         unitLabel: true,
         subscribeLabel: true,
         freeTrialLabel: true,
-        currency: true,
         callbacks: {
           orderBy: { createdAt: 'asc' },
           select: {
@@ -115,7 +114,6 @@ export const widgetsRouter = createTRPCRouter({
       freeTrialLabel: widget.freeTrialLabel,
       usesUnitLabel: widget.usesUnitLabel,
       unitLabel: widget.unitLabel,
-      currency: widget.currency,
       products: await normaliseProducts(ctx.stripe, widget.products),
       features: normaliseFeatures(widget.products.flatMap((prod) => prod.features)),
     };
@@ -230,7 +228,6 @@ export const widgetsRouter = createTRPCRouter({
       unitLabel: z.string().nullish(),
       subscribeLabel: z.string().nullish(),
       freeTrialLabel: z.string().nullish(),
-      currency: z.string().nullish(),
     })
   ).mutation(({ ctx, input }) => {
     return ctx.prisma.priceWidget.update({
@@ -243,7 +240,6 @@ export const widgetsRouter = createTRPCRouter({
         ...(hasFlakyUpdate(input.unitLabel, 'unitLabel')),
         ...(hasFlakyUpdate(input.subscribeLabel, 'subscribeLabel')),
         ...(hasFlakyUpdate(input.freeTrialLabel, 'freeTrialLabel')),
-        ...(hasFlakyUpdate(input.currency, 'currency')),
       },
     });
   }),

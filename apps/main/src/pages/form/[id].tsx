@@ -99,7 +99,6 @@ const FormPage = () => {
     usesUnitLabel,
     unitLabel,
     callbacks,
-    currency: selectedCurrency,
     widgetId: query.id as string,
   });
 
@@ -107,6 +106,7 @@ const FormPage = () => {
     if (!isFetchingWidgetInfo && widgetInfo) {
       productHandlers.setState(widgetInfo!.products);
       featureHandlers.setState(widgetInfo!.features);
+      callbackHandlers.setState(widgetInfo!.callbacks);
       setName(widgetInfo!.name);
       setColor(widgetInfo!.color);
       setRecommended(widgetInfo!.recommended);
@@ -114,8 +114,6 @@ const FormPage = () => {
       setFreeTrialLabel(widgetInfo!.freeTrialLabel);
       setUsesUnitLabel(widgetInfo!.usesUnitLabel);
       setUnitLabel(widgetInfo!.unitLabel);
-      callbackHandlers.setState(widgetInfo!.callbacks);
-      setSelectedCurrency(widgetInfo!.currency);
       setIsLoaded(true);
     }
   }, [isFetchingWidgetInfo, widgetInfo]);
@@ -481,7 +479,7 @@ const FormPage = () => {
               label={
                 <Tooltip
                   transitionProps={{ duration: 200 }}
-                  label="Select a currency to display prices in. If no currency is selected, prices will be displayed in the default currency of your Stripe account."
+                  label="Select a currency to preview the prices in. If no currency is selected, or your price object does not have a specification for it, prices will be displayed in the default currency of your Stripe account. Keep in mind this is only a preview mode, if you want to show the widget in a specific currency, please check the Integration panel for how to."
                   width={280}
                   position="right"
                   multiline
@@ -499,7 +497,21 @@ const FormPage = () => {
             />
           </RenderIf>
           <Select
-            label="Modes"
+            label={
+              <Tooltip
+                transitionProps={{ duration: 200 }}
+                label="Select an enviromment to preview the callback URLs."
+                width={280}
+                position="right"
+                multiline
+                withArrow
+              >
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  <span>Callback env</span>
+                  <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
+                </div>
+              </Tooltip>
+            }
             disabled={selectedProducts.length === 0}
             data={callbacks.map((cb) => cb.env)}
             value={selectedEnv}

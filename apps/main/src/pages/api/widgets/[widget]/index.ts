@@ -31,7 +31,6 @@ async function getWidgetData(widgetId: string) {
     '`pricing-tables`.`PriceWidget`.`template`',
     '`pricing-tables`.`PriceWidget`.`recommended`',
     '`pricing-tables`.`PriceWidget`.`color`',
-    '`pricing-tables`.`PriceWidget`.`currency`',
     '`pricing-tables`.`PriceWidget`.`unitLabel`',
     '`pricing-tables`.`PriceWidget`.`subscribeLabel`',
     '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
@@ -72,7 +71,6 @@ async function getWidgetData(widgetId: string) {
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
-    currency: widget.currency,
     products: await normaliseProducts(stripe, products, prices),
     features: normaliseFeatures(features, products),
   };
@@ -152,7 +150,7 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
   }, [] as FormFeature[]);
 }
 
-type Widget = { id: string; template: string; recommended: string; color: string; currency: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
+type Widget = { id: string; template: string; recommended: string; color: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
 type Callback = { env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string };
 type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string };

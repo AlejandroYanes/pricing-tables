@@ -115,7 +115,7 @@ export default function SettingsForm(props: Props) {
                   borderBottomRightRadius: 0,
                 },
               }}
-              label={index === 0 ? 'Mode' : ''}
+              label={index === 0 ? 'Env' : ''}
               value={cb.env}
               disabled={index < 2}
               error={!!cb.error}

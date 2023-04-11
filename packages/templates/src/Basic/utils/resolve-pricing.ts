@@ -15,8 +15,14 @@ export const resolvePricing = (options: { price: FormPrice; unitLabel: string | 
     unit_amount: baseAmount,
   } = price;
 
-  const currency = selectedCurrency || baseCurrency;
-  const unit_amount = selectedCurrency ? currency_options![selectedCurrency]!.unit_amount : baseAmount;
+  const { currency, unit_amount } = selectedCurrency && currency_options![selectedCurrency]
+    ? {
+      currency: selectedCurrency,
+      unit_amount: currency_options![selectedCurrency]!.unit_amount,
+    } : {
+      currency: baseCurrency,
+      unit_amount: baseAmount,
+    };
 
   if (type === 'one_time') {
     return `${formatCurrency(unit_amount! / 100, currency)}${!!unitLabel ? ` per ${unitLabel}` : ''}`;
@@ -56,6 +62,7 @@ export const resolvePricing = (options: { price: FormPrice; unitLabel: string | 
   // switch (tiers_mode) {
   //   case 'volume': {
   //     const tier = tiers![0]!;
+  // eslint-disable-next-line max-len
   //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, currency)} for the first ${tier.up_to} ${!!unitLabel ? unitLabel : 'units'}`;
   //   }
   //   case 'graduated': {
