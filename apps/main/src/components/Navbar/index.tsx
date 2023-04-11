@@ -77,7 +77,7 @@ export function CustomNavbar() {
           and this action is irreversible.
         </Text>
       ),
-      labels: { confirm: 'Delete', cancel: 'Cancel' },
+      labels: { confirm: 'Delete it', cancel: "No don't delete it" },
       confirmProps: { color: 'red' },
       onConfirm: () => deleteAccount(),
     });
