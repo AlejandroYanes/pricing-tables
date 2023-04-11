@@ -1,13 +1,12 @@
 import Link from 'next/link';
 import { createStyles, Group, Header, Menu, Text, Title, UnstyledButton } from '@mantine/core';
+import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
-import { useSession, signOut } from 'next-auth/react';
+import { signOut, useSession } from 'next-auth/react';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
-import { useRouter } from 'next/router';
-import { openConfirmModal, openModal } from '@mantine/modals';
 
 const useStyles = createStyles((theme) => ({
   header: {
