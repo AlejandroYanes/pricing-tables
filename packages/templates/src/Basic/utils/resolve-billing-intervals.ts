@@ -13,7 +13,11 @@ export const resolveBillingIntervals = (products: FormProduct[]) => {
           if (price.type === 'one_time') {
             return 'one_time';
           }
-          return  price.recurring?.interval;
+
+          if (price.recurring!.interval_count !== 1) {
+            return `${price.recurring!.interval}_${price.recurring!.interval_count}`;
+          }
+          return price.recurring!.interval;
         })
         .filter((int) => !!int) as Stripe.Price.Recurring.Interval[];
 

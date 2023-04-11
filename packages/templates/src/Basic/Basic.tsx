@@ -58,6 +58,7 @@ export function BasicTemplate(props: Props) {
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
   const billingIntervals = useMemo(() => resolveBillingIntervals(products), [products]);
+
   const visibleProducts = useMemo(
     () => filterProductsByInterval(products, currentInterval),
     [currentInterval, products],

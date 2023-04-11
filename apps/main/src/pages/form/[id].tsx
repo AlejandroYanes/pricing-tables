@@ -120,7 +120,18 @@ const FormPage = () => {
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
-      const intervals = prod.prices.map((price) => price.recurring?.interval);
+      const intervals = prod.prices
+        .map((price) => {
+          if (price.type === 'one_time') {
+            return 'one_time';
+          }
+
+          if (price.recurring!.interval_count !== 1) {
+            return `${price.recurring!.interval}_${price.recurring!.interval_count}`;
+          }
+          return price.recurring!.interval;
+        })
+        .filter((int) => !!int);
       const uniqueIntervals = new Set(intervals);
 
       return uniqueIntervals.size !== intervals.length;

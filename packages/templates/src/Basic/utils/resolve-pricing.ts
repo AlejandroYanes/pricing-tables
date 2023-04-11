@@ -48,8 +48,8 @@ export const resolvePricing = (options: { price: FormPrice; unitLabel: string | 
     const sections = [
       formatCurrency(unit_amount! / 100, currency),
       ` ${!!unitLabel ? ` per ${unitLabel}` : ''}`,
-      ` /`,
-      intervalCount == 1 ? '' : ` ${intervalCount}`,
+      `/`,
+      intervalCount == 1 ? '' : `${intervalCount} `,
       recurringLabel,
     ];
 
