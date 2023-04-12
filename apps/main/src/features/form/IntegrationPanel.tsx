@@ -15,6 +15,7 @@ const wrappedWidgetCode = (widgetId: string) => `
 `;
 const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" theme="light"></script>`;
 const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
+const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
 
 const requestBody = `{ widget_id: <...>, product_id: <...>, price_id: <...> }`;
 
@@ -59,7 +60,7 @@ export default function IntegrationPanel(props: Props) {
       <Prism language="markup">{scriptCode}</Prism>
 
       <Text mt="xl">
-        then, add this tag to your code wherever you want the widget to show
+        then, add this custom tag to your code wherever you want the widget to show
         (these examples use this {`widget's`} id but you can use any id you want)
       </Text>
       <Prism language="markup">{widgetCode(widgetId)}</Prism>
@@ -79,8 +80,23 @@ export default function IntegrationPanel(props: Props) {
       <Prism language="markup" mb="xl">{widgetWithThemeCode(widgetId)}</Prism>
 
       <Text weight="bold">Currency</Text>
-      <Text>If your prices are setup with more than one currency you can specify which one to use</Text>
+      <Text>
+        If your prices are setup with more than one currency you can specify which one to use.
+        If you {`don't`} specify a currency it will use the default currency of your Stripe account.
+      </Text>
       <Prism language="markup" mb="xl">{widgetWithCurrencyCode(widgetId)}</Prism>
+
+      <Text weight="bold">Environment</Text>
+      <Text>
+        We support having multiple environments for your widget
+        in case you want to use it while testing your app.
+        Most of the time you will only use one environment, but just in case, our custom tag supports an <Code>env</Code> attribute.
+        <br />
+        <br />
+        The value of this attribute should be the name of the environment you want to use.
+        By default it will use the <Code>production</Code> environment.
+      </Text>
+      <Prism language="markup" mb="xl">{widgetWithEnvCode(widgetId)}</Prism>
 
       <Divider mt="xl" />
 
