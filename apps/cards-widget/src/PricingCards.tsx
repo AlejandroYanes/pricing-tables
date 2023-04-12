@@ -7,6 +7,7 @@ import { callAPI } from 'helpers';
 import type { FormCallback, FormFeature, FormProduct } from 'models';
 
 interface Props {
+  env: string;
   widget: string;
   theme: 'system' | 'light' | 'dark';
   currency: string | null;
@@ -27,7 +28,7 @@ type WidgetInfo = {
 };
 
 const PricingCards = (props: Props) => {
-  const { widget, currency, theme: colorScheme = 'dark' } = props;
+  const { widget, currency, env = 'production', theme: colorScheme = 'dark' } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -48,6 +49,7 @@ const PricingCards = (props: Props) => {
   if (!widgetInfo) return null;
 
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
+  const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : 'production';
 
   return (
     <PricingThemeProvider colorScheme={colorScheme} withGlobalStyles={false} withNormalizeCSS={false}>
@@ -61,6 +63,7 @@ const PricingCards = (props: Props) => {
         subscribeLabel={subscribeLabel}
         freeTrialLabel={freeTrialLabel}
         callbacks={callbacks}
+        environment={selectedEnv}
       />
     </PricingThemeProvider>
   );
@@ -69,6 +72,7 @@ const PricingCards = (props: Props) => {
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
   props: Props = {
+    env: 'production',
     widget: '',
     theme: 'system',
     currency: null,
@@ -77,6 +81,7 @@ class Wrapper extends HTMLElement {
   constructor() {
     super();
     this.props = {
+      env: this.getAttribute('env') || 'production',
       widget: this.getAttribute('widget') || '',
       theme: (this.getAttribute('theme') || 'system') as any,
       currency: this.getAttribute('currency'),
@@ -89,7 +94,7 @@ class Wrapper extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'currency', 'widget'];
+    return ['theme', 'currency', 'widget', 'env'];
   }
 
   attributeChangedCallback(name: string, oldValue: any, newValue: any) {
