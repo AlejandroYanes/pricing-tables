@@ -7,10 +7,10 @@ import { callAPI } from 'helpers';
 import type { FormCallback, FormFeature, FormProduct } from 'models';
 
 interface Props {
-  env: string;
-  widget: string;
-  theme: 'system' | 'light' | 'dark';
-  currency: string | null;
+  widget?: string;
+  env?: string;
+  theme?: string;
+  currency?: string;
 }
 
 type WidgetInfo = {
@@ -28,7 +28,7 @@ type WidgetInfo = {
 };
 
 const PricingCards = (props: Props) => {
-  const { widget, currency, env = 'production', theme: colorScheme = 'dark' } = props;
+  const { widget, currency, env, theme: colorScheme = 'system' } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -49,10 +49,10 @@ const PricingCards = (props: Props) => {
   if (!widgetInfo) return null;
 
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
-  const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : 'production';
+  const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <PricingThemeProvider colorScheme={colorScheme} withGlobalStyles={false} withNormalizeCSS={false}>
+    <PricingThemeProvider colorScheme={colorScheme as any} withGlobalStyles={false} withNormalizeCSS={false}>
       <BasicTemplate
         features={features}
         products={products}
@@ -72,19 +72,19 @@ const PricingCards = (props: Props) => {
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
   props: Props = {
-    env: 'production',
-    widget: '',
-    theme: 'system',
-    currency: null,
+    widget: undefined,
+    env: undefined,
+    theme: undefined,
+    currency: undefined,
   };
 
   constructor() {
     super();
     this.props = {
-      env: this.getAttribute('env') || 'production',
-      widget: this.getAttribute('widget') || '',
-      theme: (this.getAttribute('theme') || 'system') as any,
-      currency: this.getAttribute('currency'),
+      env: this.getAttribute('env') || undefined,
+      widget: this.getAttribute('widget') || undefined,
+      theme: this.getAttribute('theme') || undefined,
+      currency: this.getAttribute('currency') || undefined,
     };
     this.domRoot = ReactDOM.createRoot(this);
   }
