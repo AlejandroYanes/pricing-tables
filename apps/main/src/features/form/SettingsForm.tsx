@@ -1,12 +1,17 @@
 import type { ReactNode } from 'react';
+import { useRouter } from 'next/router';
 import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { openConfirmModal } from '@mantine/modals';
+import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
 import type { FormCallback, FormProduct } from 'models';
 import { RenderIf } from 'ui';
 
+import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
 
 interface Props {
+  widgetId: string;
   showPanel: boolean;
   template: ReactNode;
   products: FormProduct[];
@@ -37,6 +42,7 @@ to continue the checkout process.
 
 export default function SettingsForm(props: Props) {
   const {
+    widgetId,
     showPanel,
     template,
     products,
@@ -58,6 +64,24 @@ export default function SettingsForm(props: Props) {
     onCallbackEnvChange,
     onCallbackUrlChange,
   } = props;
+
+  const router = useRouter();
+
+  const { mutate: deleteWidget } = trpc.widgets.deleteWidget.useMutation({
+    onSuccess: () => router.push('/dashboard'),
+    onError: () => showNotification({ title: 'Error', message: 'Something went wrong', color: 'red' }),
+  });
+
+  const handleDelete = () => {
+    openConfirmModal({
+      centered: true,
+      title: 'Just to confirm',
+      children: 'Are you sure you want to delete this widget? This action cannot be undone.',
+      labels: { confirm: 'Delete', cancel: 'No' },
+      confirmProps: { color: 'red' },
+      onConfirm: () => deleteWidget(widgetId)
+    });
+  };
 
   const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
 
@@ -155,6 +179,10 @@ export default function SettingsForm(props: Props) {
           </Group>
         ))}
         <Button mt="xs" ml="auto" onClick={onAddNewCallback}>Add callback</Button>
+        <Divider mt="xl" label="Danger zone" />
+        <Button color="red" variant="outline" fullWidth onClick={handleDelete}>
+          Delete widget
+        </Button>
       </Stack>
     </>
   );

@@ -243,6 +243,12 @@ export const widgetsRouter = createTRPCRouter({
       },
     });
   }),
+
+  deleteWidget: protectedProcedure.input(z.string()).mutation(async ({ ctx, input: widgetId }) => {
+    return ctx.prisma.priceWidget.delete({
+      where: { id: widgetId },
+    });
+  }),
 });
 
 const hasFlakyUpdate = (value: any, key: string) => value !== undefined ? { [key]: value } : {};

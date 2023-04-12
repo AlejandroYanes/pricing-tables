@@ -618,6 +618,7 @@ const FormPage = () => {
           <RenderIf condition={currentTab === 'settings'}>
             <SettingsForm
               showPanel={showPanel}
+              widgetId={query.id as string}
               template={template}
               products={selectedProducts}
               name={name}
