@@ -7,13 +7,14 @@ import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
 
-export default function SetupModal() {
+type Status = 'input' | 'empty' | 'list';
 
+export default function SetupModal() {
   const [open, setOpen] = useState<boolean>(true);
   const [apiKey, setApiKey] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [showList, setShowList] = useState<boolean>(false);
+  const [status, setStatus] = useState<Status>('empty');
   const [products, setProducts] = useState<Stripe.Product[]>([]);
 
   const { mutate } = trpc.user.setup.useMutation({
@@ -30,8 +31,13 @@ export default function SetupModal() {
         active: true,
         limit: 5,
       });
+      if (response.data.length === 0) {
+        setStatus('empty');
+        setLoading(false);
+        return;
+      }
       setProducts(response.data);
-      setShowList(true);
+      setStatus('list');
       setLoading(false);
     } catch (error) {
       console.log(error);
@@ -40,8 +46,16 @@ export default function SetupModal() {
     }
   }
 
+  const handleReset = () => {
+    setStatus('input');
+    setProducts([]);
+    setApiKey('');
+    setError(false);
+    setLoading(false);
+  }
+
   const handleCancel = () => {
-    setShowList(false);
+    setStatus('input');
     setProducts([]);
     setApiKey('');
   };
@@ -62,35 +76,46 @@ export default function SetupModal() {
       opened
       centered
       size="lg"
+      styles={{
+        body: {
+          minHeight: '260px',
+          display: 'flex',
+          flexDirection: 'column',
+        },
+      }}
       withCloseButton={false}
       closeOnEscape={false}
       closeOnClickOutside={false}
       onClose={() => undefined}
       title={<Text size="lg" weight="bold">Hi there</Text>}
     >
-      <Text>
-        In order to help you, we need to be able to connect to your Stripe account to read your products and prices,
-        {` don't`} worry, we {`won't`} create anything, just read, we promise 🤞.
-        If you {`don't`} know how to get your API key, you can read about it {' '}
-        <Anchor href="https://stripe.com/docs/keys" target="_blank">on the Stripe docs</Anchor>.
-      </Text>
-      <RenderIf
-        condition={showList}
-        fallback={
-          <>
-            <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
-            <RenderIf condition={error}>
-              <Alert my="md" icon={<IconAlertCircle size="1rem" />} color="red" variant="outline">
-                Seems like we {`couldn't`} connect to your Stripe account,
-                please try again and make sure you are using the correct API key.
-              </Alert>
-            </RenderIf>
-            <Group mt="xl" position="right">
-              <Button loading={loading} onClick={handleSetup}>Test connection</Button>
-            </Group>
-          </>
-        }
-      >
+      <RenderIf condition={status === 'input'}>
+        <Text>
+          In order to help you, we need to be able to connect to your Stripe account to read your products and prices,
+          {` don't`} worry, we {`won't`} create anything, just read, we promise 🤞.
+          If you {`don't`} know how to get your API key, you can read about it {' '}
+          <Anchor href="https://stripe.com/docs/keys" target="_blank">on the Stripe docs</Anchor>.
+          <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+          <RenderIf condition={error}>
+            <Alert my="md" icon={<IconAlertCircle size="1rem" />} color="red" variant="outline">
+              Seems like we {`couldn't`} connect to your Stripe account,
+              please try again and make sure you are using the correct API key.
+            </Alert>
+          </RenderIf>
+          <Group mt="xl" position="right">
+            <Button loading={loading} onClick={handleSetup}>Test connection</Button>
+          </Group>
+        </Text>
+      </RenderIf>
+      <RenderIf condition={status === 'empty'}>
+        <Text>
+          We {`couldn't`} find any products in your Stripe account, please make sure you have at least one product.
+        </Text>
+        <Group mt="auto" position="right">
+          <Button onClick={handleReset}>Try another account</Button>
+        </Group>
+      </RenderIf>
+      <RenderIf condition={status === 'list'} >
         <Text mt="xl">Do you recognise these products?</Text>
         <ul>
           {products.map((product) => (
