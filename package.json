@@ -11,7 +11,8 @@
     "build:cards": "turbo run build --force --filter cards-widget",
     "dev:main": "turbo run dev --filter main",
     "dev:cards": "turbo run dev --filter cards-widget",
-    "lint": "turbo run lint"
+    "lint": "turbo run lint",
+    "lint:main": "turbo run lint --filter main"
   },
   "devDependencies": {
     "turbo": "^1.9.0"

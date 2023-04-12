@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, Tooltip, UnstyledButton } from '@mantine/core';
+import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
@@ -96,7 +96,7 @@ export function CustomNavbar() {
             </HoverCard.Target>
             <HoverCard.Dropdown>
               <Text size="sm">
-                This platform is still in beta, so if you find any bugs or have any suggestions,
+                This platform is still an alpha version, so if you find any bugs or have any suggestions,
                 please let us know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
               </Text>
             </HoverCard.Dropdown>

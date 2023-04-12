@@ -1,4 +1,4 @@
-import { ActionIcon, createStyles, Divider, Stack, Text, Textarea, TextInput, } from '@mantine/core';
+import { ActionIcon, createStyles, Divider, Stack, Textarea, TextInput, } from '@mantine/core';
 import { IconX } from '@tabler/icons';
 import type { FormProduct } from 'models';
 
