@@ -107,6 +107,7 @@ export const widgetsRouter = createTRPCRouter({
 
     return {
       name: widget.name,
+      template: widget.template,
       color: widget.color,
       callbacks: widget.callbacks,
       recommended: widget.recommended,

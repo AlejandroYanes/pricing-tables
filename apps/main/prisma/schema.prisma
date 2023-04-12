@@ -37,7 +37,7 @@ model Product {
     ctaLabel        String?
     ctaUrl          String?
     createdAt       DateTime      @default(now())
-    mask            String        @unique
+    mask            String
     features        Feature[]
     widgetId        String
     widget          PriceWidget  @relation(fields: [widgetId], references: [id], onDelete: Cascade)
@@ -49,7 +49,7 @@ model Price {
     hasFreeTrial    Boolean       @default(false)
     freeTrialDays   Int           @default(0)
     createdAt       DateTime      @default(now())
-    mask            String        @unique
+    mask            String
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)

@@ -1,27 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { FormCallback, FormFeature, FormPrice, FormProduct } from 'models';
+import type { FormPrice } from 'models';
 import { RenderIf } from 'ui';
 
+import type { TemplateProps } from '../constants/types';
 import type { Interval } from './types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
 import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
 import { resolvePricing } from './utils/resolve-pricing';
 import { resolveFeaturesForProduct } from './utils/resolve-features-for-product';
-
-interface Props {
-  features: FormFeature[];
-  products: FormProduct[];
-  recommended: string | null;
-  unitLabel: string | null;
-  color: string;
-  subscribeLabel: string;
-  freeTrialLabel: string;
-  callbacks: FormCallback[];
-  environment?: string;
-  currency?: string | null;
-}
 
 const useStyles = createStyles((theme, color: string) => ({
   productCard: {
@@ -40,7 +28,7 @@ const useStyles = createStyles((theme, color: string) => ({
   },
 }));
 
-export function BasicTemplate(props: Props) {
+export function BasicTemplate(props: TemplateProps) {
   const {
     features,
     products,

@@ -11,12 +11,10 @@ import {
   IconAlertTriangle,
   IconArrowBarToLeft,
   IconArrowBarToRight,
-  IconDeviceDesktop,
-  IconDeviceMobile,
   IconInfoCircle
 } from '@tabler/icons';
 import { RenderIf } from 'ui';
-import { BasicTemplate } from 'templates';
+import { BasicTemplate, templatesMap } from 'templates';
 import type { FormCallback, FeatureType, FormFeature, FormProduct, FormPrice } from 'models';
 import { callAPI } from 'helpers';
 
@@ -476,6 +474,8 @@ const FormPage = () => {
     return errorScreen;
   }
 
+  const Template = widgetInfo ? templatesMap[widgetInfo.template]! : () => null;
+
   const template = (
     <>
       <Group align="center" position="apart" mb="xl">
@@ -529,12 +529,6 @@ const FormPage = () => {
             value={selectedEnv}
             onChange={(value) => setSelectedEnv(value!)}
           />
-          <ActionIcon mb={4}>
-            <IconDeviceMobile />
-          </ActionIcon>
-          <ActionIcon mb={4}>
-            <IconDeviceDesktop />
-          </ActionIcon>
         </Group>
       </Group>
       <RenderIf condition={hasSeveralPricesWithSameInterval}>
@@ -543,7 +537,7 @@ const FormPage = () => {
           This is a limitation of the current API and we plan to address it in the future.
         </Alert>
       </RenderIf>
-      <BasicTemplate
+      <Template
         features={features}
         products={selectedProducts}
         recommended={recommended}

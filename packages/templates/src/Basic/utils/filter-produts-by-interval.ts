@@ -19,6 +19,6 @@ export const filterProductsByInterval = (products: FormProduct[], interval: Inte
       return prod.prices.some((price) => price.recurring?.interval === 'month' && price.recurring?.interval_count === 6);
     }
 
-    return prod.prices.some((price) => price.recurring?.interval === interval);
+    return prod.prices.some((price) => price.recurring?.interval === interval && price.recurring?.interval_count === 1);
   });
 };

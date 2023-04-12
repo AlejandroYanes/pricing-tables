@@ -65,6 +65,7 @@ async function getWidgetData(widgetId: string) {
   const maskedRecommended = products.find((p) => p.id === widget.recommended)!.mask;
 
   return {
+    template: widget.template,
     color: widget.color,
     callbacks: callbacks,
     recommended: maskedRecommended,
