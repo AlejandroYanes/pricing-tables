@@ -69,7 +69,7 @@ const FormPage = () => {
   const productsList = data || [];
 
   const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('integration');
+  const [currentTab, setCurrentTab] = useState<Tabs>('products');
   const [showPanel, setShowPanel] = useState(true);
 
   const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
@@ -640,7 +640,7 @@ const FormPage = () => {
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'integration'}>
-            <IntegrationPanel widgetId={query.id as string} color={color} />
+            <IntegrationPanel widgetId={query.id as string} />
           </RenderIf>
         </Group>
         <RenderIf condition={!isLoaded}>

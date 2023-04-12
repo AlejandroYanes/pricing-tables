@@ -4,7 +4,6 @@ import { useSession } from 'next-auth/react';
 
 interface Props {
   widgetId: string;
-  color: string;
 }
 
 const scriptCode = `<script src="https://pricing-tables-scripts.vercel.app/v0.0.1/pricing-cards.js"></script>`;
@@ -46,7 +45,7 @@ fetch(url, {
 `;
 
 export default function IntegrationPanel(props: Props) {
-  const { widgetId, color } = props;
+  const { widgetId } = props;
   const { data } = useSession();
 
   return (
@@ -76,10 +75,10 @@ export default function IntegrationPanel(props: Props) {
       </Text>
 
       <Text mt="xl" weight="bold">Theme</Text>
-      <Text>The theme attribute expects one of three values: <Code color={color}>system | light | dark</Code></Text>
+      <Text>The theme attribute expects one of three values: <Code>system | light | dark</Code></Text>
       <Prism language="markup" mb="xl">{widgetWithThemeCode(widgetId)}</Prism>
 
-      <Text mt="xl" weight="bold">Currency</Text>
+      <Text weight="bold">Currency</Text>
       <Text>If your prices are setup with more than one currency you can specify which one to use</Text>
       <Prism language="markup" mb="xl">{widgetWithCurrencyCode(widgetId)}</Prism>
 
@@ -93,8 +92,10 @@ export default function IntegrationPanel(props: Props) {
         it will redirect them to whatever url you set in the callback section of the <Code>Settings</Code> panel.
         If you leave the url empty ti will just add the product and price <Code>ids</Code> to the page url.
         <br />
+        <br />
         An example of this flow would be to redirect the user to your sign up page and after they enter their information and submit it,
         as part of your signup flow you can make a request to our API to get the product and price <Code>ids</Code>.
+        <br />
         <br />
         The <Code>ids</Code> that we add to the url will not be the real ones from Stripe,
         but rather a hash that we generate, this is for security reasons.
