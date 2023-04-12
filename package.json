@@ -14,11 +14,10 @@
     "lint": "turbo run lint"
   },
   "devDependencies": {
-    "turbo": "latest"
+    "turbo": "^1.9.0"
   },
   "engines": {
     "node": ">=16.8.0"
   },
-  "dependencies": {},
   "packageManager": "npm@8.19.3"
 }

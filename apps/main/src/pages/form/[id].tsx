@@ -640,7 +640,7 @@ const FormPage = () => {
             />
           </RenderIf>
           <RenderIf condition={currentTab === 'integration'}>
-            <IntegrationPanel widgetId={query.id as string} />
+            <IntegrationPanel widgetId={query.id as string} color={color} />
           </RenderIf>
         </Group>
         <RenderIf condition={!isLoaded}>

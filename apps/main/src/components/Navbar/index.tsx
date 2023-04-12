@@ -14,9 +14,7 @@ const useStyles = createStyles((theme) => ({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    '@media print': {
-      display: 'none',
-    },
+    border: 'none',
   },
   link: {
     width: 50,
