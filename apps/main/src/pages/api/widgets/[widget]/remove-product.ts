@@ -29,6 +29,11 @@ async function removeProduct(req: NextApiRequest, res: NextApiResponse) {
         'DELETE FROM `pricing-tables`.`Product` WHERE `id` = ? AND `widgetId` = ?',
         [productId, widget],
       );
+
+      await tx.execute(
+        'DELETE FROM `pricing-tables`.`Feature` WHERE `productId` = ? AND `widgetId` = ?',
+        [productId, widget],
+      );
     });
     res.status(201).json({ widget, productId });
   } catch (e: any) {
