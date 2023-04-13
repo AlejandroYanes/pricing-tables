@@ -1,9 +1,10 @@
 /* eslint-disable max-len */
+import type { ReactNode} from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Table, Text } from '@mantine/core';
 import { RenderIf } from 'ui';
 import type { FormPrice } from 'models';
-import { formatCurrency, formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
+import { formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
 
 import type { TemplateProps } from '../constants/types';
 import type { Interval } from '../Basic/types';
@@ -155,7 +156,7 @@ export function SecondTemplate(props: TemplateProps) {
     const columns = visibleProducts.map((prod) => {
       const { isCustom } = prod;
       const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
-      const { hasFreeTrial, type } = priceToShow as FormPrice;
+      const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
       const isRecommended = prod.id === recommended;
 
       const resolveBtnLabel = () => {
@@ -192,14 +193,45 @@ export function SecondTemplate(props: TemplateProps) {
         case features.length + 1: {
           return (
             <td key={prod.id} className={cx({ [classes.recommended]: isRecommended })}>
-              <Button component="a" my="xl" uppercase href={resolveBtnUrl()} color={color} variant={isRecommended ? 'white' : 'outline'}>
+              <Button
+                uppercase
+                component="a"
+                href={resolveBtnUrl()}
+                mt="xl"
+                mb={hasFreeTrial ? 'sm' : 'xl'}
+                color={color}
+                variant={isRecommended ? 'white' : 'outline'}
+              >
                 {resolveBtnLabel()}
               </Button>
+              <RenderIf condition={!!hasFreeTrial}>
+                <Text size="sm" mb="lg">{freeTrialDays} days</Text>
+              </RenderIf>
             </td>
           );
         }
         // Feature w/ index - 1
-        default:
+        default: {
+          const feature = features[index - 1]!;
+          const value = feature.products.find(({ id }) => id === prod.id)?.value;
+          let label: ReactNode = '-';
+
+          if (!!value) {
+            switch (feature.type) {
+              case 'boolean':
+                label = value === 'true' ? feature.name : '-';
+                break;
+              case 'string':
+                label = value;
+                break;
+              case 'compose':
+                label = <Text><Text component="span" weight="bold">{value}</Text>{` ${feature.name}`}</Text>;
+                break;
+              default:
+                break;
+            }
+          }
+
           return (
             <td
               key={`prod-${prod.id}-feature-${4}`}
@@ -207,9 +239,10 @@ export function SecondTemplate(props: TemplateProps) {
               style={{ marginRight: 'auto' }}
               className={cx({ [classes.recommended]: isRecommended })}
             >
-              feature {index - 1} label
+              {label}
             </td>
           );
+        }
       }
     });
 

@@ -17,17 +17,19 @@ const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widg
 const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
 const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
 
-const requestBody = `{ widget_id: <...>, product_id: <...>, price_id: <...> }`;
+const requestBody = (widgetId: string) => `{ widget_id: ${widgetId}, product_id: <...>, price_id: <...> }`;
 
-const curlCommand = (apiKey: string) => `curl -X POST https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info \\
+// eslint-disable-next-line max-len
+const curlCommand = (widgetId: string, apiKey: string) => `curl -X POST https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
-     -d '{ "widget_id": "<widget_id>", "product_id": "<product_id>", "price_id": "<price_id>" }'
+     -d '{ "widget_id": "${widgetId}", "product_id": "<product_id>", "price_id": "<price_id>" }'
 `;
 
-const jsCommand = (apiKey: string) => `const url = 'https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info';
+// eslint-disable-next-line max-len
+const jsCommand = (widgetId: string, apiKey: string) => `const url = 'https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info';
 const data = {
-  widget_id: '<widget_id>',
+  widget_id: '${widgetId}',
   product_id: '<product_id>',
   price_id: '<price_id>'
 };
@@ -120,16 +122,16 @@ export default function IntegrationPanel(props: Props) {
       <Prism language="markup">{`https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info`}</Prism>
       <Text mt="md">
         This request needs to be a <Code>POST</Code> request with the body:
-        <Prism language="json">{requestBody}</Prism>
+        <Prism language="json">{requestBody(widgetId)}</Prism>
         <br />
         It will return an object with the real <Code>ids</Code> for the product and price.
       </Text>
       <Text>The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</Text>
       <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
       <Text>{`Here's`} how it would look</Text>
-      <Prism language="bash">{curlCommand(data!.user!.id)}</Prism>
+      <Prism language="bash">{curlCommand(widgetId, data!.user!.id)}</Prism>
       <Text mt="md">{`Here's`} a JavaScript version</Text>
-      <Prism language="bash">{jsCommand(data!.user!.id)}</Prism>
+      <Prism language="bash">{jsCommand(widgetId, data!.user!.id)}</Prism>
       <Space h="xl" />
     </Stack>
   );
