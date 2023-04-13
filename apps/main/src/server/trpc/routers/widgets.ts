@@ -223,6 +223,7 @@ export const widgetsRouter = createTRPCRouter({
     z.object({
       widgetId: z.string(),
       name: z.string().nullish(),
+      template: z.string().nullish(),
       color: z.string().nullish(),
       recommended: z.string().nullish(),
       usesUnitLabel: z.boolean().nullish(),
@@ -235,6 +236,7 @@ export const widgetsRouter = createTRPCRouter({
       where: { id: input.widgetId },
       data: {
         ...(hasStrictUpdate(input.name, 'name')),
+        ...(hasStrictUpdate(input.template, 'template')),
         ...(hasStrictUpdate(input.usesUnitLabel, 'usesUnitLabel')),
         ...(hasFlakyUpdate(input.color, 'color')),
         ...(hasFlakyUpdate(input.recommended, 'recommended')),

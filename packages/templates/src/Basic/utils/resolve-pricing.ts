@@ -1,7 +1,7 @@
 import type { FormPrice } from 'models';
 import { formatCurrency } from 'helpers';
 
-import { intervalsMap } from '../constants';
+import { intervalsMap } from '../../constants/intervals';
 
 export const resolvePricing = (options: { price: FormPrice; unitLabel: string | null; currency?: string | null }): string => {
   const { price, unitLabel, currency: selectedCurrency } = options;

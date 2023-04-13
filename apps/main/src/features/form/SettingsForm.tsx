@@ -6,6 +6,7 @@ import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
 import type { FormCallback, FormProduct } from 'models';
 import { RenderIf } from 'ui';
+import { templatesList } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
@@ -13,6 +14,8 @@ import TwoColumnsLayout from './TwoColumnsLayout';
 interface Props {
   widgetId: string;
   showPanel: boolean;
+  templateId: string | null;
+  onTemplateChange: (next: string) => void;
   template: ReactNode;
   products: FormProduct[];
   name: string;
@@ -42,8 +45,10 @@ to continue the checkout process.
 
 export default function SettingsForm(props: Props) {
   const {
-    widgetId,
     showPanel,
+    widgetId,
+    templateId,
+    onTemplateChange,
     template,
     products,
     name,
@@ -83,12 +88,14 @@ export default function SettingsForm(props: Props) {
     });
   };
 
-  const options = products.map((prod) => ({ label: prod.name, value: prod.id }));
+  const templateOptions = templatesList.map((temp) => ({ label: temp.name, value: temp.id }));
+  const productOptions = products.map((prod) => ({ label: prod.name, value: prod.id }));
 
   const panel = (
     <>
-      <TextInput label="Template name" value={name} onChange={(e) => onNameChange(e.target.value)} />
-      <Select label="Recommended Product" data={options} value={recommended} onChange={onRecommendedChange} />
+      <TextInput label="Name" value={name} onChange={(e) => onNameChange(e.target.value)} />
+      <Select label="Template" data={templateOptions} value={templateId} onChange={onTemplateChange} />
+      <Select label="Recommended Product" data={productOptions} value={recommended} onChange={onRecommendedChange} />
       <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => onFreeTrialLabelChange(e.target.value)} />
       <Checkbox

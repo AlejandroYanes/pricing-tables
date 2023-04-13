@@ -77,6 +77,7 @@ const FormPage = () => {
   const [color, setColor] = useState<string>('teal');
 
   const [name, setName] = useState<string>('');
+  const [templateId, setTemplateId] = useState<string | null>(null);
   const [recommended, setRecommended] = useState<string | null>(null);
   const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
   const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
@@ -92,6 +93,7 @@ const FormPage = () => {
     features,
     color,
     name,
+    template: templateId,
     recommended,
     subscribeLabel,
     freeTrialLabel,
@@ -108,6 +110,7 @@ const FormPage = () => {
       callbackHandlers.setState(widgetInfo!.callbacks);
       setName(widgetInfo!.name);
       setColor(widgetInfo!.color);
+      setTemplateId(widgetInfo!.template);
       setRecommended(widgetInfo!.recommended);
       setSubscribeLabel(widgetInfo!.subscribeLabel);
       setFreeTrialLabel(widgetInfo!.freeTrialLabel);
@@ -489,7 +492,7 @@ const FormPage = () => {
     return errorScreen;
   }
 
-  const Template = widgetInfo ? templatesMap[widgetInfo.template]! : () => null;
+  const Template = templateId ? templatesMap[templateId]! : () => null;
 
   const template = (
     <>
@@ -628,6 +631,8 @@ const FormPage = () => {
             <SettingsForm
               showPanel={showPanel}
               widgetId={query.id as string}
+              templateId={templateId}
+              onTemplateChange={setTemplateId}
               template={template}
               products={selectedProducts}
               name={name}

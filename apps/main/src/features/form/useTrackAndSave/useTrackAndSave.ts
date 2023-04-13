@@ -11,6 +11,7 @@ interface Params {
   callbacks: FormCallback[];
   color: string;
   name: string;
+  template: string | null;
   recommended: string | null;
   usesUnitLabel: boolean;
   unitLabel: string | null;
@@ -26,6 +27,7 @@ export default function useTrackAndSave(params: Params) {
     callbacks,
     color,
     name,
+    template,
     recommended,
     usesUnitLabel,
     unitLabel,
@@ -91,7 +93,7 @@ export default function useTrackAndSave(params: Params) {
 
   const { mutate: mutateGValues } = trpc.widgets.updateGeneralValues.useMutation();
   useDiff({
-    value: { name, color, recommended, usesUnitLabel, unitLabel, subscribeLabel, freeTrialLabel },
+    value: { name, color, template, recommended, usesUnitLabel, unitLabel, subscribeLabel, freeTrialLabel },
     onChange: (diff) => mutateGValues({ widgetId, ...diff }),
   });
 }
