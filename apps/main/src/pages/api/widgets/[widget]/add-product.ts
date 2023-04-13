@@ -1,3 +1,4 @@
+/* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authMiddleware } from 'utils/api';
@@ -10,15 +11,30 @@ async function addProduct(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const db = initDb();
+    const features = (
+      await db.execute('SELECT DISTINCT `pricing-tables`.`Feature`.id, `pricing-tables`.`Feature`.name, `pricing-tables`.`Feature`.type FROM `pricing-tables`.`Feature` WHERE `widgetId` = ?', [widget])
+    ).rows as { id: string; name: string; type: string }[];
+
     await db.transaction(async (tx) => {
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Product` (`id`, `widgetId`, `mask`) VALUES(?, ?, ?)',
         [productId, widget, hashString(productId)],
       );
+
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Price` (`id`, `productId`, `widgetId`, `mask`) VALUES(?, ?, ?, ?)',
         [priceId, productId, widget, hashString(priceId)],
       );
+
+      for (let i = 0; i < features.length; i++) {
+        const feature = features[i]!;
+        const value = feature.type === 'boolean' ? 'false' : '';
+
+        await tx.execute(
+          'INSERT INTO `pricing-tables`.`Feature` (`id`, `name`, `type`, `value`, `widgetId`, `productId`) VALUES(?, ?, ?, ?, ?, ?)',
+          [feature.id, feature.name, feature.type, value, widget, productId],
+        );
+      }
     });
     res.status(201).json({ widget, productId, priceId });
   } catch (e: any) {

@@ -178,6 +178,11 @@ const FormPage = () => {
     const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
     productHandlers.append(copy);
 
+    featureHandlers.apply((feature) => {
+      const value = feature.type === 'boolean' ? 'false' : '';
+      return { ...feature, products: feature.products.concat({ id: copy.id, value }) };
+    });
+
     callAPI({
       url: `/api/widgets/${query.id}/add-product`,
       method: 'POST',
@@ -210,6 +215,11 @@ const FormPage = () => {
     };
     productHandlers.append(customProduct as FormProduct);
 
+    featureHandlers.apply((feature) => {
+      const value = feature.type === 'boolean' ? 'false' : '';
+      return { ...feature, products: feature.products.concat({ id, value }) };
+    });
+
     callAPI({
       url: `/api/widgets/${query.id}/add-custom-product`,
       method: 'POST',
@@ -224,6 +234,11 @@ const FormPage = () => {
     if (selectedProducts.length === 1) {
       setRecommended(null);
     }
+
+    const productId = selectedProducts[index]!.id;
+    featureHandlers.apply((feature) => {
+      return { ...feature, products: feature.products.filter((prod) => prod.id !== productId) };
+    });
 
     callAPI({
       url: `/api/widgets/${query.id}/remove-product`,
