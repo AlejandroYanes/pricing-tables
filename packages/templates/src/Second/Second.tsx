@@ -6,12 +6,11 @@ import { RenderIf } from 'ui';
 import type { FormPrice } from 'models';
 import { formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
 
-import type { TemplateProps } from '../constants/types';
-import type { Interval } from '../Basic/types';
+import type { TemplateProps, Interval } from '../constants/types';
+import { intervalsMap } from '../constants/intervals';
 import { resolveBillingIntervals } from '../Basic/utils/resolve-billing-intervals';
 import { filterProductsByInterval } from '../Basic/utils/filter-produts-by-interval';
 import { resolvePriceToShow } from '../Basic/utils/resolve-price-to-show';
-import { intervalsMap } from '../Basic/constants';
 
 const useStyles = createStyles((theme, { count, color }: { color: string; count: number }) => ({
   table: {
@@ -185,7 +184,6 @@ export function SecondTemplate(props: TemplateProps) {
                     ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
                     : null
                 }
-
               </Stack>
             </td>
           );

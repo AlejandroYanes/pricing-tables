@@ -13,8 +13,8 @@ interface Props {
 
 const baseColors = [
   'violet',
-  'indigo',
   'grape',
+  'indigo',
   'blue',
   'cyan',
   'teal',

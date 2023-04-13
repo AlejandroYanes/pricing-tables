@@ -1,4 +1,5 @@
 import type { FormCallback, FormFeature, FormProduct } from 'models';
+import type Stripe from 'stripe';
 
 export interface TemplateProps {
   features: FormFeature[];
@@ -12,3 +13,5 @@ export interface TemplateProps {
   environment?: string;
   currency?: string | null;
 }
+
+export type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval | `month_${number}`;

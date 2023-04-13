@@ -1,7 +1,7 @@
 import type Stripe from 'stripe';
 import type { FormProduct } from 'models';
 
-import { intervalsMap } from '../constants';
+import { intervalsMap } from '../../constants/intervals';
 
 export const resolveBillingIntervals = (products: FormProduct[]) => {
   return products

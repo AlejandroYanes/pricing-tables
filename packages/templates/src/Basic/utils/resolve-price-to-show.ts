@@ -1,6 +1,6 @@
 import type { FormProduct } from 'models';
 
-import type { Interval } from '../types';
+import type { Interval } from '../../constants/types';
 
 export const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
   if (!interval) return prod.prices[0]!;

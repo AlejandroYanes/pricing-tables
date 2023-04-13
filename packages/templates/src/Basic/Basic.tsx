@@ -3,8 +3,7 @@ import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from 
 import type { FormPrice } from 'models';
 import { RenderIf } from 'ui';
 
-import type { TemplateProps } from '../constants/types';
-import type { Interval } from './types';
+import type { TemplateProps, Interval } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
 import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
