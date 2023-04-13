@@ -5,7 +5,7 @@ import { checkDiff } from './check-diff';
 import type { Params, TrackedValue } from './types';
 
 export default function useDiff(params: Params) {
-  const { value, idField, keysToTrack, onChange } = params;
+  const { value, idField, keysToTrack, onChange, enabled } = params;
   const trackedValue = useRef<TrackedValue>(value);
   const diff = useRef<TrackedValue>(Array.isArray(value) ? [] : {});
   const isDiff = useRef(false);
@@ -18,10 +18,8 @@ export default function useDiff(params: Params) {
     isDiff.current = response.isDiff;
     diff.current = response.diff;
 
-    if (response.isDiff) {
-      debounceCall(() => {
-        onChange(diff.current);
-      });
+    if (enabled && response.isDiff) {
+      debounceCall(() => onChange(response.diff));
     }
   }, [value]);
 

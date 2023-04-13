@@ -7,6 +7,7 @@ export interface Params {
   idField?: string;
   keysToTrack?: string[];
   onChange: (diff: TrackedValue) => void;
+  enabled?: boolean;
 }
 
-export type DiffParams = Omit<Params, 'value' | 'onChange'> & { newValue: TrackedValue; trackedValue: TrackedValue };
+export type DiffParams = Omit<Params, 'value' | 'onChange' | 'enabled'> & { newValue: TrackedValue; trackedValue: TrackedValue };

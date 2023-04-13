@@ -19,7 +19,7 @@ interface Params {
   freeTrialLabel: string;
 }
 
-export default function useTrackAndSave(params: Params) {
+export default function useTrackAndSave(params: Params, enabled = false) {
   const {
     widgetId,
     selectedProducts,
@@ -37,6 +37,7 @@ export default function useTrackAndSave(params: Params) {
 
   const { mutate: updateProducts } = trpc.widgets.updateProducts.useMutation();
   useDiff({
+    enabled,
     value: selectedProducts,
     idField: 'id',
     keysToTrack: ['name', 'description', 'prices', 'hasFreeTrial', 'freeTrialDays', 'ctaLabel', 'ctaUrl'],
@@ -45,6 +46,7 @@ export default function useTrackAndSave(params: Params) {
 
   const { mutate: updateFeatures } = trpc.widgets.updateFeatures.useMutation();
   useDiff({
+    enabled,
     value: features,
     idField: 'id',
     onChange: (diff) => {
@@ -78,6 +80,7 @@ export default function useTrackAndSave(params: Params) {
 
   const { mutate: updateCallbacks } = trpc.widgets.updateCallbacks.useMutation();
   useDiff({
+    enabled,
     value: callbacks,
     idField: 'id',
     keysToTrack: ['env', 'url'],
@@ -93,6 +96,7 @@ export default function useTrackAndSave(params: Params) {
 
   const { mutate: mutateGValues } = trpc.widgets.updateGeneralValues.useMutation();
   useDiff({
+    enabled,
     value: { name, color, template, recommended, usesUnitLabel, unitLabel, subscribeLabel, freeTrialLabel },
     onChange: (diff) => mutateGValues({ widgetId, ...diff }),
   });

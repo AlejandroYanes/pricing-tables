@@ -54,7 +54,7 @@ const FormPage = () => {
   const colorScheme = useColorScheme();
 
   const { query } = useRouter();
-  const { data: widgetInfo, isLoading: isFetchingWidgetInfo, isError } = trpc.widgets.fetchInfo.useQuery(query.id as string, {
+  const { data: widgetInfo, isFetching: isFetchingWidgetInfo, isError } = trpc.widgets.fetchInfo.useQuery(query.id as string, {
     refetchOnWindowFocus: false,
     refetchInterval: false,
   });
@@ -101,7 +101,7 @@ const FormPage = () => {
     unitLabel,
     callbacks,
     widgetId: query.id as string,
-  });
+  }, isLoaded);
 
   useEffect(() => {
     if (!isFetchingWidgetInfo && widgetInfo) {
