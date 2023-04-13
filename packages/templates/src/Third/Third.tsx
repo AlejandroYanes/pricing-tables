@@ -36,7 +36,8 @@ const useStyles = createStyles((theme, color: string) => ({
     backgroundColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![9],
   },
   recommended: {
-    borderColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![9],
+    color: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6],
+    borderColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6],
   },
   whiteBadge: {
     color: 'white',
@@ -124,7 +125,7 @@ const resolvePricing = (options: PricingProps) => {
         <Text size={48} style={{ lineHeight: 1 }}>
           {formatCurrencyWithoutSymbol(unit_amount! / 100)}
         </Text>
-        <Text component="sub" color={isSelected ? undefined : 'dimmed'} size={18} mb={-8}>
+        <Text component="sub" size={18} mb={-8}>
           {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
         </Text>
       </Group>
@@ -187,7 +188,9 @@ export function ThirdTemplate(props: TemplateProps) {
   const theme = useMantineTheme();
   const { classes, cx } = useStyles(color);
 
-  const [selectedProduct, setSelectedProduct] = useState<number>(0);
+  const [selectedProduct, setSelectedProduct] = useState<number>(() => {
+    return products.findIndex((product) => product.id === recommended);
+  });
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
   const billingIntervals = useMemo(() => resolveBillingIntervals(products), [products]);
@@ -227,7 +230,7 @@ export function ThirdTemplate(props: TemplateProps) {
             return (
               <li key={prod.id}>
                 <UnstyledButton
-                  className={cx(classes.productBlock, { [classes.selected]: isSelected, [classes.recommended]: isRecommended })}
+                  className={cx(classes.productBlock, { [classes.recommended]: isRecommended, [classes.selected]: isSelected })}
                   onClick={() => setSelectedProduct(index)}
                 >
                   <RenderIf condition={isSelected} fallback={<IconCircle style={{ flexShrink: 0 }} />}>
