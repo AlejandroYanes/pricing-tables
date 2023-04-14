@@ -88,22 +88,24 @@ export const widgetsRouter = createTRPCRouter({
                 freeTrialDays: true,
               },
             },
-            features: {
-              orderBy: { createdAt: 'asc' },
-              select: {
-                id: true,
-                name: true,
-                type: true,
-                value: true,
-                productId: true,
-              },
-            },
           },
         },
       },
     });
 
     if (!widget) throw new TRPCError({ code: 'NOT_FOUND' });
+
+    const features = await ctx.prisma.feature.findMany({
+      where: { widgetId: widget.id },
+      orderBy: { createdAt: 'asc' },
+      select: {
+        id: true,
+        name: true,
+        type: true,
+        value: true,
+        productId: true,
+      },
+    });
 
     return {
       name: widget.name,
@@ -115,8 +117,8 @@ export const widgetsRouter = createTRPCRouter({
       freeTrialLabel: widget.freeTrialLabel,
       usesUnitLabel: widget.usesUnitLabel,
       unitLabel: widget.unitLabel,
+      features: normaliseFeatures(features),
       products: await normaliseProducts(ctx.stripe, widget.products),
-      features: normaliseFeatures(widget.products.flatMap((prod) => prod.features)),
     };
   }),
 
@@ -272,15 +274,16 @@ type ProductsList = Prisma.ProductGetPayload<{
         freeTrialDays: true;
       };
     };
-    features: {
-      select: {
-        id: true;
-        name: true;
-        type: true;
-        value: true;
-        productId: true;
-      };
-    };
+  };
+}>[];
+
+type FeaturesList = Prisma.FeatureGetPayload<{
+  select: {
+    id: true;
+    name: true;
+    type: true;
+    value: true;
+    productId: true;
   };
 }>[];
 
@@ -326,7 +329,7 @@ async function normaliseProducts(stripe: Stripe, products: ProductsList) {
   return [] as FormProduct[];
 }
 
-function normaliseFeatures(features: ProductsList[0]['features']) {
+function normaliseFeatures(features: FeaturesList) {
   return features.reduce((acc: FormFeature[], feature) => {
     const existing = acc.find((f) => f.id === feature.id);
     if (existing) {

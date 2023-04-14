@@ -63,6 +63,8 @@ export function BasicTemplate(props: TemplateProps) {
     }
   }, [products]);
 
+  if (visibleProducts.length === 0) return null;
+
   return (
     <Stack align="center">
       <RenderIf condition={billingIntervals.length > 1}>

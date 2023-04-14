@@ -10,15 +10,13 @@ export enum TEMPLATE_IDS {
   THIRD = '3',
 }
 
-export type TemplateId = keyof typeof TEMPLATE_IDS;
-
 export const templatesList: Templates[] = [
   { id: TEMPLATE_IDS.BASIC, name: 'First Template' },
   { id: TEMPLATE_IDS.SECOND, name: 'Second Template' },
   { id: TEMPLATE_IDS.THIRD, name: 'Third Template' },
 ];
 
-export const templatesMap: Record<string, (props?: any) => JSX.Element> = {
+export const templatesMap: Record<string, (props?: any) => JSX.Element | null> = {
   [TEMPLATE_IDS.BASIC]: BasicTemplate,
   [TEMPLATE_IDS.SECOND]: SecondTemplate,
   [TEMPLATE_IDS.THIRD]: ThirdTemplate,

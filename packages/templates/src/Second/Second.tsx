@@ -151,6 +151,8 @@ export function SecondTemplate(props: TemplateProps) {
     }
   }, [products]);
 
+  if (visibleProducts.length === 0) return null;
+
   const rows = new Array(features.length + 2).fill(1).map((_, index) => {
     const columns = visibleProducts.map((prod) => {
       const { isCustom } = prod;

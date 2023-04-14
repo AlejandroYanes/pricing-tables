@@ -14,7 +14,7 @@ import {
   IconInfoCircle
 } from '@tabler/icons';
 import { RenderIf } from 'ui';
-import { BasicTemplate, templatesMap } from 'templates';
+import { templatesMap } from 'templates';
 import type { FormCallback, FeatureType, FormFeature, FormProduct, FormPrice } from 'models';
 import { callAPI } from 'helpers';
 

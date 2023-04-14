@@ -189,7 +189,8 @@ export function ThirdTemplate(props: TemplateProps) {
   const { classes, cx } = useStyles(color);
 
   const [selectedProduct, setSelectedProduct] = useState<number>(() => {
-    return products.findIndex((product) => product.id === recommended);
+    const index = products.findIndex((product) => product.id === recommended);
+    return index === -1 ? 0 : index;
   });
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
