@@ -12,6 +12,7 @@ import TemplatesModal from 'components/TemplatesModal';
 
 const useStyles = createStyles((theme) => ({
   block: {
+    height: '260px',
     padding: '16px',
     borderRadius: theme.radius.sm,
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[5]}`,
@@ -76,7 +77,7 @@ const DashboardPage = () => {
               <Stack key={id} align="center" className={classes.block}>
                 {/* @ts-ignore */}
                 <Skeleton scale={0.3} />
-                <Text size="sm">{name}</Text>
+                <Text mt="auto" size="sm">{name}</Text>
               </Stack>
             </Link>
           )

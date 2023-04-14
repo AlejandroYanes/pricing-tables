@@ -14,4 +14,8 @@ export interface TemplateProps {
   currency?: string | null;
 }
 
+export interface SkeletonProps {
+  scale?: number;
+}
+
 export type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval | `month_${number}`;

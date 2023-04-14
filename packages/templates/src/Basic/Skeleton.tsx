@@ -1,13 +1,11 @@
 import { Group, SimpleGrid, Skeleton, Stack } from '@mantine/core';
 
-interface Props {
-  scale?: number;
-}
+import type { SkeletonProps } from '../constants/types';
 
 const items = 3;
 const arr = new Array(items).fill(0);
 
-export function BasicSkeleton(props: Props) {
+export function BasicSkeleton(props: SkeletonProps) {
   const { scale = 1 } = props;
   return (
     <Stack align="center">

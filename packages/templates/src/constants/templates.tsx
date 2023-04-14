@@ -1,8 +1,8 @@
 import type { Templates } from 'models';
 
 import { BasicTemplate, BasicSkeleton } from '../Basic';
-import { SecondTemplate } from '../Second';
-import { ThirdTemplate } from '../Third';
+import { SecondTemplate, SecondSkeleton } from '../Second';
+import { ThirdSkeleton, ThirdTemplate } from '../Third';
 
 export enum TEMPLATE_IDS {
   BASIC = '1',
@@ -24,6 +24,6 @@ export const templatesMap: Record<string, (props?: any) => JSX.Element | null> =
 
 export const skeletonMap: Record<string, (props?: any) => JSX.Element> = {
   [TEMPLATE_IDS.BASIC]: BasicSkeleton,
-  [TEMPLATE_IDS.SECOND]: () => <>Skeleton 2</>,
-  [TEMPLATE_IDS.THIRD]: () => <>Skeleton 3</>,
+  [TEMPLATE_IDS.SECOND]: SecondSkeleton,
+  [TEMPLATE_IDS.THIRD]: ThirdSkeleton,
 }
