@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/router';
 import Link from 'next/link';
-import { createStyles, Group, LoadingOverlay, SimpleGrid, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { createStyles, Group, LoadingOverlay, Stack, Text, Title, UnstyledButton } from '@mantine/core';
 import { IconNewSection } from '@tabler/icons';
 import { skeletonMap } from 'templates';
 
@@ -13,6 +13,7 @@ import TemplatesModal from 'components/TemplatesModal';
 const useStyles = createStyles((theme) => ({
   block: {
     height: '260px',
+    width: '330px',
     padding: '16px',
     borderRadius: theme.radius.sm,
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[1] : theme.colors.gray[5]}`,
@@ -22,8 +23,8 @@ const useStyles = createStyles((theme) => ({
     }
   },
   addBlock: {
-    minHeight: '200px',
-    height: '100%',
+    height: '260px',
+    width: '330px',
     display: 'flex',
     flexDirection: 'column',
     alignItems: 'center',
@@ -67,7 +68,7 @@ const DashboardPage = () => {
       <Group position="apart" align="center" mb="xl">
         <Title>Dashboard</Title>
       </Group>
-      <SimpleGrid cols={5} spacing="xl">
+      <Group spacing="xl">
         {data.map((widget) => {
           const { id, name, template } = widget;
           const Skeleton = skeletonMap[template];
@@ -83,7 +84,7 @@ const DashboardPage = () => {
           )
         })}
         <AddBlock label="Add new" onClick={() => setShowModal(true)} />
-      </SimpleGrid>
+      </Group>
       <TemplatesModal
         opened={showModal}
         loading={isMutating}

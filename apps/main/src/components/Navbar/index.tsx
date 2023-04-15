@@ -1,9 +1,10 @@
 import Link from 'next/link';
+import { useRouter } from 'next/router';
+import { signOut, useSession } from 'next-auth/react';
 import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
-import { IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
-import { signOut, useSession } from 'next-auth/react';
+import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
@@ -56,6 +57,7 @@ function NavbarLink({ icon: Icon, active, onClick }: NavbarLinkProps) {
 export function CustomNavbar() {
   const { classes } = useStyles();
   const { status } = useSession();
+  const router = useRouter();
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
     onSuccess: () => handleLogout(),
@@ -85,10 +87,12 @@ export function CustomNavbar() {
 
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
-      <Link href="/dashboard">
-        <Title order={1} color="teal" style={{ cursor: 'pointer' }}>Pricing cards</Title>
-      </Link>
-      <Group>
+      <RenderIf condition={router.pathname.startsWith('/form')}>
+        <Link href="/dashboard">
+          <NavbarLink icon={IconArrowLeft} />
+        </Link>
+      </RenderIf>
+      <Group ml="auto">
         <HoverCard width={280} shadow="md" position="bottom-end">
           <HoverCard.Target>
             <div>
