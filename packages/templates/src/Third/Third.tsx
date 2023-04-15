@@ -23,6 +23,7 @@ const useStyles = createStyles((theme, color: string) => ({
   },
   productBlock: {
     position: 'relative',
+    minWidth: '460px',
     width: '100%',
     display: 'flex',
     alignItems: 'center',
@@ -83,8 +84,24 @@ const resolvePricing = (options: PricingProps) => {
     };
 
   if (type === 'one_time') {
+    if (transform_quantity) {
+      return (
+        <Stack spacing={0} ml="auto" style={{ flexShrink: 0 }}>
+          <Group spacing={4}>
+            <Text component="sup" size={18} mt={-8} color={isSelected ? undefined : 'dimmed'}>
+              {getCurrencySymbol(currency)}
+            </Text>
+            <Text size={48} style={{ lineHeight: 1 }}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</Text>
+          </Group>
+          <Text component="sub" color={isSelected ? undefined : 'dimmed'}>
+            {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
+          </Text>
+        </Stack>
+      );
+    }
+
     return (
-      <Group>
+      <Group spacing={4} ml="auto" noWrap style={{ flexShrink: 0 }}>
         <Text component="sup">{getCurrencySymbol(currency)}</Text>
         <Text size={48}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</Text>
         <RenderIf condition={!!unitLabel}>
@@ -100,7 +117,7 @@ const resolvePricing = (options: PricingProps) => {
   if (billing_scheme === 'per_unit') {
     if (transform_quantity) {
       return (
-        <Stack spacing={0}>
+        <Stack spacing={0} ml="auto" style={{ flexShrink: 0 }}>
           <Group spacing={4}>
             <Text component="sup" size={18} mt={-8} color={isSelected ? undefined : 'dimmed'}>
               {getCurrencySymbol(currency)}
@@ -118,7 +135,7 @@ const resolvePricing = (options: PricingProps) => {
     }
 
     return (
-      <Group spacing={4} ml="auto">
+      <Group spacing={4} ml="auto" noWrap style={{ flexShrink: 0 }}>
         <Text size={48} style={{ lineHeight: 1 }}>
           {getCurrencySymbol(currency)}
         </Text>
@@ -215,6 +232,8 @@ export function ThirdTemplate(props: TemplateProps) {
 
   if (visibleProducts.length === 0) return null;
 
+  const productToHighlight = !!visibleProducts[selectedProduct] ? selectedProduct : 0;
+
   return (
     <Stack align="center">
       <RenderIf condition={billingIntervals.length > 1}>
@@ -226,7 +245,7 @@ export function ThirdTemplate(props: TemplateProps) {
             const { isCustom } = prod;
             const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
             const isRecommended = prod.id === recommended;
-            const isSelected = selectedProduct === index;
+            const isSelected = productToHighlight === index;
 
             return (
               <li key={prod.id}>
@@ -254,7 +273,7 @@ export function ThirdTemplate(props: TemplateProps) {
         <Stack className={classes.featuresBox}>
           <ul className={classes.itemsList}>
             {features.map((feature) => {
-              const product = visibleProducts[selectedProduct]!;
+              const product = visibleProducts[selectedProduct] || visibleProducts[0]!;
               const prodValue = feature.products.find((prod) => prod.id === product.id)!;
               const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
               if (feature.type !== 'boolean' && !prodValue.value) return null;
@@ -293,7 +312,7 @@ export function ThirdTemplate(props: TemplateProps) {
             })}
           </ul>
           {resolveCTA(
-            visibleProducts[selectedProduct]!,
+            visibleProducts[selectedProduct] || visibleProducts[0]!,
             currentInterval,
             callbacks,
             environment,
