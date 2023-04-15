@@ -20,7 +20,7 @@ export default function SignInAlert(props: Props) {
           <meta name="description" content="Un-authenticated" />
           <link rel="icon" href="/favicon.ico" />
         </Head>
-        <BaseLayout>
+        <BaseLayout hideNavbar>
           <Stack mx="auto" style={{ maxWidth: '700px' }}>
             <Alert
               icon={<IconAlertCircle size={16} />}

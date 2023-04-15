@@ -119,7 +119,7 @@ const Home: NextPage = () => {
         <meta name="description" content="A platform to quiclky generate a pricing widget" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-      <BaseLayout>
+      <BaseLayout hideNavbar>
         <HeroBullets />
       </BaseLayout>
     </>
