@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
-import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
+import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
