@@ -20,14 +20,14 @@ const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widget
 const requestBody = (widgetId: string) => `{ widget_id: ${widgetId}, product_id: <...>, price_id: <...> }`;
 
 // eslint-disable-next-line max-len
-const curlCommand = (widgetId: string, apiKey: string) => `curl -X POST https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info \\
+const curlCommand = (widgetId: string, apiKey: string) => `curl -X POST https://pricing-tables.vercel.app/api/client/retreive-stripe-info \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
      -d '{ "widget_id": "${widgetId}", "product_id": "<product_id>", "price_id": "<price_id>" }'
 `;
 
 // eslint-disable-next-line max-len
-const jsCommand = (widgetId: string, apiKey: string) => `const url = 'https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info';
+const jsCommand = (widgetId: string, apiKey: string) => `const url = 'https://pricing-tables.vercel.app/api/client/retreive-stripe-info';
 const data = {
   widget_id: '${widgetId}',
   product_id: '<product_id>',
