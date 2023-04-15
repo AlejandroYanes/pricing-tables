@@ -3,13 +3,14 @@ import { useColorScheme } from '@mantine/hooks';
 
 interface Props {
   children: any;
+  color?: string;
   colorScheme?: 'system' | 'light' | 'dark';
   withGlobalStyles?: boolean;
   withNormalizeCSS?: boolean;
 }
 
 export function PricingThemeProvider(props: Props) {
-  const { colorScheme = 'system', children, withNormalizeCSS = true, withGlobalStyles = true } = props;
+  const { colorScheme = 'system', color = 'teal', children, withNormalizeCSS = true, withGlobalStyles = true } = props;
   const systemColorScheme = useColorScheme();
   return (
     <MantineProvider
@@ -17,7 +18,7 @@ export function PricingThemeProvider(props: Props) {
       withNormalizeCSS={withNormalizeCSS}
       theme={{
         colorScheme: colorScheme === 'system' ? systemColorScheme : colorScheme,
-        primaryColor: 'teal',
+        primaryColor: color,
         globalStyles: withGlobalStyles ? (theme) => ({
           '*, *::before, *::after': {
             boxSizing: 'border-box',

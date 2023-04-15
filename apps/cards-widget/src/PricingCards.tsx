@@ -54,7 +54,7 @@ const PricingCards = (props: Props) => {
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <PricingThemeProvider colorScheme={colorScheme as any} withGlobalStyles={false} withNormalizeCSS={false}>
+    <PricingThemeProvider color={color} colorScheme={colorScheme as any} withGlobalStyles={false} withNormalizeCSS={false}>
       <Template
         features={features}
         products={products}
