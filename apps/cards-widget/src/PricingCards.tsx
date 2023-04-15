@@ -34,7 +34,7 @@ const PricingCards = (props: Props) => {
   useEffect(() => {
     if (widget) {
       callAPI({
-        url: `http://localhost:3000/api/client/widget/${widget}`,
+        url: `https://pricing-tables.vercel.app/api/client/widget/${widget}`,
         method: 'GET',
       })
         .then((res) => {
