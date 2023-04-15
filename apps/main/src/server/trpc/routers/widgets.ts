@@ -299,7 +299,7 @@ async function normaliseProducts(stripe: Stripe, products: ProductsList) {
     const stripePrices = (
       await stripe.prices.search({
         query: `${pricesQuery}`,
-        expand: ['data.tiers', 'data.currency_options'],
+        expand: ['data.currency_options'],
         limit: 50,
       })
     ).data.map(reduceStripePrice);

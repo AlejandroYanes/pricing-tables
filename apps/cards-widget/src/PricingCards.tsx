@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client'
 import { PricingThemeProvider } from 'ui';
-import { BasicTemplate } from 'templates';
+import { templatesMap } from 'templates';
 import { callAPI } from 'helpers';
 import type { FormCallback, FormFeature, FormProduct } from 'models';
 
@@ -48,12 +48,14 @@ const PricingCards = (props: Props) => {
 
   if (!widgetInfo) return null;
 
+  const Template = widgetInfo.template ? templatesMap[widgetInfo.template]! : () => null;
+
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
     <PricingThemeProvider colorScheme={colorScheme as any} withGlobalStyles={false} withNormalizeCSS={false}>
-      <BasicTemplate
+      <Template
         features={features}
         products={products}
         recommended={recommended}

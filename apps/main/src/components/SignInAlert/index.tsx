@@ -21,7 +21,7 @@ export default function SignInAlert(props: Props) {
           <link rel="icon" href="/favicon.ico" />
         </Head>
         <BaseLayout hideNavbar>
-          <Stack mx="auto" style={{ maxWidth: '700px' }}>
+          <Stack mt={120} mx="auto" style={{ maxWidth: '700px' }}>
             <Alert
               icon={<IconAlertCircle size={16} />}
               title="Hmm..."

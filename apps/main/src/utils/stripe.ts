@@ -9,7 +9,7 @@ export default function initStripe(apiKey: string) {
 }
 
 export function reduceStripeProduct(product: Stripe.Product) {
-  return pick(product, ['id', 'name', 'description', 'default_price']) as FormProduct;
+  return pick(product, ['id', 'name', 'description', 'default_price', 'active']) as FormProduct;
 }
 
 export function reduceStripePrice(price: Stripe.Price) {

@@ -97,34 +97,46 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
     const finalProducts: FormProduct[] = [];
 
     for (let pIndex = 0; pIndex < products.length; pIndex++) {
-      let widgetProd = products[pIndex]!;
+      const widgetProd = products[pIndex]!;
       const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
+
+      if (!stripeProd.active) continue;
+
+      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [] };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
-        widgetProd = Object.assign(
-          widgetProd,
-          stripeProd,
-          { id: widgetProd.mask, prices: widgetPrices, mask: undefined, default_price: undefined },
-        );
+        finalProduct = {
+          ...finalProduct,
+          ...stripeProd,
+          ...({
+            id: widgetProd.mask,
+            prices: [],
+            mask: undefined,
+            default_price: undefined,
+          }),
+        };
 
         for (let priceIndex = 0; priceIndex < widgetPrices.length; priceIndex++) {
           const widgetPrice = widgetPrices[priceIndex]!;
-          const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id);
-          widgetPrices[priceIndex] = {
+          const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id)!;
+
+          if (!stripePrice.active) continue;
+
+          finalProduct.prices.push({
             ...widgetPrice,
             ...stripePrice,
             ...({
               id: widgetPrice.mask,
               productId: widgetProd.id,
               mask: undefined,
-              product: undefined,
+              product: undefined as any,
             }),
-          } as any;
+          });
         }
       }
 
-      finalProducts.push(widgetProd as any);
+      finalProducts.push(finalProduct);
     }
 
     return finalProducts;

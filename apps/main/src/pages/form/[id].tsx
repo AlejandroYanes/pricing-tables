@@ -32,6 +32,14 @@ type Tabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';
 
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
+const currencyTooltip = `
+Select a currency to preview the prices in.
+If no currency is selected, or your price object does not have a specification for it,
+prices will be displayed in the default currency of your Stripe account.
+Keep in mind this is only a preview mode, if you want to show the widget in a specific currency,
+please check the Integration panel for how to.
+`;
+
 const errorScreen = (
   <BaseLayout>
     <Stack mt={60} justify="center" align="center">
@@ -509,7 +517,7 @@ const FormPage = () => {
               label={
                 <Tooltip
                   transitionProps={{ duration: 200 }}
-                  label="Select a currency to preview the prices in. If no currency is selected, or your price object does not have a specification for it, prices will be displayed in the default currency of your Stripe account. Keep in mind this is only a preview mode, if you want to show the widget in a specific currency, please check the Integration panel for how to."
+                  label={currencyTooltip}
                   width={280}
                   position="right"
                   multiline

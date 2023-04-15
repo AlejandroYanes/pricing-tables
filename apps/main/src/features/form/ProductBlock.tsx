@@ -10,9 +10,9 @@ import {
   Stack,
   Text,
   NumberInput,
-  UnstyledButton,
+  UnstyledButton, Tooltip,
 } from '@mantine/core';
-import { IconX, IconMinus } from '@tabler/icons';
+import { IconX, IconMinus, IconAlertCircle } from '@tabler/icons';
 import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
@@ -87,21 +87,17 @@ const resolvePricing = (price: FormPrice): string => {
   }
 
   return 'Unable to resolve pricing';
-
-  // disabled for now (https://github.com/AlejandroYanes/pricing-tables/issues/22)
-  // switch (price.tiers_mode) {
-  //   case 'volume': {
-  //     const tier = price.tiers![0]!;
-  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
-  //   }
-  //   case 'graduated': {
-  //     const tier = price.tiers![0]!;
-  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
-  //   }
-  //   default:
-  //     return 'No price';
-  // }
 };
+
+const disabledProductLabel = `
+This product is disabled on Stripe, we keep showing it so you can take action,
+but it will not show on the widget on your web page.
+`;
+
+const disabledPriceLabel = `
+This price is disabled on Stripe, we keep showing it so you can take action,
+but it will not show on the widget on your web page.
+`;
 
 export default function ProductBlock(props: Props) {
   const {
@@ -162,7 +158,16 @@ export default function ProductBlock(props: Props) {
           <IconX size={14} />
         </ActionIcon>
       </div>
-      <Text weight="bold" p={16}>{value.name}</Text>
+      <Group spacing={4}>
+        <Text weight="bold" py={16} pl={16}>{value.name}</Text>
+        <RenderIf condition={!product.active}>
+          <Tooltip label={disabledProductLabel} width={280} multiline position="right">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <IconAlertCircle size={18} />
+            </div>
+          </Tooltip>
+        </RenderIf>
+      </Group>
       <Stack>
         {(value.prices || []).map((price, index, list) => (
           <Fragment key={price.id}>
@@ -175,7 +180,18 @@ export default function ProductBlock(props: Props) {
                   </ActionIcon>
                 </div>
               </RenderIf>
-              <Text>{resolvePricing(price)}</Text>
+              <Group align="center" spacing={4}>
+                <Text component="span">
+                  {resolvePricing(price)}
+                </Text>
+                <RenderIf condition={!price.active}>
+                  <Tooltip label={disabledPriceLabel} width={280} multiline position="right">
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      <IconAlertCircle size={18} />
+                    </span>
+                  </Tooltip>
+                </RenderIf>
+              </Group>
               <Checkbox
                 label="Include free trial"
                 checked={price.hasFreeTrial}
