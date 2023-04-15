@@ -81,45 +81,45 @@ export function CustomNavbar() {
     });
   };
 
+  if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
+
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
       <Link href="/dashboard">
-        <Title order={1} color="teal" style={{ cursor: 'pointer' }}>Pricing</Title>
+        <Title order={1} color="teal" style={{ cursor: 'pointer' }}>Pricing cards</Title>
       </Link>
-      <RenderIf condition={status === 'authenticated'}>
-        <Group>
-          <HoverCard width={280} shadow="md" position="bottom-end">
-            <HoverCard.Target>
-              <div>
-                <NavbarLink icon={IconInfoCircle} />
-              </div>
-            </HoverCard.Target>
-            <HoverCard.Dropdown>
-              <Text size="sm">
-                This platform is still an alpha version, so if you find any bugs or have any suggestions,
-                please let us know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
-              </Text>
-            </HoverCard.Dropdown>
-          </HoverCard>
-          <Menu shadow="md" width={200} offset={18} position="bottom-end">
-            <Menu.Target>
-              <div>
-                <NavbarLink icon={IconUser} />
-              </div>
-            </Menu.Target>
-            <Menu.Dropdown>
-              <Menu.Label>Application</Menu.Label>
-              <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
-              <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-              <Menu.Divider />
-              <Menu.Label>Danger zone</Menu.Label>
-              <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
-                Delete my account
-              </Menu.Item>
-            </Menu.Dropdown>
-          </Menu>
-        </Group>
-      </RenderIf>
+      <Group>
+        <HoverCard width={280} shadow="md" position="bottom-end">
+          <HoverCard.Target>
+            <div>
+              <NavbarLink icon={IconInfoCircle} />
+            </div>
+          </HoverCard.Target>
+          <HoverCard.Dropdown>
+            <Text size="sm">
+              This platform is still an alpha version, so if you find any bugs or have any suggestions,
+              please let us know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
+            </Text>
+          </HoverCard.Dropdown>
+        </HoverCard>
+        <Menu shadow="md" width={200} offset={18} position="bottom-end">
+          <Menu.Target>
+            <div>
+              <NavbarLink icon={IconUser} />
+            </div>
+          </Menu.Target>
+          <Menu.Dropdown>
+            <Menu.Label>Application</Menu.Label>
+            <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
+            <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
+            <Menu.Divider />
+            <Menu.Label>Danger zone</Menu.Label>
+            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
+              Delete my account
+            </Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
+      </Group>
     </Header>
   );
 }

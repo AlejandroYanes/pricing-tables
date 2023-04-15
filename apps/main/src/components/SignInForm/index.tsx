@@ -7,8 +7,8 @@ import { DiscordButton } from '../SocialButtons/DiscordButton';
 
 const SignInForm = () => {
   return (
-    <Stack style={{ minWidth: '400px' }}>
-      <Title mx="auto" mb="xl" order={3}>Get started now.</Title>
+    <Stack w={400} mx="auto">
+      <Title mx="auto" order={3}>Get started now.</Title>
       <GithubButton onClick={() => signIn('github', { callbackUrl: '/dashboard' })} />
       <DiscordButton onClick={() => signIn('discord', { callbackUrl: '/dashboard' })} />
       <GoogleButton onClick={() => signIn('google', { callbackUrl: '/dashboard' })} />
