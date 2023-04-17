@@ -6,16 +6,9 @@ import { PrismaAdapter } from '@next-auth/prisma-adapter';
 
 import { env } from 'env/server.mjs';
 import { prisma } from 'server/db';
-import { notifyOfNewSignup } from 'utils/slack';
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
-    signIn({ user }) {
-      if (!user.id) {
-        notifyOfNewSignup({ name: user.name! });
-      }
-      return true;
-    },
     // Include user.id on session
     session({ session, user }) {
       if (session.user) {
