@@ -123,6 +123,18 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
  */
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
+export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
+  if (!ctx.session || !ctx.session.user || ctx.session.user.role !== 'ADMIN') {
+    throw new TRPCError({ code: 'UNAUTHORIZED' });
+  }
+  return next({
+    ctx: {
+      // infers the `session` as non-nullable
+      session: { ...ctx.session, user: ctx.session.user },
+    },
+  });
+});
+
 export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
   const data = await ctx.prisma.user.findUnique({
     where: { id: ctx.session?.user?.id },

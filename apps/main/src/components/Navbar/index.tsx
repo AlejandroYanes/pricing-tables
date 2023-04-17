@@ -1,10 +1,9 @@
-import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
 import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
-import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser } from '@tabler/icons';
+import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
@@ -54,9 +53,14 @@ function NavbarLink({ icon: Icon, active, onClick }: NavbarLinkProps) {
   );
 }
 
-export function CustomNavbar() {
+interface Props {
+  showBackButton: boolean;
+}
+
+export function CustomNavbar(props: Props) {
+  const { showBackButton } = props;
   const { classes } = useStyles();
-  const { status } = useSession();
+  const { status, data } = useSession();
   const router = useRouter();
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
@@ -84,13 +88,16 @@ export function CustomNavbar() {
   };
 
   if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
+  if (!data) return <div style={{ height: '88px' }} />;
+
+  const { user } = data;
 
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
-      <RenderIf condition={router.pathname.startsWith('/form')}>
-        <Link href="/dashboard">
+      <RenderIf condition={showBackButton}>
+        <UnstyledButton onClick={() => router.back()} mr="lg">
           <NavbarLink icon={IconArrowLeft} />
-        </Link>
+        </UnstyledButton>
       </RenderIf>
       <Group ml="auto">
         <HoverCard width={280} shadow="md" position="bottom-end">
@@ -113,6 +120,16 @@ export function CustomNavbar() {
             </div>
           </Menu.Target>
           <Menu.Dropdown>
+            <RenderIf condition={user?.role === 'ADMIN'}>
+              <Menu.Label>Management</Menu.Label>
+              <Menu.Item
+                onClick={() => router.push('/users')}
+                icon={<IconUsers size={14} />}
+              >
+                Manage Users
+              </Menu.Item>
+              <Menu.Divider />
+            </RenderIf>
             <Menu.Label>Application</Menu.Label>
             <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
             <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>

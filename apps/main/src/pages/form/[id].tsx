@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import { useRouter } from 'next/router';
+import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Text, Tooltip } from '@mantine/core';
 import { useColorScheme, useListState } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
@@ -26,7 +27,7 @@ import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
 import FeaturesForm from 'features/form/FeaturesForm';
 import useTrackAndSave from 'features/form/useTrackAndSave';
-import IntegrationPanel from '../../features/form/IntegrationPanel';
+import IntegrationPanel from 'features/form/IntegrationPanel';
 
 type Tabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';
 
@@ -579,98 +580,103 @@ const FormPage = () => {
   );
 
   return (
-    <BaseLayout>
-      <MantineProvider theme={{ primaryColor: color, colorScheme }}>
-        <Tabs
-          value={currentTab}
-          onTabChange={setCurrentTab as any}
-          mb="xl"
-          styles={tabsStyles}
-        >
-          <Tabs.List>
-            <Tabs.Tab value="products">Products</Tabs.Tab>
-            <Tabs.Tab value="features">Features</Tabs.Tab>
-            <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
-            <Tabs.Tab value="settings">Settings</Tabs.Tab>
-            <Tabs.Tab value="integration">Integration</Tabs.Tab>
-          </Tabs.List>
-        </Tabs>
-        <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
-          <RenderIf condition={currentTab === 'products'}>
-            <ProductsForm
-              showPanel={showPanel}
-              template={template}
-              products={productsList}
-              selectedProducts={selectedProducts}
-              onAddProduct={handleAddProduct}
-              onAddCustomProduct={handleAddCustomProduct}
-              onAddPrice={handleAddPrice}
-              onRemoveProduct={handleRemoveProduct}
-              onRemovePrice={handleRemovePrice}
-              onToggleFreeTrial={handleToggleFreeTrial}
-              onChangeFreeTrialDays={handleChangeFreeTrialDays}
-              onCustomCTANameChange={handleCustomCTANameChange}
-              onCustomCTALabelChange={handleCustomCTALabelChange}
-              onCustomCTAUrlChange={handleCustomCTAUrlChange}
-              onCustomCTADescriptionChange={handleCustomDescriptionChange}
-            />
+    <>
+      <Head>
+        <title>Pricing cards | Widget form</title>
+      </Head>
+      <BaseLayout>
+        <MantineProvider theme={{ primaryColor: color, colorScheme }}>
+          <Tabs
+            value={currentTab}
+            onTabChange={setCurrentTab as any}
+            mb="xl"
+            styles={tabsStyles}
+          >
+            <Tabs.List>
+              <Tabs.Tab value="products">Products</Tabs.Tab>
+              <Tabs.Tab value="features">Features</Tabs.Tab>
+              <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
+              <Tabs.Tab value="settings">Settings</Tabs.Tab>
+              <Tabs.Tab value="integration">Integration</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
+          <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
+            <RenderIf condition={currentTab === 'products'}>
+              <ProductsForm
+                showPanel={showPanel}
+                template={template}
+                products={productsList}
+                selectedProducts={selectedProducts}
+                onAddProduct={handleAddProduct}
+                onAddCustomProduct={handleAddCustomProduct}
+                onAddPrice={handleAddPrice}
+                onRemoveProduct={handleRemoveProduct}
+                onRemovePrice={handleRemovePrice}
+                onToggleFreeTrial={handleToggleFreeTrial}
+                onChangeFreeTrialDays={handleChangeFreeTrialDays}
+                onCustomCTANameChange={handleCustomCTANameChange}
+                onCustomCTALabelChange={handleCustomCTALabelChange}
+                onCustomCTAUrlChange={handleCustomCTAUrlChange}
+                onCustomCTADescriptionChange={handleCustomDescriptionChange}
+              />
+            </RenderIf>
+            <RenderIf condition={currentTab === 'visuals'}>
+              <VisualsForm
+                showPanel={showPanel}
+                template={template}
+                color={color}
+                onColorChange={setColor}
+              />
+            </RenderIf>
+            <RenderIf condition={currentTab === 'features'}>
+              <FeaturesForm
+                products={selectedProducts}
+                features={features}
+                onAddNew={handleAddNewFeature}
+                onDelete={handleDeleteFeature}
+                onFeatureLabelUpdate={handleFeatureLabelUpdate}
+                onFeatureTypeChange={handleFeatureTypeUpdate}
+                onFeatureValueChange={handleFeatureValueChange}
+                onFeatureReorder={handleFeatureReorder}
+              />
+            </RenderIf>
+            <RenderIf condition={currentTab === 'settings'}>
+              <SettingsForm
+                showPanel={showPanel}
+                widgetId={query.id as string}
+                templateId={templateId}
+                onTemplateChange={setTemplateId}
+                template={template}
+                products={selectedProducts}
+                name={name}
+                onNameChange={setName}
+                recommended={recommended}
+                onRecommendedChange={setRecommended}
+                unitLabel={unitLabel}
+                usesUnitLabel={usesUnitLabel}
+                onToggleUnitLabels={handleUnitLabelToggle}
+                onUnitLabelChange={handleUnitLabelChange}
+                subscribeLabel={subscribeLabel}
+                onSubscribeLabelChange={setSubscribeLabel}
+                freeTrialLabel={freeTrialLabel}
+                onFreeTrialLabelChange={setFreeTrialLabel}
+                callbacks={callbacks}
+                onAddNewCallback={addNewCallback}
+                onDeleteCallback={deleteCallback}
+                onCallbackEnvChange={handleCallbackEnvChange}
+                onCallbackUrlChange={handleCallbackUrlChange}
+              />
+            </RenderIf>
+            <RenderIf condition={currentTab === 'integration'}>
+              <IntegrationPanel widgetId={query.id as string} />
+            </RenderIf>
+          </Group>
+          <RenderIf condition={!isLoaded}>
+            <LoadingOverlay visible overlayBlur={2} />
           </RenderIf>
-          <RenderIf condition={currentTab === 'visuals'}>
-            <VisualsForm
-              showPanel={showPanel}
-              template={template}
-              color={color}
-              onColorChange={setColor}
-            />
-          </RenderIf>
-          <RenderIf condition={currentTab === 'features'}>
-            <FeaturesForm
-              products={selectedProducts}
-              features={features}
-              onAddNew={handleAddNewFeature}
-              onDelete={handleDeleteFeature}
-              onFeatureLabelUpdate={handleFeatureLabelUpdate}
-              onFeatureTypeChange={handleFeatureTypeUpdate}
-              onFeatureValueChange={handleFeatureValueChange}
-              onFeatureReorder={handleFeatureReorder}
-            />
-          </RenderIf>
-          <RenderIf condition={currentTab === 'settings'}>
-            <SettingsForm
-              showPanel={showPanel}
-              widgetId={query.id as string}
-              templateId={templateId}
-              onTemplateChange={setTemplateId}
-              template={template}
-              products={selectedProducts}
-              name={name}
-              onNameChange={setName}
-              recommended={recommended}
-              onRecommendedChange={setRecommended}
-              unitLabel={unitLabel}
-              usesUnitLabel={usesUnitLabel}
-              onToggleUnitLabels={handleUnitLabelToggle}
-              onUnitLabelChange={handleUnitLabelChange}
-              subscribeLabel={subscribeLabel}
-              onSubscribeLabelChange={setSubscribeLabel}
-              freeTrialLabel={freeTrialLabel}
-              onFreeTrialLabelChange={setFreeTrialLabel}
-              callbacks={callbacks}
-              onAddNewCallback={addNewCallback}
-              onDeleteCallback={deleteCallback}
-              onCallbackEnvChange={handleCallbackEnvChange}
-              onCallbackUrlChange={handleCallbackUrlChange}
-            />
-          </RenderIf>
-          <RenderIf condition={currentTab === 'integration'}>
-            <IntegrationPanel widgetId={query.id as string} />
-          </RenderIf>
-        </Group>
-        <RenderIf condition={!isLoaded}>
-          <LoadingOverlay visible overlayBlur={2} />
-        </RenderIf>
-      </MantineProvider>
-    </BaseLayout>
+        </MantineProvider>
+      </BaseLayout>
+    </>
   );
 };
 

@@ -14,6 +14,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = user.id;
         session.user.isSetup = !!(user as any).stripeKey;
+        session.user.role = (user as any).role;
       }
       return session;
     },
