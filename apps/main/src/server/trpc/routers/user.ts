@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import { notifyOfDeletedAccount, notifyOfNewSetup } from 'utils/slack';
 import { createTRPCRouter, protectedProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
@@ -12,14 +13,16 @@ export const userRouter = createTRPCRouter({
         stripeKey: apiKey,
       },
     });
+    notifyOfNewSetup({ name: ctx.session.user.name! });
   }),
   deleteAccount: protectedProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
-      return ctx.prisma.user.delete({
+      await ctx.prisma.user.delete({
         where: {
           id: user.id,
         },
       });
+      notifyOfDeletedAccount({ name: user.name! });
     })
 });
