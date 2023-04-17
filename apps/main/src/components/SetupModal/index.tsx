@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Stripe from 'stripe';
 import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';
+import { Prism } from '@mantine/prism';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
@@ -14,7 +15,7 @@ export default function SetupModal() {
   const [apiKey, setApiKey] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
-  const [status, setStatus] = useState<Status>('empty');
+  const [status, setStatus] = useState<Status>('input');
   const [products, setProducts] = useState<Stripe.Product[]>([]);
 
   const { mutate } = trpc.user.setup.useMutation({
@@ -95,17 +96,21 @@ export default function SetupModal() {
           {` don't`} worry, we {`won't`} create anything, just read, we promise 🤞.
           If you {`don't`} know how to get your API key, you can read about it {' '}
           <Anchor href="https://stripe.com/docs/keys" target="_blank">on the Stripe docs</Anchor>.
-          <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
-          <RenderIf condition={error}>
-            <Alert my="md" icon={<IconAlertCircle size="1rem" />} color="red" variant="outline">
-              Seems like we {`couldn't`} connect to your Stripe account,
-              please try again and make sure you are using the correct API key.
-            </Alert>
-          </RenderIf>
-          <Group mt="xl" position="right">
-            <Button loading={loading} onClick={handleSetup}>Test connection</Button>
-          </Group>
         </Text>
+        <Text mt="sm">If you do not have a Stripe key but still want to test, {`here's`} one from us:</Text>
+        <Prism language="markup">
+          sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu
+        </Prism>
+        <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
+        <RenderIf condition={error}>
+          <Alert my="md" icon={<IconAlertCircle size="1rem" />} color="red" variant="outline">
+            Seems like we {`couldn't`} connect to your Stripe account,
+            please try again and make sure you are using the correct API key.
+          </Alert>
+        </RenderIf>
+        <Group mt="xl" position="right">
+          <Button loading={loading} onClick={handleSetup}>Test connection</Button>
+        </Group>
       </RenderIf>
       <RenderIf condition={status === 'empty'}>
         <Text>
