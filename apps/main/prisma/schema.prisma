@@ -109,9 +109,10 @@ model User {
     id              String    @id @default(cuid())
     name            String?
     email           String?   @unique
-    emailVerified    DateTime?
+    emailVerified   DateTime?
     image           String?
     stripeKey       String?
+    role            String?    @default("USER")
     accounts        Account[]
     sessions        Session[]
     widgets         PriceWidget[]

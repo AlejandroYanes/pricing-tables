@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { useRouter } from 'next/router';
+import Head from 'next/head';
 import Link from 'next/link';
+import { useRouter } from 'next/router';
 import { createStyles, Group, LoadingOverlay, Stack, Text, Title, UnstyledButton } from '@mantine/core';
 import { IconNewSection } from '@tabler/icons';
 import { skeletonMap } from 'templates';
@@ -64,35 +65,40 @@ const DashboardPage = () => {
   });
 
   return (
-    <BaseLayout>
-      <Group position="apart" align="center" mb="xl">
-        <Title>Dashboard</Title>
-      </Group>
-      <Group spacing="xl">
-        {data.map((widget) => {
-          const { id, name, template } = widget;
-          const Skeleton = skeletonMap[template];
+    <>
+      <Head>
+        <title>Pricing cards | Dashboard</title>
+      </Head>
+      <BaseLayout>
+        <Group position="apart" align="center" mb="xl">
+          <Title>Dashboard</Title>
+        </Group>
+        <Group spacing="xl">
+          {data.map((widget) => {
+            const { id, name, template } = widget;
+            const Skeleton = skeletonMap[template];
 
-          return (
-            <Link href={`/form/${id}`} key={id}>
-              <Stack key={id} align="center" className={classes.block}>
-                {/* @ts-ignore */}
-                <Skeleton scale={0.3} />
-                <Text mt="auto" size="sm">{name}</Text>
-              </Stack>
-            </Link>
-          )
-        })}
-        <AddBlock label="Add new" onClick={() => setShowModal(true)} />
-      </Group>
-      <TemplatesModal
-        opened={showModal}
-        loading={isMutating}
-        onSelect={(values) => mutate(values)}
-        onClose={() => setShowModal(false)}
-      />
-      <LoadingOverlay visible={isLoading} />
-    </BaseLayout>
+            return (
+              <Link href={`/form/${id}`} key={id}>
+                <Stack key={id} align="center" className={classes.block}>
+                  {/* @ts-ignore */}
+                  <Skeleton scale={0.3} />
+                  <Text mt="auto" size="sm">{name}</Text>
+                </Stack>
+              </Link>
+            )
+          })}
+          <AddBlock label="Add new" onClick={() => setShowModal(true)} />
+        </Group>
+        <TemplatesModal
+          opened={showModal}
+          loading={isMutating}
+          onSelect={(values) => mutate(values)}
+          onClose={() => setShowModal(false)}
+        />
+        <LoadingOverlay visible={isLoading} />
+      </BaseLayout>
+    </>
   );
 };
 
