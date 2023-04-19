@@ -16,8 +16,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const widgetData = await getWidgetData(widget as string);
 
-  const secondsInADay = 60 * 60 * 24;
-  res.setHeader('Cache-Control', `s-maxage=${secondsInADay}, stale-while-revalidate=360`);
+  // const secondsInADay = 60 * 60 * 24;
+  // res.setHeader('Cache-Control', `s-maxage=${secondsInADay}, stale-while-revalidate=360`);
   res.status(200).json(widgetData);
 }
 

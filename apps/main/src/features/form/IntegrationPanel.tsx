@@ -7,7 +7,7 @@ interface Props {
 }
 
 const scriptCode = `<script src="https://pricing-tables-scripts.vercel.app/v0.0.1/pricing-cards.js"></script>`;
-const widgetCode = (widgetId: string) => `<pricing-cards widget="${widgetId}"></script>`;
+const widgetCode = (widgetId: string) => `<pricing-cards widget="${widgetId}"></pricing-cards>`;
 const wrappedWidgetCode = (widgetId: string) => `
 <div class="pricing-widget__container">
     <pricing-cards widget="${widgetId}"></script>
