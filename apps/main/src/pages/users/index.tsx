@@ -35,7 +35,7 @@ const UsersPage: NextPage = () => {
         <title>Pricing cards | Managing users</title>
       </Head>
       <BaseLayout showBackButton>
-        <Stack mx="auto" sx={{ width: '900px' }}>
+        <Stack mx="auto" sx={{ maxWidth: '980px', width: '100%' }}>
           <Title>Users</Title>
           <UsersTable
             page={page}

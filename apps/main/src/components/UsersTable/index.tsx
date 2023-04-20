@@ -16,6 +16,9 @@ interface Props {
     email: string | null;
     role: string | null;
     stripeKey: string | null;
+    _count: {
+      widgets: number;
+    };
   }[];
   currentUser: string | undefined;
   updateRole: (userId: string, newRole: Role) => void;
@@ -53,6 +56,8 @@ const UsersTable = (props: Props) => {
         </RenderIf>
       </td>
 
+      <td>{!!user.stripeKey ? user._count.widgets : 'N/A'}</td>
+
       <td>
         <Select
           disabled={user.id === currentUser}
@@ -79,7 +84,8 @@ const UsersTable = (props: Props) => {
         <thead>
           <tr>
             <th>User</th>
-            <th style={{ width: '130px' }}>Is Setup</th>
+            <th style={{ width: '100px' }}>Is Setup</th>
+            <th style={{ width: '130px' }}>Widgets</th>
             <th style={{ width: '200px' }}>Role</th>
           </tr>
         </thead>
