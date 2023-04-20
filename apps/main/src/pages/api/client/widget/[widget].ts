@@ -62,7 +62,7 @@ async function getWidgetData(widgetId: string) {
   ).rows[0] as { stripeKey: string };
 
   const stripe = initStripe(widgetUser.stripeKey);
-  const maskedRecommended = products.find((p) => p.id === widget.recommended)!.mask;
+  const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
   return {
     template: widget.template,

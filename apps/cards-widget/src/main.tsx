@@ -5,6 +5,6 @@ import './PricingCards';
 // ReactDOM.createRoot(document.getElementById('pricing-cards') as HTMLElement).render(
 //   <React.StrictMode>
 //     {/* @ts-ignore */}
-//     <pricing-cards widget="clgan0d7s0001jed6a5epfphh" theme="light" />
+//     <pricing-cards widget="clgpe89s30007jehb40bt26iz" theme="light" />
 //   </React.StrictMode>,
 // );
