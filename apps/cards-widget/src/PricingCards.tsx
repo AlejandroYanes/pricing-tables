@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client'
+import createCache from '@emotion/cache'
+import type { EmotionCache } from '@emotion/react';
 import { PricingThemeProvider } from 'ui';
 import { templatesMap } from 'templates';
 import { callAPI } from 'helpers';
 import type { FormCallback, FormFeature, FormProduct } from 'models';
 
 interface Props {
+  cache?: EmotionCache;
   widget?: string;
   env?: string;
   theme?: string;
@@ -28,7 +31,7 @@ type WidgetInfo = {
 };
 
 const PricingCards = (props: Props) => {
-  const { widget, currency, env, theme: colorScheme = 'system' } = props;
+  const { cache, widget, currency, env, theme: colorScheme = 'light' } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -54,7 +57,13 @@ const PricingCards = (props: Props) => {
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <PricingThemeProvider color={color} colorScheme={colorScheme as any} withGlobalStyles={false} withNormalizeCSS={false}>
+    <PricingThemeProvider
+      cache={cache}
+      color={color}
+      colorScheme={colorScheme as any}
+      withGlobalStyles={false}
+      withNormalizeCSS={false}
+    >
       <Template
         features={features}
         products={products}
@@ -73,7 +82,9 @@ const PricingCards = (props: Props) => {
 
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
+
   props: Props = {
+    cache: undefined,
     widget: undefined,
     env: undefined,
     theme: undefined,
@@ -82,13 +93,18 @@ class Wrapper extends HTMLElement {
 
   constructor() {
     super();
+    this.attachShadow({ mode: 'open' });
+    this.domRoot = ReactDOM.createRoot(this.shadowRoot || this);
     this.props = {
+      cache: createCache({
+        key: 'pricing-cards',
+        container: this.shadowRoot || this,
+      }),
       env: this.getAttribute('env') || undefined,
       widget: this.getAttribute('widget') || undefined,
       theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
     };
-    this.domRoot = ReactDOM.createRoot(this);
   }
 
   render() {

@@ -1,5 +1,6 @@
 import { MantineProvider } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
+import type { EmotionCache } from '@emotion/react';
 
 interface Props {
   children: any;
@@ -7,13 +8,15 @@ interface Props {
   colorScheme?: 'system' | 'light' | 'dark';
   withGlobalStyles?: boolean;
   withNormalizeCSS?: boolean;
+  cache?: EmotionCache;
 }
 
 export function PricingThemeProvider(props: Props) {
-  const { colorScheme = 'system', color = 'teal', children, withNormalizeCSS = true, withGlobalStyles = true } = props;
+  const { cache, colorScheme = 'system', color = 'teal', children, withNormalizeCSS = true, withGlobalStyles = true } = props;
   const systemColorScheme = useColorScheme();
   return (
     <MantineProvider
+      emotionCache={cache}
       withGlobalStyles={withGlobalStyles}
       withNormalizeCSS={withNormalizeCSS}
       theme={{
