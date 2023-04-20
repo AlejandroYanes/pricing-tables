@@ -15,10 +15,12 @@ const UsersPage: NextPage = () => {
   const { data: session } = useSession();
   const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
+
   const {
     data: { results, count } = { results: [], count: 0 },
     refetch,
   } = trpc.user.listUsers.useQuery({ query, page }, { keepPreviousData: true });
+
   const { mutate } = trpc.user.updateRole.useMutation({
     onSuccess: () => refetch(),
   });
