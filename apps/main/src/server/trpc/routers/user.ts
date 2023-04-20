@@ -55,7 +55,10 @@ export const userRouter = createTRPCRouter({
 
         return { results, count };
       }
+
       const results = await ctx.prisma.user.findMany({
+        take: ITEMS_PER_PAGE_LIMIT,
+        skip: page === 1 ? 0 : ITEMS_PER_PAGE_LIMIT * (page - 1),
         select: {
           id: true,
           role: true,
