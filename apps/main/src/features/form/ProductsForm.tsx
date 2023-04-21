@@ -1,7 +1,8 @@
-import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
-import type Stripe from 'stripe';
 import type { ReactNode} from 'react';
 import { useState } from 'react';
+import type Stripe from 'stripe';
+import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
+import type { DropResult } from 'react-beautiful-dnd';
 import { IconChevronDown } from '@tabler/icons';
 import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
@@ -27,6 +28,7 @@ interface Props {
   onCustomCTALabelChange: (index: number, nextLabel: string) => void;
   onCustomCTAUrlChange: (index: number, nextLabel: string) => void;
   onCustomCTADescriptionChange: (index: number, nextDescription: string) => void;
+  onProductReorder: (result: DropResult) => void;
 }
 
 const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
@@ -70,20 +72,6 @@ const resolvePricing = (price: FormPrice): string => {
   }
 
   return 'Unable to resolve pricing';
-
-  // disabled for now (https://github.com/AlejandroYanes/pricing-tables/issues/22)
-  // switch (price.tiers_mode) {
-  //   case 'volume': {
-  //     const tier = price.tiers![0]!;
-  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} for the first ${tier.up_to} units /${recurringLabel}`;
-  //   }
-  //   case 'graduated': {
-  //     const tier = price.tiers![0]!;
-  //     return `Starts at ${formatCurrency(tier.unit_amount! / 100, price.currency)} /${recurringLabel}`;
-  //   }
-  //   default:
-  //     return 'No price';
-  // }
 };
 
 export default function ProductsForm(props: Props) {
@@ -103,6 +91,7 @@ export default function ProductsForm(props: Props) {
     onCustomCTALabelChange,
     onCustomCTAUrlChange,
     onCustomCTADescriptionChange,
+    onProductReorder,
   } = props;
   const [showProducts, setShowProducts] = useState(false);
 
@@ -126,10 +115,42 @@ export default function ProductsForm(props: Props) {
     <>
       {selectedProducts.map((prod, index) => {
         const baseProduct = products.find((p) => p.id === prod.id)!;
+        const isFirst = index === 0;
+        const isLast = index === selectedProducts.length - 1;
+
+        const onMoveToTop = () => {
+          onProductReorder({
+            source: { index, droppableId: 'products' },
+            destination: { index: 0, droppableId: 'products' },
+          } as DropResult);
+        };
+
+        const onMoveUp = () => {
+          onProductReorder({
+            source: { index, droppableId: 'products' },
+            destination: { index: index - 1, droppableId: 'products' },
+          } as DropResult);
+        };
+
+        const onMoveDown = () => {
+          onProductReorder({
+            source: { index, droppableId: 'products' },
+            destination: { index: index + 1, droppableId: 'products' },
+          } as DropResult);
+        };
+
+        const onMoveToBottom = () => {
+          onProductReorder({
+            source: { index, droppableId: 'products' },
+            destination: { index: selectedProducts.length - 1, droppableId: 'products' },
+          } as DropResult);
+        };
 
         if (prod.isCustom) {
           return (
             <CustomProductBlock
+              isFirst={isFirst}
+              isLast={isLast}
               key={prod.id}
               value={prod}
               onRemove={() => onRemoveProduct(index)}
@@ -137,12 +158,18 @@ export default function ProductsForm(props: Props) {
               onCTALabelChange={(value) => onCustomCTALabelChange(index, value)}
               onCTAUrlChange={(value) => onCustomCTAUrlChange(index, value)}
               onDescriptionChange={(value) => onCustomCTADescriptionChange(index, value)}
+              onMoveToTop={onMoveToTop}
+              onMoveUp={onMoveUp}
+              onMoveDown={onMoveDown}
+              onMoveToBottom={onMoveToBottom}
             />
           );
         }
 
         return (
           <ProductBlock
+            isFirst={isFirst}
+            isLast={isLast}
             key={prod.id}
             value={prod}
             product={baseProduct}
@@ -151,6 +178,10 @@ export default function ProductsForm(props: Props) {
             onRemovePrice={onRemovePrice}
             onToggleFreeTrial={onToggleFreeTrial}
             onFreeTrialDaysChange={onChangeFreeTrialDays}
+            onMoveToTop={onMoveToTop}
+            onMoveUp={onMoveUp}
+            onMoveDown={onMoveDown}
+            onMoveToBottom={onMoveToBottom}
           />
         );
       })}

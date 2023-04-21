@@ -262,6 +262,23 @@ const FormPage = () => {
     });
   };
 
+  const handleProductReorder = ({ destination, source }: DropResult) => {
+    productHandlers.reorder({ from: source.index, to: destination?.index || 0 });
+
+    const sourceProduct = selectedProducts.at(source.index)!;
+    const destinationProduct = selectedProducts.at(destination?.index || 0)!;
+    callAPI({
+      url: `/api/widgets/${query.id}/reorder-product`,
+      method: 'POST',
+      body: {
+        source: sourceProduct.id,
+        destination: destinationProduct.id,
+      },
+    }).catch(() => {
+      handleAPIError();
+    });
+  }
+
   const handleAddPrice = (productId: string, price: FormPrice) => {
     const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
 
@@ -619,6 +636,7 @@ const FormPage = () => {
                 onCustomCTALabelChange={handleCustomCTALabelChange}
                 onCustomCTAUrlChange={handleCustomCTAUrlChange}
                 onCustomCTADescriptionChange={handleCustomDescriptionChange}
+                onProductReorder={handleProductReorder}
               />
             </RenderIf>
             <RenderIf condition={currentTab === 'visuals'}>
