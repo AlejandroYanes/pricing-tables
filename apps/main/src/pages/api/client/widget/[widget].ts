@@ -59,10 +59,10 @@ async function getWidgetData(widgetId: string) {
   ).rows as Price[];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey`, `pricing-tables`.User.role FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
+    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
   ).rows[0] as { stripeKey: string; role: string };
 
-  const stripeKey = widgetUser.role === ROLES.GUEST
+  const stripeKey = !widgetUser
     ? 'sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'
     : widgetUser.stripeKey;
   const stripe = initStripe(stripeKey);
