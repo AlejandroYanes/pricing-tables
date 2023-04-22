@@ -26,10 +26,11 @@ import { type Session } from 'next-auth';
  */
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
+import { ROLES } from 'models';
 
+import initStripe from 'utils/stripe';
 import { getServerAuthSession } from '../auth';
 import { prisma } from '../db';
-import initStripe from '../../utils/stripe';
 
 type CreateContextOptions = {
   session: Session | null;
@@ -40,7 +41,7 @@ type CreateContextOptions = {
  * it, you can export it from here
  *
  * Examples of things you may need it for:
- * - testing, so we dont have to mock Next.js' req/res
+ * - testing, so we don't have to mock Next.js' req/res
  * - trpc's `createSSGHelpers` where we don't have req/res
  * @see https://create.t3.gg/en/usage/trpc#-servertrpccontextts
  */
@@ -124,7 +125,7 @@ const enforceUserIsAuthed = t.middleware(({ ctx, next }) => {
 export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
-  if (!ctx.session || !ctx.session.user || ctx.session.user.role !== 'ADMIN') {
+  if (!ctx.session || !ctx.session.user || ctx.session.user.role !== ROLES.ADMIN) {
     throw new TRPCError({ code: 'UNAUTHORIZED' });
   }
   return next({
@@ -136,6 +137,17 @@ export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 
 export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  // to be removed when the guest role is removed
+  if (ctx.session.user.role === ROLES.GUEST) {
+    return next({
+      ctx: {
+        // infers the `session` as non-nullable
+        session: { ...ctx.session, user: ctx.session.user },
+        stripe: initStripe('sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'),
+      },
+    });
+  }
+
   const data = await ctx.prisma.user.findUnique({
     where: { id: ctx.session?.user?.id },
     select: { stripeKey: true },

@@ -5,6 +5,7 @@ import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
 import { RenderIf } from 'ui';
+import { ROLES } from 'models';
 
 import { trpc } from 'utils/trpc';
 
@@ -109,7 +110,7 @@ export function CustomNavbar(props: Props) {
           <HoverCard.Dropdown>
             <Text size="sm">
               This platform is still an alpha version, so if you find any bugs or have any suggestions,
-              please let us know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
+              please let me know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
             </Text>
           </HoverCard.Dropdown>
         </HoverCard>
@@ -120,7 +121,7 @@ export function CustomNavbar(props: Props) {
             </div>
           </Menu.Target>
           <Menu.Dropdown>
-            <RenderIf condition={user?.role === 'ADMIN'}>
+            <RenderIf condition={user?.role === ROLES.ADMIN}>
               <Menu.Label>Management</Menu.Label>
               <Menu.Item
                 onClick={() => router.push('/users')}
@@ -130,14 +131,18 @@ export function CustomNavbar(props: Props) {
               </Menu.Item>
               <Menu.Divider />
             </RenderIf>
-            <Menu.Label>Application</Menu.Label>
-            <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
+            <Menu.Label>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</Menu.Label>
+            <RenderIf condition={user?.role !== ROLES.GUEST}>
+              <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
+            </RenderIf>
             <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-            <Menu.Divider />
-            <Menu.Label>Danger zone</Menu.Label>
-            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
-              Delete my account
-            </Menu.Item>
+            <RenderIf condition={user?.role !== ROLES.GUEST}>
+              <Menu.Divider />
+              <Menu.Label>Danger zone</Menu.Label>
+              <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
+                Delete my account
+              </Menu.Item>
+            </RenderIf>
           </Menu.Dropdown>
         </Menu>
       </Group>
