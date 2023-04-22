@@ -10,16 +10,20 @@ export default function useDiff(params: Params) {
   const diff = useRef<TrackedValue>(Array.isArray(value) ? [] : {});
   const isDiff = useRef(false);
 
-  const { debounceCall } = useDebounce(500);
+  const { debounceCall } = useDebounce(1000);
 
   useEffect(() => {
-    const response = checkDiff({ trackedValue: trackedValue.current, newValue: value, idField, keysToTrack });
-    trackedValue.current = JSON.parse(JSON.stringify(value));
-    isDiff.current = response.isDiff;
-    diff.current = response.diff;
+    if (enabled) {
+      debounceCall(() => {
+        const response = checkDiff({ trackedValue: trackedValue.current, newValue: value, idField, keysToTrack });
+        trackedValue.current = JSON.parse(JSON.stringify(value));
+        isDiff.current = response.isDiff;
+        diff.current = response.diff;
 
-    if (enabled && response.isDiff) {
-      debounceCall(() => onChange(response.diff));
+        if (response.isDiff) {
+          onChange(response.diff);
+        }
+      });
     }
   }, [value]);
 

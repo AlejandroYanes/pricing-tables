@@ -1,14 +1,20 @@
-import { ActionIcon, createStyles, Divider, Stack, Textarea, TextInput, } from '@mantine/core';
-import { IconX } from '@tabler/icons';
+import { ActionIcon, createStyles, Divider, Menu, Stack, Textarea, TextInput, } from '@mantine/core';
+import { IconChevronDown, IconChevronsDown, IconChevronsUp, IconDotsVertical, IconTrash } from '@tabler/icons';
 import type { FormProduct } from 'models';
 
 interface Props {
+  isFirst: boolean;
+  isLast: boolean;
   value: FormProduct;
   onRemove: () => void;
   onCTANameChange: (nextName: string) => void;
   onCTALabelChange: (nextLabel: string) => void;
   onCTAUrlChange: (nextUrl: string) => void;
   onDescriptionChange: (nextDesc: string) => void;
+  onMoveToTop: () => void;
+  onMoveUp: () => void;
+  onMoveDown: () => void;
+  onMoveToBottom: () => void;
 }
 
 const useStyles = createStyles((theme) => ({
@@ -27,21 +33,41 @@ const useStyles = createStyles((theme) => ({
 
 export default function CustomProductBlock(props: Props) {
   const {
+    isFirst,
+    isLast,
     value,
     onRemove,
     onCTANameChange,
     onCTALabelChange,
     onCTAUrlChange,
     onDescriptionChange,
+    onMoveToTop,
+    onMoveUp,
+    onMoveDown,
+    onMoveToBottom,
   } = props;
   const { classes } = useStyles();
 
   return (
     <div className={classes.productBlock}>
       <div className={classes.deleteBtn}>
-        <ActionIcon radius="xl" variant="filled" size="xs" onClick={onRemove}>
-          <IconX size={14} />
-        </ActionIcon>
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <ActionIcon>
+              <IconDotsVertical size={14} />
+            </ActionIcon>
+          </Menu.Target>
+
+          <Menu.Dropdown>
+            <Menu.Item disabled={isFirst} onClick={onMoveToTop} icon={<IconChevronsUp size={14} />}>Move to top</Menu.Item>
+            <Menu.Item disabled={isFirst} onClick={onMoveUp} icon={<IconChevronsUp size={14} />}>Move up</Menu.Item>
+            <Menu.Item disabled={isLast} onClick={onMoveDown} icon={<IconChevronDown size={14} />}>Move down</Menu.Item>
+            <Menu.Item disabled={isLast} onClick={onMoveToBottom} icon={<IconChevronsDown size={14} />}>Move to bottom</Menu.Item>
+
+            <Menu.Divider />
+            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={onRemove}>Delete</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
       <TextInput m={16} label="Name" value={value.name || ''} onChange={(e) => onCTANameChange(e.target.value)} />
       <Divider orientation="horizontal" />
@@ -53,7 +79,14 @@ export default function CustomProductBlock(props: Props) {
           value={value.ctaUrl || ''}
           onChange={(e) => onCTAUrlChange(e.target.value)}
         />
-        <Textarea label="Description" value={value.description!} onChange={(e) => onDescriptionChange(e.target.value)} />
+        <Textarea
+          label="Description"
+          autosize
+          minRows={2}
+          maxRows={4}
+          value={value.description!}
+          onChange={(e) => onDescriptionChange(e.target.value)}
+        />
       </Stack>
     </div>
   );

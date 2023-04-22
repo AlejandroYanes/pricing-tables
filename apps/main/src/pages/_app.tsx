@@ -19,7 +19,7 @@ const MyApp: AppType<{ session: Session | null }> = (props) => {
         <PricingThemeProvider>
           <ModalsProvider>
             <Component {...pageProps} />
-            <Notifications />
+            <Notifications position="top-right" />
           </ModalsProvider>
         </PricingThemeProvider>
       </SessionProvider>
