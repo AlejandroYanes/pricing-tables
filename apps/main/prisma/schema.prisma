@@ -25,8 +25,8 @@ model PriceWidget {
     createdAt       DateTime      @default(now())
     products        Product[]
     callbacks       Callback[]
-    userId          String
-    user            User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    userId          String?
+    user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
