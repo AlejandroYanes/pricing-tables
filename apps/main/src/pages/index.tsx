@@ -3,23 +3,31 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { Container, createStyles, Group, List, rem, Text, ThemeIcon, Title, } from '@mantine/core';
+import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, } from '@mantine/core';
 import { IconCheck } from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from '../components/SignInForm';
 
 const useStyles = createStyles((theme) => ({
+  wrapper: {
+    width: '100%',
+    maxWidth: 1200,
+    margin: '0 auto',
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+  },
   inner: {
     display: 'flex',
-    justifyContent: 'space-between',
+    alignItems: 'center',
+    justifyContent: 'center',
     paddingTop: `calc(${theme.spacing.xl} * 4)`,
     paddingBottom: `calc(${theme.spacing.xl} * 4)`,
+    gap: `calc(${theme.spacing.xl} * 3)`,
   },
-
   content: {
     maxWidth: rem(480),
-    marginRight: `calc(${theme.spacing.xl} * 3)`,
 
     [theme.fn.smallerThan('md')]: {
       maxWidth: '100%',
@@ -61,52 +69,10 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
-function HeroBullets() {
-  const { classes } = useStyles();
-  return (
-    <div>
-      <Container>
-        <div className={classes.inner}>
-          <div className={classes.content}>
-            <Title className={classes.title}>
-              A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
-            </Title>
-            <Text color="dimmed" mt="md">
-              Build fully functional pricing widgets in minutes using our set of templates.
-            </Text>
-
-            <List
-              mt={30}
-              spacing="sm"
-              size="sm"
-              icon={
-                <ThemeIcon size={20} radius="xl">
-                  <IconCheck size={rem(12)} stroke={1.5} />
-                </ThemeIcon>
-              }
-            >
-              <List.Item>
-                <b>Powered by Stripe</b> – use the products you already have to create a pricing widget in minutes
-              </List.Item>
-              <List.Item>
-                <b>Easy setup</b> – just copy and paste the code snippets to your website
-              </List.Item>
-            </List>
-
-            <Group mt={30}>
-              <SignInForm />
-            </Group>
-          </div>
-          <Image src="/illustrations/fitting_piece.svg" width={380} height={600} alt="hero" className={classes.image} />
-        </div>
-      </Container>
-    </div>
-  );
-}
-
 const Home: NextPage = () => {
   const { status } = useSession();
   const router = useRouter();
+  const { classes } = useStyles();
 
   if (status === 'authenticated') {
     router.push('/dashboard');
@@ -120,7 +86,58 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <BaseLayout hideNavbar>
-        <HeroBullets />
+        <div className={classes.wrapper}>
+          <div className={classes.inner}>
+            <div className={classes.content}>
+              <Title className={classes.title}>
+                A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
+              </Title>
+              <Text color="dimmed" mt="md">
+                Build fully functional pricing widgets in minutes using our set of templates.
+              </Text>
+
+              <List
+                mt={30}
+                spacing="sm"
+                size="sm"
+                icon={
+                  <ThemeIcon size={20} radius="xl">
+                    <IconCheck size={rem(12)} stroke={1.5} />
+                  </ThemeIcon>
+                }
+              >
+                <List.Item>
+                  <b>Powered by Stripe</b> – use the products you already have to create a pricing widget in minutes
+                </List.Item>
+                <List.Item>
+                  <b>Easy setup</b> – just copy and paste the code snippets to your website
+                </List.Item>
+              </List>
+
+              {/*<Group mt={30}>*/}
+              {/*  <SignInForm />*/}
+              {/*</Group>*/}
+            </div>
+            <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
+          </div>
+          <Group align="flex-start" mt="xl" grow>
+            <Stack>
+              <SignInForm />
+            </Stack>
+            <Stack>
+              <iframe
+                src="https://www.youtube-nocookie.com/embed/mj2gXKl98H0"
+                title="Pricing Cards Demo"
+                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                width="560"
+                height="315"
+                frameBorder="0"
+                allowFullScreen
+              >
+              </iframe>
+            </Stack>
+          </Group>
+        </div>
       </BaseLayout>
     </>
   );

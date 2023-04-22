@@ -9,7 +9,7 @@ import { DiscordButton } from '../SocialButtons/DiscordButton';
 const SignInForm = () => {
   const colorScheme = useColorScheme();
   return (
-    <Stack w={400} mx="auto">
+    <Stack w={320}>
       <Title mx="auto" order={3}>Get started now.</Title>
       <GithubButton onClick={() => signIn('github', { callbackUrl: '/dashboard' })} />
       <DiscordButton onClick={() => signIn('discord', { callbackUrl: '/dashboard' })} />
