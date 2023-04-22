@@ -3,7 +3,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
-import { hashString } from '../../../../utils/hash';
+import { hashString } from 'utils/hash';
 
 async function addCustomProduct(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
