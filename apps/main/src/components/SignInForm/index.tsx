@@ -23,8 +23,8 @@ const SignInForm = () => {
         Try as a Guest
       </Button>
       <Text size="sm">
-        When trying as a guest anything you create will be deleted in 5 days.
-        This is done to prevent abuse of the service.
+        When trying as a <strong>Guest</strong> anything you create will be deleted in 5 days.
+        This is done to prevent abuse of the service. Also, when signing out you will lose access to all you may have created.
       </Text>
     </Stack>
   );
