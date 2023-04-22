@@ -2,10 +2,11 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
+import { ROLES } from 'models';
 
 import initDb from 'utils/planet-scale';
-import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 import { corsMiddleware } from 'utils/api';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
@@ -58,10 +59,13 @@ async function getWidgetData(widgetId: string) {
   ).rows as Price[];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
-  ).rows[0] as { stripeKey: string };
+    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey`, `pricing-tables`.User.role FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
+  ).rows[0] as { stripeKey: string; role: string };
 
-  const stripe = initStripe(widgetUser.stripeKey);
+  const stripeKey = widgetUser.role === ROLES.GUEST
+    ? 'sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'
+    : widgetUser.stripeKey;
+  const stripe = initStripe(stripeKey);
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
   return {
