@@ -14,7 +14,16 @@ import {
   Tooltip,
   UnstyledButton,
 } from '@mantine/core';
-import { IconAlertCircle, IconChevronDown, IconChevronsDown, IconChevronsUp, IconDotsVertical, IconMinus, IconTrash } from '@tabler/icons';
+import {
+  IconAlertCircle,
+  IconChevronDown,
+  IconChevronsDown,
+  IconChevronsUp,
+  IconDotsVertical,
+  IconMinus,
+  IconTrash,
+  IconX
+} from '@tabler/icons';
 import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
@@ -170,7 +179,7 @@ export default function ProductBlock(props: Props) {
       <div className={classes.deleteBtn}>
         <Menu shadow="md" width={200}>
           <Menu.Target>
-            <ActionIcon variant="filled" size="xs">
+            <ActionIcon>
               <IconDotsVertical size={14} />
             </ActionIcon>
           </Menu.Target>
@@ -203,8 +212,8 @@ export default function ProductBlock(props: Props) {
             <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="sm" style={{ position: 'relative' }}>
               <RenderIf condition={list.length > 1}>
                 <div className={classes.deleteBtn}>
-                  <ActionIcon radius="xl" variant="filled" size="xs" onClick={() => onRemovePrice(value.id, price.id)}>
-                    <IconMinus size={14} />
+                  <ActionIcon radius="xl" onClick={() => onRemovePrice(value.id, price.id)}>
+                    <IconX size={14} />
                   </ActionIcon>
                 </div>
               </RenderIf>

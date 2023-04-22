@@ -53,7 +53,7 @@ export default function CustomProductBlock(props: Props) {
       <div className={classes.deleteBtn}>
         <Menu shadow="md" width={200}>
           <Menu.Target>
-            <ActionIcon variant="filled" size="xs">
+            <ActionIcon>
               <IconDotsVertical size={14} />
             </ActionIcon>
           </Menu.Target>

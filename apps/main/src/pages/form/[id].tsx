@@ -17,10 +17,11 @@ import {
 import { RenderIf } from 'ui';
 import { templatesMap } from 'templates';
 import type { FormCallback, FeatureType, FormFeature, FormProduct, FormPrice } from 'models';
-import { callAPI } from 'helpers';
+import { callAPI, reorder } from 'helpers';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
+import { useDebounce } from 'utils/hooks/useDebounce';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
@@ -74,6 +75,8 @@ const FormPage = () => {
   });
   // const data = mockProducts as any;
   const productsList = data || [];
+
+  const { debounceCall } = useDebounce(1000);
 
   const [isLoaded, setIsLoaded] = useState(false);
   const [currentTab, setCurrentTab] = useState<Tabs>('products');
@@ -265,17 +268,19 @@ const FormPage = () => {
   const handleProductReorder = ({ destination, source }: DropResult) => {
     productHandlers.reorder({ from: source.index, to: destination?.index || 0 });
 
-    const sourceProduct = selectedProducts.at(source.index)!;
-    const destinationProduct = selectedProducts.at(destination?.index || 0)!;
-    callAPI({
-      url: `/api/widgets/${query.id}/reorder-product`,
-      method: 'POST',
-      body: {
-        source: sourceProduct.id,
-        destination: destinationProduct.id,
-      },
-    }).catch(() => {
-      handleAPIError();
+    debounceCall(() => {
+      const sortedProductIds = reorder(selectedProducts, { from: source.index, to: destination?.index || 0 })
+        .map((prod) => prod.id);
+
+      callAPI({
+        url: `/api/widgets/${query.id}/reorder-products`,
+        method: 'POST',
+        body: {
+          ids: sortedProductIds,
+        },
+      }).catch(() => {
+        handleAPIError();
+      });
     });
   }
 
@@ -451,17 +456,22 @@ const FormPage = () => {
   const handleFeatureReorder = ({ destination, source }: DropResult) => {
     featureHandlers.reorder({ from: source.index, to: destination?.index || 0 });
 
-    const sourceFeature = features.at(source.index)!;
-    const destinationFeature = features.at(destination?.index || 0)!;
-    callAPI({
-      url: `/api/widgets/${query.id}/reorder-feature`,
-      method: 'POST',
-      body: {
-        source: sourceFeature.id,
-        destination: destinationFeature.id,
-      },
-    }).catch(() => {
-      handleAPIError();
+    debounceCall(() => {
+      const sortedFeatureIds = reorder(features, { from: source.index, to: destination?.index || 0 })
+        .map((feat) => {
+          return feat.products.map(() => feat.id);
+        }, [])
+        .flat();
+
+      callAPI({
+        url: `/api/widgets/${query.id}/reorder-features`,
+        method: 'POST',
+        body: {
+          ids: sortedFeatureIds,
+        },
+      }).catch(() => {
+        handleAPIError();
+      });
     });
   }
 
