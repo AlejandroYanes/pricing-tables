@@ -42,6 +42,8 @@ model Product {
     features        Feature[]
     widgetId        String
     widget          PriceWidget  @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+    Checkout        Checkout[]
+
     @@id([id, widgetId])
 }
 
@@ -54,6 +56,8 @@ model Price {
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
+    Checkout        Checkout[]
+
     @@id([id, widgetId])
 }
 
@@ -77,6 +81,18 @@ model Callback {
     widgetId        String
     widget          PriceWidget   @relation(fields: [widgetId], references: [id], onDelete: Cascade)
     @@unique([env, widgetId])
+}
+
+model Checkout {
+    id              String        @id @default(cuid())
+    email           String?
+    createdAt       DateTime      @default(now())
+    completed       Boolean       @default(false)
+    widgetId        String
+    productId       String
+    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
+    priceId         String
+    price           Price         @relation(fields: [priceId, widgetId], references: [id, widgetId], onDelete: Cascade)
 }
 
 // Necessary for Next auth
