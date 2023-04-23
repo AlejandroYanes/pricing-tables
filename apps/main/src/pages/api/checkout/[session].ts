@@ -35,7 +35,7 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
   const stripe = initStripe(user.stripeKey);
 
   const product = await stripe.products.retrieve(sessionData.productId);
-  const price = await stripe.prices.retrieve(sessionData.priceId, { expand: ['data.currency_options'] });
+  const price = await stripe.prices.retrieve(sessionData.priceId, { expand: ['currency_options'] });
 
   const seconds = 60;
   res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
