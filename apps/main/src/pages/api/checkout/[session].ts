@@ -3,9 +3,10 @@ import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
+import { cuidZodValidator } from 'utils/validations';
 
 const input = z.object({
-  session: z.string().cuid(),
+  session: cuidZodValidator,
 });
 
 export default async function getSession(req: NextApiRequest, res: NextApiResponse) {

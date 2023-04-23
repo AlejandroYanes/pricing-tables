@@ -3,16 +3,12 @@ import { z } from 'zod';
 import { createId } from '@paralleldrive/cuid2';
 
 import initDb from 'utils/planet-scale';
-
-export const config = {
-  runtime: 'edge',
-  regions: ['dub1'],
-}
+import { cuidZodValidator } from 'utils/validations';
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),
-  product_id: z.string().cuid(),
-  price_id: z.string().cuid(),
+  product_id: cuidZodValidator,
+  price_id: cuidZodValidator,
   email: z.string().email().optional(),
 });
 

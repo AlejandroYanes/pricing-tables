@@ -4,11 +4,12 @@ import { z } from 'zod';
 
 import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
+import { cuidZodValidator } from 'utils/validations';
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),
-  product_id: z.string().cuid(),
-  price_id: z.string().cuid(),
+  product_id: cuidZodValidator,
+  price_id: cuidZodValidator,
 });
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {

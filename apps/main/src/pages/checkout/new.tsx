@@ -6,41 +6,52 @@ import { callAPI } from 'helpers';
 import { RenderIf } from 'ui';
 import { z } from 'zod';
 
+import { cuidZodValidator, isEmptyObject } from 'utils/validations';
 import BaseLayout from 'components/BaseLayout';
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),
-  product_id: z.string().cuid(),
-  price_id: z.string().cuid(),
+  product_id: cuidZodValidator,
+  price_id: cuidZodValidator,
   email: z.string().email().optional(),
 });
 
 export default function NewCheckoutSession() {
   const { query, push } = useRouter();
+
+  const [started, setStarted] = useState(false);
   const [failed, setFailed] = useState(false);
 
   const createCheckoutSession = async () => {
+    setStarted(true);
+    console.log(query);
     const parsedQuery = inputSchema.safeParse(query);
+    console.log(parsedQuery);
 
     if (!parsedQuery.success) {
       setFailed(true);
       return;
     }
 
+    console.log('calling api');
     try {
       const response = await callAPI<{ session: string }>({
-        url: '/api/checkout/new-session',
+        method: 'POST',
+        url: '/api/checkout/create',
         body: parsedQuery.data,
       });
       await push(`/checkout/${response.session}`);
     } catch (err) {
+      console.log(err);
       setFailed(true);
     }
   }
 
   useEffect(() => {
-    createCheckoutSession();
-  }, []);
+    if (typeof window !== 'undefined' && !isEmptyObject(query) && !started) {
+      createCheckoutSession();
+    }
+  }, [query]);
 
   return (
     <BaseLayout hideNavbar>
