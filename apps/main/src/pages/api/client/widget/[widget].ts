@@ -7,11 +7,6 @@ import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
-export const config = {
-  runtime: 'edge',
-  regions: ['dub1']
-}
-
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
 
