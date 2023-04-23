@@ -20,7 +20,6 @@ import {
   IconChevronsDown,
   IconChevronsUp,
   IconDotsVertical,
-  IconMinus,
   IconTrash,
   IconX
 } from '@tabler/icons';
