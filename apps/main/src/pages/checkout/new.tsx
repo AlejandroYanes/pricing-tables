@@ -4,18 +4,33 @@ import { Loader, Stack, Title } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons';
 import { callAPI } from 'helpers';
 import { RenderIf } from 'ui';
+import { z } from 'zod';
 
 import BaseLayout from 'components/BaseLayout';
+
+const inputSchema = z.object({
+  widget_id: z.string().cuid(),
+  product_id: z.string().cuid(),
+  price_id: z.string().cuid(),
+  email: z.string().email().optional(),
+});
 
 export default function NewCheckoutSession() {
   const { query, push } = useRouter();
   const [failed, setFailed] = useState(false);
 
   const createCheckoutSession = async () => {
+    const parsedQuery = inputSchema.safeParse(query);
+
+    if (!parsedQuery.success) {
+      setFailed(true);
+      return;
+    }
+
     try {
       const response = await callAPI<{ session: string }>({
         url: '/api/checkout/new-session',
-        body: query,
+        body: parsedQuery.data,
       });
       await push(`/checkout/${response.session}`);
     } catch (err) {

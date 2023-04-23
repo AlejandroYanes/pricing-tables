@@ -2,18 +2,23 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
+import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { widget } = req.query;
+const inputSchema = z.object({
+  widgetId: z.string().cuid(),
+});
 
-  if (!widget) {
-    res.status(400).json({ error: 'Missing widget parameter' });
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!inputSchema.safeParse(req.query).success) {
+    res.status(400).json({ error: 'Invalid widget parameter' });
+    return;
   }
 
+  const { widget } = req.query;
   const widgetData: WidgetInfo = await getWidgetData(widget as string);
 
   const seconds = 60;

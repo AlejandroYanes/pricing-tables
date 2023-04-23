@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { createId } from '@paralleldrive/cuid2';
 
 import { authMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
-import { hashString } from 'utils/hash';
 
 async function addProduct(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
@@ -18,12 +18,12 @@ async function addProduct(req: NextApiRequest, res: NextApiResponse) {
     await db.transaction(async (tx) => {
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Product` (`id`, `widgetId`, `mask`) VALUES(?, ?, ?)',
-        [productId, widget, hashString(productId)],
+        [productId, widget, createId()],
       );
 
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Price` (`id`, `productId`, `widgetId`, `mask`) VALUES(?, ?, ?, ?)',
-        [priceId, productId, widget, hashString(priceId)],
+        [priceId, productId, widget, createId()],
       );
 
       for (let i = 0; i < features.length; i++) {
