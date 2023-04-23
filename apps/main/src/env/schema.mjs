@@ -26,6 +26,8 @@ export const serverSchema = z.object({
   GITHUB_CLIENT_ID: z.string(),
   GITHUB_CLIENT_SECRET: z.string(),
   SLACK_USERS_CHANNEL: z.string(),
+  REDIS_REST_URL: z.string(),
+  REDIS_REST_TOKEN: z.string(),
 });
 
 /**
@@ -45,6 +47,8 @@ export const serverEnv = {
   GITHUB_CLIENT_ID: process.env.GITHUB_CLIENT_ID,
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
   SLACK_USERS_CHANNEL: process.env.SLACK_USERS_CHANNEL,
+  REDIS_REST_URL: process.env.REDIS_REST_URL,
+  REDIS_REST_TOKEN: process.env.REDIS_REST_TOKEN,
 };
 
 /**

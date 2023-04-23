@@ -2,8 +2,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
-import { ROLES } from 'models';
 
+import initRedis, { REDIS_KEYS } from 'utils/redis';
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
@@ -15,7 +15,18 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     res.status(400).json({ error: 'Missing widget parameter' });
   }
 
-  const widgetData = await getWidgetData(widget as string);
+  let widgetData: WidgetInfo;
+
+  const redis = initRedis();
+  const cachedData = await redis.get<WidgetInfo>(`${REDIS_KEYS.WIDGET_INFO}:${widget}`);
+
+  if (!cachedData) {
+    const dbData = await getWidgetData(widget as string);
+    await redis.set(`${REDIS_KEYS.WIDGET_INFO}:${widget}`, dbData);
+    widgetData = dbData;
+  } else {
+    widgetData = cachedData;
+  }
 
   // const secondsInADay = 60 * 60 * 24;
   // res.setHeader('Cache-Control', `s-maxage=${secondsInADay}, stale-while-revalidate=360`);
@@ -24,7 +35,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
 export default corsMiddleware(handler);
 
-async function getWidgetData(widgetId: string) {
+async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   const db = initDb();
 
   const widgetFields = [
@@ -72,7 +83,7 @@ async function getWidgetData(widgetId: string) {
     template: widget.template,
     color: widget.color,
     callbacks: callbacks,
-    recommended: maskedRecommended,
+    recommended: maskedRecommended || null,
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
@@ -167,8 +178,20 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
   }, [] as FormFeature[]);
 }
 
-type Widget = { id: string; template: string; recommended: string; color: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
+type Widget = { id: string; template: string; recommended: string | null; color: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
 type Callback = { env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string };
 type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string };
 type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string; mask: string };
+
+type WidgetInfo = {
+  template: string;
+  recommended: string | null;
+  color: string;
+  unitLabel: string;
+  subscribeLabel: string;
+  freeTrialLabel: string;
+  products: FormProduct[];
+  features: FormFeature[];
+  callbacks: Callback[];
+}
