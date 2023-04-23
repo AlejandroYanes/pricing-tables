@@ -3,10 +3,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
 
-import initRedis, { REDIS_KEYS } from 'utils/redis';
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+
+export const config = {
+  runtime: 'edge',
+  regions: ['dub1']
+}
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
@@ -15,21 +19,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     res.status(400).json({ error: 'Missing widget parameter' });
   }
 
-  let widgetData: WidgetInfo;
+  const widgetData: WidgetInfo = await getWidgetData(widget as string);
 
-  const redis = initRedis();
-  const cachedData = await redis.get<WidgetInfo>(`${REDIS_KEYS.WIDGET_INFO}:${widget}`);
-
-  if (!cachedData) {
-    const dbData = await getWidgetData(widget as string);
-    await redis.set(`${REDIS_KEYS.WIDGET_INFO}:${widget}`, dbData);
-    widgetData = dbData;
-  } else {
-    widgetData = cachedData;
-  }
-
-  // const secondsInADay = 60 * 60 * 24;
-  // res.setHeader('Cache-Control', `s-maxage=${secondsInADay}, stale-while-revalidate=360`);
+  const seconds = 60;
+  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
   res.status(200).json(widgetData);
 }
 
