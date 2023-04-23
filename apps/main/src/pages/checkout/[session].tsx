@@ -1,7 +1,8 @@
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
-import { callAPI } from 'helpers';
 import type Stripe from 'stripe';
+import { Divider } from '@mantine/core';
+import { callAPI } from 'helpers';
 
 import BaseLayout from 'components/BaseLayout';
 
@@ -37,6 +38,10 @@ export default function CheckoutSession() {
     <BaseLayout hideNavbar>
       <h1>Checkout Session</h1>
       {JSON.stringify(query)}
+      <Divider />
+      {isFetching && <p>Loading...</p>}
+      {isError && <p>Error</p>}
+      {!isFetching && data ? JSON.stringify(data) : null}
     </BaseLayout>
   );
 }

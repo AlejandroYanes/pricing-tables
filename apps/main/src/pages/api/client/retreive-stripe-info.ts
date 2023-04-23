@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { z } from 'zod';
 
 import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
-import { z } from 'zod';
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),

@@ -25,6 +25,7 @@ export type FormPrice = {
   recurring?: { interval: Stripe.Price.Recurring.Interval; interval_count: number };
   billing_scheme?: BILLING_SCHEME;
   transform_quantity?: { divide_by: number; round: string };
+  mask?: string;
 };
 export type FormProduct = {
   id: string;
@@ -36,6 +37,7 @@ export type FormProduct = {
   isCustom?: boolean;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
+  mask?: string;
 };
 
 export type FeatureType = 'boolean' | 'string' | 'compose';

@@ -29,6 +29,7 @@ const useStyles = createStyles((theme, color: string) => ({
 
 export function BasicTemplate(props: TemplateProps) {
   const {
+    widgetId,
     features,
     products,
     recommended,
@@ -37,8 +38,9 @@ export function BasicTemplate(props: TemplateProps) {
     subscribeLabel,
     freeTrialLabel,
     callbacks,
-    environment = 'production',
     currency,
+    environment = 'production',
+    dev = false,
   } = props;
   const { classes, cx } = useStyles(color);
 
@@ -88,7 +90,9 @@ export function BasicTemplate(props: TemplateProps) {
             if (isCustom) return prod.ctaUrl || '';
 
             const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-            return `${callbackUrl}?product_id=${prod.id}&price_id=${priceToShow.id}`;
+            const prodId = dev ? prod.mask : prod.id;
+            const priceId = dev ? priceToShow.mask : priceToShow.id;
+            return `${callbackUrl}?widget_id=${widgetId}&product_id=${prodId}&price_id=${priceId}`;
           };
 
           return (

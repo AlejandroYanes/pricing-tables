@@ -80,10 +80,12 @@ export const widgetsRouter = createTRPCRouter({
             description: true,
             ctaLabel: true,
             ctaUrl: true,
+            mask: true,
             prices: {
               orderBy: { createdAt: 'asc' },
               select: {
                 id: true,
+                mask: true,
                 hasFreeTrial: true,
                 freeTrialDays: true,
               },
