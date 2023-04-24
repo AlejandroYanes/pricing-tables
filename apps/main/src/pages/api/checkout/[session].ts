@@ -9,6 +9,16 @@ const input = z.object({
   session: cuidZodValidator,
 });
 
+type SessionQuery = {
+  widgetId: string;
+  productId: string;
+  priceId: string;
+  color: string;
+  unitLabel: string;
+  userId: string;
+  stripeKey: string;
+}
+
 export default async function getSession(req: NextApiRequest, res: NextApiResponse) {
   const parsed = input.safeParse(req.query);
   if (!parsed.success) {
@@ -20,27 +30,25 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
 
   const db = initDb();
 
-  const sessionData = (
-    await db.execute('SELECT `widgetId`, `productId`, `priceId` FROM `pricing-tables`.Checkout WHERE id = ?', [session])
-  ).rows[0] as { widgetId: string; productId: string; priceId: string };
+  const sessionQuery = (
+    await db.execute(
+      `SELECT CK.widgetId, CK.productId, CK.priceId, PW.color, PW.unitLabel, PW.userId, U.stripeKey
+        FROM Checkout CK JOIN PriceWidget PW ON CK.widgetId = PW.id JOIN User U ON PW.userId = U.id
+        WHERE CK.id = ?`,
+      [session],
+    )
+  ).rows[0] as SessionQuery;
 
-  const widget = (
-    await db.execute('SELECT `userId`, `color`, `unitLabel` FROM `pricing-tables`.PriceWidget WHERE id = ?', [sessionData.widgetId])
-  ).rows[0] as { userId: string; color: string };
+  const stripe = initStripe(sessionQuery.stripeKey);
 
-  const user = (
-    await db.execute('SELECT `stripeKey` FROM `pricing-tables`.User WHERE id = ?', [widget.userId])
-  ).rows[0] as { stripeKey: string };
-
-  const stripe = initStripe(user.stripeKey);
-
-  const product = await stripe.products.retrieve(sessionData.productId);
-  const price = await stripe.prices.retrieve(sessionData.priceId, { expand: ['currency_options'] });
+  const product = await stripe.products.retrieve(sessionQuery.productId);
+  const price = await stripe.prices.retrieve(sessionQuery.priceId, { expand: ['currency_options'] });
 
   const seconds = 60;
   res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
   return res.status(200).json({
-    color: widget.color,
+    color: sessionQuery.color,
+    stripeKey: sessionQuery.stripeKey,
     product: {
       name: product.name,
       description: product.description,

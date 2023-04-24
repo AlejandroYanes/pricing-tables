@@ -4,8 +4,8 @@ import type Stripe from 'stripe';
 import { Group, Loader, Stack, Text, Title } from '@mantine/core';
 import { callAPI, formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
 import { IconAlertTriangle } from '@tabler/icons';
-import { RenderIf } from 'ui';
 import { intervalsMap } from 'templates';
+import { RenderIf } from 'ui';
 
 import BaseLayout from 'components/BaseLayout';
 
