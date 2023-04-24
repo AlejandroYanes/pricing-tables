@@ -85,9 +85,10 @@ model Callback {
 
 model Checkout {
     id              String        @id @default(cuid())
-    email           String?
     createdAt       DateTime      @default(now())
     completed       Boolean       @default(false)
+    email           String?
+    currency        String?
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)

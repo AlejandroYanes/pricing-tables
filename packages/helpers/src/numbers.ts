@@ -11,14 +11,14 @@ export function formatCurrency(number: number, currency: string): string {
   return value;
 }
 
-export function formatCurrencyWithoutSymbol(number: number): string {
+export function formatCurrencyWithoutSymbol(number: number, hideDecimals = true): string {
   const currencyFormatter = new Intl.NumberFormat('en-US', {
     style: 'currency',
     currency: 'USD',
   });
   const parts = currencyFormatter.formatToParts(number);
   const value = parts.filter(part => part.type !== 'currency').map(part => part.value).join('');
-  if (value.endsWith('.00')) {
+  if (hideDecimals && value.endsWith('.00')) {
     return value.slice(0, -3);
   }
   return value;

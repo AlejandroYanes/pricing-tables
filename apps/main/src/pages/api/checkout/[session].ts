@@ -25,7 +25,7 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
   ).rows[0] as { widgetId: string; productId: string; priceId: string };
 
   const widget = (
-    await db.execute('SELECT `userId`, `color` FROM `pricing-tables`.PriceWidget WHERE id = ?', [sessionData.widgetId])
+    await db.execute('SELECT `userId`, `color`, `unitLabel` FROM `pricing-tables`.PriceWidget WHERE id = ?', [sessionData.widgetId])
   ).rows[0] as { userId: string; color: string };
 
   const user = (
@@ -47,8 +47,8 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
       price: {
         currency: price.currency,
         currency_options: price.currency_options,
-        unitAmount: price.unit_amount,
-        unitAmountDecimal: price.unit_amount_decimal,
+        unit_amount: price.unit_amount,
+        unit_amount_decimal: price.unit_amount_decimal,
         billing_scheme: price.billing_scheme,
         recurring: price.recurring,
         transform_quantity: price.transform_quantity,
