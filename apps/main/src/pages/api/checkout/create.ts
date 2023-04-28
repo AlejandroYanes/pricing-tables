@@ -9,6 +9,7 @@ const inputSchema = z.object({
   widget_id: z.string().cuid(),
   product_id: cuidZodValidator,
   price_id: cuidZodValidator,
+  currency: z.string().length(3),
   email: z.string().email().optional(),
 });
 
@@ -21,7 +22,7 @@ export default async function createCheckoutSession(req: NextApiRequest, res: Ne
     return;
   }
 
-  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, email = null } = parsedBody.data;
+  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, email = null, currency } = parsedBody.data;
   const db = initDb();
   const sessionId = createId();
 
@@ -33,7 +34,7 @@ export default async function createCheckoutSession(req: NextApiRequest, res: Ne
   const { id: productId } = prodQuery.rows[0] as { id: string };
   const { id: priceId } = priceQuery.rows[0] as { id: string };
   // eslint-disable-next-line max-len
-  await db.execute('INSERT INTO `pricing-tables`.Checkout (id, widgetId, productId, priceId, email) VALUES (?, ?, ?, ?, ?)', [sessionId, widgetId, productId, priceId, email]);
+  await db.execute('INSERT INTO `pricing-tables`.Checkout (id, widgetId, productId, priceId, email, currency) VALUES (?, ?, ?, ?, ?, ?)', [sessionId, widgetId, productId, priceId, email, currency]);
 
   res.status(200).json({ session: sessionId });
 }

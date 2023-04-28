@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useQuery } from '@tanstack/react-query';
 import type Stripe from 'stripe';
@@ -12,8 +12,8 @@ import BaseLayout from 'components/BaseLayout';
 import CheckoutForm from 'features/checkout/Form';
 
 type SessionData = {
-  stripeKey: string;
   color: string;
+  email: string;
   product: {
     name: string;
     description: string;
@@ -39,53 +39,60 @@ type SessionData = {
 
 const fetchSession = async (session: string) => {
   return callAPI<SessionData>({
-    url: `/api/checkout/${session}`,
+    url: `/api/checkout/${session}/details`,
   });
 }
 
 const createPaymentIntent = async (session: string) => {
-  return callAPI<string>({
+  return callAPI<{ secret: string }>({
     url: `/api/checkout/${session}/payment-intent`,
   });
 };
+
+const publishableKey = 'pk_test_51MgxvIJIZhxRN8vVfqvXShvAMBWHXvYRiCh3HfqAByUJi1vD0ObatVIb7DHcd8xO1G0oidtJjFSHtTMCNuwpjpvP00GtWkUKWq';
 
 export default function CheckoutSession() {
   const { query } = useRouter();
 
   const stripePromise = useRef<any>(undefined);
-
   const options = useRef<any>(undefined);
+
+  const [isStripeReady, setStripeReady] = useState(false);
+  const [optionsReady, setOptionsReady] = useState(false);
 
   const { isFetching: isFetchingSession, data, isError: sessionFailed } = useQuery(
     [`session-${query.session}`],
     () => fetchSession(query.session as string),
-    { refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false, enabled: !!query.session },
   );
 
-  const { isFetching: isFetchingIntent, data: secret, isError: intentFailed } = useQuery(
-    [`session-${query.session}`],
+  const { isFetching: isFetchingIntent, data: intent, isError: intentFailed } = useQuery(
+    [`session-${query.session}-payment-intent`],
     () => createPaymentIntent(query.session as string),
-    { refetchOnWindowFocus: false },
+    { refetchOnWindowFocus: false, retry: false, enabled: !!query.session },
   );
 
   useEffect(() => {
     if (!isFetchingSession && !sessionFailed) {
-      stripePromise.current = loadStripe(data!.stripeKey);
+      stripePromise.current = loadStripe(publishableKey);
+      setStripeReady(true);
     }
   }, [data, isFetchingSession, sessionFailed]);
 
   useEffect(() => {
-    if (!isFetchingIntent && !intentFailed && secret) {
+    if (!isFetchingIntent && !intentFailed && intent) {
+      console.log('setting options', intent);
       options.current = {
-        clientSecret: secret,
+        clientSecret: intent.secret,
         appearance: {
           theme: 'stripe',
         }
       };
+      setOptionsReady(true);
     }
-  }, [secret, isFetchingIntent, intentFailed]);
+  }, [intent, isFetchingIntent, intentFailed]);
 
-  if (isFetchingSession || isFetchingIntent) {
+  if (isFetchingSession || isFetchingIntent || !isStripeReady || !optionsReady) {
     return (
       <BaseLayout>
         <Stack align="center" justify="center" style={{ height: '100vh' }}>
@@ -95,7 +102,7 @@ export default function CheckoutSession() {
     );
   }
 
-  if (sessionFailed || intentFailed || !data || !secret) {
+  if (sessionFailed || intentFailed || !data || !intent) {
     return (
       <BaseLayout>
         <Stack align="center" justify="center" style={{ height: '100vh' }}>
@@ -105,6 +112,9 @@ export default function CheckoutSession() {
       </BaseLayout>
     );
   }
+
+  console.log('intent', intent);
+  console.log('options', options.current);
 
   return (
     <BaseLayout hideNavbar>

@@ -13,6 +13,7 @@ type SessionQuery = {
   widgetId: string;
   productId: string;
   priceId: string;
+  email: string;
   color: string;
   unitLabel: string;
   userId: string;
@@ -32,7 +33,7 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
 
   const sessionQuery = (
     await db.execute(
-      `SELECT CK.widgetId, CK.productId, CK.priceId, PW.color, PW.unitLabel, PW.userId, U.stripeKey
+      `SELECT CK.widgetId, CK.productId, CK.priceId, CK.email, PW.color, PW.unitLabel, PW.userId, U.stripeKey
         FROM Checkout CK JOIN PriceWidget PW ON CK.widgetId = PW.id JOIN User U ON PW.userId = U.id
         WHERE CK.id = ?`,
       [session],
@@ -48,7 +49,7 @@ export default async function getSession(req: NextApiRequest, res: NextApiRespon
   res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
   return res.status(200).json({
     color: sessionQuery.color,
-    stripeKey: sessionQuery.stripeKey,
+    email: sessionQuery.email,
     product: {
       name: product.name,
       description: product.description,

@@ -26,14 +26,12 @@ export default function NewCheckoutSession() {
     setStarted(true);
     console.log(query);
     const parsedQuery = inputSchema.safeParse(query);
-    console.log(parsedQuery);
 
     if (!parsedQuery.success) {
       setFailed(true);
       return;
     }
 
-    console.log('calling api');
     try {
       const response = await callAPI<{ session: string }>({
         method: 'POST',
@@ -42,7 +40,6 @@ export default function NewCheckoutSession() {
       });
       await push(`/checkout/${response.session}`);
     } catch (err) {
-      console.log(err);
       setFailed(true);
     }
   }

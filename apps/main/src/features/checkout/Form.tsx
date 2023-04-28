@@ -1,14 +1,14 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { Group, Stack, Text, Title } from '@mantine/core';
+import { Button, Group, Stack, Text, Title } from '@mantine/core';
 import { formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
 import { intervalsMap } from 'templates';
 import { RenderIf } from 'ui';
 import { LinkAuthenticationElement, PaymentElement, useElements, useStripe } from '@stripe/react-stripe-js';
 
 type SessionData = {
-  stripeKey: string;
   color: string;
+  email: string;
   product: {
     name: string;
     description: string;
@@ -132,16 +132,21 @@ const resolvePricing = (options: PricingProps) => {
 };
 
 export default function CheckoutForm(props: { session: SessionData }) {
-  const { session: {
-    product,
-  } } = props;
+  const {
+    session: {
+      color,
+      email: initialEmail,
+      product,
+    },
+  } = props;
 
   const stripe = useStripe();
   const elements = useElements();
 
-  const [email, setEmail] = useState<string>('');
   const [message, setMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+
+  const emailRef = useRef<string>(initialEmail || '');
 
   useEffect(() => {
     if (!stripe) {
@@ -210,7 +215,7 @@ export default function CheckoutForm(props: { session: SessionData }) {
   };
 
   return (
-    <Stack spacing={0} style={{ maxWidth: '900px', width: '100%', margin: '80px auto' }}>
+    <Stack spacing={0} style={{ maxWidth: '600px', width: '100%', margin: '80px auto' }}>
       <Title order={1} mb="xl">Checkout</Title>
       <Text>{product.name}</Text>
       <Text size="sm" color="dimmed" mb="md">{product.description}</Text>
@@ -220,16 +225,17 @@ export default function CheckoutForm(props: { session: SessionData }) {
         currency: null,
       })}
 
-      <LinkAuthenticationElement
-        id="link-authentication-element"
-        onChange={(e: any) => setEmail(e.target.value)}
-      />
-      <PaymentElement id="payment-element" options={{ layout: 'tabs' }} />
-      <button disabled={isLoading || !stripe || !elements} id="submit">
-        <span id="button-text">
-          {isLoading ? <div className="spinner" id="spinner"></div> : 'Pay now'}
-        </span>
-      </button>
+      <Stack mt="xl">
+        <LinkAuthenticationElement
+          id="link-authentication-element"
+          options={{ defaultValues: { email: emailRef.current } }}
+          onChange={(e: any) => emailRef.current = e.target.value}
+        />
+        <PaymentElement id="payment-element" options={{ layout: 'tabs' }} />
+      </Stack>
+      <Button fullWidth uppercase mt="xl" color={color} loading={isLoading} disabled={isLoading || !stripe || !elements}>
+        Pay now
+      </Button>
       {/* Show any error or success messages */}
       {message && <div id="payment-message">{message}</div>}
     </Stack>
