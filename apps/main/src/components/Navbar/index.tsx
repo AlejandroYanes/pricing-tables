@@ -41,14 +41,13 @@ const useStyles = createStyles((theme) => ({
 
 interface NavbarLinkProps {
 	icon: TablerIcon;
-	active?: boolean;
 	onClick?(): void;
 }
 
-function NavbarLink({ icon: Icon, active, onClick }: NavbarLinkProps) {
-  const { classes, cx } = useStyles();
+function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
+  const { classes } = useStyles();
   return (
-    <UnstyledButton onClick={onClick} className={cx(classes.link, { [classes.active]: active })}>
+    <UnstyledButton onClick={onClick} className={classes.link}>
       <Icon stroke={1.5} />
     </UnstyledButton>
   );
@@ -96,9 +95,7 @@ export function CustomNavbar(props: Props) {
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
       <RenderIf condition={showBackButton}>
-        <UnstyledButton onClick={() => router.back()} mr="lg">
-          <NavbarLink icon={IconArrowLeft} />
-        </UnstyledButton>
+        <NavbarLink icon={IconArrowLeft} onClick={() => router.back()}  />
       </RenderIf>
       <Group ml="auto">
         <HoverCard width={280} shadow="md" position="bottom-end">

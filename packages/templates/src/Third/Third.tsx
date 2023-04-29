@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons';
 import type { FormCallback, FormPrice, FormProduct } from 'models';
-import { formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
+import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
 import { RenderIf } from 'ui';
 
 import type { TemplateProps, Interval } from '../constants/types';
@@ -159,6 +159,8 @@ const resolveCTA = (
   env: string,
   subscribeLabel: string,
   freeTrialLabel: string,
+  widgetId: string,
+  currency: string | null | undefined,
 ) => {
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
@@ -174,7 +176,14 @@ const resolveCTA = (
     if (isCustom) return product.ctaUrl || '';
 
     const callbackUrl = callbacks.find((cb) => cb.env === env)!.url;
-    return `${callbackUrl}?product_id=${product.id}&price_id=${priceToShow.id}`;
+    const queryParams: Record<string, string> = {
+      widget_id: widgetId,
+      product_id: product.mask!,
+      price_id: priceToShow.mask!,
+      currency: currency || priceToShow.currency,
+    };
+    const queryString = generateQueryString(queryParams);
+    return `${callbackUrl}?${queryString}`;
   };
 
   if (hasFreeTrial) {
@@ -191,6 +200,7 @@ const resolveCTA = (
 
 export function ThirdTemplate(props: TemplateProps) {
   const {
+    widgetId,
     features,
     products,
     recommended,
@@ -318,6 +328,8 @@ export function ThirdTemplate(props: TemplateProps) {
             environment,
             subscribeLabel,
             freeTrialLabel,
+            widgetId,
+            currency,
           )}
         </Stack>
       </Group>

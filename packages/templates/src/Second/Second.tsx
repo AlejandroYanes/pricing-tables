@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Table, Text } from '@mantine/core';
 import { RenderIf } from 'ui';
 import type { FormPrice } from 'models';
-import { formatCurrencyWithoutSymbol, getCurrencySymbol } from 'helpers';
+import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { intervalsMap } from '../constants/intervals';
@@ -116,6 +116,7 @@ const resolvePricing = (options: PricingProps) => {
 
 export function SecondTemplate(props: TemplateProps) {
   const {
+    widgetId,
     features,
     products,
     recommended,
@@ -170,7 +171,14 @@ export function SecondTemplate(props: TemplateProps) {
         if (isCustom) return prod.ctaUrl || '';
 
         const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-        return `${callbackUrl}?product_id=${prod.id}&price_id=${priceToShow.id}`;
+        const queryParams: Record<string, string> = {
+          widget_id: widgetId,
+          product_id: prod.mask!,
+          price_id: priceToShow.mask!,
+          currency: currency || priceToShow.currency,
+        };
+        const queryString = generateQueryString(queryParams);
+        return `${callbackUrl}?${queryString}`;
       };
 
       switch (index) {

@@ -13,7 +13,6 @@ export interface TemplateProps {
   callbacks: FormCallback[];
   environment?: string;
   currency?: string | null;
-  dev?: boolean;
 }
 
 export interface SkeletonProps {
