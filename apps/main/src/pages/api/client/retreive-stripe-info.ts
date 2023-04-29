@@ -1,17 +1,33 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { z } from 'zod';
 
 import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
+import { cuidZodValidator } from 'utils/validations';
+
+const inputSchema = z.object({
+  widget_id: z.string().cuid(),
+  product_id: cuidZodValidator,
+  price_id: cuidZodValidator,
+});
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { widget_id, product_id, price_id } = req.query;
   const userId = req.headers['X-Api-Key'] as string;
 
   if (!userId) {
     res.status(401).json({ error: 'Unauthorized' });
     return;
   }
+
+  const parsedBody = inputSchema.safeParse(req.query);
+
+  if (!parsedBody.success) {
+    res.status(400).json({ error: parsedBody.error });
+    return;
+  }
+
+  const { widget_id, product_id, price_id } = req.query;
 
   try {
     const db = initDb();

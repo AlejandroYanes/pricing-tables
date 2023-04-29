@@ -593,6 +593,8 @@ const FormPage = () => {
         </Alert>
       </RenderIf>
       <Template
+        dev
+        widgetId={query.id}
         features={features}
         products={selectedProducts}
         recommended={recommended}

@@ -8,12 +8,12 @@ interface Params {
   options?: RequestInit;
 }
 
-export const callAPI = async (params: Params) => {
+export const callAPI = async <T = any>(params: Params) => {
   const { url, method = 'GET', body, headers = {}, options = {} } = params;
   return retry(
     { times: 1, delay: 0 },
     () => {
-      return new Promise(async (resolve, reject) => {
+      return new Promise<T>(async (resolve, reject) => {
         try {
           const response = await fetch(
             url,

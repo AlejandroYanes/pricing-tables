@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
 import type { FormPrice } from 'models';
 import { RenderIf } from 'ui';
+import { generateQueryString } from 'helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
@@ -29,6 +30,7 @@ const useStyles = createStyles((theme, color: string) => ({
 
 export function BasicTemplate(props: TemplateProps) {
   const {
+    widgetId,
     features,
     products,
     recommended,
@@ -37,8 +39,8 @@ export function BasicTemplate(props: TemplateProps) {
     subscribeLabel,
     freeTrialLabel,
     callbacks,
-    environment = 'production',
     currency,
+    environment = 'production',
   } = props;
   const { classes, cx } = useStyles(color);
 
@@ -88,7 +90,14 @@ export function BasicTemplate(props: TemplateProps) {
             if (isCustom) return prod.ctaUrl || '';
 
             const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-            return `${callbackUrl}?product_id=${prod.id}&price_id=${priceToShow.id}`;
+            const queryParams: Record<string, string> = {
+              widget_id: widgetId,
+              product_id: prod.mask!,
+              price_id: priceToShow.mask!,
+              currency: currency || priceToShow.currency,
+            };
+            const queryString = generateQueryString(queryParams);
+            return `${callbackUrl}?${queryString}`;
           };
 
           return (
