@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/router';
 import { Loader, Stack, Title } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons';
@@ -13,16 +13,20 @@ const inputSchema = z.object({
   widget_id: z.string().cuid(),
   product_id: cuidZodValidator,
   price_id: cuidZodValidator,
+  currency: z.string().length(3),
   email: z.string().email().optional(),
+  disable_email: z.boolean().optional(),
 });
 
-export default function NewCheckoutSession() {
-  const { query, push } = useRouter();
+export default function NewStripeCheckoutSession() {
+  const { query } = useRouter();
 
   const [started, setStarted] = useState(false);
   const [failed, setFailed] = useState(false);
 
-  const createCheckoutSession = async () => {
+  const timeoutRef = useRef<any>(undefined);
+
+  const createCheckoutSession = () => {
     setStarted(true);
     const parsedQuery = inputSchema.safeParse(query);
 
@@ -31,19 +35,30 @@ export default function NewCheckoutSession() {
       return;
     }
 
-    try {
-      const response = await callAPI<{ session: string }>({
-        method: 'POST',
-        url: '/api/checkout/create',
-        body: parsedQuery.data,
-      });
-      await push(`/checkout/session/${response.session}`);
-    } catch (err) {
+    callAPI<{ url: string }>({
+      method: 'POST',
+      url: '/api/checkout/stripe',
+      body: parsedQuery.data,
+    }).then((response) => {
+      window.open(response.url, '_blank');
+    }).catch((err) => {
+      console.log(err);
       setFailed(true);
-    }
+    });
+  }
+
+  const startFailedTimeout = () => {
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(() => {
+      if (isEmptyObject(query)) {
+        setFailed(true);
+      }
+    }, 5000);
   }
 
   useEffect(() => {
+    console.log('useEffect to create checkout session', query);
+    startFailedTimeout();
     if (typeof window !== 'undefined' && !isEmptyObject(query) && !started) {
       createCheckoutSession();
     }
@@ -62,7 +77,7 @@ export default function NewCheckoutSession() {
       >
         <Stack align="center" justify="center" style={{ height: '100vh' }}>
           <Loader />
-          <Title order={3}>Please bear with us while we generate a new session</Title>
+          <Title order={3}>Please bear with us while we generate a new Stripe Checkout</Title>
         </Stack>
       </RenderIf>
     </BaseLayout>
