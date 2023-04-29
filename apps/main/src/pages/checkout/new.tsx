@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
-import { Loader, Stack, Title } from '@mantine/core';
+import { Anchor, Loader, Stack, Title } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons';
 import { callAPI } from 'helpers';
 import { RenderIf } from 'ui';
@@ -56,7 +56,11 @@ export default function NewCheckoutSession() {
         fallback={
           <Stack align="center" justify="center" style={{ height: '100vh' }}>
             <IconAlertTriangle size={48} />
-            <Title order={3}>Something went wrong, please contact support.</Title>
+            <Title order={3}>
+              Something went wrong, please contact support at {' '}
+              <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>
+              .
+            </Title>
           </Stack>
         }
       >

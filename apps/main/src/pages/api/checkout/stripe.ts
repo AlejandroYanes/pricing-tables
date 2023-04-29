@@ -26,11 +26,7 @@ const inputSchema = z.object({
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {
-  console.log('------------------');
-  console.log('createStripeCheckoutSession API route');
-  console.log('------------------');
-
-  const parsedBody = inputSchema.safeParse(req.body);
+  const parsedBody = inputSchema.safeParse(req.query);
 
   if (!parsedBody.success) {
     res.status(400).json({ error: parsedBody.error });
@@ -40,38 +36,42 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
   const { widget_id: widgetId, product_id: prodMask, price_id: priceMask } = parsedBody.data;
   const db = initDb();
 
-  const sessionQuery = (
-    await db.execute(
-      `SELECT PW.userId, U.stripeKey, PROD.id as productId, PRI.id as priceId
+  try {
+    const sessionQuery = (
+      await db.execute(
+        `SELECT PW.userId, U.stripeKey, PROD.id as productId, PRI.id as priceId
         FROM
             PriceWidget PW JOIN Product PROD on PW.id = PROD.widgetId
                 JOIN Price PRI on PRI.widgetId = PW.id
                 JOIN User U on PW.userId = U.id
         WHERE PW.id = ? AND PROD.mask = ? AND PRI.mask = ?`,
-      [widgetId, prodMask, priceMask],
-    )
-  ).rows[0] as SessionQuery;
+        [widgetId, prodMask, priceMask],
+      )
+    ).rows[0] as SessionQuery;
 
-  const { priceId, stripeKey } = sessionQuery;
+    const { priceId, stripeKey } = sessionQuery;
 
-  const stripe = initStripe(stripeKey);
+    const stripe = initStripe(stripeKey);
 
-  const checkoutSession = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    mode: 'subscription',
-    success_url: 'http://localhost:3000/checkout/success',
-    cancel_url: 'http://localhost:3000/checkout/error',
-  });
+    const checkoutSession = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: 'http://localhost:3000/checkout/success',
+      cancel_url: 'http://localhost:3000/checkout/canceled',
+    });
 
-  if (!checkoutSession.url) {
-    res.status(400).json({ error: 'Failed to create checkout session' });
-    return;
+    if (!checkoutSession.url) {
+      res.redirect(303, '/checkout/error');
+      return;
+    }
+
+    res.redirect(303, checkoutSession.url);
+  } catch (err) {
+    res.redirect(303, '/checkout/error');
   }
-
-  res.status(200).json({ url: checkoutSession.url });
 }

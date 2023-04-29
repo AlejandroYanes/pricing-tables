@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import type Stripe from 'stripe';
 import { loadStripe } from '@stripe/stripe-js';
 import { Elements } from '@stripe/react-stripe-js';
-import { Loader, Stack, Title } from '@mantine/core';
+import { Anchor, Loader, Stack, Title } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons';
 import { callAPI } from 'helpers';
 
@@ -107,7 +107,11 @@ export default function CheckoutSession() {
       <BaseLayout>
         <Stack align="center" justify="center" style={{ height: '100vh' }}>
           <IconAlertTriangle size={48} />
-          <Title order={3}>Something went wrong, please contact support.</Title>
+          <Title order={3}>
+            Something went wrong, please contact support at {' '}
+            <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>
+            .
+          </Title>
         </Stack>
       </BaseLayout>
     );
