@@ -7,7 +7,7 @@ import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, } from '
 import { IconCheck } from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
-import SignInForm from '../components/SignInForm';
+import SignInForm from 'components/SignInForm';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -112,11 +112,10 @@ const Home: NextPage = () => {
                 <List.Item>
                   <b>Easy setup</b> – just copy and paste the code snippets to your website
                 </List.Item>
+                <List.Item>
+                  <b>Easy checkout</b> – just redirect your customers to our checkout API, we will generate a checkout session for you
+                </List.Item>
               </List>
-
-              {/*<Group mt={30}>*/}
-              {/*  <SignInForm />*/}
-              {/*</Group>*/}
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
@@ -131,7 +130,6 @@ const Home: NextPage = () => {
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 width="560"
                 height="315"
-                frameBorder="0"
                 allowFullScreen
               >
               </iframe>
