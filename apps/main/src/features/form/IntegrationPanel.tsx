@@ -17,21 +17,23 @@ const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widg
 const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
 const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
 
-const requestBody = (widgetId: string) => `{ widget_id: ${widgetId}, product_id: <...>, price_id: <...> }`;
+const requestBody = () => `{ widget_id: <...>, product_id: <...>, price_id: <...> }`;
 
 // eslint-disable-next-line max-len
-const curlCommand = (widgetId: string, apiKey: string) => `curl -X POST https://pricing-tables.vercel.app/api/client/retreive-stripe-info \\
+const curlCommand = (apiKey: string) => `
+curl -X POST https://pricing-tables.vercel.app/api/client/retreive-stripe-info \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
-     -d '{ "widget_id": "${widgetId}", "product_id": "<product_id>", "price_id": "<price_id>" }'
+     -d '{ "widget_id": "<...>", "product_id": "<...>", "price_id": "<...>" }'
 `;
 
 // eslint-disable-next-line max-len
-const jsCommand = (widgetId: string, apiKey: string) => `const url = 'https://pricing-tables.vercel.app/api/client/retreive-stripe-info';
+const jsCommand = (apiKey: string) => `
+const url = 'https://pricing-tables.vercel.app/api/client/retreive-stripe-info';
 const data = {
-  widget_id: '${widgetId}',
-  product_id: '<product_id>',
-  price_id: '<price_id>'
+  widget_id: '<...>',
+  product_id: '<...>',
+  price_id: '<...>'
 };
 
 fetch(url, {
@@ -55,41 +57,41 @@ export default function IntegrationPanel(props: Props) {
     <Stack mx="auto" pt="xl" style={{ width: '100%', maxWidth: '800px' }}>
       <Title order={2} mb="xl">{`Here's`} how to integrate the widget with your app:</Title>
 
-      <Text>
+      <Text component="p" m={0}>
         First, add this script tag to your page,
         usually {`it's`} added at the bottom the head tag, though it can be added anywhere.
       </Text>
       <Prism language="markup">{scriptCode}</Prism>
 
-      <Text mt="xl">
+      <Text mt="xl" component="p" m={0}>
         then, add this custom tag to your code wherever you want the widget to show
         (these examples use this {`widget's`} id but you can use any id you want)
       </Text>
       <Prism language="markup">{widgetCode(widgetId)}</Prism>
 
-      <Text mt="xl">We recommend wrapping the widget in a container to make positioning easier</Text>
+      <Text mt="xl" component="p" m={0}>We recommend wrapping the widget in a container to make positioning easier</Text>
       <Prism language="markup">{wrappedWidgetCode(widgetId)}</Prism>
 
       <Title order={3} mt="xl">Other configurations</Title>
 
-      <Text>
+      <Text component="p" m={0}>
         there are some extra attributes you can pass to the widget tag to customise it,
         like theme and currency, {`here's`} how
       </Text>
 
       <Text mt="xl" weight="bold">Theme</Text>
-      <Text>The theme attribute expects one of three values: <Code>system | light | dark</Code></Text>
+      <Text component="p" m={0}>The theme attribute expects one of three values: <Code>system | light | dark</Code></Text>
       <Prism language="markup" mb="xl">{widgetWithThemeCode(widgetId)}</Prism>
 
-      <Text weight="bold">Currency</Text>
-      <Text>
+      <Text weight="bold" component="span">Currency</Text>
+      <Text component="p" m={0}>
         If your prices are setup with more than one currency you can specify which one to use.
         If you {`don't`} specify a currency it will use the default currency of your Stripe account.
       </Text>
       <Prism language="markup" mb="xl">{widgetWithCurrencyCode(widgetId)}</Prism>
 
-      <Text weight="bold">Environment</Text>
-      <Text>
+      <Text weight="bold" component="span">Environment</Text>
+      <Text component="p" m={0}>
         We support having multiple environments for your widget
         in case you want to use it while testing your app.
         Most of the time you will only use one environment, but just in case, our custom tag supports an <Code>env</Code> attribute.
@@ -103,35 +105,59 @@ export default function IntegrationPanel(props: Props) {
       <Divider mt="xl" />
 
       <Title order={2} mt="xl">How it works</Title>
-      <Text>
+      <Text component="p" m={0}>
         Now {`let's`} get into how the integration works.
         <br />
         When a user click on the button to select a product,
-        it will redirect them to whatever url you set in the callback section of the <Code>Settings</Code> panel.
-        If you leave the url empty ti will just add the product and price <Code>ids</Code> to the page url.
+        it will redirect them to whatever url you set in the callback section of the <Code>Settings</Code> panel,
+        and add query parameters to identify the widget, product, price and currency selected.
+        If you leave the url empty it will just add the parameters to the page url.
+        Eg:
+        <Prism language="javascript" mt="md">
+          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        </Prism>
         <br />
-        <br />
-        An example of this flow would be to redirect the user to your sign up page and after they enter their information and submit it,
-        as part of your signup flow you can make a request to our API to get the product and price <Code>ids</Code>.
-        <br />
-        <br />
+        This is done so you can use your own signup flow before collecting the payment.
+        From here there you can either:
+        <ul>
+          <li>
+            use our <Code>checkout</Code> API route and we will generate a Stripe checkout session for your customer
+          </li>
+          <li>
+            use our API route to get the real product and price <Code>ids</Code>
+          </li>
+        </ul>
+      </Text>
+      <Title order={3}>Generating a Stripe Checkout</Title>
+      <Text component="p" m={0}>
+        To generate a Stripe checkout session you need redirect the user to our <Code>checkout</Code> API route.
+        Make sure to add the query parameters we added to your page to the url.
+      </Text>
+      <Prism language="javascript">
+        {`https://pricing-tables-main.vercel.app/api/checkout/stripe?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+      </Prism>
+      <Text component="p">
+        This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
+      </Text>
+      <Title order={3}>Using our API route to retrieve the information</Title>
+      <Text component="p">
         The <Code>ids</Code> that we add to the url will not be the real ones from Stripe,
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
       </Text>
-      <Prism language="markup">{`https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info`}</Prism>
-      <Text mt="md">
+      <Prism language="javascript">{`https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info`}</Prism>
+      <Text component="p" mt="md">
         This request needs to be a <Code>POST</Code> request with the body:
-        <Prism language="json">{requestBody(widgetId)}</Prism>
+        <Prism language="json">{requestBody()}</Prism>
         <br />
         It will return an object with the real <Code>ids</Code> for the product and price.
       </Text>
       <Text>The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</Text>
       <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
       <Text>{`Here's`} how it would look</Text>
-      <Prism language="bash">{curlCommand(widgetId, data!.user!.id)}</Prism>
+      <Prism language="bash">{curlCommand(data!.user!.id)}</Prism>
       <Text mt="md">{`Here's`} a JavaScript version</Text>
-      <Prism language="bash">{jsCommand(widgetId, data!.user!.id)}</Prism>
+      <Prism language="jsx">{jsCommand(data!.user!.id)}</Prism>
       <Space h="xl" />
     </Stack>
   );
