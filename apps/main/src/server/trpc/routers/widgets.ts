@@ -234,6 +234,8 @@ export const widgetsRouter = createTRPCRouter({
       unitLabel: z.string().nullish(),
       subscribeLabel: z.string().nullish(),
       freeTrialLabel: z.string().nullish(),
+      successUrl: z.string().nullish(),
+      cancelUrl: z.string().nullish(),
     })
   ).mutation(({ ctx, input }) => {
     return ctx.prisma.priceWidget.update({
@@ -247,6 +249,8 @@ export const widgetsRouter = createTRPCRouter({
         ...(hasFlakyUpdate(input.unitLabel, 'unitLabel')),
         ...(hasFlakyUpdate(input.subscribeLabel, 'subscribeLabel')),
         ...(hasFlakyUpdate(input.freeTrialLabel, 'freeTrialLabel')),
+        ...(hasFlakyUpdate(input.successUrl, 'checkoutSuccessUrl')),
+        ...(hasFlakyUpdate(input.cancelUrl, 'checkoutCancelUrl')),
       },
     });
   }),

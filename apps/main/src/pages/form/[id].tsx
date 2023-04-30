@@ -96,6 +96,8 @@ const FormPage = () => {
   const [usesUnitLabel, setUsesUnitLabel] = useState(false);
   const [unitLabel, setUnitLabel] = useState<string | null>(null);
   const [callbacks, callbackHandlers] = useListState<FormCallback>([]);
+  const [successUrl, setSuccessUrl] = useState<string | null>(null);
+  const [cancelUrl, setCancelUrl] = useState<string | null>(null);
 
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
@@ -112,6 +114,8 @@ const FormPage = () => {
     usesUnitLabel,
     unitLabel,
     callbacks,
+    successUrl,
+    cancelUrl,
     widgetId: query.id as string,
   }, isLoaded);
 
@@ -696,6 +700,10 @@ const FormPage = () => {
                 onDeleteCallback={deleteCallback}
                 onCallbackEnvChange={handleCallbackEnvChange}
                 onCallbackUrlChange={handleCallbackUrlChange}
+                successUrl={successUrl}
+                onSuccessUrlChange={setSuccessUrl}
+                cancelUrl={cancelUrl}
+                onCancelUrlChange={setCancelUrl}
               />
             </RenderIf>
             <RenderIf condition={currentTab === 'integration'}>

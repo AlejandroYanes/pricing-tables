@@ -35,12 +35,22 @@ interface Props {
   onDeleteCallback: (index: number) => void;
   onCallbackEnvChange: (index: number, nextEnv: string) => void;
   onCallbackUrlChange: (index: number, nextUrl: string) => void;
+  successUrl: string | null;
+  onSuccessUrlChange: (nextUrl: string) => void;
+  cancelUrl: string | null;
+  onCancelUrlChange: (nextUrl: string) => void;
 }
 
 const callbackHelp = `
-Callbacks are used to send all the information about the plan, price and billing period selected by the user.
-The url should be an endpoint of your server that will process this information and redirect the user to a specific page
-to continue the checkout process.
+Callbacks are used to construct the URL that the CTA (Call To Action) button will redirect to.
+We add params like widget_id, product_id, price_id and currency to the URL
+so that you and we can identify the elements. This can be useful if you want to insert your sign up flow before collecting the payment.
+`;
+
+const checkoutHelp = `
+These URLs are used to redirect the user after the payment is completed or canceled.
+If you leave them empty, we will use the referer URL from the request and add a payment_status query (eg: ?payment_status=success).
+As a last resource, we will use our own fallback pages.
 `;
 
 export default function SettingsForm(props: Props) {
@@ -68,6 +78,10 @@ export default function SettingsForm(props: Props) {
     onDeleteCallback,
     onCallbackEnvChange,
     onCallbackUrlChange,
+    successUrl,
+    onSuccessUrlChange,
+    cancelUrl,
+    onCancelUrlChange,
   } = props;
 
   const router = useRouter();
@@ -114,11 +128,12 @@ export default function SettingsForm(props: Props) {
         />
       </RenderIf>
       <Divider
+        mt="xl"
         label={
           <Tooltip
             transitionProps={{ duration: 200 }}
             label={callbackHelp}
-            width={280}
+            width={360}
             position="right"
             multiline
             withArrow
@@ -130,9 +145,6 @@ export default function SettingsForm(props: Props) {
           </Tooltip>
         }
       />
-      <Text>
-
-      </Text>
       <Stack>
         {callbacks.map((cb, index) => (
           <Group key={index} spacing={0} align="flex-start">
@@ -186,6 +198,28 @@ export default function SettingsForm(props: Props) {
           </Group>
         ))}
         <Button mt="xs" ml="auto" onClick={onAddNewCallback}>Add callback</Button>
+
+        <Divider
+          mt="xl"
+          label={
+            <Tooltip
+              transitionProps={{ duration: 200 }}
+              label={checkoutHelp}
+              width={340}
+              position="right"
+              multiline
+              withArrow
+            >
+              <div style={{ display: 'flex', alignItems: 'center' }}>
+                <span>Checkout</span>
+                <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
+              </div>
+            </Tooltip>
+          }
+        />
+        <TextInput label="Success URL" value={successUrl || ''} onChange={(e) => onSuccessUrlChange(e.target.value)} />
+        <TextInput label="Cancel URL" value={cancelUrl || ''} onChange={(e) => onCancelUrlChange(e.target.value)} />
+
         <Divider mt="xl" label="Danger zone" />
         <Button color="red" variant="outline" fullWidth onClick={handleDelete}>
           Delete widget
