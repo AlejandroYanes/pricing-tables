@@ -10,7 +10,7 @@ import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe
 import { cuidZodValidator } from 'utils/validations';
 
 const inputSchema = z.object({
-  widgetId: cuidZodValidator,
+  widget: cuidZodValidator,
 });
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
