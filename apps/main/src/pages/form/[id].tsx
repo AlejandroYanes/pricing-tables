@@ -594,7 +594,7 @@ const FormPage = () => {
       </RenderIf>
       <Template
         dev
-        widgetId={query.id}
+        widget={query.id}
         features={features}
         products={selectedProducts}
         recommended={recommended}

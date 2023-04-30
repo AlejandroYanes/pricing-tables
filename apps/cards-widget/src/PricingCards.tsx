@@ -65,6 +65,7 @@ const PricingCards = (props: Props) => {
       withNormalizeCSS={false}
     >
       <Template
+        widget={widget}
         features={features}
         products={products}
         recommended={recommended}

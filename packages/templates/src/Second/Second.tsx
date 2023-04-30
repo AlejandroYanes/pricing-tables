@@ -116,7 +116,8 @@ const resolvePricing = (options: PricingProps) => {
 
 export function SecondTemplate(props: TemplateProps) {
   const {
-    widgetId,
+    dev,
+    widget,
     features,
     products,
     recommended,
@@ -172,9 +173,9 @@ export function SecondTemplate(props: TemplateProps) {
 
         const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
         const queryParams: Record<string, string> = {
-          widget_id: widgetId,
-          product_id: prod.mask!,
-          price_id: priceToShow.mask!,
+          widget_id: widget,
+          product_id: dev ? prod.mask! : prod.id,
+          price_id: dev ? priceToShow.mask! : priceToShow.id,
           currency: currency || priceToShow.currency,
         };
         const queryString = generateQueryString(queryParams);

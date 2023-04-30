@@ -159,8 +159,9 @@ const resolveCTA = (
   env: string,
   subscribeLabel: string,
   freeTrialLabel: string,
-  widgetId: string,
+  widget: string,
   currency: string | null | undefined,
+  dev: boolean,
 ) => {
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
@@ -177,9 +178,9 @@ const resolveCTA = (
 
     const callbackUrl = callbacks.find((cb) => cb.env === env)!.url;
     const queryParams: Record<string, string> = {
-      widget_id: widgetId,
-      product_id: product.mask!,
-      price_id: priceToShow.mask!,
+      widget_id: widget,
+      product_id: dev ? product.mask! : product.id,
+      price_id: dev ? priceToShow.mask! : priceToShow.id,
       currency: currency || priceToShow.currency,
     };
     const queryString = generateQueryString(queryParams);
@@ -200,7 +201,8 @@ const resolveCTA = (
 
 export function ThirdTemplate(props: TemplateProps) {
   const {
-    widgetId,
+    dev,
+    widget,
     features,
     products,
     recommended,
@@ -328,8 +330,9 @@ export function ThirdTemplate(props: TemplateProps) {
             environment,
             subscribeLabel,
             freeTrialLabel,
-            widgetId,
+            widget,
             currency,
+            !!dev,
           )}
         </Stack>
       </Group>
