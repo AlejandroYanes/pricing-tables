@@ -36,10 +36,9 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
   const { widget_id: widgetId, product_id: prodMask, price_id: priceMask } = parsedBody.data;
   const db = initDb();
 
-  try {
-    const sessionQuery = (
-      await db.execute(
-        `SELECT
+  const sessionQuery = (
+    await db.execute(
+      `SELECT
             PW.checkoutSuccessUrl as successUrl,
             PW.checkoutCancelUrl as cancelUrl,
             PROD.id as productId,
@@ -50,43 +49,44 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
                 JOIN Price PRI on PRI.widgetId = PW.id
                 JOIN User U on PW.userId = U.id
         WHERE PW.id = ? AND PROD.mask = ? AND PRI.mask = ?`,
-        [widgetId, prodMask, priceMask],
-      )
-    ).rows[0] as SessionQuery;
+      [widgetId, prodMask, priceMask],
+    )
+  ).rows[0] as SessionQuery;
 
-    const { priceId, stripeKey, successUrl, cancelUrl } = sessionQuery;
+  const { priceId, stripeKey, successUrl, cancelUrl } = sessionQuery;
 
-    const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
-    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
+  const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
+  const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
 
-    const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
-    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
+  const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
+  const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
 
-    const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
-    const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
+  const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
+  const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
 
-    const stripe = initStripe(stripeKey);
+  const stripe = initStripe(stripeKey);
 
-    const checkoutSession = await stripe.checkout.sessions.create({
-      line_items: [
-        {
-          price: priceId,
-          quantity: 1,
-        },
-      ],
-      mode: 'subscription',
-      success_url: finalSuccessUrl,
-      cancel_url: finalCancelUrl,
-    });
+  const checkoutSession = await stripe.checkout.sessions.create({
+    line_items: [
+      {
+        price: priceId,
+        quantity: 1,
+      },
+    ],
+    mode: 'subscription',
+    success_url: finalSuccessUrl,
+    cancel_url: finalCancelUrl,
+  });
 
-    if (!checkoutSession.url) {
-      res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
-      return;
-    }
-
-    res.redirect(303, checkoutSession.url);
-  } catch (err) {
-    // res.redirect(303, `${fallbackUrl}/checkout/error`);
-    res.status(400).send(err);
+  if (!checkoutSession.url) {
+    res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
+    return;
   }
+
+  res.redirect(303, checkoutSession.url);
+
+  // try {
+  // } catch (err) {
+  //   res.redirect(303, `${fallbackUrl}/checkout/error`);
+  // }
 }
