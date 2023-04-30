@@ -1,7 +1,7 @@
 import { Group, Stack, Title } from '@mantine/core';
+import { IconMoodConfuzed } from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
-import { IconMoodConfuzed } from '@tabler/icons';
 
 export default function CheckoutError() {
   return (
