@@ -13,20 +13,22 @@ datasource db {
 }
 
 model PriceWidget {
-    id              String        @id @default(cuid())
-    name            String
-    template        String
-    usesUnitLabel   Boolean       @default(false)
-    unitLabel       String?
-    color           String
-    recommended     String?
-    subscribeLabel  String
-    freeTrialLabel  String
-    createdAt       DateTime      @default(now())
-    products        Product[]
-    callbacks       Callback[]
-    userId          String?
-    user            User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                  String        @id @default(cuid())
+    name                String
+    template            String
+    usesUnitLabel       Boolean       @default(false)
+    unitLabel           String?
+    color               String
+    recommended         String?
+    subscribeLabel      String
+    freeTrialLabel      String
+    checkoutSuccessUrl  String?
+    checkoutCancelUrl   String?
+    createdAt           DateTime      @default(now())
+    products            Product[]
+    callbacks           Callback[]
+    userId              String?
+    user                User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model Product {
@@ -42,7 +44,6 @@ model Product {
     features        Feature[]
     widgetId        String
     widget          PriceWidget  @relation(fields: [widgetId], references: [id], onDelete: Cascade)
-    Checkout        Checkout[]
 
     @@id([id, widgetId])
 }
@@ -56,7 +57,6 @@ model Price {
     widgetId        String
     productId       String
     product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
-    Checkout        Checkout[]
 
     @@id([id, widgetId])
 }
@@ -81,19 +81,6 @@ model Callback {
     widgetId        String
     widget          PriceWidget   @relation(fields: [widgetId], references: [id], onDelete: Cascade)
     @@unique([env, widgetId])
-}
-
-model Checkout {
-    id              String        @id @default(cuid())
-    createdAt       DateTime      @default(now())
-    completed       Boolean       @default(false)
-    email           String?
-    currency        String
-    widgetId        String
-    productId       String
-    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
-    priceId         String
-    price           Price         @relation(fields: [priceId, widgetId], references: [id, widgetId], onDelete: Cascade)
 }
 
 // Necessary for Next auth

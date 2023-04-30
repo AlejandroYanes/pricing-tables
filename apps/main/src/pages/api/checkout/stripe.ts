@@ -1,19 +1,17 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { z } from 'zod';
 
+import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import { cuidZodValidator } from 'utils/validations';
 import initStripe from 'utils/stripe';
 
 type SessionQuery = {
-  widgetId: string;
   productId: string;
   priceId: string;
-  email: string;
-  color: string;
-  unitLabel: string;
-  userId: string;
   stripeKey: string;
+  successUrl: string | null;
+  cancelUrl: string | null;
 }
 
 const inputSchema = z.object({
@@ -39,8 +37,13 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
   try {
     const sessionQuery = (
       await db.execute(
-        `SELECT PW.userId, U.stripeKey, PROD.id as productId, PRI.id as priceId
-        FROM
+        `SELECT
+            PW.checkoutSuccessUrl as successUrl,
+            PW.checkoutCancelUrl as cancelUrl,
+            PROD.id as productId,
+            PRI.id as priceId,
+            U.stripeKey
+         FROM
             PriceWidget PW JOIN Product PROD on PW.id = PROD.widgetId
                 JOIN Price PRI on PRI.widgetId = PW.id
                 JOIN User U on PW.userId = U.id
@@ -49,7 +52,16 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
       )
     ).rows[0] as SessionQuery;
 
-    const { priceId, stripeKey } = sessionQuery;
+    const { priceId, stripeKey, successUrl, cancelUrl } = sessionQuery;
+
+    const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
+    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
+
+    const fallbackSuccessUrl = `${env.NEXTAUTH_URL}/checkout/success`;
+    const fallbackCancelUrl = `${env.NEXTAUTH_URL}/checkout/cancel`;
+
+    const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
+    const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
 
     const stripe = initStripe(stripeKey);
 
@@ -61,17 +73,17 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: 'subscription',
-      success_url: 'http://localhost:3000/checkout/success',
-      cancel_url: 'http://localhost:3000/checkout/canceled',
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
     });
 
     if (!checkoutSession.url) {
-      res.redirect(303, '/checkout/error');
+      res.redirect(303, `${env.NEXTAUTH_URL}/checkout/error`);
       return;
     }
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
-    res.redirect(303, '/checkout/error');
+    res.redirect(303, `${env.NEXTAUTH_URL}/checkout/error`);
   }
 }

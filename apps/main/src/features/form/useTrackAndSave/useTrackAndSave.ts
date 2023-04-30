@@ -17,6 +17,8 @@ interface Params {
   unitLabel: string | null;
   subscribeLabel: string;
   freeTrialLabel: string;
+  successUrl: string | null;
+  cancelUrl: string | null;
 }
 
 export default function useTrackAndSave(params: Params, enabled = false) {
@@ -33,6 +35,8 @@ export default function useTrackAndSave(params: Params, enabled = false) {
     unitLabel,
     subscribeLabel,
     freeTrialLabel,
+    successUrl,
+    cancelUrl,
   } = params;
 
   const { mutate: updateProducts } = trpc.widgets.updateProducts.useMutation();
@@ -97,7 +101,18 @@ export default function useTrackAndSave(params: Params, enabled = false) {
   const { mutate: mutateGValues } = trpc.widgets.updateGeneralValues.useMutation();
   useDiff({
     enabled,
-    value: { name, color, template, recommended, usesUnitLabel, unitLabel, subscribeLabel, freeTrialLabel },
+    value: {
+      name,
+      color,
+      template,
+      recommended,
+      usesUnitLabel,
+      unitLabel,
+      subscribeLabel,
+      freeTrialLabel,
+      successUrl,
+      cancelUrl,
+    },
     onChange: (diff) => mutateGValues({ widgetId, ...diff }),
   });
 }
