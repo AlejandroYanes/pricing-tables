@@ -80,12 +80,13 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     });
 
     if (!checkoutSession.url) {
-      res.redirect(303, `${fallbackUrl}/checkout/error`);
+      res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
       return;
     }
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
-    res.redirect(303, `${fallbackUrl}/checkout/error`);
+    // res.redirect(303, `${fallbackUrl}/checkout/error`);
+    res.status(400).send(err);
   }
 }
