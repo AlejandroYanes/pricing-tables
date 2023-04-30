@@ -63,6 +63,8 @@ export const widgetsRouter = createTRPCRouter({
         unitLabel: true,
         subscribeLabel: true,
         freeTrialLabel: true,
+        checkoutSuccessUrl: true,
+        checkoutCancelUrl: true,
         callbacks: {
           orderBy: { createdAt: 'asc' },
           select: {
@@ -119,6 +121,8 @@ export const widgetsRouter = createTRPCRouter({
       freeTrialLabel: widget.freeTrialLabel,
       usesUnitLabel: widget.usesUnitLabel,
       unitLabel: widget.unitLabel,
+      successUrl: widget.checkoutSuccessUrl,
+      cancelUrl: widget.checkoutCancelUrl,
       features: normaliseFeatures(features),
       products: await normaliseProducts(ctx.stripe, widget.products),
     };

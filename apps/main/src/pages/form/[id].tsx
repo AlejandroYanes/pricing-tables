@@ -132,6 +132,8 @@ const FormPage = () => {
       setFreeTrialLabel(widgetInfo!.freeTrialLabel);
       setUsesUnitLabel(widgetInfo!.usesUnitLabel);
       setUnitLabel(widgetInfo!.unitLabel);
+      setSuccessUrl(widgetInfo!.successUrl);
+      setCancelUrl(widgetInfo!.cancelUrl);
       setIsLoaded(true);
     }
   }, [isFetchingWidgetInfo, widgetInfo]);
