@@ -7,9 +7,10 @@ import { z } from 'zod';
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import { cuidZodValidator } from 'utils/validations';
 
 const inputSchema = z.object({
-  widgetId: z.string().cuid(),
+  widget: cuidZodValidator,
 });
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
