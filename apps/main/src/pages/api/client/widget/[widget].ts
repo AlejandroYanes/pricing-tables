@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
-import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 import { cuidZodValidator } from 'utils/validations';
 
 const inputSchema = z.object({
@@ -67,9 +67,7 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
     await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
   ).rows[0] as { stripeKey: string; role: string };
 
-  const stripeKey = !widgetUser
-    ? 'sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'
-    : widgetUser.stripeKey;
+  const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
   const stripe = initStripe(stripeKey);
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
