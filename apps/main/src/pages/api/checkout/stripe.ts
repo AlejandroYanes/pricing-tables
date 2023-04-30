@@ -4,12 +4,12 @@ import { z } from 'zod';
 import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import { cuidZodValidator } from 'utils/validations';
-import initStripe from 'utils/stripe';
+import initStripe, { guestStripeKey } from 'utils/stripe';
 
 type SessionQuery = {
   productId: string;
   priceId: string;
-  stripeKey: string;
+  userId: string;
   successUrl: string | null;
   cancelUrl: string | null;
 }
@@ -36,57 +36,69 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
   const { widget_id: widgetId, product_id: prodMask, price_id: priceMask } = parsedBody.data;
   const db = initDb();
 
-  const sessionQuery = (
-    await db.execute(
-      `SELECT
+  try {
+    const sessionQuery = (
+      await db.execute(
+        `SELECT
             PW.checkoutSuccessUrl as successUrl,
             PW.checkoutCancelUrl as cancelUrl,
+            PW.userId,
             PROD.id as productId,
-            PRI.id as priceId,
-            U.stripeKey
+            PRI.id as priceId
          FROM
             PriceWidget PW JOIN Product PROD on PW.id = PROD.widgetId
                 JOIN Price PRI on PRI.widgetId = PW.id
-                JOIN User U on PW.userId = U.id
         WHERE PW.id = ? AND PROD.mask = ? AND PRI.mask = ?`,
-      [widgetId, prodMask, priceMask],
-    )
-  ).rows[0] as SessionQuery;
+        [widgetId, prodMask, priceMask],
+      )
+    ).rows[0] as SessionQuery;
 
-  const { priceId, stripeKey, successUrl, cancelUrl } = sessionQuery;
+    const { priceId, userId, successUrl, cancelUrl  } = sessionQuery;
 
-  const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
-  const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
+    const isGuest = userId.startsWith('guest_');
+    let stripeKey = guestStripeKey;
 
-  const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
-  const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
+    if (!isGuest) {
+      const user = (
+        await db.execute(
+          `SELECT stripeKey FROM User WHERE id = ?`,
+          [userId],
+        )
+      ).rows[0] as { stripeKey: string };
 
-  const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
-  const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
+      stripeKey = user.stripeKey;
+    }
 
-  const stripe = initStripe(stripeKey);
+    const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
+    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
 
-  const checkoutSession = await stripe.checkout.sessions.create({
-    line_items: [
-      {
-        price: priceId,
-        quantity: 1,
-      },
-    ],
-    mode: 'subscription',
-    success_url: finalSuccessUrl,
-    cancel_url: finalCancelUrl,
-  });
+    const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
+    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
 
-  if (!checkoutSession.url) {
-    res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
-    return;
+    const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
+    const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
+
+    const stripe = initStripe(stripeKey);
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price: priceId,
+          quantity: 1,
+        },
+      ],
+      mode: 'subscription',
+      success_url: finalSuccessUrl,
+      cancel_url: finalCancelUrl,
+    });
+
+    if (!checkoutSession.url) {
+      res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
+      return;
+    }
+
+    res.redirect(303, checkoutSession.url);
+  } catch (err) {
+    res.redirect(303, `${fallbackUrl}/checkout/error`);
   }
-
-  res.redirect(303, checkoutSession.url);
-
-  // try {
-  // } catch (err) {
-  //   res.redirect(303, `${fallbackUrl}/checkout/error`);
-  // }
 }

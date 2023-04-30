@@ -8,6 +8,8 @@ export default function initStripe(apiKey: string) {
   });
 }
 
+export const guestStripeKey = 'sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'
+
 export function reduceStripeProduct(product: Stripe.Product) {
   return pick(product, ['id', 'name', 'description', 'default_price', 'active']) as FormProduct;
 }

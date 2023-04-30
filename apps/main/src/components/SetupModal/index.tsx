@@ -7,6 +7,7 @@ import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
+import { guestStripeKey } from 'utils/stripe';
 
 type Status = 'input' | 'empty' | 'list';
 
@@ -99,7 +100,7 @@ export default function SetupModal() {
         </Text>
         <Text mt="sm">If you do not have a Stripe key but still want to test, {`here's`} one from us:</Text>
         <Prism language="markup">
-          sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu
+          {guestStripeKey}
         </Prism>
         <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
         <RenderIf condition={error}>
