@@ -16,17 +16,18 @@ const useStyles = createStyles(() => ({
 interface Props {
   hideNavbar?: boolean;
   showBackButton?: boolean;
+  backRoute?: string;
   children: ReactNode;
 }
 
 const BaseLayout = (props: Props) => {
-  const { hideNavbar = false, showBackButton = false, children } = props;
+  const { hideNavbar = false, showBackButton = false, backRoute, children } = props;
   const { classes } = useStyles();
 
   return (
     <section className={classes.wrapper}>
       <RenderIf condition={!hideNavbar}>
-        <CustomNavbar showBackButton={showBackButton} />
+        <CustomNavbar showBackButton={showBackButton} backRoute={backRoute} />
       </RenderIf>
       {children}
     </section>

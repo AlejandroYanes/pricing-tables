@@ -55,10 +55,11 @@ function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
 
 interface Props {
   showBackButton: boolean;
+  backRoute?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton } = props;
+  const { showBackButton, backRoute } = props;
   const { classes } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
@@ -95,7 +96,7 @@ export function CustomNavbar(props: Props) {
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
       <RenderIf condition={showBackButton}>
-        <NavbarLink icon={IconArrowLeft} onClick={() => router.back()}  />
+        <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
       </RenderIf>
       <Group ml="auto">
         <HoverCard width={280} shadow="md" position="bottom-end">
