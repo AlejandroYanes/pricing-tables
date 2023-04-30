@@ -31,6 +31,8 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     return;
   }
 
+  const fallbackUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
+
   const { widget_id: widgetId, product_id: prodMask, price_id: priceMask } = parsedBody.data;
   const db = initDb();
 
@@ -57,8 +59,8 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
     const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
 
-    const fallbackSuccessUrl = `${env.NEXTAUTH_URL}/checkout/success`;
-    const fallbackCancelUrl = `${env.NEXTAUTH_URL}/checkout/cancel`;
+    const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
+    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
 
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
@@ -78,12 +80,12 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     });
 
     if (!checkoutSession.url) {
-      res.redirect(303, `${env.NEXTAUTH_URL}/checkout/error`);
+      res.redirect(303, `${fallbackUrl}/checkout/error`);
       return;
     }
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
-    res.redirect(303, `${env.NEXTAUTH_URL}/checkout/error`);
+    res.redirect(303, `${fallbackUrl}/checkout/error`);
   }
 }
