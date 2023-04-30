@@ -2,7 +2,8 @@ import type { FormCallback, FormFeature, FormProduct } from 'models';
 import type Stripe from 'stripe';
 
 export interface TemplateProps {
-  widgetId: string;
+  dev?: boolean;
+  widget: string;
   features: FormFeature[];
   products: FormProduct[];
   recommended: string | null;
