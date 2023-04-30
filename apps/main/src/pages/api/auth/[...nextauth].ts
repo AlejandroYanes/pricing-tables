@@ -66,7 +66,7 @@ export const authOptions: NextAuthOptions = {
         username: { label: 'Username', type: 'text', placeholder: '' },
       },
       async authorize() {
-        return { id: `${Date.now()}`, name: 'John Doe', email: 'john.doe@example.com' };
+        return { id: `guest_${Date.now()}`, name: 'John Doe', email: 'john.doe@example.com' };
       }
     })
   ],
