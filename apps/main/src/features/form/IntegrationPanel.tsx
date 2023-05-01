@@ -134,7 +134,7 @@ export default function IntegrationPanel(props: Props) {
         Make sure to add the query parameters we added to your page to the url.
       </Text>
       <Prism language="javascript">
-        {`https://pricing-tables-main.vercel.app/api/checkout/stripe?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        {`https://pricing-tables-main.vercel.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.

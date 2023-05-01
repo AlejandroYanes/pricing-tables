@@ -9,7 +9,7 @@ export default function CheckoutError() {
       <Stack align="center" justify="center" style={{ height: '100vh' }}>
         <Group>
           <IconMoodConfuzed size={88} />
-          <Title order={3} size={36} w={360}>Payment was canceled.</Title>
+          <Title order={3} size={36} w={360}>Payment was cancelled.</Title>
         </Group>
       </Stack>
     </BaseLayout>
