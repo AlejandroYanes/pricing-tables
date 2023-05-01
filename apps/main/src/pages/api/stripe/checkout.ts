@@ -70,10 +70,10 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     }
 
     const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
-    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
+    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=cancelled` : undefined;
 
     const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
-    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
+    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancelled`;
 
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
@@ -99,6 +99,6 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
-    res.redirect(303, `${fallbackUrl}/checkout/error`);
+    res.redirect(303, `${fallbackUrl}/checkout/error?status=internal_error`);
   }
 }
