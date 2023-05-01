@@ -9,6 +9,14 @@ async function addProduct(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
   const { productId, priceId } = req.body;
 
+  if (!widget || !productId || !priceId) {
+    res.status(400).json({ error: 'Missing widget, productId or priceId' });
+    return;
+  }
+
+  const productMask = createId();
+  const priceMask = createId();
+
   try {
     const db = initDb();
     const features = (
@@ -18,12 +26,12 @@ async function addProduct(req: NextApiRequest, res: NextApiResponse) {
     await db.transaction(async (tx) => {
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Product` (`id`, `widgetId`, `mask`) VALUES(?, ?, ?)',
-        [productId, widget, createId()],
+        [productId, widget, productMask],
       );
 
       await tx.execute(
         'INSERT INTO `pricing-tables`.`Price` (`id`, `productId`, `widgetId`, `mask`) VALUES(?, ?, ?, ?)',
-        [priceId, productId, widget, createId()],
+        [priceId, productId, widget, priceMask],
       );
 
       for (let i = 0; i < features.length; i++) {
@@ -36,7 +44,7 @@ async function addProduct(req: NextApiRequest, res: NextApiResponse) {
         );
       }
     });
-    res.status(201).json({ widget, productId, priceId });
+    res.status(201).json({ productMask, priceMask });
   } catch (e: any) {
     res.status(400).json({ error: e.message });
   }
