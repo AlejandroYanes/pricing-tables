@@ -198,19 +198,29 @@ const FormPage = () => {
 
     const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
     productHandlers.append(copy);
+    const productIndex = selectedProducts.length;
+    const priceIndex = 0;
 
     featureHandlers.apply((feature) => {
       const value = feature.type === 'boolean' ? 'false' : '';
       return { ...feature, products: feature.products.concat({ id: copy.id, value }) };
     });
 
-    callAPI({
+    callAPI<{ productMask: string; priceMask: string }>({
       url: `/api/widgets/${query.id}/add-product`,
       method: 'POST',
       body: { productId: selectedProduct.id, priceId: selectedPrice.id }
-    }).catch(() => {
-      handleAPIError();
-    });
+    })
+      .then((response) => {
+        const { productMask, priceMask } = response;
+        console.log(selectedProducts);
+        copy.mask = productMask;
+        copy.prices[priceIndex]!.mask = priceMask;
+        productHandlers.setItem(productIndex, copy);
+      })
+      .catch(() => {
+        handleAPIError();
+      });
   };
 
   const handleAddCustomProduct = () => {
@@ -224,7 +234,7 @@ const FormPage = () => {
       return;
     }
 
-    const id = `custom-${Date.now()}`;
+    const id = `custom_${Date.now()}`;
     const customProduct: Partial<FormProduct> = {
       id,
       isCustom: true,
@@ -291,26 +301,29 @@ const FormPage = () => {
   }
 
   const handleAddPrice = (productId: string, price: FormPrice) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
+    const productIndex = selectedProducts!.findIndex((prod) => prod.id === productId);
+    const selectedProduct = selectedProducts[productIndex];
 
     if (!selectedProduct) return;
 
     const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.concat([{ ...price }]) };
-    productHandlers.setState(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return prodCopy;
-      }
+    productHandlers.setItem(productIndex, prodCopy);
 
-      return prod;
-    }));
+    const priceIndex = prodCopy.prices.length - 1;
 
-    callAPI({
+    callAPI<{ priceMask: string }>({
       url: `/api/widgets/${query.id}/add-price`,
       method: 'POST',
       body: { productId, priceId: price.id }
-    }).catch(() => {
-      handleAPIError();
-    });
+    })
+      .then((response) => {
+        const { priceMask } = response;
+        prodCopy.prices[priceIndex]!.mask = priceMask;
+        productHandlers.setItem(productIndex, prodCopy);
+      })
+      .catch(() => {
+        handleAPIError();
+      });
   };
 
   const handleRemovePrice = (productId: string, priceId: string) => {
