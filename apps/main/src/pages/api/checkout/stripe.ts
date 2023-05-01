@@ -73,7 +73,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=canceled` : undefined;
 
     const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
-    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancel`;
+    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancelled`;
 
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
