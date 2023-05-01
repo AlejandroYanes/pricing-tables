@@ -138,9 +138,17 @@ export default function IntegrationPanel(props: Props) {
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
+        After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
+        or we will redirect them to the same page they were before (the one that initiated the checkout).
+        <br />
+        If {`we're`} not able to find the page that initiated the checkout,
+        we will redirect the user to our own pages that will show a success or error message (though this should never happen).
       </Text>
       <Title order={3}>Using our API route to retrieve the information</Title>
       <Text component="p">
+        The other option is to use our API route to get the real product and price <Code>ids</Code>
+        and then create the checkout session yourself.
+        <br />
         The <Code>ids</Code> that we add to the url will not be the real ones from Stripe,
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
