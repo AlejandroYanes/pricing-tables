@@ -96,6 +96,7 @@ export function BasicTemplate(props: TemplateProps) {
               product_id: dev ? prod.mask! : prod.id,
               price_id: dev ? priceToShow.mask! : priceToShow.id,
               currency: currency || priceToShow.currency,
+              payment_type: type,
             };
             const queryString = generateQueryString(queryParams);
             return `${callbackUrl}?${queryString}`;

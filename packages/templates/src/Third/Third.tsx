@@ -182,6 +182,7 @@ const resolveCTA = (
       product_id: dev ? product.mask! : product.id,
       price_id: dev ? priceToShow.mask! : priceToShow.id,
       currency: currency || priceToShow.currency,
+      payment_type: type,
     };
     const queryString = generateQueryString(queryParams);
     return `${callbackUrl}?${queryString}`;
