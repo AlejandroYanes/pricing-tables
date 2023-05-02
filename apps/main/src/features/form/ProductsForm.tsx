@@ -1,9 +1,9 @@
 import type { ReactNode} from 'react';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconChevronDown } from '@tabler/icons';
+import { IconChevronDown, IconX } from '@tabler/icons';
 import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
@@ -94,13 +94,39 @@ export default function ProductsForm(props: Props) {
     onProductReorder,
   } = props;
   const [showProducts, setShowProducts] = useState(false);
-
   const theme = useMantineTheme();
+  const interactionTimer = useRef<any>(undefined);
 
   const handleAddProduct = (selectedId: string) => {
     onAddProduct(selectedId);
     setShowProducts(false);
+
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
+    }
   };
+
+  const startInteractionTimer = () => {
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
+    }
+    interactionTimer.current = setTimeout(() => setShowProducts(false), 5000);
+  }
+
+  const clearInteractionTimer = () => {
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
+    }
+  }
+
+  useEffect(() => {
+    if (showProducts) {
+      startInteractionTimer();
+    }
+  }, [showProducts]);
 
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
@@ -213,15 +239,36 @@ export default function ProductsForm(props: Props) {
           </Group>
         </RenderIf>
         <RenderIf condition={showProducts}>
-          <Select
-            data={productOptions}
-            onChange={handleAddProduct}
-            styles={{
-              separatorLabel: {
-                color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
-              },
-            }}
-          />
+          <Group spacing={0}>
+            <Select
+              initiallyOpened
+              data={productOptions}
+              onChange={handleAddProduct}
+              onFocus={startInteractionTimer}
+              onBlur={startInteractionTimer}
+              style={{ flex: 1 }}
+              styles={{
+                input: {
+                  borderTopRightRadius: 0,
+                  borderBottomRightRadius: 0,
+                },
+                separatorLabel: {
+                  color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
+                },
+              }}
+            />
+            <ActionIcon
+              onClick={() => {
+                setShowProducts(false);
+                clearInteractionTimer();
+              }}
+              variant="default"
+              size={36}
+              style={{ borderLeft: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+            >
+              <IconX size="1rem" stroke={1.5} />
+            </ActionIcon>
+          </Group>
         </RenderIf>
       </RenderIf>
     </>
