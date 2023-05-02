@@ -33,7 +33,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
   const fallbackUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
 
-  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type } = parsedBody.data;
+  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type, email, currency } = parsedBody.data;
   const db = initDb();
 
   try {
@@ -88,6 +88,8 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
+      customer_email: email,
+      currency,
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
     });
