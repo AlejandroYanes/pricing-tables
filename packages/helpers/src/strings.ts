@@ -3,5 +3,7 @@ export function resolveInitials(name: string) {
 }
 
 export function generateQueryString(params: Record<string, string | number>) {
-  return Object.keys(params).map((key) => `${key}=${params[key]}`).join('&');
+  return Object.keys(params)
+    .filter((key) => params[key] !== undefined && params[key] !== '')
+    .map((key) => `${key}=${params[key]}`).join('&');
 }

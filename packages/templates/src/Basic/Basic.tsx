@@ -75,7 +75,7 @@ export function BasicTemplate(props: TemplateProps) {
       </RenderIf>
       <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
-          const { isCustom } = prod;
+          const { isCustom  } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
           const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
 
@@ -96,6 +96,7 @@ export function BasicTemplate(props: TemplateProps) {
               product_id: dev ? prod.mask! : prod.id,
               price_id: dev ? priceToShow.mask! : priceToShow.id,
               currency: currency || priceToShow.currency,
+              payment_type: type,
             };
             const queryString = generateQueryString(queryParams);
             return `${callbackUrl}?${queryString}`;

@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
-import { cuidZodValidator } from 'utils/validations';
 import initStripe, { guestStripeKey } from 'utils/stripe';
 
 type SessionQuery = {
@@ -16,11 +15,12 @@ type SessionQuery = {
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),
-  product_id: cuidZodValidator,
-  price_id: cuidZodValidator,
+  product_id: z.string().cuid2(),
+  price_id: z.string().cuid2(),
   currency: z.string().length(3),
   email: z.string().email().optional(),
   disable_email: z.boolean().optional(),
+  payment_type: z.literal('one_time').or(z.literal('recurring')),
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {
@@ -33,7 +33,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
   const fallbackUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
 
-  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask } = parsedBody.data;
+  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type } = parsedBody.data;
   const db = initDb();
 
   try {
@@ -87,7 +87,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
           quantity: 1,
         },
       ],
-      mode: 'subscription',
+      mode: payment_type === 'one_time' ? 'payment' : 'subscription',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
     });
