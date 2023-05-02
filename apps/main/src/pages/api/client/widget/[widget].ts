@@ -9,7 +9,7 @@ import { corsMiddleware } from 'utils/api';
 import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 const inputSchema = z.object({
-  widget: z.string().cuid2(),
+  widget: z.string().cuid(),
 });
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
