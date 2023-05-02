@@ -125,7 +125,7 @@ const Home: NextPage = () => {
             </Stack>
             <Stack>
               <iframe
-                src="https://www.youtube-nocookie.com/embed/mj2gXKl98H0"
+                src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
                 title="Pricing Cards Demo"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 width="560"
