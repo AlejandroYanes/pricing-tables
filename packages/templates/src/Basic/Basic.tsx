@@ -75,7 +75,7 @@ export function BasicTemplate(props: TemplateProps) {
       </RenderIf>
       <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod) => {
-          const { isCustom  } = prod;
+          const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
           const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
 
