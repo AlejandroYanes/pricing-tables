@@ -1,24 +1,22 @@
 import type { JSXElementConstructor } from 'react';
-import type { Session } from 'next-auth';
 import { useSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
+import { useRouter } from 'next/router';
 
-import SignInAlert from 'components/SignInAlert';
 import SetupModal from 'components/SetupModal';
 
 export default function authGuard(Component: JSXElementConstructor<{ session: Session }>) {
   return () => {
     const { status, data } = useSession();
+    const router = useRouter();
 
     if (status === 'loading') {
       return null;
     }
 
-    if (status === 'unauthenticated') {
-      return <SignInAlert asPage />;
-    }
-
-    if (!data?.user) {
-      return <SignInAlert asPage />;
+    if (status === 'unauthenticated' || !data?.user) {
+      router.push('/');
+      return;
     }
 
     if (!data.user.isSetup) {
