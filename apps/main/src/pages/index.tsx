@@ -170,6 +170,7 @@ const Home: NextPage = () => {
                 width="560"
                 height="315"
                 allowFullScreen
+                style={{ border: 'none' }}
               >
               </iframe>
             </Stack>
