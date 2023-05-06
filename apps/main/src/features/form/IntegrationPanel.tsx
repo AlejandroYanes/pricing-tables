@@ -134,7 +134,7 @@ export default function IntegrationPanel(props: Props) {
         Make sure to add the query parameters we added to your page to the url.
       </Text>
       <Prism language="javascript">
-        {`https://pricing-tables-main.vercel.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        {`https://dealo.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
@@ -153,7 +153,7 @@ export default function IntegrationPanel(props: Props) {
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
       </Text>
-      <Prism language="javascript">{`https://pricing-tables-main.vercel.app/api/client/retreive-stripe-info`}</Prism>
+      <Prism language="javascript">{`https://dealo.app/api/client/retreive-stripe-info`}</Prism>
       <Text component="p" mt="md">
         This request needs to be a <Code>POST</Code> request with the body:
         <Prism language="json">{requestBody()}</Prism>
