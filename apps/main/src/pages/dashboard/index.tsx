@@ -67,12 +67,12 @@ const DashboardPage = () => {
   return (
     <>
       <Head>
-        <title>Pricing cards | Dashboard</title>
+        <title>Dealo | Dashboard</title>
       </Head>
-      <BaseLayout>
-        <Group position="apart" align="center" mb="xl">
-          <Title>Dashboard</Title>
-        </Group>
+      <BaseLayout title="Dashboard">
+        {/*<Group position="apart" align="center" mb="xl">*/}
+        {/*  <Title>Dashboard</Title>*/}
+        {/*</Group>*/}
         <Group spacing="xl">
           {data.map((widget) => {
             const { id, name, template } = widget;
