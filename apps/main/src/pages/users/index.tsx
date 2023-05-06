@@ -36,7 +36,6 @@ const UsersPage: NextPage = () => {
       </Head>
       <BaseLayout showBackButton backRoute="/dashboard" title="Users">
         <Stack mx="auto" sx={{ maxWidth: '980px', width: '100%' }}>
-          {/*<Title>Users</Title>*/}
           <UsersTable
             page={page}
             count={count}

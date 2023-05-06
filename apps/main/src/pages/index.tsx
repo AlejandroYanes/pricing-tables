@@ -125,7 +125,7 @@ const Home: NextPage = () => {
                   <b>Easy setup</b> – just copy and paste the code snippets to your website
                 </List.Item>
                 <List.Item>
-                  <b>Easy checkout</b> – just redirect your customers to our checkout API, we will generate a checkout session for you
+                  <b>Easy checkout</b> – redirect your customers to our checkout API, we will generate a checkout session for you
                 </List.Item>
               </List>
             </div>
