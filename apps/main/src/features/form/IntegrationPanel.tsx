@@ -6,7 +6,7 @@ interface Props {
   widgetId: string;
 }
 
-const scriptCode = `<script src="https://pricing-tables-scripts.vercel.app/v0.0.1/pricing-cards.js"></script>`;
+const scriptCode = `<script src="https://scripts.dealo.app/v0.0.1/pricing-cards.js"></script>`;
 const widgetCode = (widgetId: string) => `<pricing-cards widget="${widgetId}"></pricing-cards>`;
 const wrappedWidgetCode = (widgetId: string) => `
 <div class="pricing-widget__container">
@@ -21,7 +21,7 @@ const requestBody = () => `{ widget_id: <...>, product_id: <...>, price_id: <...
 
 // eslint-disable-next-line max-len
 const curlCommand = (apiKey: string) => `
-curl -X POST https://pricing-tables.vercel.app/api/client/retreive-stripe-info \\
+curl -X POST https://dealo.app/api/client/retreive-stripe-info \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
      -d '{ "widget_id": "<...>", "product_id": "<...>", "price_id": "<...>" }'
@@ -29,7 +29,7 @@ curl -X POST https://pricing-tables.vercel.app/api/client/retreive-stripe-info \
 
 // eslint-disable-next-line max-len
 const jsCommand = (apiKey: string) => `
-const url = 'https://pricing-tables.vercel.app/api/client/retreive-stripe-info';
+const url = 'https://dealo.app/api/client/retreive-stripe-info';
 const data = {
   widget_id: '<...>',
   product_id: '<...>',
