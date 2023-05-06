@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { createStyles, Group, LoadingOverlay, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { createStyles, Group, LoadingOverlay, Stack, Text, UnstyledButton } from '@mantine/core';
 import { IconNewSection } from '@tabler/icons';
 import { skeletonMap } from 'templates';
 

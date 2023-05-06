@@ -1,12 +1,12 @@
 /* eslint-disable max-len */
 import Link from 'next/link';
 import { useRouter } from 'next/router';
+import Head from 'next/head';
 import { Alert, Button, Group, Stack, Text, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 
 import BaseLayout from 'components/BaseLayout';
-import Head from 'next/head';
 
 const errorsMap: { [error: string]: string } = {
   fallback: "Seems something went wrong but we can't point to what, please contact the developers and send the url you have right now.",

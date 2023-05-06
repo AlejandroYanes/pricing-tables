@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useSession } from 'next-auth/react';
-import { Stack, Title, } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import type { Role } from 'models';
 
