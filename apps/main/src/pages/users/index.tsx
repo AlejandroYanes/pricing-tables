@@ -2,7 +2,7 @@ import { useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
 import { useSession } from 'next-auth/react';
-import { Stack, Title, } from '@mantine/core';
+import { Stack } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import type { Role } from 'models';
 
@@ -32,11 +32,11 @@ const UsersPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Pricing cards | Managing users</title>
+        <title>Dealo | Users</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/dashboard">
+      <BaseLayout showBackButton backRoute="/dashboard" title="Users">
         <Stack mx="auto" sx={{ maxWidth: '980px', width: '100%' }}>
-          <Title>Users</Title>
+          {/*<Title>Users</Title>*/}
           <UsersTable
             page={page}
             count={count}

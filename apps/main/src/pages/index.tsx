@@ -36,11 +36,20 @@ const useStyles = createStyles((theme) => ({
   },
 
   title: {
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    fontFamily: `Greycliff CF, ${theme.fontFamily}`,
-    fontSize: rem(44),
+    color: theme.colors.teal[6],
+    fontSize: rem(64),
     lineHeight: 1.2,
     fontWeight: 900,
+
+    [theme.fn.smallerThan('xs')]: {
+      fontSize: rem(28),
+    },
+  },
+  subtitle: {
+    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
+    fontSize: rem(40),
+    lineHeight: 1.2,
+    fontWeight: 700,
 
     [theme.fn.smallerThan('xs')]: {
       fontSize: rem(28),
@@ -81,15 +90,18 @@ const Home: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Pricing Tables</title>
-        <meta name="description" content="A platform to quiclky generate a pricing widget" />
-        <link rel="icon" href="/favicon.ico" />
+        <title>Dealo</title>
+        <meta name="description" content="A platform to streamline pricing cards and checkouts" />
       </Head>
       <BaseLayout hideNavbar>
         <div className={classes.wrapper}>
           <div className={classes.inner}>
             <div className={classes.content}>
-              <Title className={classes.title}>
+              <Group spacing={0}>
+                <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
+                <Title order={1} mb="md" className={classes.title}>ealo</Title>
+              </Group>
+              <Title className={classes.subtitle}>
                 A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
               </Title>
               <Text color="dimmed" mt="md">

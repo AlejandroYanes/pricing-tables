@@ -1,6 +1,6 @@
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
-import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, UnstyledButton } from '@mantine/core';
+import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
@@ -54,12 +54,13 @@ function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
 }
 
 interface Props {
-  showBackButton: boolean;
+  title?: string;
+  showBackButton?: boolean;
   backRoute?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton, backRoute } = props;
+  const { showBackButton = false, title, backRoute } = props;
   const { classes } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
@@ -98,6 +99,7 @@ export function CustomNavbar(props: Props) {
       <RenderIf condition={showBackButton}>
         <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
       </RenderIf>
+      <Title ml="md">{title}</Title>
       <Group ml="auto">
         <HoverCard width={280} shadow="md" position="bottom-end">
           <HoverCard.Target>
@@ -108,7 +110,7 @@ export function CustomNavbar(props: Props) {
           <HoverCard.Dropdown>
             <Text size="sm">
               This platform is still an alpha version, so if you find any bugs or have any suggestions,
-              please let me know at <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>!
+              please let me know at <Anchor href="mailto:alejandro@dealo.app">alejandro@dealo.app</Anchor>!
             </Text>
           </HoverCard.Dropdown>
         </HoverCard>

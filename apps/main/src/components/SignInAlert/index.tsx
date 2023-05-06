@@ -16,9 +16,7 @@ export default function SignInAlert(props: Props) {
     return (
       <>
         <Head>
-          <title>Pricing | Oops...</title>
-          <meta name="description" content="Un-authenticated" />
-          <link rel="icon" href="/favicon.ico" />
+          <title>Dealo | Oops...</title>
         </Head>
         <BaseLayout hideNavbar>
           <Stack mt={120} mx="auto" style={{ maxWidth: '700px' }}>

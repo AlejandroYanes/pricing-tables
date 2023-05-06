@@ -631,9 +631,9 @@ const FormPage = () => {
   return (
     <>
       <Head>
-        <title>Pricing cards | Widget form</title>
+        <title>Dealo | Form</title>
       </Head>
-      <BaseLayout showBackButton>
+      <BaseLayout showBackButton title={name}>
         <MantineProvider theme={{ primaryColor: color, colorScheme }}>
           <Tabs
             value={currentTab}

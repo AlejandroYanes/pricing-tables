@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { createStyles, Group, LoadingOverlay, Stack, Text, Title, UnstyledButton } from '@mantine/core';
+import { createStyles, Group, LoadingOverlay, Stack, Text, UnstyledButton } from '@mantine/core';
 import { IconNewSection } from '@tabler/icons';
 import { skeletonMap } from 'templates';
 
@@ -67,12 +67,12 @@ const DashboardPage = () => {
   return (
     <>
       <Head>
-        <title>Pricing cards | Dashboard</title>
+        <title>Dealo | Dashboard</title>
       </Head>
-      <BaseLayout>
-        <Group position="apart" align="center" mb="xl">
-          <Title>Dashboard</Title>
-        </Group>
+      <BaseLayout title="Dashboard">
+        {/*<Group position="apart" align="center" mb="xl">*/}
+        {/*  <Title>Dashboard</Title>*/}
+        {/*</Group>*/}
         <Group spacing="xl">
           {data.map((widget) => {
             const { id, name, template } = widget;
