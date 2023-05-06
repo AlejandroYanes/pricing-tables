@@ -3,8 +3,10 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, } from '@mantine/core';
+import dayjs from 'dayjs';
+import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, useMantineTheme, } from '@mantine/core';
 import { IconCheck } from '@tabler/icons';
+import { RenderIf } from 'ui';
 
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from 'components/SignInForm';
@@ -27,6 +29,8 @@ const useStyles = createStyles((theme) => ({
     gap: `calc(${theme.spacing.xl} * 3)`,
   },
   content: {
+    display: 'flex',
+    flexDirection: 'column',
     maxWidth: rem(480),
 
     [theme.fn.smallerThan('md')]: {
@@ -81,11 +85,16 @@ const useStyles = createStyles((theme) => ({
 const Home: NextPage = () => {
   const { status } = useSession();
   const router = useRouter();
+  const theme = useMantineTheme();
   const { classes } = useStyles();
 
   if (status === 'authenticated') {
     router.push('/dashboard');
   }
+
+  const today = dayjs();
+  const launchDate = dayjs('2023-05-08');
+  const isLaunched = today.isAfter(launchDate);
 
   return (
     <>
@@ -128,6 +137,24 @@ const Home: NextPage = () => {
                   <b>Easy checkout</b> – redirect your customers to our checkout API, we will generate a checkout session for you
                 </List.Item>
               </List>
+
+              <RenderIf condition={isLaunched}>
+                <a
+                  href="https://www.producthunt.com/posts/dealo?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-dealo"
+                  target="_blank"
+                  rel="noreferrer"
+                  style={{ margin: '60px auto 0' }}
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=393090&theme=${theme.colorScheme}`}
+                    alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
+                    style={{ width: '250px', height: '54px' }}
+                    width="250"
+                    height="54"
+                  />
+                </a>
+              </RenderIf>
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
