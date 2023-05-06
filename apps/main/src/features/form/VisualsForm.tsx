@@ -3,12 +3,11 @@ import { CheckIcon, ColorSwatch, Grid, Text, Tooltip, useMantineTheme } from '@m
 import { RenderIf } from 'ui';
 
 import TwoColumnsLayout from './TwoColumnsLayout';
+import { useVisualPanelStates } from './state';
 
 interface Props {
   showPanel: boolean;
   template: ReactNode;
-  color: string;
-  onColorChange: (next: string) => void;
 }
 
 const baseColors = [
@@ -28,7 +27,8 @@ const baseColors = [
 
 export default function VisualsForm(props: Props) {
   const { colors } = useMantineTheme();
-  const { showPanel, template, color, onColorChange } = props;
+  const { showPanel, template } = props;
+  const { color, setColor } = useVisualPanelStates();
 
   const panel = (
     <>
@@ -42,7 +42,7 @@ export default function VisualsForm(props: Props) {
                   size={36}
                   component="button"
                   color={colors[baseColor]![5]}
-                  onClick={() => onColorChange(baseColor)}
+                  onClick={() => setColor(baseColor)}
                   sx={{ color: '#fff', cursor: 'pointer' }}
                 >
                   <RenderIf condition={baseColor === color}>

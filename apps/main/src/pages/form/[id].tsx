@@ -4,33 +4,23 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { ActionIcon, Alert, Anchor, Group, LoadingOverlay, MantineProvider, Select, Stack, Tabs, Text, Tooltip } from '@mantine/core';
-import { useColorScheme, useListState } from '@mantine/hooks';
+import { useColorScheme } from '@mantine/hooks';
 import { modals } from '@mantine/modals';
-import { showNotification } from '@mantine/notifications';
-import type { DropResult } from 'react-beautiful-dnd';
-import {
-  IconAlertTriangle,
-  IconArrowBarToLeft,
-  IconArrowBarToRight,
-  IconInfoCircle
-} from '@tabler/icons';
+import { IconAlertTriangle, IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { templatesMap } from 'templates';
-import type { FormCallback, FeatureType, FormFeature, FormProduct, FormPrice } from 'models';
-import { callAPI, reorder } from 'helpers';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
-import { useDebounce } from 'utils/hooks/useDebounce';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
 import FeaturesForm from 'features/form/FeaturesForm';
-import useTrackAndSave from 'features/form/useTrackAndSave';
 import IntegrationPanel from 'features/form/IntegrationPanel';
-
-type Tabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';
+import type { PageTabs } from 'features/form/state';
+import { usePageStates } from 'features/form/state';
+import { fetchWidget } from 'features/form/state/actions';
 
 const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
 
@@ -64,79 +54,64 @@ const FormPage = () => {
   const colorScheme = useColorScheme();
 
   const { query } = useRouter();
-  const { data: widgetInfo, isFetching: isFetchingWidgetInfo, isError } = trpc.widgets.fetchInfo.useQuery(query.id as string, {
-    refetchOnWindowFocus: false,
-    refetchInterval: false,
-  });
+
+  const [isStarted, setIsStarted] = useState(false);
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [isError, setIsError] = useState(false);
+  const [currentTab, setCurrentTab] = useState<PageTabs>('products');
+  const [showPanel, setShowPanel] = useState(true);
+  const [selectedEnv, setSelectedEnv] = useState<string>('development');
+  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
+
+  const {
+    selectedProducts,
+    features,
+    callbacks,
+    template: templateId,
+    name,
+    color,
+    recommended,
+    unitLabel,
+    subscribeLabel,
+    freeTrialLabel,
+  } = usePageStates();
 
   const { data } = trpc.stripe.list.useQuery(undefined, {
     refetchOnWindowFocus: false,
-    enabled: isFetchingWidgetInfo,
+    // enabled: isLoaded,
   });
   // const data = mockProducts as any;
   const productsList = data || [];
 
-  const { debounceCall } = useDebounce(1000);
-
-  const [isLoaded, setIsLoaded] = useState(false);
-  const [currentTab, setCurrentTab] = useState<Tabs>('products');
-  const [showPanel, setShowPanel] = useState(true);
-
-  const [selectedProducts, productHandlers] = useListState<FormProduct>([]);
-
-  const [features, featureHandlers] = useListState<FormFeature>([]);
-
-  const [color, setColor] = useState<string>('teal');
-
-  const [name, setName] = useState<string>('');
-  const [templateId, setTemplateId] = useState<string | null>(null);
-  const [recommended, setRecommended] = useState<string | null>(null);
-  const [subscribeLabel, setSubscribeLabel] = useState('Subscribe');
-  const [freeTrialLabel, setFreeTrialLabel] = useState('Start free trial');
-  const [usesUnitLabel, setUsesUnitLabel] = useState(false);
-  const [unitLabel, setUnitLabel] = useState<string | null>(null);
-  const [callbacks, callbackHandlers] = useListState<FormCallback>([]);
-  const [successUrl, setSuccessUrl] = useState<string | null>(null);
-  const [cancelUrl, setCancelUrl] = useState<string | null>(null);
-
-  const [selectedEnv, setSelectedEnv] = useState<string>('development');
-  const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
-
-  useTrackAndSave({
-    selectedProducts,
-    features,
-    color,
-    name,
-    template: templateId,
-    recommended,
-    subscribeLabel,
-    freeTrialLabel,
-    usesUnitLabel,
-    unitLabel,
-    callbacks,
-    successUrl,
-    cancelUrl,
-    widgetId: query.id as string,
-  }, isLoaded);
+  // useTrackAndSave({
+  //   selectedProducts,
+  //   features,
+  //   color,
+  //   name,
+  //   template: templateId,
+  //   recommended,
+  //   subscribeLabel,
+  //   freeTrialLabel,
+  //   usesUnitLabel,
+  //   unitLabel,
+  //   callbacks,
+  //   successUrl,
+  //   cancelUrl,
+  //   widgetId: query.id as string,
+  // }, isLoaded);
 
   useEffect(() => {
-    if (!isFetchingWidgetInfo && widgetInfo) {
-      productHandlers.setState(widgetInfo!.products);
-      featureHandlers.setState(widgetInfo!.features);
-      callbackHandlers.setState(widgetInfo!.callbacks);
-      setName(widgetInfo!.name);
-      setColor(widgetInfo!.color);
-      setTemplateId(widgetInfo!.template);
-      setRecommended(widgetInfo!.recommended);
-      setSubscribeLabel(widgetInfo!.subscribeLabel);
-      setFreeTrialLabel(widgetInfo!.freeTrialLabel);
-      setUsesUnitLabel(widgetInfo!.usesUnitLabel);
-      setUnitLabel(widgetInfo!.unitLabel);
-      setSuccessUrl(widgetInfo!.successUrl);
-      setCancelUrl(widgetInfo!.cancelUrl);
-      setIsLoaded(true);
+    if (query.id && !isStarted) {
+      setIsStarted(true);
+      fetchWidget(query.id as string)
+        .then(() => {
+          setIsLoaded(true);
+        })
+        .catch(() => {
+          setIsError(true);
+        });
     }
-  }, [isFetchingWidgetInfo, widgetInfo]);
+  }, [query.id]);
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -185,363 +160,6 @@ const FormPage = () => {
         </Stack>
       ),
     });
-  };
-
-  const handleAddProduct = (selectedId: string) => {
-    const [productId, priceId] = selectedId.split('-');
-    // @ts-ignore
-    const selectedProduct = data!.find((prod) => prod.id === productId);
-    // @ts-ignore
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
-    productHandlers.append(copy);
-    const productIndex = selectedProducts.length;
-    const priceIndex = 0;
-
-    featureHandlers.apply((feature) => {
-      const value = feature.type === 'boolean' ? 'false' : '';
-      return { ...feature, products: feature.products.concat({ id: copy.id, value }) };
-    });
-
-    callAPI<{ productMask: string; priceMask: string }>({
-      url: `/api/widgets/${query.id}/add-product`,
-      method: 'POST',
-      body: { productId: selectedProduct.id, priceId: selectedPrice.id }
-    })
-      .then((response) => {
-        const { productMask, priceMask } = response;
-        console.log(selectedProducts);
-        copy.mask = productMask;
-        copy.prices[priceIndex]!.mask = priceMask;
-        productHandlers.setItem(productIndex, copy);
-      })
-      .catch(() => {
-        handleAPIError();
-      });
-  };
-
-  const handleAddCustomProduct = () => {
-    const hasCustomProductLimit = selectedProducts.filter((prod) => prod.isCustom).length === 2;
-
-    if (hasCustomProductLimit) {
-      showNotification({
-        color: 'orange',
-        message: 'You can only have 2 custom products',
-      });
-      return;
-    }
-
-    const id = `custom_${Date.now()}`;
-    const customProduct: Partial<FormProduct> = {
-      id,
-      isCustom: true,
-      active: true,
-      name: 'Custom Product',
-      description: 'Custom product can be used to present an extra option, whether a free tier or for users to contact your sales team',
-      prices: [],
-      ctaLabel: 'Label',
-      ctaUrl: ''
-    };
-    productHandlers.append(customProduct as FormProduct);
-
-    featureHandlers.apply((feature) => {
-      const value = feature.type === 'boolean' ? 'false' : '';
-      return { ...feature, products: feature.products.concat({ id, value }) };
-    });
-
-    callAPI({
-      url: `/api/widgets/${query.id}/add-custom-product`,
-      method: 'POST',
-      body: { productId: id }
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleRemoveProduct = (index: number) => {
-    productHandlers.remove(index);
-    if (selectedProducts.length === 1) {
-      setRecommended(null);
-    }
-
-    const productId = selectedProducts[index]!.id;
-    featureHandlers.apply((feature) => {
-      return { ...feature, products: feature.products.filter((prod) => prod.id !== productId) };
-    });
-
-    callAPI({
-      url: `/api/widgets/${query.id}/remove-product`,
-      method: 'POST',
-      body: { productId: selectedProducts[index]!.id }
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleProductReorder = ({ destination, source }: DropResult) => {
-    productHandlers.reorder({ from: source.index, to: destination?.index || 0 });
-
-    debounceCall(() => {
-      const sortedProductIds = reorder(selectedProducts, { from: source.index, to: destination?.index || 0 })
-        .map((prod) => prod.id);
-
-      callAPI({
-        url: `/api/widgets/${query.id}/reorder-products`,
-        method: 'POST',
-        body: {
-          ids: sortedProductIds,
-        },
-      }).catch(() => {
-        handleAPIError();
-      });
-    });
-  }
-
-  const handleAddPrice = (productId: string, price: FormPrice) => {
-    const productIndex = selectedProducts!.findIndex((prod) => prod.id === productId);
-    const selectedProduct = selectedProducts[productIndex];
-
-    if (!selectedProduct) return;
-
-    const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.concat([{ ...price }]) };
-    productHandlers.setItem(productIndex, prodCopy);
-
-    const priceIndex = prodCopy.prices.length - 1;
-
-    callAPI<{ priceMask: string }>({
-      url: `/api/widgets/${query.id}/add-price`,
-      method: 'POST',
-      body: { productId, priceId: price.id }
-    })
-      .then((response) => {
-        const { priceMask } = response;
-        prodCopy.prices[priceIndex]!.mask = priceMask;
-        productHandlers.setItem(productIndex, prodCopy);
-      })
-      .catch(() => {
-        handleAPIError();
-      });
-  };
-
-  const handleRemovePrice = (productId: string, priceId: string) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    const prodCopy = { ...selectedProduct!, prices: selectedProduct.prices.filter((price) => price.id !== priceId) };
-    productHandlers.setState(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return prodCopy;
-      }
-
-      return prod;
-    }));
-
-    callAPI({
-      url: `/api/widgets/${query.id}/remove-price`,
-      method: 'POST',
-      body: { productId, priceId }
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleToggleFreeTrial = (productId: string, priceId: string) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    selectedPrice.hasFreeTrial = !selectedPrice.hasFreeTrial;
-
-    if (!selectedPrice.freeTrialDays) selectedPrice.freeTrialDays = 7;
-
-    productHandlers.setState(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return selectedProduct;
-      }
-
-      return prod;
-    }));
-  };
-
-  const handleChangeFreeTrialDays = (productId: string, priceId: string, days: number) => {
-    const selectedProduct = selectedProducts!.find((prod) => prod.id === productId);
-    const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
-
-    if (!selectedProduct || !selectedPrice) return;
-
-    selectedPrice.freeTrialDays = days ?? 1;
-
-    productHandlers.setState(selectedProducts.map((prod) => {
-      if (prod.id === productId) {
-        return selectedProduct;
-      }
-
-      return prod;
-    }))
-  };
-
-  const handleCustomCTANameChange = (index: number, nextName: string) => {
-    productHandlers.setItemProp(index, 'name', nextName);
-  };
-
-  const handleCustomCTALabelChange = (index: number, nextLabel: string) => {
-    productHandlers.setItemProp(index, 'ctaLabel', nextLabel);
-  };
-
-  const handleCustomCTAUrlChange = (index: number, nextUrl: string) => {
-    productHandlers.setItemProp(index, 'ctaUrl', nextUrl);
-  };
-
-  const handleCustomDescriptionChange = (index: number, nextDescription: string) => {
-    productHandlers.setItemProp(index, 'description', nextDescription);
-  };
-
-  const handleUnitLabelToggle = () => {
-    setUsesUnitLabel(!usesUnitLabel);
-    setUnitLabel(!usesUnitLabel ? 'units' : null);
-  };
-
-  const handleUnitLabelChange = (nextUnit: string) => {
-    setUnitLabel(nextUnit);
-  };
-
-  const handleAddNewFeature = () => {
-    const nextFeature: FormFeature = {
-      id: `${Date.now()}`,
-      name: 'test',
-      type: 'boolean',
-      products: selectedProducts.map((prod) => ({ id: prod.id, value: 'false' })),
-    };
-    featureHandlers.append(nextFeature);
-
-    callAPI({
-      url: `/api/widgets/${query.id}/add-feature`,
-      method: 'POST',
-      body: {
-        ...nextFeature,
-        products: selectedProducts.map((prod) => ({ id: prod.id, value: 'false' })),
-      }
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleDeleteFeature = (featureIndex: number) => {
-    featureHandlers.remove(featureIndex);
-
-    const targetFeature = features.at(featureIndex)!;
-    callAPI({
-      url: `/api/widgets/${query.id}/remove-feature`,
-      method: 'POST',
-      body: { id: targetFeature.id }
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleFeatureLabelUpdate = (featureIndex: number, nextLabel: string) => {
-    featureHandlers.setItemProp(featureIndex, 'name', nextLabel);
-  };
-
-  const handleFeatureTypeUpdate = (featureIndex: number, nextType: FeatureType) => {
-    const initialValue: Record<FeatureType, string> = { string: '', compose: '', boolean: 'false' };
-    const feature = features.at(featureIndex)!;
-    featureHandlers.setItem(featureIndex, {
-      ...feature,
-      type: nextType,
-      products: feature.products.map((prod) => ({ ...prod, value: initialValue[nextType] })),
-    });
-  };
-
-  const handleFeatureValueChange = (featureIndex: number, productId: string, value: string) => {
-    const feature = features.at(featureIndex)!;
-    const product = feature.products.find((prod) => prod.id === productId);
-
-    if (product) {
-      product.value = value;
-    } else {
-      feature.products.push({ id: productId, value });
-    }
-
-    featureHandlers.setItem(featureIndex, feature);
-  };
-
-  const handleFeatureReorder = ({ destination, source }: DropResult) => {
-    featureHandlers.reorder({ from: source.index, to: destination?.index || 0 });
-
-    debounceCall(() => {
-      const sortedFeatureIds = reorder(features, { from: source.index, to: destination?.index || 0 })
-        .map((feat) => {
-          return feat.products.map(() => feat.id);
-        }, [])
-        .flat();
-
-      callAPI({
-        url: `/api/widgets/${query.id}/reorder-features`,
-        method: 'POST',
-        body: {
-          ids: sortedFeatureIds,
-        },
-      }).catch(() => {
-        handleAPIError();
-      });
-    });
-  }
-
-  const addNewCallback = () => {
-    const newId = `${Date.now()}`;
-    const alreadyExists = callbacks.some((cb) => cb.env === '' );
-    callbackHandlers.append({
-      id: newId,
-      env: '',
-      url: '',
-      error: alreadyExists ? 'There can only be one callback per mode' : undefined,
-    });
-
-    if (!alreadyExists) {
-      callAPI({
-        url: `/api/widgets/${query.id}/add-callback`,
-        method: 'POST',
-        body: { id: newId, env: '', url: '' },
-      }).catch(() => {
-        handleAPIError();
-      });
-    }
-  };
-
-  const deleteCallback = (index: number) => {
-    callbackHandlers.remove(index);
-
-    const targetCallback = callbacks.at(index)!;
-    callAPI({
-      url: `/api/widgets/${query.id}/remove-callback`,
-      method: 'POST',
-      body: { env: targetCallback.env },
-    }).catch(() => {
-      handleAPIError();
-    });
-  };
-
-  const handleCallbackEnvChange = (index: number, nextEnv: string) => {
-    const alreadyExists = callbacks.some((cb) => cb.env === nextEnv );
-    if (alreadyExists) {
-      callbackHandlers.setItemProp(index, 'error', 'There can only be one callback per mode');
-    }
-    if (callbacks.at(index)?.error) {
-      callbackHandlers.setItemProp(index, 'error', undefined);
-    }
-
-    callbackHandlers.setItemProp(index, 'env', nextEnv);
-  };
-
-  const handleCallbackUrlChange = (index: number, nextUrl: string) => {
-    callbackHandlers.setItemProp(index, 'url', nextUrl);
   };
 
   if (isError) {
@@ -651,75 +269,16 @@ const FormPage = () => {
           </Tabs>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
-              <ProductsForm
-                showPanel={showPanel}
-                template={template}
-                products={productsList}
-                selectedProducts={selectedProducts}
-                onAddProduct={handleAddProduct}
-                onAddCustomProduct={handleAddCustomProduct}
-                onAddPrice={handleAddPrice}
-                onRemoveProduct={handleRemoveProduct}
-                onRemovePrice={handleRemovePrice}
-                onToggleFreeTrial={handleToggleFreeTrial}
-                onChangeFreeTrialDays={handleChangeFreeTrialDays}
-                onCustomCTANameChange={handleCustomCTANameChange}
-                onCustomCTALabelChange={handleCustomCTALabelChange}
-                onCustomCTAUrlChange={handleCustomCTAUrlChange}
-                onCustomCTADescriptionChange={handleCustomDescriptionChange}
-                onProductReorder={handleProductReorder}
-              />
+              <ProductsForm showPanel={showPanel} template={template} products={productsList} />
             </RenderIf>
             <RenderIf condition={currentTab === 'visuals'}>
-              <VisualsForm
-                showPanel={showPanel}
-                template={template}
-                color={color}
-                onColorChange={setColor}
-              />
+              <VisualsForm showPanel={showPanel} template={template}/>
             </RenderIf>
             <RenderIf condition={currentTab === 'features'}>
-              <FeaturesForm
-                products={selectedProducts}
-                features={features}
-                onAddNew={handleAddNewFeature}
-                onDelete={handleDeleteFeature}
-                onFeatureLabelUpdate={handleFeatureLabelUpdate}
-                onFeatureTypeChange={handleFeatureTypeUpdate}
-                onFeatureValueChange={handleFeatureValueChange}
-                onFeatureReorder={handleFeatureReorder}
-              />
+              <FeaturesForm />
             </RenderIf>
             <RenderIf condition={currentTab === 'settings'}>
-              <SettingsForm
-                showPanel={showPanel}
-                widgetId={query.id as string}
-                templateId={templateId}
-                onTemplateChange={setTemplateId}
-                template={template}
-                products={selectedProducts}
-                name={name}
-                onNameChange={setName}
-                recommended={recommended}
-                onRecommendedChange={setRecommended}
-                unitLabel={unitLabel}
-                usesUnitLabel={usesUnitLabel}
-                onToggleUnitLabels={handleUnitLabelToggle}
-                onUnitLabelChange={handleUnitLabelChange}
-                subscribeLabel={subscribeLabel}
-                onSubscribeLabelChange={setSubscribeLabel}
-                freeTrialLabel={freeTrialLabel}
-                onFreeTrialLabelChange={setFreeTrialLabel}
-                callbacks={callbacks}
-                onAddNewCallback={addNewCallback}
-                onDeleteCallback={deleteCallback}
-                onCallbackEnvChange={handleCallbackEnvChange}
-                onCallbackUrlChange={handleCallbackUrlChange}
-                successUrl={successUrl}
-                onSuccessUrlChange={setSuccessUrl}
-                cancelUrl={cancelUrl}
-                onCancelUrlChange={setCancelUrl}
-              />
+              <SettingsForm showPanel={showPanel} template={template} widgetId={query.id as string} />
             </RenderIf>
             <RenderIf condition={currentTab === 'integration'}>
               <IntegrationPanel widgetId={query.id as string} />

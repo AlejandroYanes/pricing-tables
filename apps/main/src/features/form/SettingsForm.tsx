@@ -4,41 +4,18 @@ import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, Text
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
-import type { FormCallback, FormProduct } from 'models';
 import { RenderIf } from 'ui';
 import { templatesList } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
+import { toggleUnitLabel, changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
+import { useSettingsPanelStates } from './state';
 
 interface Props {
   widgetId: string;
   showPanel: boolean;
-  templateId: string | null;
-  onTemplateChange: (next: string) => void;
   template: ReactNode;
-  products: FormProduct[];
-  name: string;
-  recommended: string | null;
-  onRecommendedChange: (next: string) => void;
-  usesUnitLabel: boolean;
-  unitLabel: string | null;
-  onNameChange: (nextName: string) => void;
-  onToggleUnitLabels: () => void;
-  onUnitLabelChange: (nextLabel: string) => void;
-  subscribeLabel: string;
-  onSubscribeLabelChange: (nextLabel: string) => void;
-  freeTrialLabel: string;
-  onFreeTrialLabelChange: (nextLabel: string) => void;
-  callbacks: FormCallback[];
-  onAddNewCallback: () => void;
-  onDeleteCallback: (index: number) => void;
-  onCallbackEnvChange: (index: number, nextEnv: string) => void;
-  onCallbackUrlChange: (index: number, nextUrl: string) => void;
-  successUrl: string | null;
-  onSuccessUrlChange: (nextUrl: string) => void;
-  cancelUrl: string | null;
-  onCancelUrlChange: (nextUrl: string) => void;
 }
 
 const callbackHelp = `
@@ -57,32 +34,27 @@ export default function SettingsForm(props: Props) {
   const {
     showPanel,
     widgetId,
-    templateId,
-    onTemplateChange,
-    template,
-    products,
-    name,
-    recommended,
-    onRecommendedChange,
-    usesUnitLabel,
-    unitLabel,
-    onNameChange,
-    onToggleUnitLabels,
-    onUnitLabelChange,
-    subscribeLabel,
-    onSubscribeLabelChange,
-    freeTrialLabel,
-    onFreeTrialLabelChange,
-    callbacks,
-    onAddNewCallback,
-    onDeleteCallback,
-    onCallbackEnvChange,
-    onCallbackUrlChange,
-    successUrl,
-    onSuccessUrlChange,
-    cancelUrl,
-    onCancelUrlChange,
   } = props;
+  const {
+    selectedProducts,
+    callbacks,
+    name,
+    setName,
+    recommended,
+    setRecommended,
+    template,
+    setTemplate,
+    unitLabel,
+    usesUnitLabel,
+    subscribeLabel,
+    setSubscribeLabel,
+    freeTrialLabel,
+    setFreeTrialLabel,
+    successUrl,
+    setSuccessUrl,
+    cancelUrl,
+    setCancelUrl,
+  } = useSettingsPanelStates();
 
   const router = useRouter();
 
@@ -103,28 +75,28 @@ export default function SettingsForm(props: Props) {
   };
 
   const templateOptions = templatesList.map((temp) => ({ label: temp.name, value: temp.id }));
-  const productOptions = products.map((prod) => ({ label: prod.name, value: prod.id }));
+  const productOptions = selectedProducts.map((prod) => ({ label: prod.name, value: prod.id }));
 
   const panel = (
     <>
-      <TextInput label="Name" value={name} onChange={(e) => onNameChange(e.target.value)} />
-      <Select label="Template" data={templateOptions} value={templateId} onChange={onTemplateChange} />
-      <Select label="Recommended Product" data={productOptions} value={recommended} onChange={onRecommendedChange} />
-      <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => onSubscribeLabelChange(e.target.value)} />
-      <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => onFreeTrialLabelChange(e.target.value)} />
+      <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} />
+      <Select label="Template" data={templateOptions} value={template} onChange={setTemplate} />
+      <Select label="Recommended Product" data={productOptions} value={recommended} onChange={setRecommended} />
+      <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => setSubscribeLabel(e.target.value)} />
+      <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => setFreeTrialLabel(e.target.value)} />
       <Checkbox
         mt="md"
         label="Use unit labels"
         checked={usesUnitLabel}
         onChange={() => undefined}
-        onClick={onToggleUnitLabels}
+        onClick={toggleUnitLabel}
       />
       <RenderIf condition={usesUnitLabel}>
         <TextInput
           mt={-12}
           label="Label"
           value={unitLabel || ''}
-          onChange={(e) => onUnitLabelChange(e.target.value)}
+          onChange={(e) => changeUnitLabel(e.target.value)}
         />
       </RenderIf>
       <Divider
@@ -162,7 +134,7 @@ export default function SettingsForm(props: Props) {
               value={cb.env}
               disabled={index < 2}
               error={!!cb.error}
-              onChange={(e) => onCallbackEnvChange(index, e.target.value)}
+              onChange={(e) => changeCallbackEnv(index, e.target.value)}
             />
             <TextInput
               styles={{
@@ -180,7 +152,7 @@ export default function SettingsForm(props: Props) {
               rightSection={
                 index > 1
                   ? (
-                    <ActionIcon onClick={() => onDeleteCallback(index)}>
+                    <ActionIcon onClick={() => deleteCallback(index)}>
                       <IconTrash size={14} />
                     </ActionIcon>
                   )
@@ -190,14 +162,14 @@ export default function SettingsForm(props: Props) {
               label={index === 0 ? 'Redirect to' : ''}
               value={cb.url}
               error={!!cb.error}
-              onChange={(e) => onCallbackUrlChange(index, e.target.value)}
+              onChange={(e) => changeCallbackUrl(index, e.target.value)}
             />
             <RenderIf condition={!!cb.error}>
               <Text size="sm" color="red">{cb.error}</Text>
             </RenderIf>
           </Group>
         ))}
-        <Button mt="xs" ml="auto" onClick={onAddNewCallback}>Add callback</Button>
+        <Button mt="xs" ml="auto" onClick={addNewCallback}>Add callback</Button>
 
         <Divider
           mt="xl"
@@ -217,8 +189,8 @@ export default function SettingsForm(props: Props) {
             </Tooltip>
           }
         />
-        <TextInput label="Success URL" value={successUrl || ''} onChange={(e) => onSuccessUrlChange(e.target.value)} />
-        <TextInput label="Cancel URL" value={cancelUrl || ''} onChange={(e) => onCancelUrlChange(e.target.value)} />
+        <TextInput label="Success URL" value={successUrl || ''} onChange={(e) => setSuccessUrl(e.target.value)} />
+        <TextInput label="Cancel URL" value={cancelUrl || ''} onChange={(e) => setCancelUrl(e.target.value)} />
 
         <Divider mt="xl" label="Danger zone" />
         <Button color="red" variant="outline" fullWidth onClick={handleDelete}>
