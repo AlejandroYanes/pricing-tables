@@ -26,15 +26,24 @@ const errorScreen = (
   <BaseLayout>
     <Stack mt={60} justify="center" align="center">
       <Alert title="Ooops..." variant="outline" color="gray">
-        Seems like {`you're`} lost, {`there's`} nothing here to see.
+        Something happened and we {`can't`} show any information right now.
         Please go back to the {' '}
         <Anchor component="span" color="teal" weight="bold">
           <Link href="/dashboard">
             Dashboard
           </Link>
         </Anchor>
-        {' '}
-        and start creating.
+        . If this problem persists, please contact us.
+      </Alert>
+    </Stack>
+  </BaseLayout>
+);
+
+const noStripeScreen = (
+  <BaseLayout>
+    <Stack mt={60} justify="center" align="center">
+      <Alert title="Ooops..." variant="outline" color="gray">
+        Something happened and we {`can't`} connect with Stripe, please try again later.
       </Alert>
     </Stack>
   </BaseLayout>
@@ -58,31 +67,12 @@ const FormPage = () => {
 
   const {
     data,
-    // isFetched: isFetchingStripeProducts,
     isError: failedToFetchStripeProducts,
   } = trpc.stripe.list.useQuery(undefined, {
     refetchOnWindowFocus: false,
     enabled: isLoaded,
   });
-  // const data = mockProducts as any;
   const productsList = data || [];
-
-  // useTrackAndSave({
-  //   selectedProducts,
-  //   features,
-  //   color,
-  //   name,
-  //   template: templateId,
-  //   recommended,
-  //   subscribeLabel,
-  //   freeTrialLabel,
-  //   usesUnitLabel,
-  //   unitLabel,
-  //   callbacks,
-  //   successUrl,
-  //   cancelUrl,
-  //   widgetId: query.id as string,
-  // }, isLoaded);
 
   useEffect(() => {
     if (query.id && !isStarted) {
@@ -97,11 +87,15 @@ const FormPage = () => {
     }
   }, [query.id]);
 
-  if (failedToFetchWidgetInfo || failedToFetchStripeProducts) {
+  if (failedToFetchWidgetInfo) {
     return errorScreen;
   }
 
-  const template = (
+  if (failedToFetchStripeProducts) {
+    return noStripeScreen;
+  }
+
+  const templateNode = (
     <Template
       widgetId={query.id as string}
       showPanel={showPanel}
@@ -136,16 +130,16 @@ const FormPage = () => {
           </Tabs>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
-              <ProductsForm showPanel={showPanel} template={template} products={productsList} />
+              <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
             </RenderIf>
             <RenderIf condition={currentTab === 'visuals'}>
-              <VisualsForm showPanel={showPanel} template={template}/>
+              <VisualsForm showPanel={showPanel} template={templateNode}/>
             </RenderIf>
             <RenderIf condition={currentTab === 'features'}>
               <FeaturesForm />
             </RenderIf>
             <RenderIf condition={currentTab === 'settings'}>
-              <SettingsForm showPanel={showPanel} template={template} widgetId={query.id as string} />
+              <SettingsForm showPanel={showPanel} template={templateNode} widgetId={query.id as string} />
             </RenderIf>
             <RenderIf condition={currentTab === 'integration'}>
               <IntegrationPanel widgetId={query.id as string} />

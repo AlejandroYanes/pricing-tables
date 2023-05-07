@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import {
   ActionIcon,
@@ -12,7 +12,8 @@ import {
   Stack,
   Text,
   Tooltip,
-  UnstyledButton, useMantineTheme,
+  UnstyledButton,
+  useMantineTheme,
 } from '@mantine/core';
 import {
   IconAlertCircle,
