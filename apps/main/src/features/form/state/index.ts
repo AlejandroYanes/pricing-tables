@@ -1,5 +1,5 @@
-import type { PageTabs } from './types';
+import type { FormTabs } from './types';
 
-export type { PageTabs };
+export type { FormTabs };
 export * from './page-state';
 export * from './widget-state';

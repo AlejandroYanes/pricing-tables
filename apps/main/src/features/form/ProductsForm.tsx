@@ -109,12 +109,6 @@ export default function ProductsForm(props: Props) {
     }
   }
 
-  useEffect(() => {
-    if (showProducts) {
-      startInteractionTimer();
-    }
-  }, [showProducts]);
-
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
@@ -202,7 +196,13 @@ export default function ProductsForm(props: Props) {
         <RenderIf condition={!showProducts}>
           <Group position="right" align="center">
             <Group noWrap spacing={1}>
-              <Button onClick={() => setShowProducts(true)} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+              <Button
+                onClick={() => {
+                  setShowProducts(true);
+                  startInteractionTimer();
+                }}
+                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+              >
                 {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
               </Button>
               <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>

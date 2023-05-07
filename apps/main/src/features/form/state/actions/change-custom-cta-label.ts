@@ -7,6 +7,5 @@ export function changeCustomCtaLabel(index: number, nextLabel: string) {
   if (!selectedProduct) return;
 
   selectedProduct.ctaLabel = nextLabel;
-  selectedProducts[index] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts });
 }

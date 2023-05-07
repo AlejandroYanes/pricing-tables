@@ -1,4 +1,5 @@
-import { FeatureType } from 'models';
+import type { FeatureType } from 'models';
+
 import { useWidgetFormStore } from '../widget-state';
 
 const initialValue: Record<FeatureType, string> = { string: '', compose: '', boolean: 'false' };
@@ -11,8 +12,5 @@ export function changeFeatureType(featureIndex: number, nextType: FeatureType) {
 
   feature.type = nextType;
   feature.products = feature.products.map((prod) => ({ ...prod, value: initialValue[nextType] }))
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    features,
-  }));
+  useWidgetFormStore.setState({ features });
 }

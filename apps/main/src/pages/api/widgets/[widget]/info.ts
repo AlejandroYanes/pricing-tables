@@ -61,9 +61,11 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
-  const prices = (
-    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
-  ).rows as Price[];
+  const prices = prodIds.length > 0
+    ? (
+      await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+    ).rows as Price[]
+    : [];
 
   const widgetUser = (
     await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
@@ -158,13 +160,13 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
     const featureInList = acc.find((f) => f.id === feature.id);
     const existingProduct = products.find((p) => p.id === feature.productId)!;
     if (featureInList) {
-      featureInList.products.push({ id: existingProduct.mask, value: feature.value });
+      featureInList.products.push({ id: existingProduct.id, value: feature.value });
     } else {
       acc.push({
         id: feature.id,
         name: feature.name,
         type: feature.type as any,
-        products: [{ id: existingProduct.mask, value: feature.value }],
+        products: [{ id: existingProduct.id, value: feature.value }],
       });
     }
     return acc;

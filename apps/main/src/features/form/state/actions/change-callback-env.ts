@@ -1,3 +1,5 @@
+import { applyWhere } from 'helpers';
+
 import { useWidgetFormStore } from '../widget-state';
 
 export function changeCallbackEnv(index: number, nextEnv: string) {
@@ -7,12 +9,14 @@ export function changeCallbackEnv(index: number, nextEnv: string) {
   if (!callback) return;
 
   const alreadyExists = callbacks.some((cb) => cb.env === nextEnv );
-  if (alreadyExists) {
-    callback.error = 'There can only be one callback per mode'
-  } else if (callback?.error) {
-    callback.error = undefined;
-  }
-
-  callback.env = nextEnv;
-  useWidgetFormStore.setState({ callbacks });
+  useWidgetFormStore.setState({
+    callbacks: applyWhere(
+      callbacks,
+      (_, cbIndex) => cbIndex === index,
+      (cb) => ({
+        ...cb,
+        env: nextEnv,
+        error: alreadyExists ? 'There can only be one callback per mode' : undefined,
+      })),
+  });
 }

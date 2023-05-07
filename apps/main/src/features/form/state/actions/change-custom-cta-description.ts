@@ -8,5 +8,5 @@ export function changeCustomCTADescription(index: number, nextDescription: strin
 
   selectedProduct.description = nextDescription;
   selectedProducts[index] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts: [...selectedProducts] });
 }

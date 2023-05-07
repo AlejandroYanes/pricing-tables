@@ -1,4 +1,6 @@
 import type { FormPrice } from 'models';
+import { createId } from '@paralleldrive/cuid2';
+import { applyWhere } from 'helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
@@ -9,9 +11,9 @@ export function handleAddPrice(productId: string, price: FormPrice) {
 
   if (!selectedProduct) return;
 
-  selectedProducts[productIndex] = { ...selectedProduct!, prices: selectedProduct.prices.concat([{ ...price }]) };
+  const copy = { ...selectedProduct!, mask: createId(), prices: selectedProduct.prices.concat([{ ...price }]) };
   useWidgetFormStore.setState((prev) => ({
     ...prev,
-    selectedProducts,
+    selectedProducts: applyWhere(prev.selectedProducts, (_, index) => index === productIndex, () => copy),
   }));
 }

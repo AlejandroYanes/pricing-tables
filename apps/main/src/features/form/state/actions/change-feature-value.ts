@@ -15,5 +15,5 @@ export function changeFeatureValue(featureIndex: number, productId: string, valu
   }
 
   features[featureIndex] = { ...feature, products: [...feature.products] };
-  useWidgetFormStore.setState((prev) => ({ ...prev, features }));
+  useWidgetFormStore.setState({ features });
 }

@@ -1,1 +1,1 @@
-export type PageTabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';
+export type FormTabs = 'products' | 'features' | 'visuals' | 'settings' | 'integration';

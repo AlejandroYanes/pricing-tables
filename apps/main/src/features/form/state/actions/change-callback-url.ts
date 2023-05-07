@@ -7,5 +7,5 @@ export function changeCallbackUrl(index: number, nextUrl: string) {
   if (!callback) return;
 
   callback.url = nextUrl;
-  useWidgetFormStore.setState({ callbacks });
+  useWidgetFormStore.setState({ callbacks: [...callbacks] });
 }

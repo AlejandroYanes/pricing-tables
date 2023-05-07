@@ -22,7 +22,7 @@ export function addCustomProduct() {
     isCustom: true,
     active: true,
     name: 'Custom Product',
-    description: 'Custom product can be used to present an extra option, whether a free tier or for users to contact your sales team',
+    description: 'Custom products can be used to present an extra option, whether a free tier or for users to contact your sales team',
     prices: [],
     ctaLabel: 'Label',
     ctaUrl: ''

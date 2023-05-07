@@ -9,8 +9,5 @@ export function changeFeatureLabel(featureIndex: number, nextLabel: string) {
   }
 
   feature.name = nextLabel;
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    features,
-  }));
+  useWidgetFormStore.setState({ features });
 }

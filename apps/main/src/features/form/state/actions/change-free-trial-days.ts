@@ -9,6 +9,5 @@ export const changeFreeTrialDays = (productId: string, priceId: string, days: nu
   if (!selectedProduct || !selectedPrice) return;
 
   selectedPrice.freeTrialDays = days ?? 1;
-  selectedProducts[productIndex] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts });
 };

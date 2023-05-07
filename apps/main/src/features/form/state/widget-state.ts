@@ -35,19 +35,13 @@ export const useWidgetFormStore = create<WidgetFormState>(() => ({
   cancelUrl: null,
 }));
 
-export const usePageStates = () => useWidgetFormStore((state) => ({
-  selectedProducts: state.selectedProducts,
-  features: state.features,
-  callbacks: state.callbacks,
-  template: state.template,
-  color: state.color,
-  name: state.name,
-  recommended: state.recommended,
-  subscribeLabel: state.subscribeLabel,
-  freeTrialLabel: state.freeTrialLabel,
-  usesUnitLabel: state.usesUnitLabel,
-  unitLabel: state.unitLabel,
-}));
+export const useFormPageStates = () => useWidgetFormStore(
+  (state) => ({
+    color: state.color,
+    name: state.name,
+  }),
+  (old, next) => old.color === next.color && old.name === next.name,
+);
 
 export const useVisualPanelStates = () => useWidgetFormStore((state) => ({
   color: state.color,
@@ -73,4 +67,16 @@ export const useSettingsPanelStates = () => useWidgetFormStore((state) => ({
   setSuccessUrl: (successUrl: string) => useWidgetFormStore.setState({ successUrl }),
   cancelUrl: state.cancelUrl,
   setCancelUrl: (cancelUrl: string) => useWidgetFormStore.setState({ cancelUrl }),
+}));
+
+export const useTemplateStates = () => useWidgetFormStore((state) => ({
+  template: state.template,
+  selectedProducts: state.selectedProducts,
+  features: state.features,
+  callbacks: state.callbacks,
+  recommended: state.recommended,
+  subscribeLabel: state.subscribeLabel,
+  freeTrialLabel: state.freeTrialLabel,
+  unitLabel: state.unitLabel,
+  color: state.color,
 }));

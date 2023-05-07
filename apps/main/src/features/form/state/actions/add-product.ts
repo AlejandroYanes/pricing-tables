@@ -1,5 +1,6 @@
 import { apply } from 'helpers';
 import type { FormProduct } from 'models';
+import { createId } from '@paralleldrive/cuid2';
 
 import { useWidgetFormStore } from '../widget-state';
 
@@ -10,7 +11,14 @@ export function addProduct(products: FormProduct[], selectedId: string) {
 
   if (!selectedProduct || !selectedPrice) return;
 
-  const copy = { ...selectedProduct, prices: [{ ...selectedPrice, hasFreeTrial: false, freeTrialDays: 0 }], features: [] };
+  const copy = {
+    ...selectedProduct,
+    mask: createId(),
+    prices: [
+      { ...selectedPrice, mask: createId(), hasFreeTrial: false, freeTrialDays: 0 },
+    ],
+    features: [],
+  };
 
   useWidgetFormStore.setState((prev) => ({
     ...prev,

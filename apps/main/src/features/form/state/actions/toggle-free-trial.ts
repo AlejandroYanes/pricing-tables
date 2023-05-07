@@ -12,6 +12,5 @@ export function toggleFreeTrial(productId: string, priceId: string) {
 
   if (!selectedPrice.freeTrialDays) selectedPrice.freeTrialDays = 7;
 
-  selectedProducts[productIndex] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts });
 }

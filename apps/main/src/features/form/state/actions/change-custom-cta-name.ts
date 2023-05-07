@@ -7,6 +7,5 @@ export function changeCustomCtaName(index: number, nextName: string) {
   if (!selectedProduct) return;
 
   selectedProduct.name = nextName;
-  selectedProducts[index] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts });
 }

@@ -7,6 +7,5 @@ export function changeCustomCTAUrl(index: number, nextUrl: string) {
   if (!selectedProduct) return;
 
   selectedProduct.ctaUrl = nextUrl;
-  selectedProducts[index] = selectedProduct;
-  useWidgetFormStore.setState((prev) => ({ ...prev, selectedProducts }));
+  useWidgetFormStore.setState({ selectedProducts });
 }
