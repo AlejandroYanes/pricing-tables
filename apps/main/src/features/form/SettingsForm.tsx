@@ -34,6 +34,7 @@ export default function SettingsForm(props: Props) {
   const {
     showPanel,
     widgetId,
+    template,
   } = props;
   const {
     selectedProducts,
@@ -42,7 +43,7 @@ export default function SettingsForm(props: Props) {
     setName,
     recommended,
     setRecommended,
-    template,
+    template: templateId,
     setTemplate,
     unitLabel,
     usesUnitLabel,
@@ -80,7 +81,7 @@ export default function SettingsForm(props: Props) {
   const panel = (
     <>
       <TextInput label="Name" value={name} onChange={(e) => setName(e.target.value)} />
-      <Select label="Template" data={templateOptions} value={template} onChange={setTemplate} />
+      <Select label="Template" data={templateOptions} value={templateId} onChange={setTemplate} />
       <Select label="Recommended Product" data={productOptions} value={recommended} onChange={setRecommended} />
       <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => setSubscribeLabel(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => setFreeTrialLabel(e.target.value)} />

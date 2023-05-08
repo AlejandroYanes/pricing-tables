@@ -3,8 +3,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { useColorScheme } from '@mantine/hooks';
-import { Alert, Anchor, Group, LoadingOverlay, MantineProvider, Stack, Tabs } from '@mantine/core';
+import { Alert, Anchor, Button, Group, LoadingOverlay, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
@@ -19,8 +18,8 @@ import Template from 'features/form/Template';
 import type { FormTabs } from 'features/form/state';
 import { useFormPageStates } from 'features/form/state';
 import { fetchWidget } from 'features/form/state/actions';
-
-const tabsStyles = { tabsList: { borderBottomWidth: '1px' }, tab: { borderBottomWidth: '1px', marginBottom: '-1px' } };
+import useTrackAndSave from 'features/form/useChangeHistory';
+import SaveButton from '../../features/form/SaveButton';
 
 const errorScreen = (
   <BaseLayout>
@@ -50,7 +49,7 @@ const noStripeScreen = (
 );
 
 const FormPage = () => {
-  const colorScheme = useColorScheme();
+  const theme = useMantineTheme();
 
   const { query } = useRouter();
 
@@ -113,21 +112,30 @@ const FormPage = () => {
         <title>Dealo | Form</title>
       </Head>
       <BaseLayout showBackButton title={name}>
-        <MantineProvider theme={{ primaryColor: color, colorScheme }}>
-          <Tabs
-            value={currentTab}
-            onTabChange={setCurrentTab as any}
+        <MantineProvider theme={{ primaryColor: color, colorScheme: theme.colorScheme }}>
+          <Group
             mb="xl"
-            styles={tabsStyles}
+            pb="sm"
+            align="center"
+            position="apart"
+            style={{ borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}` }}
           >
-            <Tabs.List>
-              <Tabs.Tab value="products">Products</Tabs.Tab>
-              <Tabs.Tab value="features">Features</Tabs.Tab>
-              <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
-              <Tabs.Tab value="settings">Settings</Tabs.Tab>
-              <Tabs.Tab value="integration">Integration</Tabs.Tab>
-            </Tabs.List>
-          </Tabs>
+            <Tabs
+              variant="pills"
+              color={theme.colorScheme === 'dark' ? 'gray' : 'dark'}
+              value={currentTab}
+              onTabChange={setCurrentTab as any}
+            >
+              <Tabs.List>
+                <Tabs.Tab value="products">Products</Tabs.Tab>
+                <Tabs.Tab value="features">Features</Tabs.Tab>
+                <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
+                <Tabs.Tab value="settings">Settings</Tabs.Tab>
+                <Tabs.Tab value="integration">Integration</Tabs.Tab>
+              </Tabs.List>
+            </Tabs>
+            <SaveButton enabled={isLoaded} />
+          </Group>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
               <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />

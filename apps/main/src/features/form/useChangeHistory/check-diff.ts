@@ -13,6 +13,10 @@ export function checkDiff(params: DiffParams) {
   if (bothAreArrays) {
     diff = [];
 
+    if (trackedValue.length !== newValue.length) {
+      return { diff: {}, isDiff: true };
+    }
+
     trackedValue.forEach((value, i) => {
       const newItem = newValue.find((item, j) => idField ? item[idField] === value[idField] : i === j);
       if (newItem) {
