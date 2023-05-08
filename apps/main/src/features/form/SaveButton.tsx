@@ -8,12 +8,16 @@ interface Props {
 
 export default function SaveButton(props: Props) {
   const theme = useMantineTheme();
-  const { shouldSave } = useChangeHistory(props.enabled);
+  const { shouldSave, changes } = useChangeHistory(props.enabled);
+
+  const handleSave = () => {
+    console.log('Saving changes:', changes);
+  }
 
   if (!shouldSave) return null;
 
   return (
-    <Button color="dark" variant={theme.colorScheme === 'dark' ? 'white' : 'filled'}>
+    <Button color="dark" variant={theme.colorScheme === 'dark' ? 'white' : 'filled'} onClick={handleSave}>
       Save
     </Button>
   );
