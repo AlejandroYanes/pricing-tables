@@ -118,7 +118,10 @@ const FormPage = () => {
             pb="sm"
             align="center"
             position="apart"
-            style={{ borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}` }}
+            style={{
+              height: '49px',
+              borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}`,
+            }}
           >
             <Tabs
               variant="pills"

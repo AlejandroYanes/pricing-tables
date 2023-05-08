@@ -21,5 +21,6 @@ type WidgetInfo = {
 
 export async function fetchWidget(widgetId: string) {
   const widget = await callAPI<WidgetInfo>({ method: 'GET', url: `/api/widgets/${widgetId}/info` });
-  useWidgetFormStore.setState({ ...widget, selectedProducts: widget.products });
+  const { products, ...rest } = widget;
+  useWidgetFormStore.setState({ ...rest, selectedProducts: products });
 }

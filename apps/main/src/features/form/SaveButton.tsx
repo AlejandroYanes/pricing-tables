@@ -8,9 +8,7 @@ interface Props {
 
 export default function SaveButton(props: Props) {
   const theme = useMantineTheme();
-  const { shouldSave, history } = useChangeHistory(props.enabled);
-
-  console.log('SaveButton', { shouldSave, history });
+  const { shouldSave } = useChangeHistory(props.enabled);
 
   if (!shouldSave) return null;
 

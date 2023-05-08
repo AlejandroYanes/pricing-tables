@@ -1,7 +1,7 @@
 import { create } from 'zustand'
 import type { FormCallback, FormFeature, FormProduct } from 'models';
 
-type WidgetFormState = {
+export type WidgetFormState = {
   selectedProducts: FormProduct[];
   features: FormFeature[];
   callbacks: FormCallback[];
