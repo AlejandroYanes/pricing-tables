@@ -137,7 +137,7 @@ const FormPage = () => {
                 <Tabs.Tab value="integration">Integration</Tabs.Tab>
               </Tabs.List>
             </Tabs>
-            <SaveButton enabled={isLoaded} />
+            <SaveButton widgetId={query!.id as string} enabled={isLoaded} />
           </Group>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
