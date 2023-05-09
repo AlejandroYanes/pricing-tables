@@ -5,9 +5,9 @@ import { applyWhere } from 'helpers';
 import { useWidgetFormStore } from '../widget-state';
 
 export function handleAddPrice(productId: string, price: FormPrice) {
-  const { selectedProducts } = useWidgetFormStore.getState();
-  const productIndex = selectedProducts!.findIndex((prod) => prod.id === productId);
-  const selectedProduct = selectedProducts[productIndex];
+  const { products } = useWidgetFormStore.getState();
+  const productIndex = products!.findIndex((prod) => prod.id === productId);
+  const selectedProduct = products[productIndex];
 
   if (!selectedProduct) return;
 
@@ -22,6 +22,6 @@ export function handleAddPrice(productId: string, price: FormPrice) {
   };
   useWidgetFormStore.setState((prev) => ({
     ...prev,
-    selectedProducts: applyWhere(prev.selectedProducts, (_, index) => index === productIndex, () => copy),
+    products: applyWhere(prev.products, (_, index) => index === productIndex, () => copy),
   }));
 }

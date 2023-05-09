@@ -12,15 +12,16 @@ export default function SaveButton(props: Props) {
   const { enabled } = props;
   const { shouldSave, history } = useChangeHistory(enabled);
 
+  console.log('history', history);
+
   const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation();
 
   const handleSave = () => {
-    const { id, template, selectedProducts, ...rest } = history.at(-1)!;
+    const { id, template, ...rest } = history.at(-1)!;
     const changes = {
       ...rest,
       id: id!,
       template: template!,
-      products: selectedProducts,
     }
     console.log('changes to save', );
     mutate(changes);

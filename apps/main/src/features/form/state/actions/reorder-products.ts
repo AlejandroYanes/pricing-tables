@@ -6,6 +6,6 @@ import { useWidgetFormStore } from '../widget-state';
 export function reorderProducts({ destination, source }: DropResult) {
   useWidgetFormStore.setState((prev) => ({
     ...prev,
-    selectedProducts: reorder(prev.selectedProducts, { from: source.index, to: destination?.index || 0 }),
+    products: reorder(prev.products, { from: source.index, to: destination?.index || 0 }),
   }));
 }

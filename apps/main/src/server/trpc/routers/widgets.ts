@@ -70,6 +70,7 @@ export const widgetsRouter = createTRPCRouter({
           z.object({
             id: z.string(),
             mask: z.string().cuid2(),
+            createdAt: z.string(),
             name: z.string().nullish(),
             description: z.string().nullish(),
             isCustom: z.boolean().nullish(),

@@ -8,6 +8,7 @@ export enum BILLING_SCHEME {
 export type FormPrice = {
   id: string;
   mask: string;
+  createdAt: string;
   type: string;
   active: boolean;
   product: string;
@@ -34,10 +35,10 @@ export type FormProduct = {
   active: boolean;
   description: string;
   prices: FormPrice[];
-  default_price?: any;
   isCustom?: boolean;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
+  createdAt: string;
 };
 
 export type FeatureType = 'boolean' | 'string' | 'compose';

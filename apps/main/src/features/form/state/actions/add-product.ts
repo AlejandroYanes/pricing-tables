@@ -3,6 +3,7 @@ import type { FormProduct } from 'models';
 import { createId } from '@paralleldrive/cuid2';
 
 import { useWidgetFormStore } from '../widget-state';
+import dayjs from 'dayjs';
 
 export function addProduct(products: FormProduct[], selectedId: string) {
   const [productId, priceId] = selectedId.split('-');
@@ -14,6 +15,7 @@ export function addProduct(products: FormProduct[], selectedId: string) {
   const copy = {
     ...selectedProduct,
     mask: createId(),
+    createdAt: dayjs().toJSON(),
     prices: [
       { ...selectedPrice, mask: createId(), hasFreeTrial: false, freeTrialDays: 0 },
     ],
@@ -22,7 +24,7 @@ export function addProduct(products: FormProduct[], selectedId: string) {
 
   useWidgetFormStore.setState((prev) => ({
     ...prev,
-    selectedProducts: prev.selectedProducts.concat(copy),
+    products: prev.products.concat(copy),
     features: apply(prev.features, (feature) => {
       const value = feature.type === 'boolean' ? 'false' : '';
       return { ...feature, products: feature.products.concat({ id: copy.id, value }) };

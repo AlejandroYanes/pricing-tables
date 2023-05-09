@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react';
 import { crush, construct } from 'radash';
+import type { WidgetFormState } from 'models';
 
 import { useDebounce } from 'utils/hooks/useDebounce';
-import type { WidgetFormState } from '../state';
 import { useWidgetFormStore } from '../state';
 
 const internalDiff = (prevStates: WidgetFormState, nextState: WidgetFormState) => {
@@ -33,7 +33,7 @@ export default function useChangeHistory(enabled = false) {
   useEffect(() => {
     if (enabled) {
       if (history.current.length === 0) {
-        initialState.current = widgetStates;
+        initialState.current = deepClone(widgetStates);
         history.current.push(deepClone(widgetStates));
       } else {
         debounceCall(() => {

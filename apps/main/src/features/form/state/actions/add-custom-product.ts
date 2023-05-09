@@ -6,8 +6,8 @@ import { apply } from 'helpers';
 import { useWidgetFormStore } from '../widget-state';
 
 export function addCustomProduct() {
-  const { selectedProducts } = useWidgetFormStore.getState();
-  const hasCustomProductLimit = selectedProducts.filter((prod) => prod.isCustom).length === 2;
+  const { products } = useWidgetFormStore.getState();
+  const hasCustomProductLimit = products.filter((prod) => prod.isCustom).length === 2;
 
   if (hasCustomProductLimit) {
     showNotification({
@@ -32,7 +32,7 @@ export function addCustomProduct() {
 
   useWidgetFormStore.setState((prev) => ({
     ...prev,
-    selectedProducts: prev.selectedProducts.concat(customProduct as FormProduct),
+    products: prev.products.concat(customProduct as FormProduct),
     features: apply(prev.features, (feature) => {
       const value = feature.type === 'boolean' ? 'false' : '';
       return { ...feature, products: feature.products.concat({ id, value }) };
