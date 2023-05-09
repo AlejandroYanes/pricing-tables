@@ -1,4 +1,5 @@
 import { showNotification } from '@mantine/notifications';
+import { createId } from '@paralleldrive/cuid2';
 import type { FormProduct } from 'models';
 import { apply } from 'helpers';
 
@@ -19,13 +20,14 @@ export function addCustomProduct() {
   const id = `custom_${Date.now()}`;
   const customProduct: Partial<FormProduct> = {
     id,
+    mask: createId(),
     isCustom: true,
     active: true,
     name: 'Custom Product',
     description: 'Custom products can be used to present an extra option, whether a free tier or for users to contact your sales team',
-    prices: [],
     ctaLabel: 'Label',
-    ctaUrl: ''
+    ctaUrl: '',
+    prices: []
   };
 
   useWidgetFormStore.setState((prev) => ({

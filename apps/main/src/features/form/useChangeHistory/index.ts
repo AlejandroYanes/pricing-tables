@@ -25,8 +25,7 @@ export default function useChangeHistory(enabled = false) {
   const widgetStates = useWidgetFormStore((state) => state);
   const [_, setTick] = useState(Date.now());
   const initialState = useRef<WidgetFormState | undefined>(undefined);
-  const history = useRef<any[]>([]);
-  const changes = useRef<Partial<WidgetFormState>>({});
+  const history = useRef<WidgetFormState[]>([]);
   const shouldSave = useRef(false);
 
   const { debounceCall } = useDebounce(250);
@@ -38,9 +37,9 @@ export default function useChangeHistory(enabled = false) {
         history.current.push(deepClone(widgetStates));
       } else {
         debounceCall(() => {
-          const lastHistory = history.current[history.current.length - 1];
+          const lastHistory = history.current[history.current.length - 1]!;
           const { isDiff: isDifferentToPrev } = internalDiff(lastHistory, widgetStates);
-          const { isDiff: isDifferentToInitial, diff } = internalDiff(initialState.current!, widgetStates);
+          const { isDiff: isDifferentToInitial } = internalDiff(initialState.current!, widgetStates);
 
           if (!isDifferentToInitial) {
             setTick(Date.now());
@@ -48,7 +47,6 @@ export default function useChangeHistory(enabled = false) {
           } else if (isDifferentToPrev) {
             setTick(Date.now());
             history.current.push(deepClone(widgetStates));
-            changes.current = diff;
             shouldSave.current = true;
           }
         });
@@ -56,5 +54,5 @@ export default function useChangeHistory(enabled = false) {
     }
   }, [enabled, widgetStates]);
 
-  return { shouldSave: shouldSave.current, history: history.current, changes: changes.current };
+  return { shouldSave: shouldSave.current, history: history.current };
 }

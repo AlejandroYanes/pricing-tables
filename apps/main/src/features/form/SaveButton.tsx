@@ -1,48 +1,37 @@
-import type { Feature } from '@prisma/client';
 import { Button, useMantineTheme } from '@mantine/core';
 
 import { trpc } from 'utils/trpc';
 import useChangeHistory from './useChangeHistory';
 
 interface Props {
-  widgetId: string;
   enabled?: boolean;
 }
 
 export default function SaveButton(props: Props) {
   const theme = useMantineTheme();
-  const { widgetId, enabled } = props;
-  const { shouldSave, changes } = useChangeHistory(enabled);
+  const { enabled } = props;
+  const { shouldSave, history } = useChangeHistory(enabled);
 
-  const { mutate } = trpc.widgets.updateWidget.useMutation();
+  const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation();
 
   const handleSave = () => {
-    const { features, selectedProducts, ...rest } = changes;
-
-    let featureUpdates;
-
-    if (features) {
-      featureUpdates = Object.values(features).reduce((list, feature) => {
-        const flattened = feature.products.map((prod) => ({
-          id: feature.id,
-          name: feature.name,
-          type: feature.type,
-          value: prod.value,
-          productId: prod.id,
-        }));
-        return list.concat(flattened as Feature[]);
-      }, [] as Feature[]);
+    const { id, template, selectedProducts, ...rest } = history.at(-1)!;
+    const changes = {
+      ...rest,
+      id: id!,
+      template: template!,
+      products: selectedProducts,
     }
-
-    console.log('changes to save', { widgetId, features: featureUpdates, products: selectedProducts, ...rest });
-
-    // mutate({ widgetId, features: featureUpdates, products: selectedProducts, ...rest });
+    console.log('changes to save', );
+    mutate(changes);
   }
 
   if (!shouldSave) return null;
 
+  const variant = theme.colorScheme === 'dark' ? 'white' : 'filled';
+
   return (
-    <Button color="dark" variant={theme.colorScheme === 'dark' ? 'white' : 'filled'} onClick={handleSave}>
+    <Button color="dark" variant={variant} loading={isLoading} onClick={handleSave}>
       Save
     </Button>
   );

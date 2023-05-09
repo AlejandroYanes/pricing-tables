@@ -7,11 +7,12 @@ export enum BILLING_SCHEME {
 
 export type FormPrice = {
   id: string;
+  mask: string;
   type: string;
   active: boolean;
   product: string;
-  hasFreeTrial?: boolean;
-  freeTrialDays?: number;
+  hasFreeTrial: boolean;
+  freeTrialDays: number;
   unit_amount: number;
   currency: string;
   currency_options?: {
@@ -25,10 +26,10 @@ export type FormPrice = {
   recurring?: { interval: Stripe.Price.Recurring.Interval; interval_count: number };
   billing_scheme?: BILLING_SCHEME;
   transform_quantity?: { divide_by: number; round: string };
-  mask?: string;
 };
 export type FormProduct = {
   id: string;
+  mask: string;
   name: string;
   active: boolean;
   description: string;
@@ -37,7 +38,6 @@ export type FormProduct = {
   isCustom?: boolean;
   ctaLabel?: string | null;
   ctaUrl?: string | null;
-  mask?: string;
 };
 
 export type FeatureType = 'boolean' | 'string' | 'compose';

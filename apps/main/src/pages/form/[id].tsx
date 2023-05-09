@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Alert, Anchor, Button, Group, LoadingOverlay, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
+import { Alert, Anchor, Group, Loader, LoadingOverlay, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
@@ -18,11 +18,10 @@ import Template from 'features/form/Template';
 import type { FormTabs } from 'features/form/state';
 import { useFormPageStates } from 'features/form/state';
 import { fetchWidget } from 'features/form/state/actions';
-import useTrackAndSave from 'features/form/useChangeHistory';
-import SaveButton from '../../features/form/SaveButton';
+import SaveButton from 'features/form/SaveButton';
 
 const errorScreen = (
-  <BaseLayout>
+  <BaseLayout showBackButton>
     <Stack mt={60} justify="center" align="center">
       <Alert title="Ooops..." variant="outline" color="gray">
         Something happened and we {`can't`} show any information right now.
@@ -39,7 +38,7 @@ const errorScreen = (
 );
 
 const noStripeScreen = (
-  <BaseLayout>
+  <BaseLayout showBackButton>
     <Stack mt={60} justify="center" align="center">
       <Alert title="Ooops..." variant="outline" color="gray">
         Something happened and we {`can't`} connect with Stripe, please try again later.
@@ -47,6 +46,41 @@ const noStripeScreen = (
     </Stack>
   </BaseLayout>
 );
+
+const LoadingScreen = () => {
+  const theme = useMantineTheme();
+  return (
+    <BaseLayout showBackButton>
+      <Stack style={{ height: 'calc(100vh - 170px)', width: '100vw' }}>
+        <Group
+          mb="xl"
+          pb="sm"
+          align="center"
+          position="apart"
+          style={{
+            height: '49px',
+            borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}`,
+          }}
+        >
+          <Tabs
+            variant="pills"
+            color={theme.colorScheme === 'dark' ? 'gray' : 'dark'}
+            value="products"
+          >
+            <Tabs.List>
+              <Tabs.Tab value="products">Products</Tabs.Tab>
+              <Tabs.Tab value="features">Features</Tabs.Tab>
+              <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
+              <Tabs.Tab value="settings">Settings</Tabs.Tab>
+              <Tabs.Tab value="integration">Integration</Tabs.Tab>
+            </Tabs.List>
+          </Tabs>
+        </Group>
+        <Loader size="xl" mt={60} mx="auto" />
+      </Stack>
+    </BaseLayout>
+  );
+}
 
 const FormPage = () => {
   const theme = useMantineTheme();
@@ -66,6 +100,7 @@ const FormPage = () => {
 
   const {
     data,
+    isFetching: isFetchingStripeProducts,
     isError: failedToFetchStripeProducts,
   } = trpc.stripe.list.useQuery(undefined, {
     refetchOnWindowFocus: false,
@@ -92,6 +127,10 @@ const FormPage = () => {
 
   if (failedToFetchStripeProducts) {
     return noStripeScreen;
+  }
+
+  if (!isLoaded || isFetchingStripeProducts) {
+    return <LoadingScreen />;
   }
 
   const templateNode = (
@@ -137,7 +176,7 @@ const FormPage = () => {
                 <Tabs.Tab value="integration">Integration</Tabs.Tab>
               </Tabs.List>
             </Tabs>
-            <SaveButton widgetId={query!.id as string} enabled={isLoaded} />
+            <SaveButton enabled={isLoaded} />
           </Group>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
@@ -156,9 +195,6 @@ const FormPage = () => {
               <IntegrationPanel widgetId={query.id as string} />
             </RenderIf>
           </Group>
-          <RenderIf condition={!isLoaded}>
-            <LoadingOverlay visible overlayBlur={2} />
-          </RenderIf>
         </MantineProvider>
       </BaseLayout>
     </>

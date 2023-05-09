@@ -11,7 +11,15 @@ export function handleAddPrice(productId: string, price: FormPrice) {
 
   if (!selectedProduct) return;
 
-  const copy = { ...selectedProduct, prices: selectedProduct.prices.concat([{ ...price, mask: createId() }]) };
+  const copy = {
+    ...selectedProduct,
+    prices: selectedProduct.prices.concat([{
+      ...price,
+      mask: createId(),
+      hasFreeTrial: false,
+      freeTrialDays: 0,
+    }]),
+  };
   useWidgetFormStore.setState((prev) => ({
     ...prev,
     selectedProducts: applyWhere(prev.selectedProducts, (_, index) => index === productIndex, () => copy),

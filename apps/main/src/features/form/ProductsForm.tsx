@@ -1,5 +1,5 @@
 import type { ReactNode} from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
@@ -79,7 +79,7 @@ const resolvePricing = (price: FormPrice): string => {
 export default function ProductsForm(props: Props) {
   const { showPanel, template, products } = props;
 
-  const { selectedProducts } = useWidgetFormStore();
+  const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
   const theme = useMantineTheme();
   const interactionTimer = useRef<any>(undefined);

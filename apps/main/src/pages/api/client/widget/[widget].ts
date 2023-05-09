@@ -118,7 +118,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           ...({
             id: widgetProd.mask,
             prices: [],
-            mask: undefined,
+            mask: '',
             default_price: undefined,
           }),
         };
@@ -135,7 +135,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
             ...({
               id: widgetPrice.mask,
               productId: widgetProd.id,
-              mask: undefined,
+              mask: '',
               product: undefined as any,
             }),
           });

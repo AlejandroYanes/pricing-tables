@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import type { FormCallback, FormFeature, FormProduct } from 'models';
+import type { FormFeature, FormProduct, WidgetInfo } from 'models';
 import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
@@ -21,14 +21,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
   const widgetData: WidgetInfo = await getWidgetData(widget as string);
 
-  // const seconds = 60;
-  // res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
   res.status(200).json(widgetData);
 }
 
 export default authMiddleware(handler);
 
-async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
+async function getWidgetData(widgetId: string) {
   const db = initDb();
 
   const widgetFields = [
@@ -112,11 +110,11 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
 
     for (let pIndex = 0; pIndex < products.length; pIndex++) {
       const widgetProd = products[pIndex]!;
-      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
+      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id);
 
-      if (!stripeProd.active) continue;
+      if (stripeProd && !stripeProd.active) continue;
 
-      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [] };
+      let finalProduct: FormProduct = { ...widgetProd, isCustom: !!widgetProd.isCustom, active: true, prices: [] };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
@@ -138,6 +136,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           finalProduct.prices.push({
             ...widgetPrice,
             ...stripePrice,
+            hasFreeTrial: !!widgetPrice.hasFreeTrial,
             ...({
               productId: widgetProd.id,
               product: undefined as any,
@@ -188,21 +187,5 @@ type Widget = {
 };
 type Callback = { id: string; env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string };
-type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string };
-type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string; mask: string };
-
-type WidgetInfo = {
-  id: string;
-  name: string;
-  template: string;
-  recommended: string | null;
-  color: string;
-  unitLabel: string | null;
-  subscribeLabel: string;
-  freeTrialLabel: string;
-  successUrl: string | null;
-  cancelUrl: string | null;
-  products: FormProduct[];
-  features: FormFeature[];
-  callbacks: FormCallback[];
-}
+type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string };

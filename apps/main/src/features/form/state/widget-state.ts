@@ -1,25 +1,8 @@
 import { create } from 'zustand'
-import type { FormCallback, FormFeature, FormProduct } from 'models';
-
-export type WidgetFormState = {
-  selectedProducts: FormProduct[];
-  features: FormFeature[];
-  callbacks: FormCallback[];
-  id: string | null;
-  name: string;
-  template: string | null;
-  color: string;
-  recommended: string | null;
-  subscribeLabel: string;
-  freeTrialLabel: string;
-  usesUnitLabel: boolean;
-  unitLabel: string | null;
-  successUrl: string | null;
-  cancelUrl: string | null;
-}
+import type { WidgetFormState } from 'models';
 
 export const useWidgetFormStore = create<WidgetFormState>(() => ({
-  selectedProducts: [],
+  products: [],
   features: [],
   callbacks: [],
   id: null,
@@ -49,7 +32,7 @@ export const useVisualPanelStates = () => useWidgetFormStore((state) => ({
 }));
 
 export const useSettingsPanelStates = () => useWidgetFormStore((state) => ({
-  selectedProducts: state.selectedProducts,
+  selectedProducts: state.products,
   callbacks: state.callbacks,
   template: state.template,
   setTemplate: (template: string) => useWidgetFormStore.setState({ template }),
@@ -71,7 +54,7 @@ export const useSettingsPanelStates = () => useWidgetFormStore((state) => ({
 
 export const useTemplateStates = () => useWidgetFormStore((state) => ({
   template: state.template,
-  selectedProducts: state.selectedProducts,
+  selectedProducts: state.products,
   features: state.features,
   callbacks: state.callbacks,
   recommended: state.recommended,
