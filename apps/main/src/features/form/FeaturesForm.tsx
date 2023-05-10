@@ -42,7 +42,7 @@ const featureTypeOptions: { label: string; value: FeatureType }[] = [
 ];
 
 export default function FeaturesForm() {
-  const { selectedProducts, features } = useWidgetFormStore();
+  const { products: selectedProducts, features } = useWidgetFormStore();
 
   const { classes, cx } = useStyles();
 
