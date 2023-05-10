@@ -1,4 +1,3 @@
-import type { Feature } from '@prisma/client';
 import { z } from 'zod';
 
 import { createTRPCRouter, protectedProcedure } from '../trpc';
@@ -70,7 +69,7 @@ export const widgetsRouter = createTRPCRouter({
           z.object({
             id: z.string(),
             mask: z.string().cuid2(),
-            createdAt: z.string(),
+            order: z.number(),
             name: z.string().nullish(),
             description: z.string().nullish(),
             isCustom: z.boolean().nullish(),
@@ -79,7 +78,7 @@ export const widgetsRouter = createTRPCRouter({
             prices: z.array(
               z.object({
                 id: z.string(),
-                createdAt: z.string(),
+                order: z.number(),
                 mask: z.string().cuid2(),
                 hasFreeTrial: z.boolean(),
                 freeTrialDays: z.number(),
@@ -92,6 +91,7 @@ export const widgetsRouter = createTRPCRouter({
             id: z.string(),
             name: z.string(),
             type: z.string(),
+            order: z.number(),
             products: z.array(z.object({
               id: z.string(),
               value: z.string(),
@@ -141,7 +141,7 @@ export const widgetsRouter = createTRPCRouter({
           widgetId,
           id: product.id,
           mask: product.mask,
-          createdAt: product.createdAt,
+          order: product.order,
           name: product.name || null,
           isCustom: product.isCustom || false,
           description: product.description || null,
@@ -160,7 +160,7 @@ export const widgetsRouter = createTRPCRouter({
             ...(hasFlakyUpdate(product.description, 'description')),
             ...(hasFlakyUpdate(product.ctaLabel, 'ctaLabel')),
             ...(hasFlakyUpdate(product.ctaUrl, 'ctaUrl')),
-            ...(hasFlakyUpdate(product.createdAt, 'createdAt')),
+            ...(hasFlakyUpdate(product.order, 'order')),
           },
         });
       }
@@ -176,7 +176,7 @@ export const widgetsRouter = createTRPCRouter({
           mask: price.mask,
           hasFreeTrial: price.hasFreeTrial,
           freeTrialDays: price.freeTrialDays,
-          createdAt: price.createdAt,
+          order: price.order,
         })),
       });
 
@@ -187,21 +187,24 @@ export const widgetsRouter = createTRPCRouter({
           data: {
             ...(hasFlakyUpdate(price.hasFreeTrial, 'hasFreeTrial')),
             ...(hasFlakyUpdate(price.freeTrialDays, 'freeTrialDays')),
-            ...(hasFlakyUpdate(price.createdAt, 'createdAt')),
+            ...(hasFlakyUpdate(price.order, 'order')),
           },
         });
       }
 
-      const flattenFeatures = Object.values(features).reduce((list, feature) => {
+      type FlattenedFeature = { id: string; name: string; type: string; order: number; value: string; productId: string };
+      const flattenFeatures: FlattenedFeature[] = Object.values(features).reduce((list, feature) => {
         const flattened = feature.products.map((prod) => ({
           id: feature.id,
           name: feature.name,
           type: feature.type,
+          order: feature.order,
           value: prod.value,
           productId: prod.id,
+          widgetId,
         }));
-        return list.concat(flattened as Feature[]);
-      }, [] as Feature[]);
+        return list.concat(flattened);
+      }, [] as FlattenedFeature[]);
 
       const storedFeatures = await ctx.prisma.feature.findMany({
         where: { widgetId, productId: { in: flattenFeatures.map((feat) => feat.productId) } },
@@ -220,6 +223,7 @@ export const widgetsRouter = createTRPCRouter({
           name: feature.name,
           type: feature.type,
           value: feature.value,
+          order: feature.order,
         })),
       });
 
@@ -231,6 +235,7 @@ export const widgetsRouter = createTRPCRouter({
             ...(hasFlakyUpdate(feature.name, 'name')),
             ...(hasFlakyUpdate(feature.type, 'type')),
             ...(hasFlakyUpdate(feature.value, 'value')),
+            ...(hasFlakyUpdate(feature.order, 'order')),
           },
         });
       }

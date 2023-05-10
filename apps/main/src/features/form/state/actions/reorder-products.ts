@@ -1,30 +1,12 @@
 import type { DropResult } from 'react-beautiful-dnd';
-import { applyWhere, reorder } from 'helpers';
+import { reorder } from 'helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
 export function reorderProducts({ destination, source }: DropResult) {
-  const sourceIndex = source.index;
-  const destinationIndex = destination?.index || 0;
   const prevProducts = useWidgetFormStore.getState().products;
-  let nextProducts = reorder(prevProducts, { from: sourceIndex, to: destinationIndex });
+  let nextProducts = reorder(prevProducts, { from: source.index, to: destination?.index || 0 });
+  nextProducts = nextProducts.map((prod, index) => ({ ...prod, order: index }));
 
-  nextProducts = applyWhere(
-    nextProducts,
-    (_, index) => index === sourceIndex || index === destinationIndex,
-    (product, index) => {
-      if (index === sourceIndex) {
-        return { ...product, createdAt: nextProducts[destinationIndex]!.createdAt };
-      }
-      if (index === destinationIndex) {
-        return { ...product, createdAt: nextProducts[sourceIndex]!.createdAt };
-      }
-      return product;
-    },
-  );
-
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    products: nextProducts,
-  }));
+  useWidgetFormStore.setState({ products: nextProducts });
 }

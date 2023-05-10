@@ -12,11 +12,13 @@ export function handleAddPrice(productId: string, price: FormPrice) {
 
   if (!selectedProduct) return;
 
+  const lastOrder = selectedProduct.prices[selectedProduct.prices.length - 1]?.order ?? 0;
+
   const copy = {
     ...selectedProduct,
     prices: selectedProduct.prices.concat([{
       ...price,
-      createdAt: dayjs().format(),
+      order: lastOrder + 1,
       mask: createId(),
       hasFreeTrial: false,
       freeTrialDays: 0,

@@ -5,27 +5,29 @@ import { apply } from 'helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
-export function addProduct(products: FormProduct[], selectedId: string) {
+export function addProduct(productList: FormProduct[], selectedId: string) {
   const [productId, priceId] = selectedId.split('-');
-  const selectedProduct = products!.find((prod) => prod.id === productId);
+  const selectedProduct = productList!.find((prod) => prod.id === productId);
   const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
 
   if (!selectedProduct || !selectedPrice) return;
 
-  const copy = {
+  const { products: prevProducts } = useWidgetFormStore.getState();
+  const lastOrder = prevProducts[prevProducts.length - 1]?.order ?? 0;
+
+  const copy: FormProduct = {
     ...selectedProduct,
     mask: createId(),
-    createdAt: dayjs().format(),
+    order: lastOrder + 1,
     prices: [
       {
         ...selectedPrice,
         mask: createId(),
         hasFreeTrial: false,
         freeTrialDays: 0,
-        createdAt: dayjs().format(),
+        order: 1,
       },
     ],
-    features: [],
   };
 
   useWidgetFormStore.setState((prev) => ({

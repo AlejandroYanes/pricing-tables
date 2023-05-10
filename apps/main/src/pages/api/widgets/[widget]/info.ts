@@ -2,8 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { z } from 'zod';
-import dayjs from 'dayjs';
-import type { FormFeature, FormProduct, WidgetInfo } from 'models';
+import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
@@ -52,17 +51,17 @@ async function getWidgetData(widgetId: string) {
   ).rows as Callback[];
 
   const features = (
-    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.`Feature`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId`, `pricing-tables`.`Feature`.`order` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.Feature.`order` AND `pricing-tables`.`Feature`.`createdAt`', [widgetId])
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask`, `pricing-tables`.`Product`.`createdAt` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask`, `pricing-tables`.`Product`.`order` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order` AND `pricing-tables`.`Product`.`createdAt`', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
   const prices = prodIds.length > 0
     ? (
-      await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask`, `pricing-tables`.`Price`.`createdAt` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+      await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask`, `pricing-tables`.`Price`.`order` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order` AND `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
     ).rows as Price[]
     : [];
 
@@ -118,7 +117,6 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
       let finalProduct: FormProduct = {
         ...widgetProd,
         isCustom: !!widgetProd.isCustom,
-        createdAt: dayjs(widgetProd.createdAt).format(),
         active: true,
         prices: [],
       };
@@ -144,7 +142,6 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
             ...widgetPrice,
             ...stripePrice,
             hasFreeTrial: !!widgetPrice.hasFreeTrial,
-            createdAt: dayjs(widgetPrice.createdAt).format(),
             ...({
               productId: widgetProd.id,
               product: undefined as any,
@@ -172,7 +169,8 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
       acc.push({
         id: feature.id,
         name: feature.name,
-        type: feature.type as any,
+        type: feature.type as FeatureType,
+        order: feature.order,
         products: [{ id: existingProduct.id, value: feature.value }],
       });
     }
@@ -194,6 +192,6 @@ type Widget = {
   checkoutCancelUrl: string | null;
 };
 type Callback = { id: string; env: string; url: string };
-type Feature = { id: string; name: string; type: string; value: string; productId: string };
-type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; createdAt: string };
-type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; createdAt: string };
+type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
+type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };

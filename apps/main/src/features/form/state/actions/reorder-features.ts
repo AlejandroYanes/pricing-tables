@@ -4,9 +4,10 @@ import { reorder } from 'helpers';
 import { useWidgetFormStore } from '../widget-state';
 
 export function reorderFeatures({ destination, source }: DropResult) {
-  const { features } = useWidgetFormStore.getState();
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    features: reorder(features, { from: source.index, to: destination?.index || 0 }),
-  }))
+  const { features: prevFeatures } = useWidgetFormStore.getState();
+  let nexFeatures = reorder(prevFeatures, { from: source.index, to: destination?.index || 0 });
+
+  nexFeatures = nexFeatures.map((feat, index) => ({ ...feat, order: index }));
+
+  useWidgetFormStore.setState({ features: nexFeatures });
 }

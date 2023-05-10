@@ -22,8 +22,7 @@ export default function SaveButton(props: Props) {
       ...rest,
       id: id!,
       template: template!,
-    }
-    console.log('changes to save', );
+    };
     mutate(changes);
   }
 
