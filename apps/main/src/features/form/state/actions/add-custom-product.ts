@@ -1,13 +1,12 @@
 import { showNotification } from '@mantine/notifications';
 import { createId } from '@paralleldrive/cuid2';
-import dayjs from 'dayjs';
 import type { FormProduct } from 'models';
 import { apply } from 'helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
 export function addCustomProduct() {
-  const { products } = useWidgetFormStore.getState();
+  const { products, features } = useWidgetFormStore.getState();
   const hasCustomProductLimit = products.filter((prod) => prod.isCustom).length === 2;
 
   if (hasCustomProductLimit) {
@@ -19,10 +18,11 @@ export function addCustomProduct() {
   }
 
   const id = `custom_${Date.now()}`;
+  const lastOrder = products[products.length - 1]?.order ?? 0;
   const customProduct: Partial<FormProduct> = {
     id,
     mask: createId(),
-    createdAt: dayjs().format(),
+    order: lastOrder + 1,
     isCustom: true,
     active: true,
     name: 'Custom Product',
@@ -32,12 +32,11 @@ export function addCustomProduct() {
     prices: []
   };
 
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    products: prev.products.concat(customProduct as FormProduct),
-    features: apply(prev.features, (feature) => {
+  useWidgetFormStore.setState({
+    products: products.concat(customProduct as FormProduct),
+    features: apply(features, (feature) => {
       const value = feature.type === 'boolean' ? 'false' : '';
       return { ...feature, products: feature.products.concat({ id, value }) };
-    }),
-  }));
+    })
+  });
 }
