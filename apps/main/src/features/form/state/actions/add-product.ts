@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { createId } from '@paralleldrive/cuid2';
 import type { FormProduct } from 'models';
 import { apply } from 'helpers';
