@@ -108,8 +108,6 @@ export const widgetsRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      console.log('----------------------');
-      console.log('update widget mutation');
       const { id: widgetId, products, features, callbacks, ...generalValues } = input;
 
       await ctx.prisma.priceWidget.update({

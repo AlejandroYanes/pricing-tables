@@ -108,7 +108,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
 
       if (!stripeProd.active) continue;
 
-      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [] };
+      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [], createdAt: '' };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);

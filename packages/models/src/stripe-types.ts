@@ -35,6 +35,7 @@ export type FormProduct = {
   active: boolean;
   description: string;
   prices: FormPrice[];
+  default_price?: string;
   isCustom?: boolean;
   ctaLabel?: string | null;
   ctaUrl?: string | null;

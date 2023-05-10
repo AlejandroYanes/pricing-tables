@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
-import { Alert, Anchor, Group, Loader, LoadingOverlay, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
+import { Alert, Anchor, Group, Loader, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
