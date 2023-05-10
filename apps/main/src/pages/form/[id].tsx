@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
@@ -87,7 +87,7 @@ const FormPage = () => {
 
   const { query } = useRouter();
 
-  const [isStarted, setIsStarted] = useState(false);
+  const startedFirstCall = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
   const [failedToFetchWidgetInfo, setFailedToFetchWidgetInfo] = useState(false);
 
@@ -109,8 +109,9 @@ const FormPage = () => {
   const productsList = data || [];
 
   useEffect(() => {
-    if (query.id && !isStarted) {
-      setIsStarted(true);
+    if (query.id && !startedFirstCall.current) {
+      // setIsStarted(true);
+      startedFirstCall.current = true;
       fetchWidget(query.id as string)
         .then(() => {
           setIsLoaded(true);

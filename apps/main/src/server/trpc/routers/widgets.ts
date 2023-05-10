@@ -17,16 +17,18 @@ export const widgetsRouter = createTRPCRouter({
     await ctx.prisma.callback.createMany({
       data: [
         {
-          id: `${Date.now()}`,
+          id: `cb_${Date.now()}`,
           widgetId: widget.id,
           env: 'production',
           url: 'https://example.com',
+          order: 0,
         },
         {
-          id: `${Date.now() + 1}`,
+          id: `cb_${Date.now() + 1}`,
           widgetId: widget.id,
           env: 'development',
           url: 'http://example.com',
+          order: 1,
         }
       ],
     });
@@ -110,6 +112,7 @@ export const widgetsRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       const { id: widgetId, products, features, callbacks, ...generalValues } = input;
 
+      // managing the widget
       await ctx.prisma.priceWidget.update({
         where: { id: widgetId },
         data: {
@@ -126,6 +129,7 @@ export const widgetsRouter = createTRPCRouter({
         },
       });
 
+      // managing the products
       const storedProducts = await ctx.prisma.product.findMany({
         where: { widgetId },
         select: {
@@ -135,63 +139,103 @@ export const widgetsRouter = createTRPCRouter({
 
       const newProducts = products.filter((product) => !storedProducts.find((storedProduct) => storedProduct.id === product.id));
       const productsToUpdate = products.filter((product) => storedProducts.find((storedProduct) => storedProduct.id === product.id));
+      const productsToDelete = storedProducts.filter((storedProduct) => !products.find((product) => product.id === storedProduct.id));
 
-      await ctx.prisma.product.createMany({
-        data: newProducts.map((product) => ({
-          widgetId,
-          id: product.id,
-          mask: product.mask,
-          order: product.order,
-          name: product.name || null,
-          isCustom: product.isCustom || false,
-          description: product.description || null,
-          ctaLabel: product.ctaLabel || null,
-          ctaUrl: product.ctaUrl || null,
-        })),
-      });
-
-      for (let pIndex = 0; pIndex < productsToUpdate.length; pIndex++) {
-        const product = productsToUpdate[pIndex]!;
-        await ctx.prisma.product.update({
-          where: { id_widgetId: { id: product.id, widgetId } },
-          data: {
-            ...(hasFlakyUpdate(product.isCustom, 'isCustom')),
-            ...(hasFlakyUpdate(product.name, 'name')),
-            ...(hasFlakyUpdate(product.description, 'description')),
-            ...(hasFlakyUpdate(product.ctaLabel, 'ctaLabel')),
-            ...(hasFlakyUpdate(product.ctaUrl, 'ctaUrl')),
-            ...(hasFlakyUpdate(product.order, 'order')),
-          },
+      if (newProducts.length > 0) {
+        await ctx.prisma.product.createMany({
+          data: newProducts.map((product) => ({
+            widgetId,
+            id: product.id,
+            mask: product.mask,
+            order: product.order,
+            name: product.name || null,
+            isCustom: product.isCustom || false,
+            description: product.description || null,
+            ctaLabel: product.ctaLabel || null,
+            ctaUrl: product.ctaUrl || null,
+          })),
         });
       }
 
-      const newPrices = newProducts.flatMap((product) => product.prices.map((price) => ({ ...price, productId: product.id })));
-      const pricesToUpdate = productsToUpdate.flatMap((product) => product.prices);
+      if (productsToUpdate.length > 0) {
+        for (let pIndex = 0; pIndex < productsToUpdate.length; pIndex++) {
+          const product = productsToUpdate[pIndex]!;
+          await ctx.prisma.product.update({
+            where: { id_widgetId: { id: product.id, widgetId } },
+            data: {
+              ...(hasFlakyUpdate(product.isCustom, 'isCustom')),
+              ...(hasFlakyUpdate(product.name, 'name')),
+              ...(hasFlakyUpdate(product.description, 'description')),
+              ...(hasFlakyUpdate(product.ctaLabel, 'ctaLabel')),
+              ...(hasFlakyUpdate(product.ctaUrl, 'ctaUrl')),
+              ...(hasFlakyUpdate(product.order, 'order')),
+            },
+          });
+        }
+      }
 
-      await ctx.prisma.price.createMany({
-        data: newPrices.map((price) => ({
-          widgetId,
-          id: price.id,
-          productId: price.productId,
-          mask: price.mask,
-          hasFreeTrial: price.hasFreeTrial,
-          freeTrialDays: price.freeTrialDays,
-          order: price.order,
-        })),
-      });
-
-      for (let pIndex = 0; pIndex < pricesToUpdate.length; pIndex++) {
-        const price = pricesToUpdate[pIndex]!;
-        await ctx.prisma.price.update({
-          where: { id_widgetId: { id: price.id, widgetId } },
-          data: {
-            ...(hasFlakyUpdate(price.hasFreeTrial, 'hasFreeTrial')),
-            ...(hasFlakyUpdate(price.freeTrialDays, 'freeTrialDays')),
-            ...(hasFlakyUpdate(price.order, 'order')),
-          },
+      if (productsToDelete.length > 0) {
+        await ctx.prisma.product.deleteMany({
+          where: {
+            id: {
+              in: productsToDelete.map((product) => product.id),
+            }
+          }
         });
       }
 
+      // managing prices
+      const widgetPrices = products.flatMap((product) => product.prices.map((price) => ({ ...price, productId: product.id })));
+      const storedPrices = await ctx.prisma.price.findMany({
+        where: { widgetId },
+        select: {
+          id: true,
+        },
+      });
+
+      const newPrices = widgetPrices.filter((price) => !storedPrices.find((storedPrice) => storedPrice.id === price.id));
+      const pricesToUpdate = widgetPrices.filter((price) => storedPrices.find((storedPrice) => storedPrice.id === price.id));
+      const pricesToDelete = storedPrices.filter((storedPrice) => !widgetPrices.find((price) => price.id === storedPrice.id));
+
+      if (newPrices.length > 0) {
+        await ctx.prisma.price.createMany({
+          data: newPrices.map((price) => ({
+            widgetId,
+            id: price.id,
+            productId: price.productId,
+            mask: price.mask,
+            hasFreeTrial: price.hasFreeTrial,
+            freeTrialDays: price.freeTrialDays,
+            order: price.order,
+          })),
+        });
+      }
+
+      if (pricesToUpdate.length > 0) {
+        for (let pIndex = 0; pIndex < pricesToUpdate.length; pIndex++) {
+          const price = pricesToUpdate[pIndex]!;
+          await ctx.prisma.price.update({
+            where: { id_widgetId: { id: price.id, widgetId } },
+            data: {
+              ...(hasFlakyUpdate(price.hasFreeTrial, 'hasFreeTrial')),
+              ...(hasFlakyUpdate(price.freeTrialDays, 'freeTrialDays')),
+              ...(hasFlakyUpdate(price.order, 'order')),
+            },
+          });
+        }
+      }
+
+      if (pricesToDelete.length > 0) {
+        await ctx.prisma.price.deleteMany({
+          where: {
+            id: {
+              in: pricesToDelete.map((price) => price.id),
+            }
+          }
+        });
+      }
+
+      // managing features
       type FlattenedFeature = { id: string; name: string; type: string; order: number; value: string; productId: string };
       const flattenFeatures: FlattenedFeature[] = Object.values(features).reduce((list, feature) => {
         const flattened = feature.products.map((prod) => ({
@@ -214,32 +258,49 @@ export const widgetsRouter = createTRPCRouter({
       });
       const newFeatures = flattenFeatures.filter((feature) => !storedFeatures.find((storedFeature) => storedFeature.id === feature.id));
       const featuresToUpdate = flattenFeatures.filter((feature) => storedFeatures.find((storedFeature) => storedFeature.id === feature.id));
+      // eslint-disable-next-line max-len
+      const featuresToDelete = storedFeatures.filter((storedFeature) => !flattenFeatures.find((feature) => feature.id === storedFeature.id));
 
-      await ctx.prisma.feature.createMany({
-        data: newFeatures.map((feature) => ({
-          widgetId,
-          productId: feature.productId,
-          id: feature.id,
-          name: feature.name,
-          type: feature.type,
-          value: feature.value,
-          order: feature.order,
-        })),
-      });
-
-      for (let fIndex = 0; fIndex < featuresToUpdate.length; fIndex++) {
-        const feature = featuresToUpdate[fIndex]!;
-        await ctx.prisma.feature.update({
-          where: { id_productId_widgetId: { id: feature.id, productId: feature.productId, widgetId } },
-          data: {
-            ...(hasFlakyUpdate(feature.name, 'name')),
-            ...(hasFlakyUpdate(feature.type, 'type')),
-            ...(hasFlakyUpdate(feature.value, 'value')),
-            ...(hasFlakyUpdate(feature.order, 'order')),
-          },
+      if (newFeatures.length > 0) {
+        await ctx.prisma.feature.createMany({
+          data: newFeatures.map((feature) => ({
+            widgetId,
+            productId: feature.productId,
+            id: feature.id,
+            name: feature.name,
+            type: feature.type,
+            value: feature.value,
+            order: feature.order,
+          })),
         });
       }
 
+      if (featuresToUpdate.length > 0) {
+        for (let fIndex = 0; fIndex < featuresToUpdate.length; fIndex++) {
+          const feature = featuresToUpdate[fIndex]!;
+          await ctx.prisma.feature.update({
+            where: { id_productId_widgetId: { id: feature.id, productId: feature.productId, widgetId } },
+            data: {
+              ...(hasFlakyUpdate(feature.name, 'name')),
+              ...(hasFlakyUpdate(feature.type, 'type')),
+              ...(hasFlakyUpdate(feature.value, 'value')),
+              ...(hasFlakyUpdate(feature.order, 'order')),
+            },
+          });
+        }
+      }
+
+      if (featuresToDelete.length > 0) {
+        await ctx.prisma.feature.deleteMany({
+          where: {
+            id: {
+              in: featuresToDelete.map((feature) => feature.id),
+            }
+          }
+        });
+      }
+
+      // managing callbacks
       const storedCallbacks = await ctx.prisma.callback.findMany({
         where: { widgetId },
         select: {
@@ -249,23 +310,39 @@ export const widgetsRouter = createTRPCRouter({
 
       const newCallbacks = callbacks.filter((callback) => !storedCallbacks.find((storedCallback) => storedCallback.id === callback.id));
       const callbacksToUpdate = callbacks.filter((callback) => storedCallbacks.find((storedCallback) => storedCallback.id === callback.id));
+      // eslint-disable-next-line max-len
+      const callbacksToDelete = storedCallbacks.filter((storedCallback) => !callbacks.find((callback) => callback.id === storedCallback.id));
 
-      await ctx.prisma.callback.createMany({
-        data: newCallbacks.map((callback) => ({
-          widgetId,
-          id: callback.id,
-          env: callback.env,
-          url: callback.url,
-        }))
-      });
+      if (newCallbacks.length > 0) {
+        await ctx.prisma.callback.createMany({
+          data: newCallbacks.map((callback) => ({
+            widgetId,
+            id: callback.id,
+            env: callback.env,
+            url: callback.url,
+          }))
+        });
+      }
 
-      for (let cIndex = 0; cIndex < callbacksToUpdate.length; cIndex++) {
-        const callback = callbacksToUpdate[cIndex]!;
-        await ctx.prisma.callback.update({
-          where: { id: callback.id },
-          data: {
-            ...(hasFlakyUpdate(callback.env, 'env')),
-            ...(hasFlakyUpdate(callback.url, 'url')),
+      if (callbacksToUpdate.length > 0) {
+        for (let cIndex = 0; cIndex < callbacksToUpdate.length; cIndex++) {
+          const callback = callbacksToUpdate[cIndex]!;
+          await ctx.prisma.callback.update({
+            where: { id: callback.id },
+            data: {
+              ...(hasFlakyUpdate(callback.env, 'env')),
+              ...(hasFlakyUpdate(callback.url, 'url')),
+            }
+          });
+        }
+      }
+
+      if (callbacksToDelete.length > 0) {
+        await ctx.prisma.callback.deleteMany({
+          where: {
+            id: {
+              in: callbacksToDelete.map((callback) => callback.id),
+            }
           }
         });
       }

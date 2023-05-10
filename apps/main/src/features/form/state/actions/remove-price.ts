@@ -9,5 +9,5 @@ export function removePrice(productId: string, priceId: string) {
   if (!selectedProduct || !selectedPrice) return;
 
   products[productIndex] = { ...selectedProduct!, prices: selectedProduct.prices.filter((price) => price.id !== priceId) };
-  useWidgetFormStore.setState((prev) => ({ ...prev, products }));
+  useWidgetFormStore.setState({ products: [...products] });
 }

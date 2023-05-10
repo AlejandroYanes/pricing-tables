@@ -28,7 +28,7 @@ export default function Template(props: Props) {
   const { widgetId, showPanel, setShowPanel, currency, setCurrency, env, setEnv } = props;
   const {
     template: templateId,
-    selectedProducts,
+    products: selectedProducts,
     features,
     callbacks,
     recommended,

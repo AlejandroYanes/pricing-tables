@@ -54,7 +54,7 @@ export const useSettingsPanelStates = () => useWidgetFormStore((state) => ({
 
 export const useTemplateStates = () => useWidgetFormStore((state) => ({
   template: state.template,
-  selectedProducts: state.products,
+  products: state.products,
   features: state.features,
   callbacks: state.callbacks,
   recommended: state.recommended,
