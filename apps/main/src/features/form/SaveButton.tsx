@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, useMantineTheme } from '@mantine/core';
 
 import { trpc } from 'utils/trpc';
@@ -10,13 +11,18 @@ interface Props {
 export default function SaveButton(props: Props) {
   const theme = useMantineTheme();
   const { enabled } = props;
+  const [lastSaved, setLastSaved] = useState<number | null>(null);
   const { shouldSave, history } = useChangeHistory(enabled);
 
-  console.log('history', history);
-
-  const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation();
+  const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation({
+    onSuccess: () => {
+      setLastSaved(history.length - 1);
+    }
+  });
 
   const handleSave = () => {
+    if (lastSaved === history.length - 1) return;
+
     const { id, template, ...rest } = history.at(-1)!;
     const changes = {
       ...rest,
