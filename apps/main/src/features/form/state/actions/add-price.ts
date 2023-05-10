@@ -1,5 +1,6 @@
-import type { FormPrice } from 'models';
+import dayjs from 'dayjs';
 import { createId } from '@paralleldrive/cuid2';
+import type { FormPrice } from 'models';
 import { applyWhere } from 'helpers';
 
 import { useWidgetFormStore } from '../widget-state';
@@ -15,6 +16,7 @@ export function handleAddPrice(productId: string, price: FormPrice) {
     ...selectedProduct,
     prices: selectedProduct.prices.concat([{
       ...price,
+      createdAt: dayjs().format(),
       mask: createId(),
       hasFreeTrial: false,
       freeTrialDays: 0,

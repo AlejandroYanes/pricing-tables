@@ -27,6 +27,6 @@ export const remove = <T = any>(arr: T[], ...indices: number[]) => arr.filter((_
 export const applyWhere = <T = any>(
   arr: T[],
   condition: (item: T, index: number) => boolean,
-  fn: (item: T, index?: number) => T
+  fn: (item: T, index: number) => T
 ) => arr.map((item, index) => (condition(item, index) ? fn(item, index) : item))
 

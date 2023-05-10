@@ -79,6 +79,7 @@ export const widgetsRouter = createTRPCRouter({
             prices: z.array(
               z.object({
                 id: z.string(),
+                createdAt: z.string(),
                 mask: z.string().cuid2(),
                 hasFreeTrial: z.boolean(),
                 freeTrialDays: z.number(),
@@ -142,6 +143,7 @@ export const widgetsRouter = createTRPCRouter({
           widgetId,
           id: product.id,
           mask: product.mask,
+          createdAt: product.createdAt,
           name: product.name || null,
           isCustom: product.isCustom || false,
           description: product.description || null,
@@ -160,6 +162,7 @@ export const widgetsRouter = createTRPCRouter({
             ...(hasFlakyUpdate(product.description, 'description')),
             ...(hasFlakyUpdate(product.ctaLabel, 'ctaLabel')),
             ...(hasFlakyUpdate(product.ctaUrl, 'ctaUrl')),
+            ...(hasFlakyUpdate(product.createdAt, 'createdAt')),
           },
         });
       }
@@ -175,6 +178,7 @@ export const widgetsRouter = createTRPCRouter({
           mask: price.mask,
           hasFreeTrial: price.hasFreeTrial,
           freeTrialDays: price.freeTrialDays,
+          createdAt: price.createdAt,
         })),
       });
 
@@ -185,6 +189,7 @@ export const widgetsRouter = createTRPCRouter({
           data: {
             ...(hasFlakyUpdate(price.hasFreeTrial, 'hasFreeTrial')),
             ...(hasFlakyUpdate(price.freeTrialDays, 'freeTrialDays')),
+            ...(hasFlakyUpdate(price.createdAt, 'createdAt')),
           },
         });
       }

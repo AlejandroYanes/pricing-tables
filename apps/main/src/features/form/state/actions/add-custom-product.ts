@@ -1,5 +1,6 @@
 import { showNotification } from '@mantine/notifications';
 import { createId } from '@paralleldrive/cuid2';
+import dayjs from 'dayjs';
 import type { FormProduct } from 'models';
 import { apply } from 'helpers';
 
@@ -21,6 +22,7 @@ export function addCustomProduct() {
   const customProduct: Partial<FormProduct> = {
     id,
     mask: createId(),
+    createdAt: dayjs().format(),
     isCustom: true,
     active: true,
     name: 'Custom Product',

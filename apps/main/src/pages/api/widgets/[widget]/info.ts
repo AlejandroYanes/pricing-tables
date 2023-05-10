@@ -1,8 +1,9 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import type { FormFeature, FormProduct, WidgetInfo } from 'models';
 import { z } from 'zod';
+import dayjs from 'dayjs';
+import type { FormFeature, FormProduct, WidgetInfo } from 'models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
@@ -114,7 +115,13 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
 
       if (stripeProd && !stripeProd.active) continue;
 
-      let finalProduct: FormProduct = { ...widgetProd, isCustom: !!widgetProd.isCustom, active: true, prices: [] };
+      let finalProduct: FormProduct = {
+        ...widgetProd,
+        isCustom: !!widgetProd.isCustom,
+        createdAt: dayjs(widgetProd.createdAt).format(),
+        active: true,
+        prices: [],
+      };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
@@ -137,6 +144,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
             ...widgetPrice,
             ...stripePrice,
             hasFreeTrial: !!widgetPrice.hasFreeTrial,
+            createdAt: dayjs(widgetPrice.createdAt).format(),
             ...({
               productId: widgetProd.id,
               product: undefined as any,

@@ -1,3 +1,5 @@
+export const SERVER_DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss.SSS';
+
 export function formatDate(date: Date | string, locale = 'default'): string {
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     day: 'numeric',
