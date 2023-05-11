@@ -251,15 +251,22 @@ export const widgetsRouter = createTRPCRouter({
       }, [] as FlattenedFeature[]);
 
       const storedFeatures = await ctx.prisma.feature.findMany({
-        where: { widgetId, productId: { in: flattenFeatures.map((feat) => feat.productId) } },
+        where: { widgetId },
         select: {
           id: true,
+          productId: true,
         },
       });
-      const newFeatures = flattenFeatures.filter((feature) => !storedFeatures.find((storedFeature) => storedFeature.id === feature.id));
-      const featuresToUpdate = flattenFeatures.filter((feature) => storedFeatures.find((storedFeature) => storedFeature.id === feature.id));
+      const newFeatures = flattenFeatures.filter((feature) => !storedFeatures.find((storedFeature) => (
+        storedFeature.id === feature.id && storedFeature.productId === feature.productId
+      )));
+      const featuresToUpdate = flattenFeatures.filter((feature) => storedFeatures.find((storedFeature) => (
+        storedFeature.id === feature.id && storedFeature.productId === feature.productId
+      )));
       // eslint-disable-next-line max-len
-      const featuresToDelete = storedFeatures.filter((storedFeature) => !flattenFeatures.find((feature) => feature.id === storedFeature.id));
+      const featuresToDelete = storedFeatures.filter((storedFeature) => !flattenFeatures.find((feature) => (
+        storedFeature.id === feature.id && storedFeature.productId === feature.productId
+      )));
 
       if (newFeatures.length > 0) {
         await ctx.prisma.feature.createMany({

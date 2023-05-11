@@ -8,7 +8,7 @@ import CustomDroppable from './CustomDroppable';
 import { useWidgetFormStore } from './state';
 import {
   addNewFeature,
-  changeFeatureLabel,
+  changeFeatureName,
   changeFeatureType,
   changeFeatureValue,
   removeFeature,
@@ -93,7 +93,7 @@ export default function FeaturesForm() {
               </div>
             </td>
             <td style={{ width: rem(360) }}>
-              <TextInput value={feat.name} onChange={(e) => changeFeatureLabel(index, e.target.value)} />
+              <TextInput value={feat.name} onChange={(e) => changeFeatureName(index, e.target.value)} />
             </td>
             <td style={{ width: rem(200) }}>
               <Select

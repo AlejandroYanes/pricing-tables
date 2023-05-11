@@ -11,7 +11,7 @@ export function addProduct(productList: FormProduct[], selectedId: string) {
 
   if (!selectedProduct || !selectedPrice) return;
 
-  const { products: prevProducts } = useWidgetFormStore.getState();
+  const { products: prevProducts, features } = useWidgetFormStore.getState();
   const lastOrder = prevProducts[prevProducts.length - 1]?.order ?? 0;
 
   const copy: FormProduct = {
@@ -29,12 +29,11 @@ export function addProduct(productList: FormProduct[], selectedId: string) {
     ],
   };
 
-  useWidgetFormStore.setState((prev) => ({
-    ...prev,
-    products: prev.products.concat(copy),
-    features: apply(prev.features, (feature) => {
+  useWidgetFormStore.setState({
+    products: prevProducts.concat(copy),
+    features: apply(features, (feature) => {
       const value = feature.type === 'boolean' ? 'false' : '';
       return { ...feature, products: feature.products.concat({ id: copy.id, value }) };
     })
-  }));
+  });
 }

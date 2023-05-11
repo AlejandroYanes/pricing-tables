@@ -15,7 +15,7 @@ export * from './toggle-unit-label';
 export * from './change-unit-label';
 export * from './add-feature';
 export * from './remove-feature';
-export * from './change-feature-label';
+export * from './change-feature-name';
 export * from './change-feature-type';
 export * from './change-feature-value';
 export * from './reorder-features';

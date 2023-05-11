@@ -17,7 +17,7 @@ export function addCustomProduct() {
     return;
   }
 
-  const id = `custom_${Date.now()}`;
+  const id = `custom_${createId()}`;
   const lastOrder = products[products.length - 1]?.order ?? 0;
   const customProduct: Partial<FormProduct> = {
     id,
