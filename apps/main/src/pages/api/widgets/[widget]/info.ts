@@ -47,7 +47,7 @@ async function getWidgetData(widgetId: string) {
   ).rows[0] as Widget;
 
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
   ).rows as Callback[];
 
   const features = (
@@ -191,7 +191,7 @@ type Widget = {
   checkoutSuccessUrl: string | null;
   checkoutCancelUrl: string | null;
 };
-type Callback = { id: string; env: string; url: string };
+type Callback = { id: string; env: string; url: string; order: number };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
 type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };

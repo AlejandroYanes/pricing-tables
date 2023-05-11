@@ -46,7 +46,7 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   ).rows[0] as Widget;
 
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
   ).rows as Callback[];
 
   const features = (
