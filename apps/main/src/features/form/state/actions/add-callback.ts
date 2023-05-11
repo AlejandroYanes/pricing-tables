@@ -3,6 +3,7 @@ import type { FormCallback } from 'models';
 
 import { useWidgetFormStore } from '../widget-state';
 
+// adding a new callback
 export function addNewCallback() {
   const { callbacks } = useWidgetFormStore.getState();
   const newId = `cb_${createId()}`;
