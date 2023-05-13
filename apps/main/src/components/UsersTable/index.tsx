@@ -1,7 +1,6 @@
-import { Badge, Group, Pagination, Select, Table, Text, TextInput } from '@mantine/core';
+import { Badge, Group, Pagination, Table, Text, TextInput } from '@mantine/core';
 import { calculateTotal } from 'helpers';
-import type { Role} from 'models';
-import { ROLES_LIST } from 'models';
+import type { Role } from 'models';
 import { RenderIf } from 'ui';
 
 import UserAvatar from 'components/UserAvatar';
@@ -14,7 +13,6 @@ interface Props {
     image: string | null;
     name: string | null;
     email: string | null;
-    role: string | null;
     stripeKey: string | null;
     _count: {
       widgets: number;
@@ -57,16 +55,6 @@ const UsersTable = (props: Props) => {
       </td>
 
       <td>{!!user.stripeKey ? user._count.widgets : 'N/A'}</td>
-
-      <td>
-        <Select
-          disabled={user.id === currentUser}
-          data={ROLES_LIST as string[]}
-          value={user.role}
-          onChange={(value) => updateRole(user.id, value! as Role)}
-          variant="unstyled"
-        />
-      </td>
     </tr>
   ));
 
@@ -86,7 +74,6 @@ const UsersTable = (props: Props) => {
             <th>User</th>
             <th style={{ width: '100px' }}>Is Setup</th>
             <th style={{ width: '130px' }}>Widgets</th>
-            <th style={{ width: '200px' }}>Role</th>
           </tr>
         </thead>
         <tbody>{rows}</tbody>
