@@ -18,7 +18,6 @@ export default function useChangeHistory(enabled = false) {
   const { debounceCall } = useDebounce(250);
 
   useEffect(() => {
-    console.log('logging history changes', process.env.NODE_ENV);
     if (enabled) {
       if (history.current.length < INITIAL_COUNT_BEFORE_SAVE) {
         initialState.current = deepClone(widgetStates);

@@ -92,10 +92,6 @@ const Home: NextPage = () => {
     router.push('/dashboard');
   }
 
-  const today = dayjs();
-  const launchDate = dayjs('2023-05-08');
-  const isLaunched = today.isAfter(launchDate);
-
   return (
     <>
       <Head>
@@ -138,23 +134,21 @@ const Home: NextPage = () => {
                 </List.Item>
               </List>
 
-              <RenderIf condition={isLaunched}>
-                <a
-                  href="https://www.producthunt.com/posts/dealo?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-dealo"
-                  target="_blank"
-                  rel="noreferrer"
-                  style={{ margin: '60px auto 0' }}
-                >
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=393090&theme=${theme.colorScheme}`}
-                    alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
-                    style={{ width: '250px', height: '54px' }}
-                    width="250"
-                    height="54"
-                  />
-                </a>
-              </RenderIf>
+              <a
+                href="https://www.producthunt.com/posts/dealo?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-dealo"
+                target="_blank"
+                rel="noreferrer"
+                style={{ margin: '60px auto 0' }}
+              >
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=393090&theme=${theme.colorScheme}`}
+                  alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
+                  style={{ width: '250px', height: '54px' }}
+                  width="250"
+                  height="54"
+                />
+              </a>
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
