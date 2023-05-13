@@ -34,7 +34,6 @@ export const userRouter = createTRPCRouter({
       } : undefined;
       const selectQuery = {
         id: true,
-        role: true,
         name: true,
         email: true,
         image: true,
