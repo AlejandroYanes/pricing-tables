@@ -1,4 +1,4 @@
-export const ITEMS_PER_PAGE_LIMIT = 5;
+export const ITEMS_PER_PAGE_LIMIT = 10;
 
 export function calculateTotal(count: number) {
   if (count % ITEMS_PER_PAGE_LIMIT !== 0) {
