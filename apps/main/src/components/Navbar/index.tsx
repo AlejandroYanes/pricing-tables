@@ -129,6 +129,12 @@ export function CustomNavbar(props: Props) {
               >
                 Manage Users
               </Menu.Item>
+              <Menu.Item
+                onClick={() => router.push('/guests')}
+                icon={<IconUsers size={14} />}
+              >
+                Manage Guests
+              </Menu.Item>
               <Menu.Divider />
             </RenderIf>
             <Menu.Label>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</Menu.Label>

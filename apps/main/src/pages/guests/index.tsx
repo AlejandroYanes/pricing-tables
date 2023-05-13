@@ -1,35 +1,40 @@
 import { useState } from 'react';
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Stack } from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
+import { Button, Group, Stack } from '@mantine/core';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
-import UsersTable from 'components/UsersTable';
+import GuestsTable from 'components/GuestsTable';
 
 const UsersPage: NextPage = () => {
-  const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
 
   const {
     data: { results, count } = { results: [], count: 0 },
-  } = trpc.user.listUsers.useQuery({ query, page }, { keepPreviousData: true });
+    refetch,
+  } = trpc.widgets.listGuestWidgets.useQuery({ page }, { keepPreviousData: true });
+
+  const { mutate, isLoading } = trpc.widgets.deleteGuestWidgets.useMutation({
+    onSuccess: () => refetch(),
+  });
 
   return (
     <>
       <Head>
-        <title>Dealo | Users</title>
+        <title>Dealo | Guest Users</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/dashboard" title="Users">
+      <BaseLayout showBackButton backRoute="/dashboard" title="Guest Users">
         <Stack mx="auto" sx={{ maxWidth: '980px', width: '100%' }}>
-          <UsersTable
+          <Group position="right" mb="xl">
+            <Button color="red" variant="outline" loading={isLoading} onClick={() => mutate()}>Delete All</Button>
+          </Group>
+          <GuestsTable
             page={page}
             count={count}
             data={results}
             onPageChange={setPage}
-            onQueryChange={setQuery}
           />
         </Stack>
       </BaseLayout>
