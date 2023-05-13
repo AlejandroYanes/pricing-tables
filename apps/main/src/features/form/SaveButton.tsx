@@ -57,9 +57,10 @@ export default function SaveButton(props: Props) {
   if (!shouldSave) return null;
 
   const variant = theme.colorScheme === 'dark' ? 'white' : 'filled';
+  const disabled = lastSaved === history.at(-1)?.hash;
 
   return (
-    <Button color="dark" variant={variant} loading={isLoading} onClick={handleSave}>
+    <Button color="dark" variant={variant} loading={isLoading} disabled={disabled} onClick={handleSave}>
       Save
     </Button>
   );
