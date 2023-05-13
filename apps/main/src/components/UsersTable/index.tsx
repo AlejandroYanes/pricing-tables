@@ -1,6 +1,5 @@
 import { Badge, Group, Pagination, Table, Text, TextInput } from '@mantine/core';
 import { calculateTotal } from 'helpers';
-import type { Role } from 'models';
 import { RenderIf } from 'ui';
 
 import UserAvatar from 'components/UserAvatar';
@@ -18,14 +17,12 @@ interface Props {
       widgets: number;
     };
   }[];
-  currentUser: string | undefined;
-  updateRole: (userId: string, newRole: Role) => void;
   onQueryChange: (nextQuery: string) => void;
   onPageChange: (nextPage: number) => void;
 }
 
 const UsersTable = (props: Props) => {
-  const { page, count, data, currentUser, updateRole, onPageChange, onQueryChange } = props;
+  const { page, count, data, onPageChange, onQueryChange } = props;
 
   const rows = data.map((user) => (
     <tr key={user.id}>

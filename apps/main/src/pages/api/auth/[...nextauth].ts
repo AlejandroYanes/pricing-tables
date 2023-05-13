@@ -4,6 +4,7 @@ import GithubProvider from 'next-auth/providers/github';
 import DiscordProvider from 'next-auth/providers/discord';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
+import { createId } from '@paralleldrive/cuid2';
 
 import { env } from 'env/server.mjs';
 import { prisma } from 'server/db';
@@ -66,7 +67,7 @@ export const authOptions: NextAuthOptions = {
         username: { label: 'Username', type: 'text', placeholder: '' },
       },
       async authorize() {
-        return { id: `guest_${Date.now()}`, name: 'John Doe', email: 'john.doe@example.com' };
+        return { id: `guest_${createId()}`, name: 'John Doe', email: 'john.doe@example.com' };
       }
     })
   ],

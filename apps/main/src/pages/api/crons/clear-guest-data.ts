@@ -7,8 +7,8 @@ export default async function clearGuestData(_: any, res: NextApiResponse) {
 
   const guestWidgets = (
     // eslint-disable-next-line max-len
-    await db.execute('SELECT PW.id, U.id as "user_id" FROM `pricing-tables`.PriceWidget PW LEFT JOIN User U on PW.userId = U.id WHERE U.id IS NULL')
-  ).rows as { id: string; user_id: string }[];
+    await db.execute('SELECT id FROM PriceWidget WHERE userId LIKE \'guest_%\'')
+  ).rows as { id: string }[];
 
   const ids = guestWidgets.map((w) => w.id);
 

@@ -1,6 +1,8 @@
 import { z } from 'zod';
+import { ITEMS_PER_PAGE_LIMIT } from 'helpers';
 
-import { createTRPCRouter, protectedProcedure } from '../trpc';
+import initDb from 'utils/planet-scale';
+import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 
 export const widgetsRouter = createTRPCRouter({
   create: protectedProcedure.input(z.object({ name: z.string(), template: z.string() })).mutation(async ({ ctx, input }) => {
@@ -354,6 +356,59 @@ export const widgetsRouter = createTRPCRouter({
         });
       }
     }),
+
+  listGuestWidgets: adminProcedure
+    .input(
+      z.object({
+        page: z.number().min(1),
+      })
+    )
+    .query(async ({ ctx, input }) => {
+      const { page } = input;
+
+      const results = await ctx.prisma.priceWidget.findMany({
+        take: ITEMS_PER_PAGE_LIMIT,
+        skip: page === 1 ? 0 : ITEMS_PER_PAGE_LIMIT * (page - 1),
+        where: {
+          userId: {
+            startsWith: 'guest_',
+          }
+        },
+        select: {
+          id: true,
+          name: true,
+          userId: true,
+          createdAt: true,
+        },
+      });
+      const count = await ctx.prisma.priceWidget.count({
+        where: {
+          userId: {
+            startsWith: 'guest_',
+          }
+        }
+      });
+      return { results, count };
+    }),
+
+  deleteGuestWidgets: adminProcedure.mutation(async () => {
+    const db = initDb();
+
+    const guestWidgets = (
+      // eslint-disable-next-line max-len
+      await db.execute('SELECT id FROM PriceWidget WHERE userId LIKE \'guest_%\'')
+    ).rows as { id: string }[];
+
+    const ids = guestWidgets.map((w) => w.id);
+
+    await db.transaction(async (tx) => {
+      await tx.execute('DELETE FROM `pricing-tables`.Product WHERE Product.widgetId IN (?)', [ids]);
+      await tx.execute('DELETE FROM `pricing-tables`.Price WHERE Price.widgetId IN (?)', [ids]);
+      await tx.execute('DELETE FROM `pricing-tables`.Feature WHERE Feature.widgetId IN (?)', [ids]);
+      await tx.execute('DELETE FROM `pricing-tables`.Callback WHERE Callback.widgetId IN (?)', [ids]);
+      await tx.execute('DELETE FROM `pricing-tables`.PriceWidget WHERE PriceWidget.id IN (?)', [ids]);
+    });
+  }),
 });
 
 const hasFlakyUpdate = (value: any, key: string) => value !== undefined ? { [key]: value } : {};
