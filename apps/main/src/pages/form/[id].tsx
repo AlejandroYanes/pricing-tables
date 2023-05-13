@@ -51,7 +51,7 @@ const LoadingScreen = () => {
   const theme = useMantineTheme();
   return (
     <BaseLayout showBackButton>
-      <Stack style={{ height: 'calc(100vh - 170px)', width: '100vw' }}>
+      <Stack style={{ height: 'calc(100vh - 170px)', width: 'calc(100vw - 96px)' }}>
         <Group
           mb="xl"
           pb="sm"
@@ -110,7 +110,6 @@ const FormPage = () => {
 
   useEffect(() => {
     if (query.id && !startedFirstCall.current) {
-      // setIsStarted(true);
       startedFirstCall.current = true;
       fetchWidget(query.id as string)
         .then(() => {
