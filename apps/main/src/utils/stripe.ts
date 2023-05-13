@@ -26,5 +26,5 @@ export function reduceStripePrice(price: Stripe.Price) {
     'billing_scheme',
     'type',
     'transform_quantity',
-  ]) as FormPrice;
+  ]) as unknown as FormPrice;
 }

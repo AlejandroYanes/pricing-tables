@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useRef, useState } from 'react';
+import { Fragment, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import {
   ActionIcon,
@@ -13,6 +13,7 @@ import {
   Text,
   Tooltip,
   UnstyledButton,
+  useMantineTheme,
 } from '@mantine/core';
 import {
   IconAlertCircle,
@@ -132,6 +133,7 @@ export default function ProductBlock(props: Props) {
     onMoveToBottom,
   } = props;
   const { classes } = useStyles();
+  const theme = useMantineTheme();
 
   const [showPriceSelect, setShowPriceSelect] = useState(false);
   const interactionTimer = useRef<any>(undefined);
@@ -142,11 +144,7 @@ export default function ProductBlock(props: Props) {
     if (!selectedPrice) return;
     onAddPrice(value.id, selectedPrice);
     setShowPriceSelect(false);
-
-    if (interactionTimer.current) {
-      clearTimeout(interactionTimer.current);
-      interactionTimer.current = undefined;
-    }
+    clearInteractionTimer();
   };
 
   const startInteractionTimer = () => {
@@ -157,11 +155,12 @@ export default function ProductBlock(props: Props) {
     interactionTimer.current = setTimeout(() => setShowPriceSelect(false), 5000);
   }
 
-  useEffect(() => {
-    if (showPriceSelect) {
-      startInteractionTimer();
+  const clearInteractionTimer = () => {
+    if (interactionTimer.current) {
+      clearTimeout(interactionTimer.current);
+      interactionTimer.current = undefined;
     }
-  }, [showPriceSelect]);
+  }
 
   const hasMorePrices = product.prices.length - value.prices.length > 0;
   const remainingPrices = product.prices.length - value.prices.length;
@@ -256,13 +255,43 @@ export default function ProductBlock(props: Props) {
         <RenderIf
           condition={!showPriceSelect}
           fallback={
-            <Select
-              radius="xs"
-              styles={{ input: { border: 'none' } }}
-              data={priceOptions}
-              onChange={handleSelectPrice}
-              onFocus={startInteractionTimer}
-            />
+            <Group spacing={0}>
+              <Select
+                initiallyOpened
+                radius="xs"
+                style={{ flex: 1 }}
+                styles={{
+                  input: {
+                    border: 'none',
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                  },
+                  separatorLabel: {
+                    color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
+                  },
+                }}
+                data={priceOptions}
+                onChange={handleSelectPrice}
+                onFocus={startInteractionTimer}
+              />
+              <ActionIcon
+                onClick={() => {
+                  setShowPriceSelect(false);
+                  clearInteractionTimer();
+                }}
+                variant="default"
+                size={42}
+                style={{
+                  borderTop: 'none',
+                  borderRight: 'none',
+                  borderBottom: 'none',
+                  borderTopLeftRadius: 0,
+                  borderBottomLeftRadius: 0,
+                }}
+              >
+                <IconX size="1rem" stroke={1.5} />
+              </ActionIcon>
+            </Group>
           }
         >
           <Group px={16} py={10} align="center" position="apart">
@@ -271,7 +300,10 @@ export default function ProductBlock(props: Props) {
             </Text>
             <UnstyledButton
               className={classes.actionButton}
-              onClick={() => setShowPriceSelect(true)}
+              onClick={() => {
+                setShowPriceSelect(true);
+                // startInteractionTimer();
+              }}
             >
               Add another price
             </UnstyledButton>

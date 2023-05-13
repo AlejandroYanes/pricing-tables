@@ -23,6 +23,7 @@ const useStyles = createStyles((theme, { count, color }: { color: string; count:
       backgroundColor: theme.colors[color]![7],
     },
     ['& td']: {
+      padding: '8px 14px !important',
       borderTop: 'none !important',
       textAlign: 'center',
     },
@@ -214,7 +215,7 @@ export function SecondTemplate(props: TemplateProps) {
               >
                 {resolveBtnLabel()}
               </Button>
-              <RenderIf condition={!!hasFreeTrial}>
+              <RenderIf condition={hasFreeTrial}>
                 <Text size="sm" mb="lg">{freeTrialDays} days</Text>
               </RenderIf>
             </td>

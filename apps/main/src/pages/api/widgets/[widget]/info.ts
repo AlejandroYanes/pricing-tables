@@ -1,11 +1,11 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import type { FormFeature, FormProduct } from 'models';
 import { z } from 'zod';
+import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
 
 import initDb from 'utils/planet-scale';
-import { corsMiddleware } from 'utils/api';
+import { authMiddleware } from 'utils/api';
 import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 const inputSchema = z.object({
@@ -21,46 +21,49 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget } = req.query;
   const widgetData: WidgetInfo = await getWidgetData(widget as string);
 
-  const seconds = 60;
-  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
   res.status(200).json(widgetData);
 }
 
-export default corsMiddleware(handler);
+export default authMiddleware(handler);
 
-async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
+async function getWidgetData(widgetId: string) {
   const db = initDb();
 
   const widgetFields = [
     '`pricing-tables`.`PriceWidget`.`id`',
     '`pricing-tables`.`PriceWidget`.`template`',
+    '`pricing-tables`.`PriceWidget`.`name`',
     '`pricing-tables`.`PriceWidget`.`recommended`',
     '`pricing-tables`.`PriceWidget`.`color`',
     '`pricing-tables`.`PriceWidget`.`unitLabel`',
     '`pricing-tables`.`PriceWidget`.`subscribeLabel`',
     '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
     '`pricing-tables`.`PriceWidget`.`userId`',
+    '`pricing-tables`.`PriceWidget`.`checkoutSuccessUrl`',
+    '`pricing-tables`.`PriceWidget`.`checkoutCancelUrl`',
   ];
   const widget = (
     await db.execute(`SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`, [widgetId])
   ).rows[0] as Widget;
 
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
   ).rows as Callback[];
 
   const features = (
-    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.`Feature`.`order`, `pricing-tables`.`Feature`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId`, `pricing-tables`.`Feature`.`order` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.Feature.order, `pricing-tables`.Feature.createdAt', [widgetId])
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order`, `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask`, `pricing-tables`.`Product`.`order` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order`, `pricing-tables`.`Product`.`createdAt`', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
-  const prices = (
-    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order`, `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
-  ).rows as Price[];
+  const prices = prodIds.length > 0
+    ? (
+      await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask`, `pricing-tables`.`Price`.`order` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order`, `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+    ).rows as Price[]
+    : [];
 
   const widgetUser = (
     await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
@@ -68,16 +71,19 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
 
   const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
   const stripe = initStripe(stripeKey);
-  const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
   return {
+    id: widget.id,
+    name: widget.name,
     template: widget.template,
     color: widget.color,
     callbacks: callbacks,
-    recommended: maskedRecommended || null,
+    recommended: widget.recommended,
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
+    successUrl: widget.checkoutSuccessUrl,
+    cancelUrl: widget.checkoutCancelUrl,
     products: await normaliseProducts(stripe, products, prices),
     features: normaliseFeatures(features, products),
   };
@@ -104,11 +110,16 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
 
     for (let pIndex = 0; pIndex < products.length; pIndex++) {
       const widgetProd = products[pIndex]!;
-      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
+      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id);
 
-      if (!stripeProd.active) continue;
+      if (stripeProd && !stripeProd.active) continue;
 
-      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [] };
+      let finalProduct: FormProduct = {
+        ...widgetProd,
+        isCustom: !!widgetProd.isCustom,
+        active: true,
+        prices: [],
+      };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
@@ -116,9 +127,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           ...finalProduct,
           ...stripeProd,
           ...({
-            id: widgetProd.mask,
             prices: [],
-            mask: '',
             default_price: undefined,
           }),
         };
@@ -132,10 +141,9 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           finalProduct.prices.push({
             ...widgetPrice,
             ...stripePrice,
+            hasFreeTrial: !!widgetPrice.hasFreeTrial,
             ...({
-              id: widgetPrice.mask,
               productId: widgetProd.id,
-              mask: '',
               product: undefined as any,
             }),
           });
@@ -156,34 +164,34 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
     const featureInList = acc.find((f) => f.id === feature.id);
     const existingProduct = products.find((p) => p.id === feature.productId)!;
     if (featureInList) {
-      featureInList.products.push({ id: existingProduct.mask, value: feature.value });
+      featureInList.products.push({ id: existingProduct.id, value: feature.value });
     } else {
       acc.push({
         id: feature.id,
         name: feature.name,
-        type: feature.type as any,
+        type: feature.type as FeatureType,
         order: feature.order,
-        products: [{ id: existingProduct.mask, value: feature.value }],
+        products: [{ id: existingProduct.id, value: feature.value }],
       });
     }
     return acc;
   }, [] as FormFeature[]);
 }
 
-type Widget = { id: string; template: string; recommended: string | null; color: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
-type Callback = { env: string; url: string };
-type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
-type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string; mask: string; order: number };
-
-type WidgetInfo = {
+type Widget = {
+  id: string;
+  name: string;
   template: string;
   recommended: string | null;
   color: string;
-  unitLabel: string;
+  unitLabel: string | null;
   subscribeLabel: string;
   freeTrialLabel: string;
-  products: FormProduct[];
-  features: FormFeature[];
-  callbacks: Callback[];
-}
+  userId: string;
+  checkoutSuccessUrl: string | null;
+  checkoutCancelUrl: string | null;
+};
+type Callback = { id: string; env: string; url: string; order: number };
+type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
+type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };

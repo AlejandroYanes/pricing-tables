@@ -1,5 +1,5 @@
 import type { ReactNode} from 'react';
-import { useEffect, useRef, useState } from 'react';
+import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
@@ -11,24 +11,26 @@ import { RenderIf } from 'ui';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
 import CustomProductBlock from './CustomProductBlock';
+import { useWidgetFormStore } from './state';
+import {
+  addProduct,
+  addCustomProduct,
+  removeProduct,
+  reorderProducts,
+  handleAddPrice,
+  removePrice,
+  toggleFreeTrial,
+  changeFreeTrialDays,
+  changeCustomCtaName,
+  changeCustomCtaLabel,
+  changeCustomCTAUrl,
+  changeCustomCTADescription,
+} from './state/actions';
 
 interface Props {
   showPanel: boolean;
   template: ReactNode;
   products: FormProduct[];
-  selectedProducts: FormProduct[];
-  onAddProduct: (selectedId: string) => void;
-  onAddPrice: (productId: string, price: FormPrice) => void;
-  onRemoveProduct: (index: number) => void;
-  onRemovePrice: (productId: string, priceId: string) => void;
-  onToggleFreeTrial: (productId: string, priceId: string) => void;
-  onChangeFreeTrialDays: (productId: string, priceId: string, days: number) => void;
-  onAddCustomProduct: () => void;
-  onCustomCTANameChange: (index: number, nextName: string) => void;
-  onCustomCTALabelChange: (index: number, nextLabel: string) => void;
-  onCustomCTAUrlChange: (index: number, nextLabel: string) => void;
-  onCustomCTADescriptionChange: (index: number, nextDescription: string) => void;
-  onProductReorder: (result: DropResult) => void;
 }
 
 const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
@@ -75,30 +77,15 @@ const resolvePricing = (price: FormPrice): string => {
 };
 
 export default function ProductsForm(props: Props) {
-  const {
-    showPanel,
-    template,
-    products,
-    selectedProducts,
-    onAddProduct,
-    onAddCustomProduct,
-    onAddPrice,
-    onRemoveProduct,
-    onRemovePrice,
-    onToggleFreeTrial,
-    onChangeFreeTrialDays,
-    onCustomCTANameChange,
-    onCustomCTALabelChange,
-    onCustomCTAUrlChange,
-    onCustomCTADescriptionChange,
-    onProductReorder,
-  } = props;
+  const { showPanel, template, products } = props;
+
+  const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
   const theme = useMantineTheme();
   const interactionTimer = useRef<any>(undefined);
 
   const handleAddProduct = (selectedId: string) => {
-    onAddProduct(selectedId);
+    addProduct(products, selectedId);
     setShowProducts(false);
 
     if (interactionTimer.current) {
@@ -122,12 +109,6 @@ export default function ProductsForm(props: Props) {
     }
   }
 
-  useEffect(() => {
-    if (showProducts) {
-      startInteractionTimer();
-    }
-  }, [showProducts]);
-
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
@@ -145,28 +126,28 @@ export default function ProductsForm(props: Props) {
         const isLast = index === selectedProducts.length - 1;
 
         const onMoveToTop = () => {
-          onProductReorder({
+          reorderProducts({
             source: { index, droppableId: 'products' },
             destination: { index: 0, droppableId: 'products' },
           } as DropResult);
         };
 
         const onMoveUp = () => {
-          onProductReorder({
+          reorderProducts({
             source: { index, droppableId: 'products' },
             destination: { index: index - 1, droppableId: 'products' },
           } as DropResult);
         };
 
         const onMoveDown = () => {
-          onProductReorder({
+          reorderProducts({
             source: { index, droppableId: 'products' },
             destination: { index: index + 1, droppableId: 'products' },
           } as DropResult);
         };
 
         const onMoveToBottom = () => {
-          onProductReorder({
+          reorderProducts({
             source: { index, droppableId: 'products' },
             destination: { index: selectedProducts.length - 1, droppableId: 'products' },
           } as DropResult);
@@ -179,11 +160,11 @@ export default function ProductsForm(props: Props) {
               isLast={isLast}
               key={prod.id}
               value={prod}
-              onRemove={() => onRemoveProduct(index)}
-              onCTANameChange={(value) => onCustomCTANameChange(index, value)}
-              onCTALabelChange={(value) => onCustomCTALabelChange(index, value)}
-              onCTAUrlChange={(value) => onCustomCTAUrlChange(index, value)}
-              onDescriptionChange={(value) => onCustomCTADescriptionChange(index, value)}
+              onRemove={() => removeProduct(index)}
+              onCTANameChange={(value) => changeCustomCtaName(index, value)}
+              onCTALabelChange={(value) => changeCustomCtaLabel(index, value)}
+              onCTAUrlChange={(value) => changeCustomCTAUrl(index, value)}
+              onDescriptionChange={(value) => changeCustomCTADescription(index, value)}
               onMoveToTop={onMoveToTop}
               onMoveUp={onMoveUp}
               onMoveDown={onMoveDown}
@@ -199,11 +180,11 @@ export default function ProductsForm(props: Props) {
             key={prod.id}
             value={prod}
             product={baseProduct}
-            onAddPrice={onAddPrice}
-            onRemove={() => onRemoveProduct(index)}
-            onRemovePrice={onRemovePrice}
-            onToggleFreeTrial={onToggleFreeTrial}
-            onFreeTrialDaysChange={onChangeFreeTrialDays}
+            onAddPrice={handleAddPrice}
+            onRemove={() => removeProduct(index)}
+            onRemovePrice={removePrice}
+            onToggleFreeTrial={toggleFreeTrial}
+            onFreeTrialDaysChange={changeFreeTrialDays}
             onMoveToTop={onMoveToTop}
             onMoveUp={onMoveUp}
             onMoveDown={onMoveDown}
@@ -215,7 +196,13 @@ export default function ProductsForm(props: Props) {
         <RenderIf condition={!showProducts}>
           <Group position="right" align="center">
             <Group noWrap spacing={1}>
-              <Button onClick={() => setShowProducts(true)} style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
+              <Button
+                onClick={() => {
+                  setShowProducts(true);
+                  startInteractionTimer();
+                }}
+                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
+              >
                 {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
               </Button>
               <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
@@ -230,7 +217,7 @@ export default function ProductsForm(props: Props) {
                   </ActionIcon>
                 </Menu.Target>
                 <Menu.Dropdown>
-                  <Menu.Item onClick={onAddCustomProduct}>
+                  <Menu.Item onClick={addCustomProduct}>
                     Add a custom product
                   </Menu.Item>
                 </Menu.Dropdown>
