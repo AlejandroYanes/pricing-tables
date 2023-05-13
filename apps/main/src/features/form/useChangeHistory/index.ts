@@ -6,6 +6,8 @@ import { useWidgetFormStore } from '../state';
 
 const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj));
 
+const INITIAL_COUNT_BEFORE_SAVE = process.env.VERCEL_URL ? 1 : 2;
+
 export default function useChangeHistory(enabled = false) {
   const widgetStates = useWidgetFormStore((state) => state);
   const [_, setTick] = useState(Date.now());
@@ -16,9 +18,9 @@ export default function useChangeHistory(enabled = false) {
   const { debounceCall } = useDebounce(250);
 
   useEffect(() => {
-    console.log('logging history changes');
+    console.log('logging history changes', process.env.VERCEL_URL);
     if (enabled) {
-      if (history.current.length < 2) {
+      if (history.current.length < INITIAL_COUNT_BEFORE_SAVE) {
         initialState.current = deepClone(widgetStates);
         history.current.push({ hash: Date.now(), changes: deepClone(widgetStates) });
       } else {
