@@ -106,9 +106,16 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
       const widgetProd = products[pIndex]!;
       const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
 
-      if (!stripeProd.active) continue;
+      if (stripeProd && !stripeProd.active) continue;
 
-      let finalProduct: FormProduct = { ...widgetProd, active: true, prices: [] };
+      let finalProduct: FormProduct = {
+        ...widgetProd,
+        id: widgetProd.mask,
+        mask: '',
+        isCustom: !!widgetProd.isCustom,
+        active: true,
+        prices: [],
+      };
 
       if (!widgetProd.isCustom) {
         const widgetPrices = prices.filter((p) => p.productId === widgetProd.id);
@@ -117,8 +124,8 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           ...stripeProd,
           ...({
             id: widgetProd.mask,
-            prices: [],
             mask: '',
+            prices: [],
             default_price: undefined,
           }),
         };
@@ -135,6 +142,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
             ...({
               id: widgetPrice.mask,
               productId: widgetProd.id,
+              hasFreeTrial: !!widgetPrice.hasFreeTrial,
               mask: '',
               product: undefined as any,
             }),
@@ -173,8 +181,8 @@ function normaliseFeatures(features: Feature[], products: Product[]) {
 type Widget = { id: string; template: string; recommended: string | null; color: string; unitLabel: string; subscribeLabel: string; freeTrialLabel: string; userId: string }
 type Callback = { env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
-type Product = { id: string; isCustom: boolean; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: boolean; freeTrialDays: number; productId: string; mask: string; order: number };
+type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };
 
 type WidgetInfo = {
   template: string;
