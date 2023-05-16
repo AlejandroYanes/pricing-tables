@@ -135,14 +135,15 @@ const Home: NextPage = () => {
               </List>
 
               <a
-                href="https://www.producthunt.com/posts/dealo?utm_source=badge-featured&utm_medium=badge&utm_souce=badge-dealo"
+                href="https://www.producthunt.com/posts/dealo?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-dealo"
                 target="_blank"
                 rel="noreferrer"
                 style={{ margin: '60px auto 0' }}
               >
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img
-                  src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=393090&theme=${theme.colorScheme}`}
+                  // eslint-disable-next-line max-len
+                  src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=${theme.colorScheme}&period=weekly&topic_id=237`}
                   alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
                   style={{ width: '250px', height: '54px' }}
                   width="250"
