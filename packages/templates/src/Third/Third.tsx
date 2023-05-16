@@ -3,7 +3,7 @@ import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledBut
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons';
 import type { FormCallback, FormPrice, FormProduct } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
-import { RenderIf } from 'ui';
+import { PoweredBy, RenderIf } from 'ui';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { intervalsMap } from '../constants/intervals';
@@ -45,6 +45,7 @@ const useStyles = createStyles((theme, color: string) => ({
     borderColor: 'white',
   },
   featuresBox: {
+    position: 'relative',
     minWidth: '360px',
     boxSizing: 'border-box',
     borderRadius: theme.radius.md,
@@ -335,6 +336,7 @@ export function ThirdTemplate(props: TemplateProps) {
             currency,
             !!dev,
           )}
+          <PoweredBy color={color}  position="bottom" bottom={-26} left="50%" style={{ transform: 'translateX(-50%)' }} />
         </Stack>
       </Group>
     </Stack>

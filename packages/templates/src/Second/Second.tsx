@@ -2,7 +2,7 @@
 import type { ReactNode} from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Table, Text } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { PoweredBy, RenderIf } from 'ui';
 import type { FormPrice } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
 
@@ -27,6 +27,9 @@ const useStyles = createStyles((theme, { count, color }: { color: string; count:
       borderTop: 'none !important',
       textAlign: 'center',
     },
+  },
+  header: {
+    verticalAlign: 'top',
   },
   recommended: {
     color: 'white',
@@ -188,10 +191,10 @@ export function SecondTemplate(props: TemplateProps) {
         // pricing
         case 0:
           return (
-            <td key={prod.id} className={cx({ [classes.recommended]: isRecommended })}>
+            <td key={prod.id} className={cx(classes.header, { [classes.recommended]: isRecommended })}>
               <Stack align="center" py="md" h="100%">
                 <Text size={32}>{prod.name}</Text>
-                {isCustom ? <Text mt="auto">{prod.description}</Text> : null}
+                {isCustom ? <Text mt="auto" style={{ whiteSpace: 'break-spaces' }}>{prod.description}</Text> : null}
                 {
                   !isCustom
                     ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
@@ -267,14 +270,17 @@ export function SecondTemplate(props: TemplateProps) {
       <RenderIf condition={billingIntervals.length > 1}>
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
-      <Table
-        highlightOnHover
-        withBorder
-        withColumnBorders
-        className={classes.table}
-      >
-        <tbody>{rows}</tbody>
-      </Table>
+      <div style={{ position: 'relative' }}>
+        <Table
+          highlightOnHover
+          withBorder
+          withColumnBorders
+          className={classes.table}
+        >
+          <tbody>{rows}</tbody>
+        </Table>
+        <PoweredBy color={color} position="left" left={-26} top={160} />
+      </div>
     </Stack>
   );
 }
