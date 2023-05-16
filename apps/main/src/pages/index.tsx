@@ -3,10 +3,8 @@ import Head from 'next/head';
 import Image from 'next/image';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
-import dayjs from 'dayjs';
 import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, useMantineTheme, } from '@mantine/core';
 import { IconCheck } from '@tabler/icons';
-import { RenderIf } from 'ui';
 
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from 'components/SignInForm';

@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
 import type { FormPrice } from 'models';
-import { RenderIf } from 'ui';
+import { RenderIf, PoweredBy, AbsoluteContent } from 'ui';
 import { generateQueryString } from 'helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
@@ -13,6 +13,7 @@ import { resolveFeaturesForProduct } from './utils/resolve-features-for-product'
 
 const useStyles = createStyles((theme, color: string) => ({
   productCard: {
+    position: 'relative',
     boxSizing: 'border-box',
     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
     padding: '48px 32px 24px',
@@ -74,7 +75,9 @@ export function BasicTemplate(props: TemplateProps) {
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
       <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
-        {visibleProducts.map((prod) => {
+        {visibleProducts.map((prod, index) => {
+          const isFirst = index === 0;
+
           const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
           const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
@@ -127,13 +130,16 @@ export function BasicTemplate(props: TemplateProps) {
               </RenderIf>
               <Text align="center">{prod.description}</Text>
               <Stack mt="auto" align="center">
-                <RenderIf condition={!!hasFreeTrial}>
+                <RenderIf condition={hasFreeTrial}>
                   <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
                 <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
                   {resolveBtnLabel()}
                 </Button>
               </Stack>
+              <RenderIf condition={isFirst}>
+                <PoweredBy top={170} left={-27} color={color} position="left" />
+              </RenderIf>
             </Stack>
           )
         })}
