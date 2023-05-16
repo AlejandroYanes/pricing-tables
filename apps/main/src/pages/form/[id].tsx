@@ -19,6 +19,7 @@ import type { FormTabs } from 'features/form/state';
 import { useFormPageStates } from 'features/form/state';
 import { fetchWidget } from 'features/form/state/actions';
 import SaveButton from 'features/form/SaveButton';
+import viewSizeGuard from '../../utils/hoc/viewSizeGuard';
 
 const errorScreen = (
   <BaseLayout showBackButton>
@@ -201,4 +202,4 @@ const FormPage = () => {
   );
 };
 
-export default authGuard(FormPage);
+export default viewSizeGuard(authGuard(FormPage));

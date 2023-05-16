@@ -16,7 +16,7 @@ export default function authGuard(Component: JSXElementConstructor<{ session: Se
 
     if (status === 'unauthenticated' || !data?.user) {
       router.push('/');
-      return;
+      return null;
     }
 
     if (!data.user.isSetup) {

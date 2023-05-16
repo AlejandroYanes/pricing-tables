@@ -1,9 +1,7 @@
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { useRouter } from 'next/router';
-import { useSession } from 'next-auth/react';
-import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, useMantineTheme, } from '@mantine/core';
+import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, useMantineTheme, MediaQuery } from '@mantine/core';
 import { IconCheck } from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
@@ -22,9 +20,11 @@ const useStyles = createStyles((theme) => ({
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingTop: `calc(${theme.spacing.xl} * 4)`,
-    paddingBottom: `calc(${theme.spacing.xl} * 4)`,
+    padding: `calc(${theme.spacing.xl} * 4) 0`,
     gap: `calc(${theme.spacing.xl} * 3)`,
+    [theme.fn.smallerThan('md')]: {
+      padding: `calc(${theme.spacing.md} * 2) 0`,
+    },
   },
   content: {
     display: 'flex',
@@ -57,6 +57,12 @@ const useStyles = createStyles((theme) => ({
       fontSize: rem(28),
     },
   },
+  highlight: {
+    position: 'relative',
+    backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
+    borderRadius: theme.radius.sm,
+    padding: `${rem(4)} ${rem(12)}`,
+  },
 
   control: {
     [theme.fn.smallerThan('xs')]: {
@@ -72,23 +78,24 @@ const useStyles = createStyles((theme) => ({
     },
   },
 
-  highlight: {
-    position: 'relative',
-    backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
-    borderRadius: theme.radius.sm,
-    padding: `${rem(4)} ${rem(12)}`,
+  bottom: {
+    [theme.fn.smallerThan('md')]: {
+      display: 'flex',
+      flexDirection: 'column-reverse',
+      alignItems: 'center',
+      '& > *': {
+        maxWidth: 'unset',
+      },
+      '& > iframe': {
+        width: '100% !important',
+      },
+    },
   },
 }));
 
 const Home: NextPage = () => {
-  const { status } = useSession();
-  const router = useRouter();
   const theme = useMantineTheme();
   const { classes } = useStyles();
-
-  if (status === 'authenticated') {
-    router.push('/dashboard');
-  }
 
   return (
     <>
@@ -151,21 +158,35 @@ const Home: NextPage = () => {
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
-          <Group align="flex-start" mt="xl" grow>
+          <Group align="flex-start" mt="xl" grow className={classes.bottom}>
             <Stack>
               <SignInForm />
             </Stack>
             <Stack>
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-                title="Pricing Cards Demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                width="560"
-                height="315"
-                allowFullScreen
-                style={{ border: 'none' }}
-              >
-              </iframe>
+              <MediaQuery smallerThan="xs" styles={{ display: 'none' }}>
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+                  title="Pricing Cards Demo"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  width="560"
+                  height="315"
+                  allowFullScreen
+                  style={{ border: 'none' }}
+                >
+                </iframe>
+              </MediaQuery>
+              <MediaQuery largerThan="xs" styles={{ display: 'none' }}>
+                <iframe
+                  src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+                  title="Pricing Cards Demo"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  width="320"
+                  height="260"
+                  allowFullScreen
+                  style={{ border: 'none', marginBottom: '32px' }}
+                >
+                </iframe>
+              </MediaQuery>
             </Stack>
           </Group>
         </div>
