@@ -8,6 +8,7 @@ import { skeletonMap } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
+import viewSizeGuard from 'utils/hoc/viewSizeGuard';
 import BaseLayout from 'components/BaseLayout';
 import TemplatesModal from 'components/TemplatesModal';
 
@@ -99,4 +100,4 @@ const DashboardPage = () => {
   );
 };
 
-export default authGuard(DashboardPage);
+export default viewSizeGuard(authGuard(DashboardPage));

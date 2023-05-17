@@ -4,12 +4,18 @@ import { RenderIf } from 'ui';
 
 import { CustomNavbar } from 'components/Navbar';
 
-const useStyles = createStyles(() => ({
+const useStyles = createStyles((theme) => ({
   wrapper: {
     display: 'flex',
     flexDirection: 'column',
     padding: '0 48px 24px',
     position: 'relative',
+    [theme.fn.smallerThan('md')]: {
+      padding: '0 20px 48px',
+    },
+    [theme.fn.smallerThan('xs')]: {
+      padding: '0 20px 24px',
+    },
   },
 }));
 
