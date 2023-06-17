@@ -361,14 +361,15 @@ export const widgetsRouter = createTRPCRouter({
     .input(
       z.object({
         page: z.number().min(1),
+        pageSize: z.number(),
       })
     )
     .query(async ({ ctx, input }) => {
-      const { page } = input;
+      const { page, pageSize } = input;
 
       const results = await ctx.prisma.priceWidget.findMany({
-        take: ITEMS_PER_PAGE_LIMIT,
-        skip: page === 1 ? 0 : ITEMS_PER_PAGE_LIMIT * (page - 1),
+        take: pageSize,
+        skip: page === 1 ? 0 : pageSize * (page - 1),
         where: {
           userId: {
             startsWith: 'guest_',

@@ -1,4 +1,4 @@
-import { Group, Pagination, Table, Text } from '@mantine/core';
+import { createStyles, Group, Pagination, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
 import { calculateTotal } from 'helpers';
 
@@ -6,13 +6,24 @@ import UserAvatar from 'components/UserAvatar';
 
 interface Props {
   page: number;
+  pageSize: number;
   count: number;
   data: { id: string; name: string; createdAt: Date; userId: string | null }[];
   onPageChange: (nextPage: number) => void;
+  onPageSizeChange: (nextPageSize: number) => void;
 }
 
+const useStyles = createStyles((theme) => ({
+  footer: {
+    position: 'sticky',
+    bottom: 0,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+  },
+}));
+
 const GuestsTable = (props: Props) => {
-  const { page, count, data, onPageChange } = props;
+  const { page, pageSize, count, data, onPageChange, onPageSizeChange } = props;
+  const { classes } = useStyles();
 
   const rows = data.map((widget) => (
     <tr key={widget.id}>
@@ -45,12 +56,18 @@ const GuestsTable = (props: Props) => {
         </thead>
         <tbody>{rows}</tbody>
       </Table>
-      <Group position="right" py="lg">
+      <Group position="apart" py="lg" className={classes.footer}>
+        <Select
+          defaultValue="25"
+          data={['5', '10', '25', '50', '100']}
+          onChange={(value) => onPageSizeChange(Number(value))}
+          style={{ width: 80 }}
+        />
         <Pagination
           withEdges
           value={page}
           onChange={onPageChange}
-          total={calculateTotal(count)}
+          total={calculateTotal(count, pageSize)}
         />
       </Group>
     </>

@@ -1,30 +1,52 @@
-import { Badge, Group, Pagination, Table, Text, TextInput } from '@mantine/core';
+import { useState } from 'react';
+import {
+  Badge,
+  Group,
+  Pagination,
+  Select,
+  Table,
+  Text,
+  TextInput,
+  createStyles,
+  Popover,
+  ActionIcon,
+  Stack,
+  Divider,
+  Radio,
+} from '@mantine/core';
+import { IconFilter } from '@tabler/icons';
 import { calculateTotal } from 'helpers';
 import { RenderIf } from 'ui';
+import { useDebouncedState } from '@mantine/hooks';
 
+import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
 
-interface Props {
-  page: number;
-  count: number;
-  data: {
-    id: string;
-    image: string | null;
-    name: string | null;
-    email: string | null;
-    stripeKey: string | null;
-    _count: {
-      widgets: number;
-    };
-  }[];
-  onQueryChange: (nextQuery: string) => void;
-  onPageChange: (nextPage: number) => void;
-}
+const useStyles = createStyles((theme) => ({
+  footer: {
+    position: 'sticky',
+    bottom: 0,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
+  },
+}));
 
-const UsersTable = (props: Props) => {
-  const { page, count, data, onPageChange, onQueryChange } = props;
+const UsersTable = () => {
+  const [query, setQuery] = useDebouncedState('', 200);
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [isSetup, setIsSetup] = useState<string>('all');
 
-  const rows = data.map((user) => (
+  const {
+    data: { results, count } = { results: [], count: 0 },
+  } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
+  const { classes } = useStyles();
+
+  const handleFilterChange = (value: string) => {
+    setIsSetup(value);
+    setPage(1);
+  };
+
+  const rows = results.map((user) => (
     <tr key={user.id}>
       <td>
         <Group spacing="sm">
@@ -42,7 +64,7 @@ const UsersTable = (props: Props) => {
 
       <td>
         <RenderIf
-          condition={!!user.stripeKey}
+          condition={user.isSetup}
           fallback={
             <Badge color="orange">No</Badge>
           }
@@ -51,20 +73,48 @@ const UsersTable = (props: Props) => {
         </RenderIf>
       </td>
 
-      <td>{!!user.stripeKey ? user._count.widgets : 'N/A'}</td>
+      <td>{user.isSetup ? user._count.widgets : 'N/A'}</td>
     </tr>
   ));
 
   return (
     <>
-      <TextInput
-        my="lg"
-        mr="auto"
-        defaultValue=""
-        placeholder="Search users"
-        sx={{ width: '280px' }}
-        onChange={(e) => onQueryChange(e.target.value)}
-      />
+      <Group position="apart">
+        <TextInput
+          my="lg"
+          mr="auto"
+          defaultValue=""
+          placeholder="Search users"
+          sx={{ width: '280px' }}
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <Popover width={200} position="bottom-end">
+          <Popover.Target>
+            <ActionIcon variant="filled" size="lg"><IconFilter /></ActionIcon>
+          </Popover.Target>
+
+          <Popover.Dropdown>
+            <Stack>
+              <Text size="sm" weight={500}>Filters</Text>
+              <Divider />
+              <Stack>
+                <Text size="sm" weight={500}>Is Setup</Text>
+                <Radio.Group
+                  name="status"
+                  value={isSetup}
+                  onChange={(value: string) => handleFilterChange(value)}
+                >
+                  <Stack spacing="xs">
+                    <Radio value="all" label="All" />
+                    <Radio value="yes" label="Yes" />
+                    <Radio value="no" label="No" />
+                  </Stack>
+                </Radio.Group>
+              </Stack>
+            </Stack>
+          </Popover.Dropdown>
+        </Popover>
+      </Group>
       <Table verticalSpacing="sm" horizontalSpacing="lg">
         <thead>
           <tr>
@@ -75,12 +125,18 @@ const UsersTable = (props: Props) => {
         </thead>
         <tbody>{rows}</tbody>
       </Table>
-      <Group position="right" py="lg">
+      <Group position="apart" py="lg" className={classes.footer}>
+        <Select
+          defaultValue="25"
+          data={['5', '10', '25', '50', '100']}
+          onChange={(value) => setPageSize(Number(value))}
+          style={{ width: 80 }}
+        />
         <Pagination
           withEdges
           value={page}
-          onChange={onPageChange}
-          total={calculateTotal(count)}
+          onChange={setPage}
+          total={calculateTotal(count, pageSize)}
         />
       </Group>
     </>
