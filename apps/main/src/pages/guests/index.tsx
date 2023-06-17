@@ -10,11 +10,12 @@ import GuestsTable from 'components/GuestsTable';
 
 const UsersPage: NextPage = () => {
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
   const {
     data: { results, count } = { results: [], count: 0 },
     refetch,
-  } = trpc.widgets.listGuestWidgets.useQuery({ page }, { keepPreviousData: true });
+  } = trpc.widgets.listGuestWidgets.useQuery({ page, pageSize }, { keepPreviousData: true });
 
   const { mutate, isLoading } = trpc.widgets.deleteGuestWidgets.useMutation({
     onSuccess: () => refetch(),
@@ -32,9 +33,11 @@ const UsersPage: NextPage = () => {
           </Group>
           <GuestsTable
             page={page}
+            pageSize={pageSize}
             count={count}
             data={results}
             onPageChange={setPage}
+            onPageSizeChange={setPageSize}
           />
         </Stack>
       </BaseLayout>

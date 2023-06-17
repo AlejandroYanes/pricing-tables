@@ -1,8 +1,6 @@
 import { z } from 'zod';
-import { ITEMS_PER_PAGE_LIMIT } from 'helpers';
 
 import { notifyOfDeletedAccount, notifyOfNewSetup } from 'utils/slack';
-import initDb from 'utils/planet-scale';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
@@ -21,17 +19,39 @@ export const userRouter = createTRPCRouter({
   listUsers: adminProcedure
     .input(z.object({
       page: z.number().min(1),
+      pageSize: z.number(),
       query: z.string().nullish(),
+      isSetup: z.enum(['all', 'yes', 'no']),
     }))
     .query(async ({ ctx, input }) => {
-      const { page, query } = input;
+      const { page, pageSize, query, isSetup } = input;
 
-      const whereQuery = query ? {
-        OR: [
-          { name: { contains: query } },
-          { email: { contains: query } },
-        ],
-      } : undefined;
+      let setupQuery = {};
+      let searchQuery = {};
+
+      if (isSetup === 'yes') {
+        setupQuery = {
+          stripeKey: { not: null },
+        };
+      } else if (isSetup === 'no') {
+        setupQuery = {
+          stripeKey: null,
+        };
+      }
+
+      if (query) {
+        searchQuery = {
+          OR: [
+            { name: { contains: query } },
+            { email: { contains: query } },
+          ],
+        };
+      }
+
+      const whereQuery = {
+        ...setupQuery,
+        ...searchQuery,
+      };
       const selectQuery = {
         id: true,
         name: true,
@@ -45,12 +65,16 @@ export const userRouter = createTRPCRouter({
         },
       };
 
-      const results = await ctx.prisma.user.findMany({
-        take: ITEMS_PER_PAGE_LIMIT,
-        skip: page === 1 ? 0 : ITEMS_PER_PAGE_LIMIT * (page - 1),
+      const results = (await ctx.prisma.user.findMany({
+        take: pageSize,
+        skip: page === 1 ? 0 : pageSize * (page - 1),
         where: whereQuery,
         select: selectQuery,
-      });
+      })).map((res) => ({
+        ...res,
+        stripeKey: undefined,
+        isSetup: !!res.stripeKey,
+      }));
       const count = await ctx.prisma.user.count({
         where: whereQuery,
       });

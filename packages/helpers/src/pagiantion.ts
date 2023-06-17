@@ -1,8 +1,8 @@
-export const ITEMS_PER_PAGE_LIMIT = 10;
+export const ITEMS_PER_PAGE_LIMIT = 5;
 
-export function calculateTotal(count: number) {
-  if (count % ITEMS_PER_PAGE_LIMIT !== 0) {
-    return Math.floor((count / ITEMS_PER_PAGE_LIMIT) + 1);
+export function calculateTotal(count: number, pageSize: number) {
+  if (count % pageSize !== 0) {
+    return Math.floor((count / pageSize) + 1);
   }
-  return Math.floor(count / ITEMS_PER_PAGE_LIMIT);
+  return Math.floor(count / pageSize);
 }
