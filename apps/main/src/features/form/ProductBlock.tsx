@@ -56,13 +56,20 @@ const useStyles = createStyles((theme) => ({
     top: '4px',
     right: '4px'
   },
-  actionButton: {
+  flatButton: {
     fontWeight: 600,
     fontSize: '14px',
     ['&:hover']: {
       cursor: 'pointer',
       color: theme.colorScheme === 'dark' ? theme.colors[theme.primaryColor]![4] : theme.colors[theme.primaryColor]![7],
     },
+  },
+  actionButton: {
+    borderTop: 'none',
+    borderRight: 'none',
+    borderBottom: 'none',
+    borderRadius: 0,
+    borderBottomRightRadius: '3px',
   },
 }));
 
@@ -233,7 +240,7 @@ export default function ProductBlock(props: Props) {
                 onChange={() => undefined}
                 onClick={() => onToggleFreeTrial(value.id, price.id)}
               />
-              <RenderIf condition={!!price.hasFreeTrial}>
+              <RenderIf condition={price.hasFreeTrial}>
                 <NumberInput
                   mb="xs"
                   label="Days"
@@ -255,16 +262,24 @@ export default function ProductBlock(props: Props) {
         <RenderIf
           condition={!showPriceSelect}
           fallback={
-            <Group spacing={0}>
+            <Group
+              spacing={0}
+              h={42}
+              onMouseEnter={clearInteractionTimer}
+              onMouseLeave={startInteractionTimer}
+            >
               <Select
                 initiallyOpened
                 radius="xs"
                 style={{ flex: 1 }}
                 styles={{
                   input: {
+                    height: 42,
                     border: 'none',
                     borderTopRightRadius: 0,
                     borderBottomRightRadius: 0,
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 3,
                   },
                   separatorLabel: {
                     color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
@@ -272,7 +287,6 @@ export default function ProductBlock(props: Props) {
                 }}
                 data={priceOptions}
                 onChange={handleSelectPrice}
-                onFocus={startInteractionTimer}
               />
               <ActionIcon
                 onClick={() => {
@@ -281,28 +295,21 @@ export default function ProductBlock(props: Props) {
                 }}
                 variant="default"
                 size={42}
-                style={{
-                  borderTop: 'none',
-                  borderRight: 'none',
-                  borderBottom: 'none',
-                  borderTopLeftRadius: 0,
-                  borderBottomLeftRadius: 0,
-                }}
+                className={classes.actionButton}
               >
                 <IconX size="1rem" stroke={1.5} />
               </ActionIcon>
             </Group>
           }
         >
-          <Group px={16} py={10} align="center" position="apart">
+          <Group h={42} px={16} py={10} align="center" position="apart">
             <Text color="dimmed" size="sm">
               {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
             </Text>
             <UnstyledButton
-              className={classes.actionButton}
+              className={classes.flatButton}
               onClick={() => {
                 setShowPriceSelect(true);
-                // startInteractionTimer();
               }}
             >
               Add another price
