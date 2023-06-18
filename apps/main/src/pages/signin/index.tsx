@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Alert, Button, createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
-import { IconAlertCircle, IconCheck } from '@tabler/icons';
+import { Alert, Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import Image from 'next/image';
 

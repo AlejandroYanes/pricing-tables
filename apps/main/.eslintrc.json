@@ -92,6 +92,14 @@
     }
   },
   "ignorePatterns": [
-    "node_modules/", "dist/", "public/", "jest.config.js", "jest.setup.js", "client.mjs", "server.mjs", "schema.mjs"
+    "node_modules/",
+    "dist/",
+    "public/",
+    "jest.config.js",
+    "jest.setup.js",
+    "client.mjs",
+    "server.mjs",
+    "schema.mjs",
+    "tailwind.config.js"
   ]
 }

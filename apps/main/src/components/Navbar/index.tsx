@@ -1,43 +1,32 @@
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
-import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
-import { openConfirmModal } from '@mantine/modals';
 import type { TablerIcon } from '@tabler/icons';
 import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { ROLES } from 'models';
+import { useState } from 'react';
 
 import { trpc } from 'utils/trpc';
-
-const useStyles = createStyles((theme) => ({
-  header: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    border: 'none',
-  },
-  link: {
-    width: 50,
-    height: 50,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.md,
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
-    },
-  },
-
-  active: {
-    '&, &:hover': {
-      backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
-      color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
-    },
-  },
-}));
+import { Button } from 'components/ui/button';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from 'components/ui/hover-card';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from 'components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../ui/alert-dialog';
 
 interface NavbarLinkProps {
 	icon: TablerIcon;
@@ -45,11 +34,10 @@ interface NavbarLinkProps {
 }
 
 function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
-  const { classes } = useStyles();
   return (
-    <UnstyledButton onClick={onClick} className={classes.link}>
+    <Button onClick={onClick} className="h-[50px] w-[50px] flex justify-center items-center rounded">
       <Icon stroke={1.5} />
-    </UnstyledButton>
+    </Button>
   );
 }
 
@@ -61,9 +49,10 @@ interface Props {
 
 export function CustomNavbar(props: Props) {
   const { showBackButton = false, title, backRoute } = props;
-  const { classes } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
+
+  const [showDeleteAccountModal, setShowModal] = useState(false);
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
     onSuccess: () => handleLogout(),
@@ -74,19 +63,7 @@ export function CustomNavbar(props: Props) {
   };
 
   const handleDeleteAccount = async () => {
-    openConfirmModal({
-      title: 'Delete account',
-      children: (
-        <Text>
-          Are you sure you want to delete your account?
-          We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
-          and this action is irreversible.
-        </Text>
-      ),
-      labels: { confirm: 'Delete it', cancel: "No don't delete it" },
-      confirmProps: { color: 'red' },
-      onConfirm: () => deleteAccount(),
-    });
+    setShowModal(true);
   };
 
   if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
@@ -95,63 +72,79 @@ export function CustomNavbar(props: Props) {
   const { user } = data;
 
   return (
-    <Header height={64} className={classes.header} mb="xl" zIndex={1}>
-      <RenderIf condition={showBackButton}>
-        <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
-      </RenderIf>
-      <Title ml="md">{title}</Title>
-      <Group ml="auto">
-        <HoverCard width={280} shadow="md" position="bottom-end">
-          <HoverCard.Target>
-            <div>
-              <NavbarLink icon={IconInfoCircle} />
-            </div>
-          </HoverCard.Target>
-          <HoverCard.Dropdown>
-            <Text size="sm">
-              This platform is still an alpha version, so if you find any bugs or have any suggestions,
-              please let me know at <Anchor href="mailto:alejandro@dealo.app">alejandro@dealo.app</Anchor>!
-            </Text>
-          </HoverCard.Dropdown>
-        </HoverCard>
-        <Menu shadow="md" width={200} offset={18} position="bottom-end">
-          <Menu.Target>
-            <div>
+    <>
+      <header className="h-16 flex justify-between items-center mb-5 z-10">
+        <RenderIf condition={showBackButton}>
+          <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+        </RenderIf>
+        <h1 className="text-4xl">{title}</h1>
+        <div className="flex items-center gap-4 ml-auto">
+          <HoverCard>
+            <HoverCardTrigger asChild>
+              <div>
+                <NavbarLink icon={IconInfoCircle} />
+              </div>
+            </HoverCardTrigger>
+            <HoverCardContent className="w-[200px]">
+              <p className="text text-black">
+                This platform is still an alpha version, so if you find any bugs or have any suggestions,
+                please let me know at <a href="mailto:alejandro@dealo.app">alejandro@dealo.app</a>!
+              </p>
+            </HoverCardContent>
+          </HoverCard>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
               <NavbarLink icon={IconUser} />
-            </div>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <RenderIf condition={user?.role === ROLES.ADMIN}>
-              <Menu.Label>Management</Menu.Label>
-              <Menu.Item
-                onClick={() => router.push('/users')}
-                icon={<IconUsers size={14} />}
-              >
-                Manage Users
-              </Menu.Item>
-              <Menu.Item
-                onClick={() => router.push('/guests')}
-                icon={<IconUsers size={14} />}
-              >
-                Manage Guests
-              </Menu.Item>
-              <Menu.Divider />
-            </RenderIf>
-            <Menu.Label>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</Menu.Label>
-            <RenderIf condition={user?.role !== ROLES.GUEST}>
-              <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
-            </RenderIf>
-            <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-            <RenderIf condition={user?.role !== ROLES.GUEST}>
-              <Menu.Divider />
-              <Menu.Label>Danger zone</Menu.Label>
-              <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
-                Delete my account
-              </Menu.Item>
-            </RenderIf>
-          </Menu.Dropdown>
-        </Menu>
-      </Group>
-    </Header>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="w-[200px] mt-6">
+              <RenderIf condition={user?.role === ROLES.ADMIN}>
+                <DropdownMenuLabel>Management</DropdownMenuLabel>
+                <DropdownMenuItem onClick={() => router.push('/users')}>
+                  <IconUsers size={14} />
+                  Manage Users
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => router.push('/guests')}>
+                  <IconUsers size={14} />
+                  Manage Guests
+                </DropdownMenuItem>
+                DropdownMenuSeparator
+              </RenderIf>
+              <DropdownMenuLabel>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</DropdownMenuLabel>
+              <RenderIf condition={user?.role !== ROLES.GUEST}>
+                <DropdownMenuItem><IconSettings size={14} />Settings</DropdownMenuItem>
+              </RenderIf>
+              <DropdownMenuItem onClick={handleLogout}><IconLogout size={14} />Logout</DropdownMenuItem>
+              <RenderIf condition={user?.role !== ROLES.GUEST}>
+                <DropdownMenuSeparator />
+                <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
+                <DropdownMenuItem color="destructive" onClick={handleDeleteAccount}>
+                  <IconTrash size={14} />
+                  Delete my account
+                </DropdownMenuItem>
+              </RenderIf>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </header>
+      <RenderIf condition={showDeleteAccountModal}>
+        <AlertDialog open>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Are you sure you want to delete your account?
+                We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
+                and this action is irreversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowModal(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction onClick={() => deleteAccount()}>Continue</AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+      </RenderIf>
+    </>
   );
 }

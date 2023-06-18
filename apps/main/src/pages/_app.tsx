@@ -5,6 +5,7 @@ import { SessionProvider } from 'next-auth/react';
 import { Notifications } from '@mantine/notifications';
 import { ModalsProvider } from '@mantine/modals';
 import { PricingThemeProvider } from 'ui';
+import 'styles/globals.css';
 
 import { trpc } from 'utils/trpc';
 
