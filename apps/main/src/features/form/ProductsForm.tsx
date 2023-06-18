@@ -226,13 +226,15 @@ export default function ProductsForm(props: Props) {
           </Group>
         </RenderIf>
         <RenderIf condition={showProducts}>
-          <Group spacing={0}>
+          <Group
+            spacing={0}
+            onMouseEnter={clearInteractionTimer}
+            onMouseLeave={startInteractionTimer}
+          >
             <Select
               initiallyOpened
               data={productOptions}
               onChange={handleAddProduct}
-              onFocus={startInteractionTimer}
-              onBlur={startInteractionTimer}
               style={{ flex: 1 }}
               styles={{
                 input: {
