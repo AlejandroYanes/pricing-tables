@@ -1,3 +1,5 @@
+'use client'
+
 import { MantineProvider } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import type { EmotionCache } from '@emotion/react';
