@@ -1,13 +1,19 @@
 import { type ReactNode } from 'react';
 import Script from 'next/script';
+import { getServerSession } from 'next-auth';
+
+import ClientProvider from 'components/ClientProvider';
+import { authOptions } from './api/auth/[...nextauth]';
+
+import 'styles/globals.css';
 
 interface Props {
   children: ReactNode;
 }
 
-const RootLayout = ({ children }: Props) => {
+const RootLayout = async ({ children }: Props) => {
+  const session = await getServerSession(authOptions);
   return (
-
     <html>
       <head>
         <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-touch-icon.png" />
@@ -30,7 +36,9 @@ const RootLayout = ({ children }: Props) => {
         </Script>
       </head>
       <body>
-        {children}
+        <ClientProvider session={session}>
+          {children}
+        </ClientProvider>
       </body>
     </html>
   )

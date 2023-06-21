@@ -1,3 +1,5 @@
+'use client'
+
 import { useRouter } from 'next/router';
 import { signOut, useSession } from 'next-auth/react';
 import type { TablerIcon } from '@tabler/icons';

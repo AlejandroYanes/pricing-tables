@@ -1,138 +1,66 @@
-// import { createStyles, Group, List, MediaQuery, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import Image from 'next/image';
 import { IconCheck } from '@tabler/icons';
 
-import BaseLayout from '../components/BaseLayout';
-import SignInForm from '../components/SignInForm';
+import BaseLayout from 'components/BaseLayout';
+import SignInForm from 'components/SignInForm';
 
 export const metadata = {
   title: 'Dealo',
   description: 'A platform to streamline pricing cards and checkouts',
 }
 
-const useStyles = createStyles((theme) => ({
-  wrapper: {
-    width: '100%',
-    maxWidth: 1200,
-    margin: '0 auto',
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'center',
-  },
-  inner: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: `calc(${theme.spacing.xl} * 4) 0`,
-    gap: `calc(${theme.spacing.xl} * 3)`,
-    [theme.fn.smallerThan('md')]: {
-      padding: `calc(${theme.spacing.md} * 2) 0`,
-    },
-  },
-  content: {
-    display: 'flex',
-    flexDirection: 'column',
-    maxWidth: rem(480),
-
-    [theme.fn.smallerThan('md')]: {
-      maxWidth: '100%',
-      marginRight: 0,
-    },
-  },
-
-  title: {
-    color: theme.colors.teal[6],
-    fontSize: rem(64),
-    lineHeight: 1.2,
-    fontWeight: 900,
-
-    [theme.fn.smallerThan('xs')]: {
-      fontSize: rem(28),
-    },
-  },
-  subtitle: {
-    color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    fontSize: rem(40),
-    lineHeight: 1.2,
-    fontWeight: 700,
-
-    [theme.fn.smallerThan('xs')]: {
-      fontSize: rem(28),
-    },
-  },
-  highlight: {
-    position: 'relative',
-    backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
-    borderRadius: theme.radius.sm,
-    padding: `${rem(4)} ${rem(12)}`,
-  },
-
-  control: {
-    [theme.fn.smallerThan('xs')]: {
-      flex: 1,
-    },
-  },
-
-  image: {
-    flex: 1,
-
-    [theme.fn.smallerThan('md')]: {
-      display: 'none',
-    },
-  },
-
-  bottom: {
-    [theme.fn.smallerThan('md')]: {
-      display: 'flex',
-      flexDirection: 'column-reverse',
-      alignItems: 'center',
-      '& > *': {
-        maxWidth: 'unset',
-      },
-      '& > iframe': {
-        width: '100% !important',
-      },
-    },
-  },
-}));
-
 const HomePage = () => {
   return (
     <BaseLayout hideNavbar>
-      <div className={classes.wrapper}>
-        <div className={classes.inner}>
-          <div className={classes.content}>
-            <Group spacing={0}>
+      <div className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
+        <div className="flex justify-center items-center py-24 px-0 gap-[72px]">
+          <div className="flex flex-col items-stretch max-w-[30rem]">
+            <div className="flex items-center gap-0">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
-              <Title order={1} mb="md" className={classes.title}>ealo</Title>
-            </Group>
-            <Title className={classes.subtitle}>
-              A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
-            </Title>
-            <Text color="dimmed" mt="md">
+              <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+            </div>
+            <h2 className="text-[40px] leading-[1.2] font-bold">
+              A platform to streamline <br />
+              <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing cards</span>
+              <br />
+              into your website.
+            </h2>
+            <span className="mt-4 text-gray-500">
               Build fully functional pricing widgets in minutes using our set of templates.
-            </Text>
+            </span>
 
-            <List
-              mt={30}
-              spacing="sm"
-              size="sm"
-              icon={
-                <ThemeIcon size={20} radius="xl">
-                  <IconCheck size={rem(12)} stroke={1.5} />
-                </ThemeIcon>
-              }
-            >
-              <List.Item>
-                <b>Powered by Stripe</b> – use the products you already have to create a pricing widget in minutes
-              </List.Item>
-              <List.Item>
-                <b>Easy setup</b> – just copy and paste the code snippets to your website
-              </List.Item>
-              <List.Item>
-                <b>Easy checkout</b> – redirect your customers to our checkout API, we will generate a checkout session for you
-              </List.Item>
-            </List>
+            <ul className="mt-8 flex flex-col gap-2 list-none">
+              <li className="flex items-start">
+                <div className="bg-emerald-500 rounded-full mt-1 mr-3 p-1 shrink-0">
+                  <IconCheck size="12px" color="white" stroke={1.5} />
+                </div>
+                <span className="font-light">
+                  <span className="font-semibold">Powered by Stripe</span>
+                  {` - `}
+                  use the products you already have to create a pricing widget in minutes
+                </span>
+              </li>
+              <li className="flex items-start">
+                <div className="bg-emerald-500 rounded-full mt-1 mr-3 p-1 shrink-0">
+                  <IconCheck size="12px" color="white" stroke={1.5} />
+                </div>
+                <span className="font-light">
+                  <span className="font-semibold">Easy setup</span>
+                  {` – `}
+                  just copy and paste the code snippets to your website
+                </span>
+              </li>
+              <li className="flex items-start">
+                <div className="bg-emerald-500 rounded-full mt-1 mr-3 p-1 shrink-0">
+                  <IconCheck size="12px" color="white" stroke={1.5} />
+                </div>
+                <span className="font-light">
+                  <span className="font-semibold">Easy checkout</span>
+                  {` – `}
+                  redirect your customers to our checkout API, we will generate a checkout session for you
+                </span>
+              </li>
+            </ul>
 
             <a
               href="https://www.producthunt.com/posts/dealo?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-dealo"
@@ -143,7 +71,7 @@ const HomePage = () => {
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 // eslint-disable-next-line max-len
-                src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=${theme.colorScheme}&period=weekly&topic_id=237`}
+                src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=light&period=weekly&topic_id=237`}
                 alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
                 style={{ width: '250px', height: '54px' }}
                 width="250"
@@ -151,39 +79,37 @@ const HomePage = () => {
               />
             </a>
           </div>
-          <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
+          <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className="flex-1 hidden lg:block" />
         </div>
-        <Group align="flex-start" mt="xl" grow className={classes.bottom}>
-          <Stack>
+        <div className="flex mt-8 flex-col-reverse items-center lg:flex-row lg:items-start gap-4">
+          <div className="flex flex-col lg:flex-1 lg:max-w-[50%]">
             <SignInForm />
-          </Stack>
-          <Stack>
-            <MediaQuery smallerThan="xs" styles={{ display: 'none' }}>
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-                title="Pricing Cards Demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                width="560"
-                height="315"
-                allowFullScreen
-                style={{ border: 'none' }}
-              >
-              </iframe>
-            </MediaQuery>
-            <MediaQuery largerThan="xs" styles={{ display: 'none' }}>
-              <iframe
-                src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-                title="Pricing Cards Demo"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                width="320"
-                height="260"
-                allowFullScreen
-                style={{ border: 'none', marginBottom: '32px' }}
-              >
-              </iframe>
-            </MediaQuery>
-          </Stack>
-        </Group>
+          </div>
+          <div className="flex flex-col lg:flex-1 lg:max-w-[50%]">
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+              title="Pricing Cards Demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              width="560"
+              height="315"
+              allowFullScreen
+              className="hidden sm:block"
+              style={{ border: 'none' }}
+            >
+            </iframe>
+            <iframe
+              src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+              title="Pricing Cards Demo"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              width="320"
+              height="260"
+              allowFullScreen
+              className="block sm:hidden mb-8"
+              style={{ border: 'none' }}
+            >
+            </iframe>
+          </div>
+        </div>
       </div>
     </BaseLayout>
   );

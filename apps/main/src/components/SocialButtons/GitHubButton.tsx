@@ -1,0 +1,12 @@
+import { IconBrandGithub } from '@tabler/icons';
+
+import { Button, type ButtonProps } from '../ui/button';
+
+export default function GithubButton(props: ButtonProps) {
+  return (
+    <Button {...props}>
+      <IconBrandGithub size={16} className="mr-2" />
+      Continue with GitHub
+    </Button>
+  );
+}
