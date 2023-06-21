@@ -59,7 +59,7 @@
     "lucide-react": "^0.244.0",
     "models": "*",
     "next": "13.4.6",
-    "next-auth": "4.20.1",
+    "next-auth": "4.22.1",
     "radash": "10.8.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "13.1.1",

@@ -2,7 +2,7 @@ import type { Session } from 'next-auth';
 import { getServerSession } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { authOptions } from '../app/api/auth/[...nextauth]';
+import { authOptions } from '../app/api/auth/[...nextauth]/[...nextauth]';
 
 type NextHandler = (req: NextApiRequest, res: NextApiResponse, session?: Session) => Promise<void>;
 

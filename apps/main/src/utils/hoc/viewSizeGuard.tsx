@@ -1,12 +1,12 @@
 import type { JSXElementConstructor } from 'react';
-import { useRouter } from 'next/router';
+import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { Button, Stack, Text, Title } from '@mantine/core';
 import { useMediaQuery } from '@mantine/hooks';
 
 import BaseLayout from 'components/BaseLayout';
+import { Button } from 'components/ui/button';
 
-const query = '(max-width: 1280px)';
+const query = '(max-width: 1024px)';
 
 export default function viewSizeGuard(Component: JSXElementConstructor<any> | null) {
   return (props: any) => {
@@ -16,18 +16,18 @@ export default function viewSizeGuard(Component: JSXElementConstructor<any> | nu
     if (matches) {
       return (
         <BaseLayout hideNavbar>
-          <Stack align="center" justify="center" mx="auto" mt={60} style={{ maxWidth: '600px' }}>
+          <div className="flex flex-col items-center justify-center mx-auto mt-16 max-w-[600px]">
             <Image src="/illustrations/mobile_devices.svg" width={320} height={280} alt="no mobile support" />
-            <Title order={2} align="center">
+            <h2 className="text text-4xl font-semibold align-center my-6">
              No small screen support.
-            </Title>
-            <Text align="center">
+            </h2>
+            <span className="text align-center mb-5">
               We currently do not support small screens, we are working on it.
               <br />
               Please use a desktop device to access the app.
-            </Text>
-            <Button variant="default" onClick={() => router.push('/')}>Go back</Button>
-          </Stack>
+            </span>
+            <Button variant="outline" onClick={() => router.push('/')}>Go back</Button>
+          </div>
         </BaseLayout>
       );
     }

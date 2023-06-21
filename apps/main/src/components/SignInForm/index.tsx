@@ -13,16 +13,16 @@ const SignInForm = () => {
 
   const handleSignIn = (provider: string) => {
     if (status === 'authenticated') {
-      router.push('/dashboard');
+      router.push('/d/dashboard');
       return;
     }
 
     if (provider === 'credentials') {
-      signIn('credentials', { callbackUrl: '/dashboard' }, { userName: 'guest' });
+      signIn('credentials', { callbackUrl: '/d/dashboard' }, { userName: 'guest' });
       return;
     }
 
-    signIn(provider, { callbackUrl: '/dashboard' });
+    signIn(provider, { callbackUrl: '/d/dashboard' });
   }
 
   return (

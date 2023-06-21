@@ -3,7 +3,7 @@ import Script from 'next/script';
 import { getServerSession } from 'next-auth';
 
 import ClientProvider from 'components/ClientProvider';
-import { authOptions } from './api/auth/[...nextauth]';
+import { authOptions } from './api/auth/[...nextauth]/route';
 
 import 'styles/globals.css';
 
