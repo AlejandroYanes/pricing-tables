@@ -1,6 +1,5 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
-import { Stack } from '@mantine/core';
 
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
@@ -13,9 +12,9 @@ const UsersPage: NextPage = () => {
         <title>Dealo | Users</title>
       </Head>
       <BaseLayout showBackButton backRoute="/dashboard" title="Users">
-        <Stack mx="auto" sx={{ maxWidth: '980px', width: '100%' }}>
+        <div className="flex flex-col mx-auto w-full max-w-[980px]">
           <UsersTable />
-        </Stack>
+        </div>
       </BaseLayout>
     </>
   );

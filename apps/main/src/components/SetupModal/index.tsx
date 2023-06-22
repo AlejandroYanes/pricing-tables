@@ -1,3 +1,5 @@
+'use client'
+
 import { useState } from 'react';
 import Stripe from 'stripe';
 import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';

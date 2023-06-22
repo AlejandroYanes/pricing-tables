@@ -1,12 +1,20 @@
 'use client'
 
-import { useRouter } from 'next/router';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
 import type { TablerIcon } from '@tabler/icons';
-import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
+import {
+  IconArrowLeft,
+  IconInfoCircle,
+  IconLogout,
+  IconSettings,
+  IconTrash,
+  IconUser,
+  IconUsers,
+} from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { ROLES } from 'models';
-import { useState } from 'react';
 
 import { trpc } from 'utils/trpc';
 import { Button } from 'components/ui/button';
@@ -37,8 +45,8 @@ interface NavbarLinkProps {
 
 function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
   return (
-    <Button onClick={onClick} className="h-[50px] w-[50px] flex justify-center items-center rounded">
-      <Icon stroke={1.5} />
+    <Button variant="ghost" onClick={onClick} className="h-[50px] w-[50px] flex justify-center items-center rounded-lg">
+      <Icon size={24} stroke={1.5} />
     </Button>
   );
 }
@@ -75,11 +83,11 @@ export function CustomNavbar(props: Props) {
 
   return (
     <>
-      <header className="h-16 flex justify-between items-center mb-5 z-10">
+      <header className="h-16 flex justify-between items-center mb-6 z-10">
         <RenderIf condition={showBackButton}>
           <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
-        <h1 className="text-4xl">{title}</h1>
+        <h1 className="text-4xl font-semibold">{title}</h1>
         <div className="flex items-center gap-4 ml-auto">
           <HoverCard>
             <HoverCardTrigger asChild>
@@ -87,10 +95,15 @@ export function CustomNavbar(props: Props) {
                 <NavbarLink icon={IconInfoCircle} />
               </div>
             </HoverCardTrigger>
-            <HoverCardContent className="w-[200px]">
+            <HoverCardContent align="end" className="w-[280px]">
               <p className="text text-black">
                 This platform is still an alpha version, so if you find any bugs or have any suggestions,
-                please let me know at <a href="mailto:alejandro@dealo.app">alejandro@dealo.app</a>!
+                please let me know at
+                {' '}
+                <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
+                  alejandro@dealo.app
+                </a>
+                !
               </p>
             </HoverCardContent>
           </HoverCard>

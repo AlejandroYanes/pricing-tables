@@ -1,6 +1,7 @@
 import { type ReactNode } from 'react';
 import Script from 'next/script';
 import { getServerSession } from 'next-auth';
+import { Analytics } from '@vercel/analytics/react';
 
 import ClientProvider from 'components/ClientProvider';
 import { authOptions } from './api/auth/[...nextauth]/route';
@@ -39,6 +40,7 @@ const RootLayout = async ({ children }: Props) => {
         <ClientProvider session={session}>
           {children}
         </ClientProvider>
+        <Analytics />
       </body>
     </html>
   )

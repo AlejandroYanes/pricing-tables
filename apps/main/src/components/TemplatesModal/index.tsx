@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+'use client'
+
 import { useState } from 'react';
 import { Button, createStyles, Divider, Group, Modal, rem, ScrollArea, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { IconSearch } from '@tabler/icons';

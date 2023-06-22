@@ -1,4 +1,6 @@
 /* eslint-disable max-len */
+'use client'
+
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
@@ -8,6 +10,7 @@ import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
+import viewSizeGuard from 'utils/hoc/viewSizeGuard';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
@@ -19,7 +22,6 @@ import type { FormTabs } from 'features/form/state';
 import { useFormPageStates } from 'features/form/state';
 import { fetchWidget } from 'features/form/state/actions';
 import SaveButton from 'features/form/SaveButton';
-import viewSizeGuard from '../../utils/hoc/viewSizeGuard';
 
 const errorScreen = (
   <BaseLayout showBackButton>
@@ -28,7 +30,7 @@ const errorScreen = (
         Something happened and we {`can't`} show any information right now.
         Please go back to the {' '}
         <Anchor component="span" color="teal" weight="bold">
-          <Link href="/dashboard">
+          <Link href="/apps/main/src/app/dashboard">
             Dashboard
           </Link>
         </Anchor>
