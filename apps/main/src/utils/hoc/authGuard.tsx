@@ -1,7 +1,6 @@
 'use client'
 
 import type { JSXElementConstructor } from 'react';
-import { useSession } from 'next-auth/react';
 import { getServerSession } from 'next-auth';
 import type { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
