@@ -126,12 +126,15 @@ const UsersTable = () => {
         <tbody>{rows}</tbody>
       </Table>
       <Group position="apart" py="lg" className={classes.footer}>
-        <Select
-          defaultValue="25"
-          data={['5', '10', '25', '50', '100']}
-          onChange={(value) => setPageSize(Number(value))}
-          style={{ width: 80 }}
-        />
+        <Group align="center">
+          <Select
+            defaultValue="25"
+            data={['5', '10', '25', '50', '100']}
+            onChange={(value) => setPageSize(Number(value))}
+            style={{ width: 80 }}
+          />
+          <Text>{`Total: ${count}`}</Text>
+        </Group>
         <Pagination
           withEdges
           value={page}
