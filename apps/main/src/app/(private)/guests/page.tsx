@@ -6,7 +6,6 @@ import Head from 'next/head';
 import { Button, Group, Stack } from '@mantine/core';
 
 import { trpc } from 'utils/trpc';
-import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import GuestsTable from 'components/GuestsTable';
 
@@ -47,4 +46,4 @@ const UsersPage: NextPage = () => {
   );
 };
 
-export default authGuard(UsersPage);
+export default UsersPage;

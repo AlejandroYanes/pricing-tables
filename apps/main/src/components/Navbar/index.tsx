@@ -1,8 +1,9 @@
 'use client'
 
-import { forwardRef, useState } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
+import Link from 'next/link';
 import {
   IconArrowLeft,
   IconInfoCircle,
@@ -38,41 +39,39 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '../ui/alert-dialog';
+import { cn } from '../../utils/ui';
 
 interface NavbarLinkProps {
 	icon: TablerIcon;
 	onClick?(): void;
   asSpan?: boolean;
+  className?: string;
 }
 
-const NavbarLink = forwardRef<HTMLButtonElement, NavbarLinkProps>(
-  ({ icon: Icon, onClick, asSpan }: NavbarLinkProps, ref) => {
-    if (asSpan) {
-      return (
-        <Button
-          component="span"
-          ref={ref}
-          onClick={onClick}
-          variant="ghost"
-          className="h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg"
-        >
-          <Icon size={24} stroke={1.5} />
-        </Button>
-      );
-    }
-
+const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps) => {
+  if (asSpan) {
     return (
       <Button
-        ref={ref}
         onClick={onClick}
+        component="span"
         variant="ghost"
-        className="h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg"
+        className={cn('h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg', className)}
       >
         <Icon size={24} stroke={1.5} />
       </Button>
     );
-  },
-);
+  }
+
+  return (
+    <Button
+      onClick={onClick}
+      variant="ghost"
+      className={cn('h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg', className)}
+    >
+      <Icon size={24} stroke={1.5} />
+    </Button>
+  );
+};
 
 interface Props {
   title?: string;
@@ -108,7 +107,7 @@ export function CustomNavbar(props: Props) {
     <>
       <header className="h-16 flex justify-between items-center mb-6 z-10">
         <RenderIf condition={showBackButton}>
-          <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+          <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
         <h1 className="text-4xl font-semibold">{title}</h1>
         <div className="flex items-center gap-4 ml-auto">
@@ -135,15 +134,19 @@ export function CustomNavbar(props: Props) {
             <DropdownMenuContent align="end" className="w-[200px] mt-3">
               <RenderIf condition={user?.role === ROLES.ADMIN}>
                 <DropdownMenuLabel>Management</DropdownMenuLabel>
-                <DropdownMenuItem onClick={() => router.push('/users')}>
-                  <IconUsers size={16} className="mr-2" />
-                  Manage Users
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => router.push('/guests')}>
-                  <IconUserQuestion size={16} className="mr-2" />
-                  Manage Guests
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
+                <Link href="/users">
+                  <DropdownMenuItem>
+                    <IconUsers size={16} className="mr-2" />
+                    Manage Users
+                  </DropdownMenuItem>
+                </Link>
+                <Link href="/guests">
+                  <DropdownMenuItem>
+                    <IconUserQuestion size={16} className="mr-2" />
+                    Manage Guests
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                </Link>
               </RenderIf>
               <DropdownMenuLabel>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</DropdownMenuLabel>
               <RenderIf condition={user?.role !== ROLES.GUEST}>

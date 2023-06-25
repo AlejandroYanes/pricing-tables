@@ -9,8 +9,6 @@ import { Alert, Anchor, Group, Loader, MantineProvider, Stack, Tabs, useMantineT
 import { RenderIf } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
-import authGuard from 'utils/hoc/authGuard';
-import viewSizeGuard from 'utils/hoc/viewSizeGuard';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
@@ -30,7 +28,7 @@ const errorScreen = (
         Something happened and we {`can't`} show any information right now.
         Please go back to the {' '}
         <Anchor component="span" color="teal" weight="bold">
-          <Link href="/apps/main/src/app/dashboard">
+          <Link href="/dashboard">
             Dashboard
           </Link>
         </Anchor>
@@ -204,4 +202,4 @@ const FormPage = () => {
   );
 };
 
-export default viewSizeGuard(authGuard(FormPage));
+export default FormPage;

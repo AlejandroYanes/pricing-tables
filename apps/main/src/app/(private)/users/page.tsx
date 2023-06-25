@@ -1,7 +1,6 @@
 import type { NextPage } from 'next';
 import Head from 'next/head';
 
-import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import UsersTable from 'components/UsersTable';
 
@@ -20,4 +19,4 @@ const UsersPage: NextPage = () => {
   );
 };
 
-export default authGuard(UsersPage);
+export default UsersPage;
