@@ -6,7 +6,7 @@ import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import { Alert, Anchor, Group, Loader, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';

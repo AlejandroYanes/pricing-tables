@@ -1,7 +1,7 @@
 import { showNotification } from '@mantine/notifications';
 import { createId } from '@paralleldrive/cuid2';
-import type { FormProduct } from 'models';
-import { apply } from 'helpers';
+import type { FormProduct } from '@dealo/models';
+import { apply } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 

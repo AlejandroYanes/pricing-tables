@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { Divider, Stack } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 
 interface Props {
   leftContent: ReactNode;

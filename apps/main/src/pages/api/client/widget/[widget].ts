@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import type { FormFeature, FormProduct } from 'models';
+import type { FormFeature, FormProduct } from '@dealo/models';
 import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';

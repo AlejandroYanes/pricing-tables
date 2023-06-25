@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { WidgetFormState } from 'models';
+import type { WidgetFormState } from '@dealo/models';
 
 import { useDebounce } from 'utils/hooks/useDebounce';
 import { useWidgetFormStore } from '../state';

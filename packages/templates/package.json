@@ -1,5 +1,5 @@
 {
-  "name": "templates",
+  "name": "@dealo/templates",
   "version": "0.0.0",
   "main": "./src/index.tsx",
   "types": "./src/index.tsx",
@@ -8,6 +8,9 @@
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
+    "@dealo/tailwind-config": "*",
+    "@dealo/helpers": "*",
+    "@dealo/ui": "*",
     "@emotion/react": "11.10.5",
     "@emotion/server": "11.10.0",
     "@emotion/styled": "11.10.5",
@@ -19,9 +22,7 @@
     "@mantine/next": "6.0.5",
     "@mantine/notifications": "6.0.5",
     "@mantine/spotlight": "6.0.5",
-    "helpers": "*",
-    "react": "^18.2.0",
-    "ui": "*"
+    "react": "^18.2.0"
   },
   "devDependencies": {
     "@types/react": "^18.0.22",

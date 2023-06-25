@@ -1,4 +1,4 @@
-import { applyWhere } from 'helpers';
+import { applyWhere } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 

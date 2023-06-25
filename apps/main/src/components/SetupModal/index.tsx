@@ -6,7 +6,7 @@ import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/c
 import { Prism } from '@mantine/prism';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import { guestStripeKey } from 'utils/stripe';

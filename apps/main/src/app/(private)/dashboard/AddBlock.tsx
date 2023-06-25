@@ -11,7 +11,7 @@ export default function AddBlock(props: { label: string; onClick: () => void }) 
     <>
       <Button
         variant="ghost"
-        className="flex flex-col items-center h-[260px] w-[320px] p-4 rounded-sm border-2 border-dashed border-neutral-300"
+        className="flex flex-col items-center h-[260px] w-[330px] p-4 rounded-sm border-2 border-dashed border-neutral-300"
         onClick={onClick}
       >
         <IconNewSection size={60} />

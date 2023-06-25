@@ -100,6 +100,7 @@
     "client.mjs",
     "server.mjs",
     "schema.mjs",
-    "tailwind.config.js"
+    "tailwind.config.js",
+    "postcss.config.js"
   ]
 }

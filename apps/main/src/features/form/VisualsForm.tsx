@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { CheckIcon, ColorSwatch, Grid, Text, Tooltip, useMantineTheme } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 
 import TwoColumnsLayout from './TwoColumnsLayout';
 import { useVisualPanelStates } from './state';

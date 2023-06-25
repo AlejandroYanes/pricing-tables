@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 
 import { CustomNavbar } from 'components/Navbar';
 

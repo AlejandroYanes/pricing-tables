@@ -2,9 +2,9 @@
 import type { ReactNode} from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Table, Text } from '@mantine/core';
-import { PoweredBy, RenderIf } from 'ui';
-import type { FormPrice } from 'models';
-import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
+import { PoweredBy, RenderIf } from '@dealo/ui';
+import type { FormPrice } from '@dealo/models';
+import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { intervalsMap } from '../constants/intervals';

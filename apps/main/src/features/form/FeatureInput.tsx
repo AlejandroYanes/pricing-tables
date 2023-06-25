@@ -1,5 +1,5 @@
 import { Checkbox, TextInput } from '@mantine/core';
-import type { FeatureType } from 'models';
+import type { FeatureType } from '@dealo/models';
 
 interface Props {
   type: FeatureType;

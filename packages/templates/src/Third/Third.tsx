@@ -1,9 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons-react';
-import type { FormCallback, FormPrice, FormProduct } from 'models';
-import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
-import { PoweredBy, RenderIf } from 'ui';
+import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
+import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
+import { PoweredBy, RenderIf } from '@dealo/ui';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { intervalsMap } from '../constants/intervals';

@@ -4,7 +4,7 @@ import { useRouter } from 'next/router';
 import Head from 'next/head';
 import { Alert, Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { RenderIf } from 'ui';
+import { RenderIf } from '@dealo/ui';
 import Image from 'next/image';
 
 import BaseLayout from 'components/BaseLayout';

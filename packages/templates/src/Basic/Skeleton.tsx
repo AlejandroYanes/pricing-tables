@@ -8,8 +8,8 @@ const arr = new Array(items).fill(0);
 export function BasicSkeleton(props: SkeletonProps) {
   const { scale = 1 } = props;
   return (
-    <Stack align="center">
-      <SimpleGrid cols={items} spacing="sm" style={{ justifyItems: 'center', boxSizing: 'border-box' }}>
+    <div className="flex flex-col items-center">
+      <div className="grid grid-rows-3 justify-items-center box-border gap-4">
         {arr.map((_, index) => (
           <Skeleton key={index} animate={false} height={300 * scale} width={300 * scale} />
         ))}
@@ -29,7 +29,7 @@ export function BasicSkeleton(props: SkeletonProps) {
             </Group>
           </Stack>
         ))}
-      </SimpleGrid>
-    </Stack>
+      </div>
+    </div>
   );
 }

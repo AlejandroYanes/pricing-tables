@@ -1,6 +1,6 @@
 import { createStyles, Group, Pagination, Select, Table, Text } from '@mantine/core';
 import dayjs from 'dayjs';
-import { calculateTotal } from 'helpers';
+import { calculateTotal } from '@dealo/helpers';
 
 import UserAvatar from 'components/UserAvatar';
 

@@ -1,5 +1,5 @@
-import { callAPI } from 'helpers';
-import type { WidgetInfo } from 'models';
+import { callAPI } from '@dealo/helpers';
+import type { WidgetInfo } from '@dealo/models';
 
 import { useWidgetFormStore } from '../widget-state';
 

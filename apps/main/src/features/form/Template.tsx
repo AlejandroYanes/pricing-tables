@@ -1,8 +1,8 @@
 import { useMemo } from 'react';
 import { ActionIcon, Alert, Group, Select, Tooltip } from '@mantine/core';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons-react';
-import { templatesMap } from 'templates';
-import { RenderIf } from 'ui';
+import { templatesMap } from '@dealo/templates';
+import { RenderIf } from '@dealo/ui';
 
 import { useTemplateStates } from './state';
 

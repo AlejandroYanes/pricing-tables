@@ -3,7 +3,7 @@
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useMediaQuery } from '@mantine/hooks';
-import type { SimpleComponent , AsyncComponent } from 'helpers';
+import type { SimpleComponent , AsyncComponent } from '@dealo/helpers';
 import type { Session } from 'next-auth';
 
 import BaseLayout from 'components/BaseLayout';

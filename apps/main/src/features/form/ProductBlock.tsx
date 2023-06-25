@@ -24,9 +24,9 @@ import {
   IconTrash,
   IconX
 } from '@tabler/icons-react';
-import type { FormPrice, FormProduct } from 'models';
-import { formatCurrency } from 'helpers';
-import { RenderIf } from 'ui';
+import type { FormPrice, FormProduct } from '@dealo/models';
+import { formatCurrency } from '@dealo/helpers';
+import { RenderIf } from '@dealo/ui';
 
 interface Props {
   isFirst: boolean;

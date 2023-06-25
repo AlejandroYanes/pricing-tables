@@ -1,4 +1,4 @@
-import type { Templates } from 'models';
+import type { Templates } from '@dealo/models';
 
 import { BasicTemplate, BasicSkeleton } from '../Basic';
 import { SecondTemplate, SecondSkeleton } from '../Second';

@@ -3,10 +3,10 @@ import { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom/client'
 import createCache from '@emotion/cache'
 import type { EmotionCache } from '@emotion/react';
-import { PricingThemeProvider } from 'ui';
-import { templatesMap } from 'templates';
-import { callAPI } from 'helpers';
-import type { FormCallback, FormFeature, FormProduct } from 'models';
+import { PricingThemeProvider } from '@dealo/ui';
+import { templatesMap } from '@dealo/templates';
+import { callAPI } from '@dealo/helpers';
+import type { FormCallback, FormFeature, FormProduct } from '@dealo/models';
 
 interface Props {
   cache?: EmotionCache;

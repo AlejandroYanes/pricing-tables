@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { FormPrice } from 'models';
-import { RenderIf, PoweredBy, AbsoluteContent } from 'ui';
-import { generateQueryString } from 'helpers';
+import type { FormPrice } from '@dealo/models';
+import { RenderIf, PoweredBy } from '@dealo/ui';
+import { generateQueryString } from '@dealo/helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';

@@ -1,4 +1,4 @@
-import type { FormCallback, FormFeature, FormProduct } from 'models';
+import type { FormCallback, FormFeature, FormProduct } from '@dealo/models';
 import type Stripe from 'stripe';
 
 export interface TemplateProps {

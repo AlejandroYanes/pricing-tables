@@ -4,8 +4,8 @@ import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, Text
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
-import { RenderIf } from 'ui';
-import { templatesList } from 'templates';
+import { RenderIf } from '@dealo/ui';
+import { templatesList } from '@dealo/templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';

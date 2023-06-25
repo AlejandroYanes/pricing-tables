@@ -14,8 +14,8 @@ import {
   IconUserQuestion,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { RenderIf } from 'ui';
-import { ROLES } from 'models';
+import { RenderIf } from '@dealo/ui';
+import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
 import { Button } from 'components/ui/button';

@@ -9,16 +9,17 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@dealo/helpers": "*",
+    "@dealo/models": "*",
+    "@dealo/templates": "*",
+    "@dealo/ui": "*",
+    "@dealo/tailwind-config": "*",
     "@emotion/cache": "11.10.7",
     "@emotion/react": "11.10.5",
     "@mantine/core": "6.0.5",
     "@mantine/hooks": "6.0.5",
-    "helpers": "*",
-    "models": "*",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "templates": "*",
-    "ui": "*"
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/react": "18.0.27",

@@ -17,8 +17,8 @@ import {
   Radio,
 } from '@mantine/core';
 import { IconFilter } from '@tabler/icons-react';
-import { calculateTotal } from 'helpers';
-import { RenderIf } from 'ui';
+import { calculateTotal } from '@dealo/helpers';
+import { RenderIf } from '@dealo/ui';
 import { useDebouncedState } from '@mantine/hooks';
 
 import { trpc } from 'utils/trpc';

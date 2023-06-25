@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { z } from 'zod';
-import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
+import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from '@dealo/models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';

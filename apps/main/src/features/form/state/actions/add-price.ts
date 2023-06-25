@@ -1,6 +1,6 @@
 import { createId } from '@paralleldrive/cuid2';
-import type { FormPrice } from 'models';
-import { applyWhere } from 'helpers';
+import type { FormPrice } from '@dealo/models';
+import { applyWhere } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 

@@ -4,7 +4,7 @@
 import { useSession } from 'next-auth/react';
 import type { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
-import type { AsyncComponent, SimpleComponent } from 'helpers';
+import type { AsyncComponent, SimpleComponent } from '@dealo/helpers';
 
 import SetupModal from 'components/SetupModal';
 // import { authOptions } from '../../app/api/auth/[...nextauth]/route';

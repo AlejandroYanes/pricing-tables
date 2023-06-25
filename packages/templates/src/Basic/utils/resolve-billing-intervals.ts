@@ -1,5 +1,5 @@
 import type Stripe from 'stripe';
-import type { FormProduct } from 'models';
+import type { FormProduct } from '@dealo/models';
 
 import { intervalsMap } from '../../constants/intervals';
 

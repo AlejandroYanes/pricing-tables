@@ -1,5 +1,5 @@
 import { Avatar } from '@mantine/core';
-import { resolveInitials } from 'helpers';
+import { resolveInitials } from '@dealo/helpers';
 
 interface Props {
   user: {

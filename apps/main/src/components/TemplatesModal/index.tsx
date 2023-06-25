@@ -4,8 +4,8 @@
 import { useState } from 'react';
 import { Button, createStyles, Divider, Group, Modal, rem, ScrollArea, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import { IconSearch } from '@tabler/icons-react';
-import { skeletonMap, templatesList } from 'templates';
-import { RenderIf } from 'ui';
+import { skeletonMap, templatesList } from '@dealo/templates';
+import { RenderIf } from '@dealo/ui';
 
 interface Props {
   opened: boolean;
