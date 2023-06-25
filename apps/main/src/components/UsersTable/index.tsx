@@ -3,34 +3,36 @@
 import { useState } from 'react';
 import {
   Badge,
-  Group,
-  Pagination,
-  Select,
+  // Group,
+  // Pagination,
+  // Select,
   Table,
-  Text,
+  // Text,
   TextInput,
-  createStyles,
-  Popover,
-  ActionIcon,
-  Stack,
-  Divider,
-  Radio,
+  // createStyles,
+  // Popover,
+  // ActionIcon,
+  // Stack,
+  // Divider,
+  // Radio,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons-react';
+import { IconAdjustments } from '@tabler/icons-react';
 import { calculateTotal } from '@dealo/helpers';
 import { RenderIf } from '@dealo/ui';
 import { useDebouncedState } from '@mantine/hooks';
 
 import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
-
-const useStyles = createStyles((theme) => ({
-  footer: {
-    position: 'sticky',
-    bottom: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
-}));
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from 'components/ui/popover';
+import { Button } from 'components/ui/button';
+import { Label } from 'components/ui/label';
+import { RadioGroup, RadioGroupItem } from 'components/ui/radio-group';
+import Pagination from '../ui/pagination';
+import { Separator } from '../ui/separator';
 
 const UsersTable = () => {
   const [query, setQuery] = useDebouncedState('', 200);
@@ -41,7 +43,6 @@ const UsersTable = () => {
   const {
     data: { results, count } = { results: [], count: 0 },
   } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
-  const { classes } = useStyles();
 
   const handleFilterChange = (value: string) => {
     setIsSetup(value);
@@ -51,17 +52,17 @@ const UsersTable = () => {
   const rows = results.map((user) => (
     <tr key={user.id}>
       <td>
-        <Group spacing="sm">
+        <div className="flex items-center gap-2">
           <UserAvatar user={user} />
-          <div>
-            <Text size="sm" weight={500}>
+          <div className="flex flex-col">
+            <span className="text-lg font-semibold">
               {user.name ?? 'Anonymous'}
-            </Text>
-            <Text size="xs" color="dimmed">
+            </span>
+            <span className="text-sm text-muted-foreground">
               {user.email ?? 'no email'}
-            </Text>
+            </span>
           </div>
-        </Group>
+        </div>
       </td>
 
       <td>
@@ -81,7 +82,7 @@ const UsersTable = () => {
 
   return (
     <>
-      <Group position="apart">
+      <div className="flex justify-between items-center">
         <TextInput
           my="lg"
           mr="auto"
@@ -90,33 +91,39 @@ const UsersTable = () => {
           sx={{ width: '280px' }}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <Popover width={200} position="bottom-end">
-          <Popover.Target>
-            <ActionIcon variant="filled" size="lg"><IconFilter /></ActionIcon>
-          </Popover.Target>
-
-          <Popover.Dropdown>
-            <Stack>
-              <Text size="sm" weight={500}>Filters</Text>
-              <Divider />
-              <Stack>
-                <Text size="sm" weight={500}>Is Setup</Text>
-                <Radio.Group
-                  name="status"
-                  value={isSetup}
-                  onChange={(value: string) => handleFilterChange(value)}
-                >
-                  <Stack spacing="xs">
-                    <Radio value="all" label="All" />
-                    <Radio value="yes" label="Yes" />
-                    <Radio value="no" label="No" />
-                  </Stack>
-                </Radio.Group>
-              </Stack>
-            </Stack>
-          </Popover.Dropdown>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost">
+              <IconAdjustments />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-[200px]">
+            <div className="flex flex-col gap-4">
+              <span className="text text-sm font-semibold">Is Setup</span>
+              <RadioGroup
+                name="status"
+                value={isSetup}
+                onValueChange={(value: string) => handleFilterChange(value)}
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="all" id="r1" />
+                    <Label htmlFor="r1">All</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="r2" />
+                    <Label htmlFor="r2">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="r3" />
+                    <Label htmlFor="r3">No</Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+          </PopoverContent>
         </Popover>
-      </Group>
+      </div>
       <Table verticalSpacing="sm" horizontalSpacing="lg">
         <thead>
           <tr>
@@ -127,23 +134,19 @@ const UsersTable = () => {
         </thead>
         <tbody>{rows}</tbody>
       </Table>
-      <Group position="apart" py="lg" className={classes.footer}>
-        <Group align="center">
-          <Select
-            defaultValue="25"
-            data={['5', '10', '25', '50', '100']}
-            onChange={(value) => setPageSize(Number(value))}
-            style={{ width: 80 }}
-          />
-          <Text>{`Total: ${count}`}</Text>
-        </Group>
+      <div className="flex items-center justify-between py-6 sticky bottom-0">
+        <div className="flex items-center gap-4">
+
+          <span className="text-sm font-medium">{`Total: ${count}`}</span>
+        </div>
         <Pagination
-          withEdges
-          value={page}
-          onChange={setPage}
+          page={page}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
           total={calculateTotal(count, pageSize)}
         />
-      </Group>
+      </div>
     </>
   );
 }
