@@ -182,7 +182,7 @@ export function CustomNavbar(props: Props) {
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setShowModal(false)}>Cancel</AlertDialogCancel>
               <AlertDialogAction
-                className="bg-red-500 text-white hover:bg-red-600"
+                className="bg-red-600 text-white hover:bg-red-700"
                 onClick={() => deleteAccount()}
               >
                 Yes, delete my account
