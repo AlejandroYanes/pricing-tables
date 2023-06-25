@@ -1,6 +1,6 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { IconAlertCircle } from '@tabler/icons';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { Alert, Button, Group, Stack } from '@mantine/core';
 
 import BaseLayout from '../BaseLayout';

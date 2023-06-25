@@ -16,7 +16,7 @@ import {
   Divider,
   Radio,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons';
+import { IconFilter } from '@tabler/icons-react';
 import { calculateTotal } from 'helpers';
 import { RenderIf } from 'ui';
 import { useDebouncedState } from '@mantine/hooks';

@@ -1,6 +1,6 @@
 import { ActionIcon, Button, createStyles, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
-import { IconGripVertical, IconTrash } from '@tabler/icons';
+import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import type { FeatureType, FormFeature } from 'models';
 
 import FeatureInput from './FeatureInput';

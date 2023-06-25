@@ -1,14 +1,19 @@
-import type { JSXElementConstructor } from 'react';
+'use client'
+
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useMediaQuery } from '@mantine/hooks';
+import type { SimpleComponent , AsyncComponent } from 'helpers';
+import type { Session } from 'next-auth';
 
 import BaseLayout from 'components/BaseLayout';
 import { Button } from 'components/ui/button';
 
-const query = '(max-width: 1024px)';
+const query = '(max-width: 586px)';
 
-export default function viewSizeGuard(Component: JSXElementConstructor<any> | null) {
+type WrappedComponent = SimpleComponent<{ session: Session }> | AsyncComponent<{ session: Session }>;
+
+export default function viewSizeGuard(Component: WrappedComponent) {
   return (props: any) => {
     const router = useRouter();
     const matches = useMediaQuery(query);
@@ -36,6 +41,8 @@ export default function viewSizeGuard(Component: JSXElementConstructor<any> | nu
       return null;
     }
 
-    return <Component {...props} />;
+    const ProxyComponent = Component as any;
+
+    return <ProxyComponent {...props} />;
   };
 }

@@ -1,9 +1,8 @@
 'use client'
 
-import { useState } from 'react';
+import { forwardRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import type { TablerIcon } from '@tabler/icons';
 import {
   IconArrowLeft,
   IconInfoCircle,
@@ -12,7 +11,9 @@ import {
   IconTrash,
   IconUser,
   IconUsers,
-} from '@tabler/icons';
+  IconUserQuestion,
+  type Icon as TablerIcon,
+} from '@tabler/icons-react';
 import { RenderIf } from 'ui';
 import { ROLES } from 'models';
 
@@ -41,15 +42,37 @@ import {
 interface NavbarLinkProps {
 	icon: TablerIcon;
 	onClick?(): void;
+  asSpan?: boolean;
 }
 
-function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
-  return (
-    <Button variant="ghost" onClick={onClick} className="h-[50px] w-[50px] flex justify-center items-center rounded-lg">
-      <Icon size={24} stroke={1.5} />
-    </Button>
-  );
-}
+const NavbarLink = forwardRef<HTMLButtonElement, NavbarLinkProps>(
+  ({ icon: Icon, onClick, asSpan }: NavbarLinkProps, ref) => {
+    if (asSpan) {
+      return (
+        <Button
+          component="span"
+          ref={ref}
+          onClick={onClick}
+          variant="ghost"
+          className="h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg"
+        >
+          <Icon size={24} stroke={1.5} />
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        ref={ref}
+        onClick={onClick}
+        variant="ghost"
+        className="h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg"
+      >
+        <Icon size={24} stroke={1.5} />
+      </Button>
+    );
+  },
+);
 
 interface Props {
   title?: string;
@@ -90,12 +113,10 @@ export function CustomNavbar(props: Props) {
         <h1 className="text-4xl font-semibold">{title}</h1>
         <div className="flex items-center gap-4 ml-auto">
           <HoverCard>
-            <HoverCardTrigger asChild>
-              <div>
-                <NavbarLink icon={IconInfoCircle} />
-              </div>
+            <HoverCardTrigger>
+              <NavbarLink asSpan icon={IconInfoCircle} />
             </HoverCardTrigger>
-            <HoverCardContent align="end" className="w-[280px]">
+            <HoverCardContent align="end" className="w-[280px] mt-3">
               <p className="text text-black">
                 This platform is still an alpha version, so if you find any bugs or have any suggestions,
                 please let me know at
@@ -108,32 +129,38 @@ export function CustomNavbar(props: Props) {
             </HoverCardContent>
           </HoverCard>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <NavbarLink icon={IconUser} />
+            <DropdownMenuTrigger>
+              <NavbarLink asSpan icon={IconUser} />
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-[200px] mt-6">
+            <DropdownMenuContent align="end" className="w-[200px] mt-3">
               <RenderIf condition={user?.role === ROLES.ADMIN}>
                 <DropdownMenuLabel>Management</DropdownMenuLabel>
                 <DropdownMenuItem onClick={() => router.push('/users')}>
-                  <IconUsers size={14} />
+                  <IconUsers size={16} className="mr-2" />
                   Manage Users
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={() => router.push('/guests')}>
-                  <IconUsers size={14} />
+                  <IconUserQuestion size={16} className="mr-2" />
                   Manage Guests
                 </DropdownMenuItem>
-                DropdownMenuSeparator
+                <DropdownMenuSeparator />
               </RenderIf>
               <DropdownMenuLabel>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</DropdownMenuLabel>
               <RenderIf condition={user?.role !== ROLES.GUEST}>
-                <DropdownMenuItem><IconSettings size={14} />Settings</DropdownMenuItem>
+                <DropdownMenuItem>
+                  <IconSettings size={16} className="mr-2" />
+                  Settings
+                </DropdownMenuItem>
               </RenderIf>
-              <DropdownMenuItem onClick={handleLogout}><IconLogout size={14} />Logout</DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>
+                <IconLogout size={16} className="mr-2" />
+                Logout
+              </DropdownMenuItem>
               <RenderIf condition={user?.role !== ROLES.GUEST}>
                 <DropdownMenuSeparator />
                 <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-                <DropdownMenuItem color="destructive" onClick={handleDeleteAccount}>
-                  <IconTrash size={14} />
+                <DropdownMenuItem destructive onClick={handleDeleteAccount}>
+                  <IconTrash size={16} className="mr-2" />
                   Delete my account
                 </DropdownMenuItem>
               </RenderIf>
@@ -146,7 +173,7 @@ export function CustomNavbar(props: Props) {
           <AlertDialogContent>
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription>
+              <AlertDialogDescription className="pb-4">
                 Are you sure you want to delete your account?
                 We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
                 and this action is irreversible.
@@ -154,7 +181,12 @@ export function CustomNavbar(props: Props) {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel onClick={() => setShowModal(false)}>Cancel</AlertDialogCancel>
-              <AlertDialogAction onClick={() => deleteAccount()}>Continue</AlertDialogAction>
+              <AlertDialogAction
+                className="bg-red-500 text-white hover:bg-red-600"
+                onClick={() => deleteAccount()}
+              >
+                Yes, delete my account
+              </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
-import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons';
+import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons-react';
 import type { FormCallback, FormPrice, FormProduct } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
 import { PoweredBy, RenderIf } from 'ui';

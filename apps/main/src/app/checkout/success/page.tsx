@@ -1,5 +1,5 @@
 import { Group, Stack, Title } from '@mantine/core';
-import { IconConfetti } from '@tabler/icons';
+import { IconConfetti } from '@tabler/icons-react';
 
 import BaseLayout from 'components/BaseLayout';
 

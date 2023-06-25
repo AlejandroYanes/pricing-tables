@@ -3,7 +3,7 @@ import { useRouter } from 'next/router';
 import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
-import { IconInfoCircle, IconTrash } from '@tabler/icons';
+import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import { RenderIf } from 'ui';
 import { templatesList } from 'templates';
 

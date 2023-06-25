@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconChevronDown, IconX } from '@tabler/icons';
+import { IconChevronDown, IconX } from '@tabler/icons-react';
 import type { FormPrice, FormProduct } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';

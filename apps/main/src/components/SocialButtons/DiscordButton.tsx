@@ -1,4 +1,4 @@
-import { IconBrandDiscord } from '@tabler/icons';
+import { IconBrandDiscord } from '@tabler/icons-react';
 
 import { Button, type ButtonProps } from '../ui/button';
 

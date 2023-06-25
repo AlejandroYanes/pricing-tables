@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import { IconCheck } from '@tabler/icons';
+import { IconCheck } from '@tabler/icons-react';
 
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from 'components/SignInForm';

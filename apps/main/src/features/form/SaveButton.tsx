@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Anchor, Button, Stack, Text, useMantineTheme } from '@mantine/core';
 import { modals } from '@mantine/modals';
-import { IconAlertTriangle } from '@tabler/icons';
+import { IconAlertTriangle } from '@tabler/icons-react';
 
 import { trpc } from 'utils/trpc';
 import useChangeHistory from './useChangeHistory';

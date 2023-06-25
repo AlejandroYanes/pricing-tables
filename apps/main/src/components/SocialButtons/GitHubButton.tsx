@@ -1,4 +1,4 @@
-import { IconBrandGithub } from '@tabler/icons';
+import { IconBrandGithub } from '@tabler/icons-react';
 
 import { Button, type ButtonProps } from '../ui/button';
 

@@ -1,5 +1,5 @@
 import { Group, Stack, Title } from '@mantine/core';
-import { IconMoodConfuzed } from '@tabler/icons';
+import { IconMoodConfuzed } from '@tabler/icons-react';
 
 import BaseLayout from 'components/BaseLayout';
 

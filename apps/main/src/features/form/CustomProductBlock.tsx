@@ -1,5 +1,5 @@
 import { ActionIcon, createStyles, Divider, Menu, Stack, Textarea, TextInput, } from '@mantine/core';
-import { IconChevronDown, IconChevronsDown, IconChevronsUp, IconDotsVertical, IconTrash } from '@tabler/icons';
+import { IconChevronDown, IconChevronsDown, IconChevronsUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import type { FormProduct } from 'models';
 
 interface Props {

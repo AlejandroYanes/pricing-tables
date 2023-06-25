@@ -5,7 +5,7 @@ import Stripe from 'stripe';
 import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';
 import { Prism } from '@mantine/prism';
 import { showNotification } from '@mantine/notifications';
-import { IconAlertCircle } from '@tabler/icons';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { RenderIf } from 'ui';
 
 import { trpc } from 'utils/trpc';

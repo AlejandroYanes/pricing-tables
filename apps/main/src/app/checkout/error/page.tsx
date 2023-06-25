@@ -1,5 +1,5 @@
 import { Anchor, Group, Stack, Title } from '@mantine/core';
-import { IconAlertTriangle } from '@tabler/icons';
+import { IconAlertTriangle } from '@tabler/icons-react';
 
 import BaseLayout from 'components/BaseLayout';
 
