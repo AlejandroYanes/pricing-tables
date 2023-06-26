@@ -38,16 +38,6 @@ const errorScreen = (
   </BaseLayout>
 );
 
-const noStripeScreen = (
-  <BaseLayout showBackButton>
-    <Stack mt={60} justify="center" align="center">
-      <Alert title="Ooops..." variant="outline" color="gray">
-        Something happened and we {`can't`} connect with Stripe, please try again later.
-      </Alert>
-    </Stack>
-  </BaseLayout>
-);
-
 const LoadingScreen = () => {
   const theme = useMantineTheme();
   return (
@@ -99,16 +89,6 @@ const FormPage = () => {
 
   const { name, color } = useFormPageStates();
 
-  const {
-    data,
-    isFetching: isFetchingStripeProducts,
-    isError: failedToFetchStripeProducts,
-  } = trpc.stripe.list.useQuery(undefined, {
-    refetchOnWindowFocus: false,
-    enabled: isLoaded,
-  });
-  const productsList = data || [];
-
   useEffect(() => {
     if (query.id && !startedFirstCall.current) {
       startedFirstCall.current = true;
@@ -126,11 +106,7 @@ const FormPage = () => {
     return errorScreen;
   }
 
-  if (failedToFetchStripeProducts) {
-    return noStripeScreen;
-  }
-
-  if (!isLoaded || isFetchingStripeProducts) {
+  if (!isLoaded) {
     return <LoadingScreen />;
   }
 
@@ -181,7 +157,7 @@ const FormPage = () => {
           </Group>
           <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
             <RenderIf condition={currentTab === 'products'}>
-              <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
+              <ProductsForm showPanel={showPanel} template={templateNode} />
             </RenderIf>
             <RenderIf condition={currentTab === 'visuals'}>
               <VisualsForm showPanel={showPanel} template={templateNode}/>

@@ -1,10 +1,24 @@
+import { z } from 'zod';
+
 import { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 import { createTRPCRouter, stripeProcedure } from '../trpc';
 
 export const stripeRouter = createTRPCRouter({
-  list: stripeProcedure.query(async ({ ctx }) => {
+  list: stripeProcedure.input(z.string().nullish()).query(async ({ ctx, input }) => {
 
-    const products = (await ctx.stripe.products.list({ active: true, limit: 50 })).data.map(reduceStripeProduct);
+    console.log('-----------------');
+    console.log('query', { input, type: typeof input, query: `active:"true" AND name~"${input}"` });
+    console.log('-----------------');
+
+    const promise = !!input
+      ? ctx.stripe.products.search({ limit: 10, query: `active:"true" AND name~"${input}"` })
+      : ctx.stripe.products.list({ active: true, limit: 10 });
+
+    const products = (await promise).data.map(reduceStripeProduct);
+
+    console.log('-----------------');
+    console.log('list products and prices', { products: products.map((p) => ({ id: p.id })) });
+    console.log('-----------------');
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
     const prices = (
