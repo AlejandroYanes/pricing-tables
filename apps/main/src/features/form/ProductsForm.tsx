@@ -1,7 +1,7 @@
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Button, Group, Menu, Select, Stack, Autocomplete, useMantineTheme, Loader } from '@mantine/core';
+import { ActionIcon, Alert, Button, Group, Menu, Select, Stack, Autocomplete, useMantineTheme, Loader, AutocompleteItem } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import type { DropResult } from 'react-beautiful-dnd';
 import { IconChevronDown, IconSelector, IconX } from '@tabler/icons';
@@ -139,7 +139,8 @@ export default function ProductsForm(props: Props) {
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
     .flatMap((prices) => prices.map((price) => ({
       label: resolvePricing(price),
-      value: `${price.productId}-${price.id}`,
+      key: `${price.productId}-${price.id}`,
+      value: price.product,
       group: price.product,
     })));
 
@@ -252,10 +253,30 @@ export default function ProductsForm(props: Props) {
       <RenderIf condition={showProducts}>
         <Group
           spacing={0}
-          // onMouseEnter={clearInteractionTimer}
-          // onMouseLeave={startInteractionTimer}
+        // onMouseEnter={clearInteractionTimer}
+        // onMouseLeave={startInteractionTimer}
         >
-          <Select
+          <Autocomplete
+            initiallyOpened
+            data={productOptions}
+            value={query}
+            onChange={setQuery}
+            onItemSubmit={(item: AutocompleteItem) => handleAddProduct(item.key)}
+            maxDropdownHeight={300}
+            rightSection={isFetchingStripeProducts ? <Loader size={16} /> : <IconSelector size={16} />}
+            nothingFound={isFetchingStripeProducts ? 'Loading...' : 'No products found'}
+            style={{ flex: 1 }}
+            styles={{
+              input: {
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              },
+              separatorLabel: {
+                color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
+              },
+            }}
+          />
+          {/* <Select
             initiallyOpened
             searchable
             data={productOptions}
@@ -273,10 +294,11 @@ export default function ProductsForm(props: Props) {
                 color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
               },
             }}
-          />
+          /> */}
           <ActionIcon
             onClick={() => {
               setShowProducts(false);
+              setQuery(undefined);
               // clearInteractionTimer();
             }}
             variant="default"
