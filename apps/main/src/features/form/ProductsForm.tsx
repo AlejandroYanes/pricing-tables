@@ -147,7 +147,6 @@ export default function ProductsForm(props: Props) {
   const panelContent = (
     <>
       {selectedProducts.map((prod, index) => {
-        const baseProduct = products.find((p) => p.id === prod.id)!;
         const isFirst = index === 0;
         const isLast = index === selectedProducts.length - 1;
 
@@ -205,7 +204,7 @@ export default function ProductsForm(props: Props) {
             isLast={isLast}
             key={prod.id}
             value={prod}
-            product={baseProduct}
+            product={prod}
             onAddPrice={handleAddPrice}
             onRemove={() => removeProduct(index)}
             onRemovePrice={removePrice}
