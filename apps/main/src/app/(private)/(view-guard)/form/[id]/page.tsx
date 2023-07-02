@@ -4,12 +4,14 @@
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { useRouter } from 'next/router';
-import { Alert, Anchor, Group, Loader, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { RenderIf } from '@dealo/ui';
+import { IconAlertCircle } from '@tabler/icons-react';
 
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/BaseLayout';
+import { Alert, AlertTitle, AlertDescription } from 'components/ui/alert';
+import { Tabs, TabsList, TabsTrigger } from 'components/ui/tabs';
+import Loader from 'components/ui/loader';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
@@ -23,70 +25,66 @@ import SaveButton from 'features/form/SaveButton';
 
 const errorScreen = (
   <BaseLayout showBackButton>
-    <Stack mt={60} justify="center" align="center">
-      <Alert title="Ooops..." variant="outline" color="gray">
-        Something happened and we {`can't`} show any information right now.
-        Please go back to the {' '}
-        <Anchor component="span" color="teal" weight="bold">
-          <Link href="/dashboard">
+    <div className="flex flex-col justify-center items-center mt-16">
+      <Alert>
+        <IconAlertCircle size="1rem" />
+        <AlertTitle>Ooops....</AlertTitle>
+        <AlertDescription>
+          Something happened and we {`can't`} show any information right now.
+          Please go back to the {' '}
+          <Link href="/dashboard" className="">
             Dashboard
           </Link>
-        </Anchor>
-        . If this problem persists, please contact us.
+          . If this problem persists, please contact us.
+        </AlertDescription>
       </Alert>
-    </Stack>
+    </div>
   </BaseLayout>
 );
 
 const noStripeScreen = (
   <BaseLayout showBackButton>
-    <Stack mt={60} justify="center" align="center">
-      <Alert title="Ooops..." variant="outline" color="gray">
-        Something happened and we {`can't`} connect with Stripe, please try again later.
+    <div className="flex flex-col justify-center items-center mt-16">
+      <Alert>
+        <IconAlertCircle size="1rem" />
+        <AlertTitle>Ooops....</AlertTitle>
+        <AlertDescription>
+          Something happened and we {`can't`} connect with Stripe, please try again later.
+        </AlertDescription>
       </Alert>
-    </Stack>
+    </div>
   </BaseLayout>
 );
 
 const LoadingScreen = () => {
-  const theme = useMantineTheme();
   return (
     <BaseLayout showBackButton>
-      <Stack style={{ height: 'calc(100vh - 170px)', width: 'calc(100vw - 96px)' }}>
-        <Group
-          mb="xl"
-          pb="sm"
-          align="center"
-          position="apart"
-          style={{
-            height: '49px',
-            borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}`,
-          }}
-        >
-          <Tabs
-            variant="pills"
-            color={theme.colorScheme === 'dark' ? 'gray' : 'dark'}
-            value="products"
-          >
-            <Tabs.List>
-              <Tabs.Tab value="products">Products</Tabs.Tab>
-              <Tabs.Tab value="features">Features</Tabs.Tab>
-              <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
-              <Tabs.Tab value="settings">Settings</Tabs.Tab>
-              <Tabs.Tab value="integration">Integration</Tabs.Tab>
-            </Tabs.List>
+      <div className="flex flex-col" style={{ height: 'calc(100vh - 170px)', width: 'calc(100vw - 96px)' }}>
+        <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-gray-200 dark:border-gray-800">
+          <Tabs value="products">
+            <TabsList>
+              <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="visuals">Visuals</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="integration">Integration</TabsTrigger>
+            </TabsList>
           </Tabs>
-        </Group>
-        <Loader size="xl" mt={60} mx="auto" />
-      </Stack>
+        </div>
+        <Loader className="mt-16 mx-auto" />
+      </div>
     </BaseLayout>
   );
 }
 
-const FormPage = () => {
-  const theme = useMantineTheme();
+interface Props {
+  params: {
+    id: string;
+  };
+}
 
-  const { query } = useRouter();
+const FormPage = (props: Props) => {
+  const { params: { id: widgetId } } = props;
 
   const startedFirstCall = useRef(false);
   const [isLoaded, setIsLoaded] = useState(false);
@@ -110,9 +108,9 @@ const FormPage = () => {
   const productsList = data || [];
 
   useEffect(() => {
-    if (query.id && !startedFirstCall.current) {
+    if (widgetId && !startedFirstCall.current) {
       startedFirstCall.current = true;
-      fetchWidget(query.id as string)
+      fetchWidget(widgetId)
         .then(() => {
           setIsLoaded(true);
         })
@@ -120,7 +118,7 @@ const FormPage = () => {
           setFailedToFetchWidgetInfo(true);
         });
     }
-  }, [query.id]);
+  }, [widgetId]);
 
   if (failedToFetchWidgetInfo) {
     return errorScreen;
@@ -136,7 +134,7 @@ const FormPage = () => {
 
   const templateNode = (
     <Template
-      widgetId={query.id as string}
+      widgetId={widgetId as string}
       showPanel={showPanel}
       setShowPanel={setShowPanel}
       currency={selectedCurrency}
@@ -152,51 +150,38 @@ const FormPage = () => {
         <title>Dealo | Form</title>
       </Head>
       <BaseLayout showBackButton title={name}>
-        <MantineProvider theme={{ primaryColor: color, colorScheme: theme.colorScheme }}>
-          <Group
-            mb="xl"
-            pb="sm"
-            align="center"
-            position="apart"
-            style={{
-              height: '49px',
-              borderBottom: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[3]}`,
-            }}
+        <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-gray-200 dark:border-gray-800">
+          <Tabs
+            value={currentTab}
+            onValueChange={setCurrentTab as any}
           >
-            <Tabs
-              variant="pills"
-              color={theme.colorScheme === 'dark' ? 'gray' : 'dark'}
-              value={currentTab}
-              onTabChange={setCurrentTab as any}
-            >
-              <Tabs.List>
-                <Tabs.Tab value="products">Products</Tabs.Tab>
-                <Tabs.Tab value="features">Features</Tabs.Tab>
-                <Tabs.Tab value="visuals">Visuals</Tabs.Tab>
-                <Tabs.Tab value="settings">Settings</Tabs.Tab>
-                <Tabs.Tab value="integration">Integration</Tabs.Tab>
-              </Tabs.List>
-            </Tabs>
-            <SaveButton enabled={isLoaded} />
-          </Group>
-          <Group align="flex-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
-            <RenderIf condition={currentTab === 'products'}>
-              <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
-            </RenderIf>
-            <RenderIf condition={currentTab === 'visuals'}>
-              <VisualsForm showPanel={showPanel} template={templateNode}/>
-            </RenderIf>
-            <RenderIf condition={currentTab === 'features'}>
-              <FeaturesForm />
-            </RenderIf>
-            <RenderIf condition={currentTab === 'settings'}>
-              <SettingsForm showPanel={showPanel} template={templateNode} widgetId={query.id as string} />
-            </RenderIf>
-            <RenderIf condition={currentTab === 'integration'}>
-              <IntegrationPanel widgetId={query.id as string} />
-            </RenderIf>
-          </Group>
-        </MantineProvider>
+            <TabsList>
+              <TabsTrigger value="products">Products</TabsTrigger>
+              <TabsTrigger value="features">Features</TabsTrigger>
+              <TabsTrigger value="visuals">Visuals</TabsTrigger>
+              <TabsTrigger value="settings">Settings</TabsTrigger>
+              <TabsTrigger value="integration">Integration</TabsTrigger>
+            </TabsList>
+          </Tabs>
+          <SaveButton enabled={isLoaded} />
+        </div>
+        <div className="flex items-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
+          <RenderIf condition={currentTab === 'products'}>
+            <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'visuals'}>
+            <VisualsForm showPanel={showPanel} template={templateNode}/>
+          </RenderIf>
+          <RenderIf condition={currentTab === 'features'}>
+            <FeaturesForm />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'settings'}>
+            <SettingsForm showPanel={showPanel} template={templateNode} widgetId={widgetId} />
+          </RenderIf>
+          <RenderIf condition={currentTab === 'integration'}>
+            <IntegrationPanel widgetId={widgetId} />
+          </RenderIf>
+        </div>
       </BaseLayout>
     </>
   );
