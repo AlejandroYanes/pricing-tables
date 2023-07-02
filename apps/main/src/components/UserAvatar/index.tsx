@@ -1,5 +1,6 @@
-import { Avatar } from '@mantine/core';
 import { resolveInitials } from '@dealo/helpers';
+
+import { Avatar, AvatarImage, AvatarFallback } from 'components/ui/avatar';
 
 interface Props {
   user: {
@@ -11,8 +12,11 @@ interface Props {
 export default function UserAvatar(props: Props) {
   const { user } = props;
   return (
-    <Avatar src={user?.image} alt={user?.name as string}>
-      {user?.name ? resolveInitials(user?.name as string) : 'A/N'}
+    <Avatar>
+      <AvatarImage src={user?.image ?? undefined} alt={user?.name as string} />
+      <AvatarFallback>
+        {user?.name ? resolveInitials(user?.name as string) : 'A/N'}
+      </AvatarFallback>
     </Avatar>
   );
 }
