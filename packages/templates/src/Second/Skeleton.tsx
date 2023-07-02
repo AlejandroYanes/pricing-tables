@@ -9,13 +9,13 @@ export function SecondSkeleton(props: SkeletonProps) {
     <div className="flex flex-row gap-3">
       {arr.map((_, index) => (
         <div className="flex flex-col items-center gap-2" key={index}>
-          <div className="rounded-sm bg-slate-200" style={{ height: 80 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200 mb-2" style={{ height: 100 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200" style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200" style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200" style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200 mb-2" style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className="rounded-sm bg-slate-200" style={{ height: 40 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500" style={{ height: 80 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500 mb-2" style={{ height: 100 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500" style={{ height: 40 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500" style={{ height: 40 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500" style={{ height: 40 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500 mb-2" style={{ height: 40 * scale, width: 300 * scale }} />
+          <div className="rounded-sm bg-emerald-500" style={{ height: 40 * scale, width: 300 * scale }} />
         </div>
       ))}
     </div>

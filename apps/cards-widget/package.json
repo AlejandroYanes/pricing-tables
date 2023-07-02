@@ -13,7 +13,6 @@
     "@dealo/models": "*",
     "@dealo/templates": "*",
     "@dealo/ui": "*",
-    "@dealo/tailwind-config": "*",
     "@emotion/cache": "11.10.7",
     "@emotion/react": "11.10.5",
     "@mantine/core": "6.0.5",
@@ -22,6 +21,7 @@
     "react-dom": "18.2.0"
   },
   "devDependencies": {
+    "@dealo/tailwind-config": "*",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
     "@typescript-eslint/eslint-plugin": "5.49.0",

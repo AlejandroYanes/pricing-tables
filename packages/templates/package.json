@@ -8,7 +8,6 @@
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
-    "@dealo/tailwind-config": "*",
     "@dealo/helpers": "*",
     "@dealo/ui": "*",
     "@emotion/react": "11.10.5",
@@ -25,6 +24,7 @@
     "react": "^18.2.0"
   },
   "devDependencies": {
+    "@dealo/tailwind-config": "*",
     "@types/react": "^18.0.22",
     "@typescript-eslint/eslint-plugin": "5.49.0",
     "@typescript-eslint/parser": "5.49.0",

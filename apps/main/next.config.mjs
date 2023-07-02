@@ -20,6 +20,6 @@ const config = {
   //   locales: ["en"],
   //   defaultLocale: "en",
   // },
-  transpilePackages: ["ui", "templates", "helpers", "models"],
+  transpilePackages: ["@dealo/ui", "@dealo/templates", "@dealo/helpers", "@dealo/models"],
 };
 export default withBundleAnalyzer(config);
