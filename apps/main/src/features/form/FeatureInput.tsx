@@ -1,5 +1,7 @@
-import { Checkbox, TextInput } from '@mantine/core';
 import type { FeatureType } from '@dealo/models';
+
+import { Checkbox } from 'components/ui/checkbox';
+import { Input } from 'components/ui/input';
 
 interface Props {
   type: FeatureType;
@@ -22,7 +24,7 @@ export default function FeatureInput(props: Props) {
     case 'string':
     case 'compose':
       return (
-        <TextInput value={value as string} onChange={(e) => onChange(e.target.value)}/>
+        <Input value={value as string} onChange={(e) => onChange(e.target.value)}/>
       );
     default:
       return null;

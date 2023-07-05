@@ -132,19 +132,17 @@ const FormPage = (props: Props) => {
     return <LoadingScreen />;
   }
 
-  // const templateNode = (
-  //   <Template
-  //     widgetId={widgetId as string}
-  //     showPanel={showPanel}
-  //     setShowPanel={setShowPanel}
-  //     currency={selectedCurrency}
-  //     setCurrency={setSelectedCurrency}
-  //     env={selectedEnv}
-  //     setEnv={setSelectedEnv}
-  //   />
-  // );
-
-  const templateNode = null;
+  const templateNode = (
+    <Template
+      widgetId={widgetId as string}
+      showPanel={showPanel}
+      setShowPanel={setShowPanel}
+      currency={selectedCurrency}
+      setCurrency={setSelectedCurrency}
+      env={selectedEnv}
+      setEnv={setSelectedEnv}
+    />
+  );
 
   return (
     <>
