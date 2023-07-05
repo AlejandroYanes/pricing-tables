@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
-import { Divider, Stack } from '@mantine/core';
 import { RenderIf } from '@dealo/ui';
+
+import { Separator } from 'components/ui/separator';
 
 interface Props {
   leftContent: ReactNode;
@@ -13,14 +14,14 @@ export default function TwoColumnsLayout(props: Props) {
   return (
     <>
       <RenderIf condition={!!leftContent}>
-        <Stack pt="xl" style={{ minWidth: '380px', maxWidth: '380px' }}>
+        <div className="flex flex-col pt-5 w-[380px] max-w-[380px]">
           {leftContent}
-        </Stack>
-        <Divider orientation="vertical" />
+        </div>
+        <Separator orientation="vertical" className="mx-4" />
       </RenderIf>
-      <Stack style={{ flex: 1 }}>
+      <div className="flex flex-col flex-1">
         {rightContent}
-      </Stack>
+      </div>
     </>
   );
 }

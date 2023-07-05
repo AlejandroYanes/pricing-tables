@@ -1,7 +1,6 @@
 import type { ReactNode} from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
 import { IconChevronDown, IconX } from '@tabler/icons-react';
 import type { FormPrice, FormProduct } from '@dealo/models';
@@ -26,6 +25,9 @@ import {
   changeCustomCTAUrl,
   changeCustomCTADescription,
 } from './state/actions';
+import { Button } from '../../components/ui/button';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 interface Props {
   showPanel: boolean;
@@ -81,7 +83,7 @@ export default function ProductsForm(props: Props) {
 
   const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
-  const theme = useMantineTheme();
+
   const interactionTimer = useRef<any>(undefined);
 
   const handleAddProduct = (selectedId: string) => {
@@ -194,70 +196,61 @@ export default function ProductsForm(props: Props) {
       })}
       <RenderIf condition={productOptions.length > 0}>
         <RenderIf condition={!showProducts}>
-          <Group position="right" align="center">
-            <Group noWrap spacing={1}>
+          <div className="flex items-center justify-end">
+            <div className="flex items-center flex-nowrap">
               <Button
+                className="rounded-r-none mr-[1px]"
                 onClick={() => {
                   setShowProducts(true);
                   startInteractionTimer();
                 }}
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
               >
                 {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
               </Button>
-              <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
-                <Menu.Target>
-                  <ActionIcon
-                    variant="filled"
-                    color="primary"
-                    size={36}
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                  >
+              <DropdownMenu>
+                <DropdownMenuTrigger>
+                  <Button className="rounded-l-none">
                     <IconChevronDown size="1rem" stroke={1.5} />
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item onClick={addCustomProduct}>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={addCustomProduct}>
                     Add a custom product
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-          </Group>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
+          </div>
         </RenderIf>
         <RenderIf condition={showProducts}>
-          <Group
-            spacing={0}
+          <div
+            className="flex items-center"
             onMouseEnter={clearInteractionTimer}
             onMouseLeave={startInteractionTimer}
           >
-            <Select
-              initiallyOpened
-              data={productOptions}
-              onChange={handleAddProduct}
-              style={{ flex: 1 }}
-              styles={{
-                input: {
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                },
-                separatorLabel: {
-                  color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
-                },
-              }}
-            />
-            <ActionIcon
+            <Select onValueChange={handleAddProduct}>
+              <SelectTrigger className="w-[80px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {productOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Button
               onClick={() => {
                 setShowProducts(false);
                 clearInteractionTimer();
               }}
               variant="default"
-              size={36}
-              style={{ borderLeft: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+              className="border-l-none border-r-none"
             >
               <IconX size="1rem" stroke={1.5} />
-            </ActionIcon>
-          </Group>
+            </Button>
+          </div>
         </RenderIf>
       </RenderIf>
     </>

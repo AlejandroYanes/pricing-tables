@@ -28,7 +28,7 @@ const errorScreen = (
     <div className="flex flex-col justify-center items-center mt-16">
       <Alert>
         <IconAlertCircle size="1rem" />
-        <AlertTitle>Ooops....</AlertTitle>
+        <AlertTitle>Oops....</AlertTitle>
         <AlertDescription>
           Something happened and we {`can't`} show any information right now.
           Please go back to the {' '}
@@ -132,17 +132,19 @@ const FormPage = (props: Props) => {
     return <LoadingScreen />;
   }
 
-  const templateNode = (
-    <Template
-      widgetId={widgetId as string}
-      showPanel={showPanel}
-      setShowPanel={setShowPanel}
-      currency={selectedCurrency}
-      setCurrency={setSelectedCurrency}
-      env={selectedEnv}
-      setEnv={setSelectedEnv}
-    />
-  );
+  // const templateNode = (
+  //   <Template
+  //     widgetId={widgetId as string}
+  //     showPanel={showPanel}
+  //     setShowPanel={setShowPanel}
+  //     currency={selectedCurrency}
+  //     setCurrency={setSelectedCurrency}
+  //     env={selectedEnv}
+  //     setEnv={setSelectedEnv}
+  //   />
+  // );
+
+  const templateNode = null;
 
   return (
     <>
@@ -150,7 +152,7 @@ const FormPage = (props: Props) => {
         <title>Dealo | Form</title>
       </Head>
       <BaseLayout showBackButton title={name}>
-        <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-gray-200 dark:border-gray-800">
+        <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-neutral-200 dark:border-gray-800">
           <Tabs
             value={currentTab}
             onValueChange={setCurrentTab as any}
@@ -165,7 +167,7 @@ const FormPage = (props: Props) => {
           </Tabs>
           <SaveButton enabled={isLoaded} />
         </div>
-        <div className="flex items-start" style={{ minHeight: 'calc(100vh - 170px)' }}>
+        <div className="flex items-stretch min-h-[calc(100vh - 170px)]">
           <RenderIf condition={currentTab === 'products'}>
             <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
           </RenderIf>
