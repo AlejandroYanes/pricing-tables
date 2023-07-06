@@ -1,9 +1,10 @@
+'use client'
+
 import { useState } from 'react';
-import { Anchor, Button, Stack, Text, useMantineTheme } from '@mantine/core';
-import { modals } from '@mantine/modals';
-import { IconAlertTriangle } from '@tabler/icons-react';
 
 import { trpc } from 'utils/trpc';
+import { Button } from 'components/ui/button';
+import { useToast } from 'components/ui/use-toast';
 import useChangeHistory from './useChangeHistory';
 
 interface Props {
@@ -11,18 +12,23 @@ interface Props {
 }
 
 export default function SaveButton(props: Props) {
-  const theme = useMantineTheme();
   const { enabled } = props;
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const { shouldSave, history } = useChangeHistory(enabled);
+
+  const { toast } = useToast();
 
   const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation({
     onSuccess: () => {
       setLastSaved(history.at(-1)!.hash);
     },
     onError: () => {
-      handleAPIError();
-    },
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'There was an error while saving your changes, please check your network connection before making any more changes.',
+      });
+    }
   });
 
   const handleSave = () => {
@@ -37,28 +43,10 @@ export default function SaveButton(props: Props) {
     mutate(changes);
   }
 
-  const handleAPIError = () => {
-    modals.open({
-      centered: true,
-      withCloseButton: false,
-      children:(
-        <Stack>
-          <IconAlertTriangle color="orange" size={60} style={{ margin: '0 auto' }} />
-          <Text>
-            There was an error while saving your changes, please do not make any more.
-            First, try to refresh the page and check your network connection.
-            If the problem still persist, <Anchor color="orange" href="mailto: alejandro@dealo.com">contact us</Anchor>.
-          </Text>
-        </Stack>
-      ),
-    });
-  };
-
-  const variant = theme.colorScheme === 'dark' ? 'white' : 'filled';
-  const disabled = !shouldSave || lastSaved === history.at(-1)?.hash;
+  const disabled = isLoading || !shouldSave || lastSaved === history.at(-1)?.hash;
 
   return (
-    <Button color="dark" variant={variant} loading={isLoading} disabled={disabled} onClick={handleSave}>
+    <Button variant="black" disabled={disabled} onClick={handleSave}>
       Save
     </Button>
   );
