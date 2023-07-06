@@ -229,7 +229,7 @@ export default function ProductsForm(props: Props) {
             onMouseLeave={startInteractionTimer}
           >
             <Select onValueChange={handleAddProduct}>
-              <SelectTrigger className="w-[80px]">
+              <SelectTrigger className="w-full rounded-r-none">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -245,8 +245,8 @@ export default function ProductsForm(props: Props) {
                 setShowProducts(false);
                 clearInteractionTimer();
               }}
-              variant="default"
-              className="border-l-none border-r-none"
+              variant="outline"
+              className="rounded-l-none border-l-0"
             >
               <IconX size="1rem" stroke={1.5} />
             </Button>

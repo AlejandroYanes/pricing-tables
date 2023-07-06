@@ -2,7 +2,8 @@ import { Prism } from '@mantine/prism';
 import { useSession } from 'next-auth/react';
 
 import { Separator } from 'components/ui/separator';
-import Code from 'components/ui/Code';
+import Code from 'components/ui/code';
+import CodeBlock from 'components/ui/code-block';
 
 interface Props {
   widgetId: string;
@@ -162,12 +163,12 @@ export default function IntegrationPanel(props: Props) {
         <br />
         It will return an object with the real <Code>ids</Code> for the product and price.
       </p>
-      <p className="mt-6">The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</p>
-      <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
+      <p className="mt-6 mb-4">The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</p>
+      <CodeBlock code={`X-Api-Key=${data?.user?.id}`} />
       <p className="mt-6">{`Here's`} how it would look</p>
-      <Prism language="bash">{curlCommand(data!.user!.id)}</Prism>
+      <CodeBlock code={curlCommand(data!.user!.id)} />
       <p className="mt-6">{`Here's`} a JavaScript version</p>
-      <Prism language="jsx">{jsCommand(data!.user!.id)}</Prism>
+      <CodeBlock code={jsCommand(data!.user!.id)} />
     </div>
   );
 }

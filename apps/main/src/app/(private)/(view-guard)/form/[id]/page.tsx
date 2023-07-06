@@ -165,7 +165,7 @@ const FormPage = (props: Props) => {
           </Tabs>
           <SaveButton enabled={isLoaded} />
         </div>
-        <div className="flex items-stretch min-h-[calc(100vh - 170px)]">
+        <div className="flex items-stretch min-h-[calc(100vh-170px)]">
           <RenderIf condition={currentTab === 'products'}>
             <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
           </RenderIf>

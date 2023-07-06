@@ -7,7 +7,7 @@ interface Props {
 export default function Code(props: Props) {
   const { children } = props;
   return (
-    <code className="relative rounded bg-muted px-[0.3rem] py-[0.2rem] font-mono text-sm">
+    <code className="relative rounded bg-neutral-50 px-[0.3rem] py-[0.2rem] font-mono text-sm">
       {children}
     </code>
   );
