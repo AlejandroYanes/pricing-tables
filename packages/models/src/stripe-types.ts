@@ -16,6 +16,7 @@ export type FormPrice = {
   freeTrialDays: number;
   unit_amount: number;
   currency: string;
+  isSelected: boolean;
   currency_options?: {
     [key: string]: {
       custom_unit_amount: string | null;

@@ -11,17 +11,22 @@ export function handleAddPrice(productId: string, price: FormPrice) {
 
   if (!selectedProduct) return;
 
-  const lastOrder = selectedProduct.prices[selectedProduct.prices.length - 1]?.order ?? 0;
+  const lastOrder = selectedProduct.prices.filter(p => p.isSelected).at(-1)?.order ?? 0;
+  const updatedPrices: FormPrice[] = selectedProduct.prices.map(p => {
+    if (p.id === price.id){
+      return  {
+        ...p,
+        isSelected: true,
+        order: lastOrder + 1,
+        mask: createId(),
+      }
+    };
+    return  p;
+  })
 
   const copy = {
     ...selectedProduct,
-    prices: selectedProduct.prices.concat([{
-      ...price,
-      order: lastOrder + 1,
-      mask: createId(),
-      hasFreeTrial: false,
-      freeTrialDays: 0,
-    }]),
+    prices: updatedPrices,
   };
   useWidgetFormStore.setState((prev) => ({
     ...prev,

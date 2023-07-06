@@ -203,7 +203,6 @@ export default function ProductsForm(props: Props) {
             isFirst={isFirst}
             isLast={isLast}
             key={prod.id}
-            value={prod}
             product={prod}
             onAddPrice={handleAddPrice}
             onRemove={() => removeProduct(index)}

@@ -8,6 +8,15 @@ export function removePrice(productId: string, priceId: string) {
 
   if (!selectedProduct || !selectedPrice) return;
 
-  products[productIndex] = { ...selectedProduct!, prices: selectedProduct.prices.filter((price) => price.id !== priceId) };
+  const updatedPrices = selectedProduct.prices.map(p => {
+    if (p.id === priceId){
+      return  {
+        ...p,
+        isSelected: false,
+      }
+    };
+    return  p;
+  })
+  products[productIndex] = { ...selectedProduct!, prices: updatedPrices };
   useWidgetFormStore.setState({ products: [...products] });
 }

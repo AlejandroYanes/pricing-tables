@@ -32,7 +32,6 @@ interface Props {
   isFirst: boolean;
   isLast: boolean;
   product: FormProduct;
-  value: FormProduct;
   onAddPrice: (productId: string, price: FormPrice) => void;
   onRemove: () => void;
   onRemovePrice: (productId: string, priceId: string) => void;
@@ -128,7 +127,6 @@ export default function ProductBlock(props: Props) {
     isFirst,
     isLast,
     product,
-    value,
     onAddPrice,
     onRemove,
     onRemovePrice,
@@ -149,7 +147,7 @@ export default function ProductBlock(props: Props) {
     const selectedPrice = product.prices.find((price) => price.id === priceId);
 
     if (!selectedPrice) return;
-    onAddPrice(value.id, selectedPrice);
+    onAddPrice(product.id, selectedPrice);
     setShowPriceSelect(false);
     clearInteractionTimer();
   };
@@ -169,11 +167,12 @@ export default function ProductBlock(props: Props) {
     }
   }
 
-  const hasMorePrices = product.prices.length - value.prices.length > 0;
-  const remainingPrices = product.prices.length - value.prices.length;
+  const selectedPrices = product.prices.filter(p => p.isSelected);
+  const remainingPrices = product.prices.length - selectedPrices.length;
+  const hasMorePrices = remainingPrices > 0;
 
   const priceOptions = product.prices
-    .filter((price) => !value.prices.some((sp) => sp.id === price.id))
+    .filter(p => !p.isSelected)
     .map((price) => ({
       label: resolvePricing(price),
       value: price.id,
@@ -201,7 +200,7 @@ export default function ProductBlock(props: Props) {
         </Menu>
       </div>
       <Group spacing={4}>
-        <Text weight="bold" py={16} pl={16}>{value.name}</Text>
+        <Text weight="bold" py={16} pl={16}>{product.name}</Text>
         <RenderIf condition={!product.active}>
           <Tooltip label={disabledProductLabel} width={280} multiline position="right">
             <div style={{ display: 'flex', alignItems: 'center' }}>
@@ -211,13 +210,13 @@ export default function ProductBlock(props: Props) {
         </RenderIf>
       </Group>
       <Stack>
-        {(value.prices || []).map((price, index, list) => (
+        {(selectedPrices || []).map((price, index, list) => (
           <Fragment key={price.id}>
             <Divider orientation="horizontal" />
             <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="sm" style={{ position: 'relative' }}>
               <RenderIf condition={list.length > 1}>
                 <div className={classes.deleteBtn}>
-                  <ActionIcon radius="xl" onClick={() => onRemovePrice(value.id, price.id)}>
+                  <ActionIcon radius="xl" onClick={() => onRemovePrice(product.id, price.id)}>
                     <IconX size={14} />
                   </ActionIcon>
                 </div>
@@ -238,7 +237,7 @@ export default function ProductBlock(props: Props) {
                 label="Include free trial"
                 checked={price.hasFreeTrial}
                 onChange={() => undefined}
-                onClick={() => onToggleFreeTrial(value.id, price.id)}
+                onClick={() => onToggleFreeTrial(product.id, price.id)}
               />
               <RenderIf condition={price.hasFreeTrial}>
                 <NumberInput
@@ -248,7 +247,7 @@ export default function ProductBlock(props: Props) {
                   stepHoldDelay={500}
                   stepHoldInterval={100}
                   value={price.freeTrialDays}
-                  onChange={(days) => onFreeTrialDaysChange(value.id, price.id, days! as number)}
+                  onChange={(days) => onFreeTrialDaysChange(product.id, price.id, days! as number)}
                 />
               </RenderIf>
             </Stack>
