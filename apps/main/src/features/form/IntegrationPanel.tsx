@@ -64,16 +64,16 @@ export default function IntegrationPanel(props: Props) {
         First, add this script tag to your page,
         usually {`it's`} added at the bottom the head tag, though it can be added anywhere.
       </p>
-      <Prism language="markup">{scriptCode}</Prism>
+      <CodeBlock className="mt-6">{scriptCode}</CodeBlock>
 
       <p className="mt-6 mb-0 mx-0">
         then, add this custom tag to your code wherever you want the widget to show
         (these examples use this {`widget's`} id but you can use any id you want)
       </p>
-      <Prism language="markup">{widgetCode(widgetId)}</Prism>
+      <CodeBlock className="mt-6">{widgetCode(widgetId)}</CodeBlock>
 
       <p className="mt-6 mb-0 mx-0">We recommend wrapping the widget in a container to make positioning easier</p>
-      <Prism language="markup">{wrappedWidgetCode(widgetId)}</Prism>
+      <CodeBlock className="mt-6">{wrappedWidgetCode(widgetId)}</CodeBlock>
 
       <h3 className="text text-xl font-semibold mt-6 mb-2">Other configurations</h3>
 
@@ -84,14 +84,14 @@ export default function IntegrationPanel(props: Props) {
 
       <span className="text font-semibold mt-6">Theme</span>
       <p className="m-0">The theme attribute expects one of three values: <Code>system | light | dark</Code></p>
-      <Prism language="markup" mb="xl">{widgetWithThemeCode(widgetId)}</Prism>
+      <CodeBlock className="mt-6">{widgetWithThemeCode(widgetId)}</CodeBlock>
 
       <span className="text font-semibold mt-6">Currency</span>
       <p className="m-0">
         If your prices are setup with more than one currency you can specify which one to use.
         If you {`don't`} specify a currency it will use the default currency of your Stripe account.
       </p>
-      <Prism language="markup" mb="xl">{widgetWithCurrencyCode(widgetId)}</Prism>
+      <CodeBlock className="mt-6">{widgetWithCurrencyCode(widgetId)}</CodeBlock>
 
       <span className="text font-semibold mt-6">Environment</span>
       <p className="m-0">
@@ -103,11 +103,11 @@ export default function IntegrationPanel(props: Props) {
         The value of this attribute should be the name of the environment you want to use.
         By default it will use the <Code>production</Code> environment.
       </p>
-      <Prism language="markup" mb="xl">{widgetWithEnvCode(widgetId)}</Prism>
+      <CodeBlock className="mt-6">{widgetWithEnvCode(widgetId)}</CodeBlock>
 
-      <Separator className="mt=6" />
+      <Separator className="my-6" />
 
-      <h2 className="text text-2xl font-bold mt-6 mb-2">How it works</h2>
+      <h2 className="text text-2xl font-bold mb-2">How it works</h2>
       <p className="m-0">
         Now {`let's`} get into how the integration works.
         <br />
@@ -116,29 +116,30 @@ export default function IntegrationPanel(props: Props) {
         and add query parameters to identify the widget, product, price and currency selected.
         If you leave the url empty it will just add the parameters to the page url.
         Eg:
-        <Prism language="javascript" mt="md">
-          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
-        </Prism>
-        <br />
+      </p>
+      <CodeBlock className="my-4">
+        {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+      </CodeBlock>
+      <p>
         This is done so you can use your own signup flow before collecting the payment.
         From here there you can either:
-        <ul className="list-disc pl-8 pt-4">
-          <li>
-            use our <Code>checkout</Code> API route and we will generate a Stripe checkout session for your customer
-          </li>
-          <li>
-            use our API route to get the real product and price <Code>ids</Code>
-          </li>
-        </ul>
       </p>
+      <ul className="list-disc pl-8 pt-4">
+        <li>
+          use our <Code>checkout</Code> API route and we will generate a Stripe checkout session for your customer
+        </li>
+        <li>
+          use our API route to get the real product and price <Code>ids</Code>
+        </li>
+      </ul>
       <h3 className="text text-xl font-semibold mt-6 mb-2">Generating a Stripe Checkout</h3>
       <p className="m-0">
         To generate a Stripe checkout session you need redirect the user to our <Code>checkout</Code> API route.
         Make sure to add the query parameters we added to your page to the url.
       </p>
-      <Prism language="javascript">
+      <CodeBlock className="my-6">
         {`https://dealo.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
-      </Prism>
+      </CodeBlock>
       <p>
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
         After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
@@ -156,19 +157,21 @@ export default function IntegrationPanel(props: Props) {
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
       </p>
-      <Prism language="javascript">{`https://dealo.app/api/client/retreive-stripe-info`}</Prism>
+      <CodeBlock className="my-6">{`https://dealo.app/api/client/retreive-stripe-info`}</CodeBlock>
       <p className="mt-6">
         This request needs to be a <Code>POST</Code> request with the body:
-        <Prism language="json">{requestBody()}</Prism>
-        <br />
-        It will return an object with the real <Code>ids</Code> for the product and price.
       </p>
-      <p className="mt-6 mb-4">The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</p>
-      <CodeBlock code={`X-Api-Key=${data?.user?.id}`} />
-      <p className="mt-6">{`Here's`} how it would look</p>
-      <CodeBlock code={curlCommand(data!.user!.id)} />
-      <p className="mt-6">{`Here's`} a JavaScript version</p>
-      <CodeBlock code={jsCommand(data!.user!.id)} />
+      <CodeBlock className="my-6">{requestBody()}</CodeBlock>
+      <p className="mt-6 mb-4">
+        It will return an object with the real <Code>ids</Code> for the product and price.
+        <br />
+        The request also needs this API Key header to validate {`it's`} you {`who's`} making the request
+      </p>
+      <CodeBlock>{`X-Api-Key=${data?.user?.id}`}</CodeBlock>
+      <p className="mt-6 mb-4">{`Here's`} how it would look</p>
+      <CodeBlock>{curlCommand(data!.user!.id)}</CodeBlock>
+      <p className="mt-6 mb-4">{`Here's`} a JavaScript version</p>
+      <CodeBlock>{jsCommand(data!.user!.id)}</CodeBlock>
     </div>
   );
 }
