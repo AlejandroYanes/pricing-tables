@@ -24,7 +24,6 @@ import { Input } from 'components/ui/input';
 import { Label } from 'components/ui/label';
 import { Button } from 'components/ui/button';
 import { Checkbox } from 'components/ui/checkbox';
-import { Separator } from 'components/ui/separator';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from 'components/ui/tooltip';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'components/ui/select';
 
@@ -151,7 +150,7 @@ export default function ProductBlock(props: Props) {
     }));
 
   return (
-    <div className="relative rounded-sm mb-4 border-solid border border-neutral-200">
+    <div className="relative rounded-sm mb-4 border-solid border border-neutral-200 dark:border-neutral-700">
       <div className="absolute top-1 right-1">
         <DropdownMenu>
           <DropdownMenuTrigger>
@@ -205,7 +204,7 @@ export default function ProductBlock(props: Props) {
         {(value.prices || []).map((price, index, list) => (
           <Fragment key={price.id}>
             {/* eslint-disable-next-line max-len */}
-            <div className={`flex flex-col px-4 py-2 gap-2 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 relative ${hasMorePrices ? 'pb-4' : ''}`}>
+            <div className={`flex flex-col px-4 py-2 gap-2 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 dark:border-neutral-700 relative ${hasMorePrices ? 'pb-4' : ''}`}>
               <RenderIf condition={list.length > 1}>
                 <div className="absolute top-1 right-1">
                   <Button className="rounded-full h-7 px-2" variant="ghost" size="sm" onClick={() => onRemovePrice(value.id, price.id)}>
@@ -257,50 +256,50 @@ export default function ProductBlock(props: Props) {
       </div>
       <RenderIf condition={hasMorePrices}>
         <RenderIf
-          condition={!showPriceSelect}
+          condition={showPriceSelect}
           fallback={
-            <div
-              className="flex items-center h-[42px]"
-              onMouseEnter={clearInteractionTimer}
-              onMouseLeave={startInteractionTimer}
-            >
-              <Select onValueChange={handleSelectPrice} defaultOpen>
-                <SelectTrigger className="rounded-r-none rounded-tl-none rounded-bl-[3px] border-y-0 border-l-0 h-[42px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {priceOptions.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+            <div className="flex justify-between items-center h-[42px] px-4 py-3">
+              <span className="text text-sm text-neutral-500 dark:text-neutral-300">
+                {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
+              </span>
               <Button
+                variant="link"
+                className="p-0"
                 onClick={() => {
-                  setShowPriceSelect(false);
-                  clearInteractionTimer();
+                  setShowPriceSelect(true);
                 }}
-                variant="ghost"
-                className="h-[42px] rounded-l-none rounded-tr-none rounded-br-[3px]"
               >
-                <IconX size="1rem" stroke={1.5} />
+                Add another price
               </Button>
             </div>
           }
         >
-          <div className="flex justify-between items-center h-[42px] px-4 py-3">
-            <span className="text text-sm text-neutral-500">
-              {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
-            </span>
+          <div
+            className="flex items-center h-[42px]"
+            onMouseEnter={clearInteractionTimer}
+            onMouseLeave={startInteractionTimer}
+          >
+            <Select onValueChange={handleSelectPrice} defaultOpen>
+              <SelectTrigger className="rounded-r-none rounded-tl-none rounded-bl-[3px] border-y-0 border-l-0 h-[42px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {priceOptions.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
             <Button
-              variant="link"
-              className="p-0"
               onClick={() => {
-                setShowPriceSelect(true);
+                setShowPriceSelect(false);
+                clearInteractionTimer();
               }}
+              variant="ghost"
+              className="h-[42px] rounded-l-none rounded-tr-none rounded-br-[3px]"
             >
-              Add another price
+              <IconX size="1rem" stroke={1.5} />
             </Button>
           </div>
         </RenderIf>

@@ -77,7 +77,7 @@ export default function Template(props: Props) {
   return (
     <>
       <div className="flex items-center justify-between mb-6">
-        <Button variant="ghost" size="sm" className="mb-2" onClick={() => setShowPanel(!showPanel)}>
+        <Button variant="ghost" size="sm" className="h-8 px-1" onClick={() => setShowPanel(!showPanel)}>
           <RenderIf condition={showPanel} fallback={<IconArrowBarToRight />}>
             <IconArrowBarToLeft />
           </RenderIf>
