@@ -1,9 +1,12 @@
 import { useMemo } from 'react';
-import { ActionIcon, Alert, Group, Select, Tooltip } from '@mantine/core';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons-react';
 import { templatesMap } from '@dealo/templates';
 import { RenderIf } from '@dealo/ui';
 
+import { Button } from 'components/ui/button';
+import { Alert, AlertTitle, AlertDescription } from 'components/ui/alert';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'components/ui/tooltip';
+import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from 'components/ui/select';
 import { useTemplateStates } from './state';
 
 interface Props {
@@ -73,63 +76,83 @@ export default function Template(props: Props) {
 
   return (
     <>
-      <Group align="center" position="apart" mb="xl">
-        <ActionIcon mb={4} onClick={() => setShowPanel(!showPanel)}>
+      <div className="flex items-center justify-between mb-6">
+        <Button variant="ghost" size="sm" className="mb-2" onClick={() => setShowPanel(!showPanel)}>
           <RenderIf condition={showPanel} fallback={<IconArrowBarToRight />}>
             <IconArrowBarToLeft />
           </RenderIf>
-        </ActionIcon>
-        <Group align="flex-end" mb="xl">
+        </Button>
+        <div className="flex items-end gap-6 mb-6">
           <RenderIf condition={currencies.length > 1}>
-            <Select
-              clearable
-              label={
-                <Tooltip
-                  transitionProps={{ duration: 200 }}
-                  label={currencyTooltip}
-                  width={280}
-                  position="right"
-                  multiline
-                  withArrow
-                >
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span>Currency</span>
+            <div className="flex flex-col gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center">
+                      <span>Currency</span>
+                      <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" align="start" className="w-[280px]">{currencyTooltip}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Select
+                value={currency || undefined}
+                onValueChange={setCurrency}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.value} value={currency.value}>
+                      {currency.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </RenderIf>
+          <div className="flex flex-col gap-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center">
+                    <span>Environment</span>
                     <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
                   </div>
-                </Tooltip>
-              }
-              data={currencies}
-              value={currency}
-              onChange={setCurrency}
-            />
-          </RenderIf>
-          <Select
-            label={
-              <Tooltip
-                transitionProps={{ duration: 200 }}
-                label="Select an environment to preview the callback URLs."
-                width={280}
-                position="right"
-                multiline
-                withArrow
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span>Callback env</span>
-                  <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
-                </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="start" className="w-[280px]">
+                  Select an environment to preview the callback URLs.
+                </TooltipContent>
               </Tooltip>
-            }
-            disabled={selectedProducts.length === 0}
-            data={callbacks.map((cb) => cb.env)}
-            value={env}
-            onChange={(value) => setEnv(value!)}
-          />
-        </Group>
-      </Group>
+            </TooltipProvider>
+            <Select
+              disabled={selectedProducts.length === 0}
+              value={env}
+              onValueChange={setEnv}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {callbacks.map((cb) => (
+                  <SelectItem key={cb.env} value={cb.env}>
+                    {cb.env}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
       <RenderIf condition={hasSeveralPricesWithSameInterval}>
-        <Alert title="Regarding prices and intervals" variant="outline" color="orange" mb="xl">
-          We currently only show one price per interval, taking the first one from the list.
-          This is a limitation of the current API and we plan to address it in the future.
+        <Alert className="mb-24 mx-auto max-w-2xl">
+          <AlertTitle>Regarding prices and intervals</AlertTitle>
+          <AlertDescription>
+            We currently only show one price per interval, taking the first one from the list.
+            This is a limitation of the current API and we plan to address it in the future.
+          </AlertDescription>
         </Alert>
       </RenderIf>
       <WidgetTemplate
