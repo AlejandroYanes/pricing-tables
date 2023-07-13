@@ -9,6 +9,7 @@ export const resolveBillingIntervals = (products: FormProduct[]) => {
       if (prod.isCustom) return list;
 
       const intervals = prod.prices
+        .filter(price => price.isSelected)
         .map((price) => {
           if (price.type === 'one_time') {
             return 'one_time';
@@ -26,7 +27,7 @@ export const resolveBillingIntervals = (products: FormProduct[]) => {
     .sort((a, b) => {
       const first = a.split('_')[0] as Stripe.Price.Recurring.Interval;
       const second = b.split('_')[0] as Stripe.Price.Recurring.Interval;
-      let sortedValues =  intervalsMap[first].index - intervalsMap[second].index;
+      let sortedValues = intervalsMap[first].index - intervalsMap[second].index;
       if (sortedValues === 0) {
         const firstCount = a.includes('_') ? a.split('_')[1]! : '1';
         const secondCount = b.includes('_') ? b.split('_')[1]! : '1';
@@ -41,13 +42,13 @@ export const resolveBillingIntervals = (products: FormProduct[]) => {
         const intervalArray = interval.split('_');
         const intervalFormat = intervalArray[0] as Stripe.Price.Recurring.Interval;
         if (intervalFormat === 'day' || intervalFormat === 'week' || intervalFormat === 'month') {
-          intervalLabel = `${intervalArray[1]} ${intervalsMap[intervalFormat].plurals}` ;
+          intervalLabel = `${intervalArray[1]} ${intervalsMap[intervalFormat].plurals}`;
         }
       }
       else {
         intervalLabel = intervalsMap[interval].label;
       }
-      
+
       return ({ value: interval, label: intervalLabel });
     })
 }
