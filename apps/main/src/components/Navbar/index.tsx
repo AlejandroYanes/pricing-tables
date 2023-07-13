@@ -116,7 +116,7 @@ export function CustomNavbar(props: Props) {
               <NavbarLink asSpan icon={IconInfoCircle} />
             </HoverCardTrigger>
             <HoverCardContent align="end" className="w-[280px] mt-3">
-              <p className="text text-black">
+              <p className="text text-black dark:text-white">
                 This platform is still an alpha version, so if you find any bugs or have any suggestions,
                 please let me know at
                 {' '}

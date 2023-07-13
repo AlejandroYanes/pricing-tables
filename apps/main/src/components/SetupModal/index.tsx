@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Stripe from 'stripe';
-import { Prism } from '@mantine/prism';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { RenderIf } from '@dealo/ui';
@@ -19,6 +18,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Label } from '../ui/label';
 import { Alert, AlertDescription } from '../ui/alert';
+import CodeBlock from '../ui/code-block';
 
 type Status = 'input' | 'empty' | 'list';
 
@@ -26,7 +26,7 @@ export default function SetupModal() {
   const [open, setOpen] = useState<boolean>(true);
   const [apiKey, setApiKey] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(true);
+  const [error, setError] = useState<boolean>(false);
   const [status, setStatus] = useState<Status>('input');
   const [products, setProducts] = useState<Stripe.Product[]>([]);
 
@@ -86,7 +86,7 @@ export default function SetupModal() {
 
   return (
     <Dialog open>
-      <DialogContent>
+      <DialogContent className="max-w-[700px]">
         <DialogHeader>
           <DialogTitle>Hi there</DialogTitle>
         </DialogHeader>
@@ -99,10 +99,10 @@ export default function SetupModal() {
               <a href="https://stripe.com/docs/keys" target="_blank" rel="noreferrer">on the Stripe docs</a>.
             </span>
             <span className="mt-4">If you do not have a Stripe key but still want to test, {`here's`} one from us:</span>
-            <Prism language="markup">
+            <CodeBlock className="my-4">
               {guestStripeKey}
-            </Prism>
-            <div className="flex flex-col gap-1 mt-4">
+            </CodeBlock>
+            <div className="flex flex-col gap-2 mt-4">
               <Label htmlFor="stripe-api-key">Stripe API Key</Label>
               <Input autoFocus id="stripe-api-key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
             </div>
