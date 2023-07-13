@@ -86,6 +86,7 @@ export const widgetsRouter = createTRPCRouter({
                 mask: z.string().cuid2(),
                 hasFreeTrial: z.boolean(),
                 freeTrialDays: z.number(),
+                isSelected: z.boolean(),
               }),
             ),
           })
@@ -187,7 +188,9 @@ export const widgetsRouter = createTRPCRouter({
       }
 
       // managing prices
-      const widgetPrices = products.flatMap((product) => product.prices.map((price) => ({ ...price, productId: product.id })));
+      const widgetPrices = products.flatMap((product) => product.prices
+        .filter(price => price.isSelected)
+        .map((price) => ({ ...price, productId: product.id })));
       const storedPrices = await ctx.prisma.price.findMany({
         where: { widgetId },
         select: {
