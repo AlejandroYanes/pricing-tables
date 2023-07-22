@@ -11,21 +11,27 @@ import {
 } from '@tabler/icons-react';
 import type { FormPrice, FormProduct } from '@dealo/models';
 import { formatCurrency } from '@dealo/helpers';
-import { RenderIf } from '@dealo/ui';
-
 import {
+  RenderIf,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
   DropdownMenuSeparator,
-} from 'components/ui/dropdown-menu';
-import { Input } from 'components/ui/input';
-import { Label } from 'components/ui/label';
-import { Button } from 'components/ui/button';
-import { Checkbox } from 'components/ui/checkbox';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from 'components/ui/tooltip';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'components/ui/select';
+  Input,
+  Label,
+  Button,
+  Checkbox,
+  TooltipProvider,
+  Tooltip,
+  TooltipTrigger,
+  TooltipContent,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@dealo/ui';
 
 interface Props {
   isFirst: boolean;

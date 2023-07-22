@@ -1,8 +1,7 @@
 import type { ReactNode } from 'react';
-import { RenderIf } from '@dealo/ui';
+import { RenderIf, cn } from '@dealo/ui';
 
 import { CustomNavbar } from 'components/Navbar';
-import { cn } from '../../utils/ui';
 
 interface Props {
   hideNavbar?: boolean;

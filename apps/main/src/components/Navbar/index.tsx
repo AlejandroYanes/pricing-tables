@@ -15,21 +15,18 @@ import {
   IconUserQuestion,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
-import { RenderIf } from '@dealo/ui';
-import { ROLES } from '@dealo/models';
-
-import { trpc } from 'utils/trpc';
-import { Button } from 'components/ui/button';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from 'components/ui/hover-card';
 import {
+  RenderIf,
+  Button,
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
   DropdownMenuLabel,
   DropdownMenuItem,
   DropdownMenuSeparator,
-} from 'components/ui/dropdown-menu';
-import {
   AlertDialog,
   AlertDialogCancel,
   AlertDialogContent,
@@ -38,8 +35,11 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../ui/alert-dialog';
-import { cn } from '../../utils/ui';
+  cn,
+} from '@dealo/ui';
+import { ROLES } from '@dealo/models';
+
+import { trpc } from 'utils/trpc';
 
 interface NavbarLinkProps {
 	icon: TablerIcon;

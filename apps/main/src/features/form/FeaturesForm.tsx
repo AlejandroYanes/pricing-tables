@@ -1,6 +1,21 @@
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
 import { IconGripVertical, IconTrash } from '@tabler/icons-react';
 import type { FeatureType, FormFeature } from '@dealo/models';
+import {
+  Button,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@dealo/ui';
 
 import FeatureInput from './FeatureInput';
 import CustomDroppable from './CustomDroppable';
@@ -13,10 +28,6 @@ import {
   removeFeature,
   reorderFeatures,
 } from './state/actions';
-import { Button } from 'components/ui/button';
-import { Input } from 'components/ui/input';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from 'components/ui/table';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from 'components/ui/select';
 
 const resolveFeatureValue = (feature: FormFeature, prodId: string) => {
   const prod = feature.products.find((prod) => prod.id === prodId)!;

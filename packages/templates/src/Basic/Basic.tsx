@@ -1,7 +1,8 @@
+/* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
+import Link from 'next/link';
 import type { FormPrice } from '@dealo/models';
-import { RenderIf, PoweredBy } from '@dealo/ui';
+import { RenderIf, PoweredBy, Tabs, TabsList, TabsTrigger, Button } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
@@ -11,23 +12,23 @@ import { resolvePriceToShow } from './utils/resolve-price-to-show';
 import { resolvePricing } from './utils/resolve-pricing';
 import { resolveFeaturesForProduct } from './utils/resolve-features-for-product';
 
-const useStyles = createStyles((theme, color: string) => ({
-  productCard: {
-    position: 'relative',
-    boxSizing: 'border-box',
-    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-    padding: '48px 32px 24px',
-    borderRadius: '4px',
-    width: '300px',
-  },
-  activeProductCard: {
-    border: `1px solid ${theme.colors![color]![5]}`,
-    width: '300px',
-  },
-  wideCard: {
-    width: 'auto',
-  },
-}));
+// const useStyles = createStyles((theme, color: string) => ({
+//   productCard: {
+//     position: 'relative',
+//     boxSizing: 'border-box',
+//     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
+//     padding: '48px 32px 24px',
+//     borderRadius: '4px',
+//     width: '300px',
+//   },
+//   activeProductCard: {
+//     border: `1px solid ${theme.colors![color]![5]}`,
+//     width: '300px',
+//   },
+//   wideCard: {
+//     width: 'auto',
+//   },
+// }));
 
 export function BasicTemplate(props: TemplateProps) {
   const {
@@ -44,7 +45,7 @@ export function BasicTemplate(props: TemplateProps) {
     currency,
     environment = 'production',
   } = props;
-  const { classes, cx } = useStyles(color);
+  // const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
@@ -70,11 +71,20 @@ export function BasicTemplate(props: TemplateProps) {
   if (visibleProducts.length === 0) return null;
 
   return (
-    <Stack align="center">
+    <div className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
-        <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        <Tabs
+          value={currentInterval}
+          onValueChange={setCurrentInterval as any}
+        >
+          <TabsList>
+            {billingIntervals.map((interval) => (
+              <TabsTrigger key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </RenderIf>
-      <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
+      <div className="grid justify-items-center box-border gap-4" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
         {visibleProducts.map((prod, index) => {
           const isFirst = index === 0;
 
@@ -106,55 +116,55 @@ export function BasicTemplate(props: TemplateProps) {
           };
 
           return (
-            <Stack
+            <div
+              data-active={isRecommended}
+              data-wide={!!unitLabel}
+              className="flex flex-col items-center relative box-border border border-slate-200 dark:border-slate-800 pt-16 px-8 pb-8 rounded-md w-72 data-[active=true]:border-emerald-500 dark:data-[active=true]:border-emerald-500 data-[wide=true]:w-auto"
               key={prod.id}
-              align="center"
-              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
             >
-              <Text
-                style={{ fontSize: '18px' }}
-                weight="bold"
-                color={isRecommended ? color : undefined}
+              <span
+                data-active={isRecommended}
+                className="mb-4 text slate-900 dark:text-slate-100 font-bold data-[active=true]:text-emerald-500 dark:data-[active=true]:text-emerald-500"
               >
                 {prod.name}
-              </Text>
+              </span>
               <RenderIf condition={!isCustom}>
-                <Text
-                  weight="bold"
-                  align="center"
-                  style={{ fontSize: '32px' }}
-                  color={isRecommended ? color : undefined}
+                <span
+                  data-active={isRecommended}
+                  className="mb-4 text text-center slate-900 dark:text-slate-100 font-bold text-2xl data-[active=true]:text-emerald-500 dark:data-[active=true]:text-emerald-500"
                 >
                   {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
-                </Text>
+                </span>
               </RenderIf>
-              <Text align="center">{prod.description}</Text>
-              <Stack mt="auto" align="center">
+              <span className="text text-center mb-4">{prod.description}</span>
+              <div className="flex flex-col items-center mt-auto">
                 <RenderIf condition={hasFreeTrial}>
-                  <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
+                  <span className="text text-slate-400 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
-                <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
-                  {resolveBtnLabel()}
-                </Button>
-              </Stack>
+                <Link href={resolveBtnUrl()}>
+                  <Button color={color} variant={isRecommended ? 'default' : 'outline'}>
+                    {resolveBtnLabel()}
+                  </Button>
+                </Link>
+              </div>
               <RenderIf condition={isFirst}>
                 <PoweredBy top={170} left={-27} color={color} position="left" />
               </RenderIf>
-            </Stack>
+            </div>
           )
         })}
         {visibleProducts.map((prod) => {
           const featureList = resolveFeaturesForProduct(features, prod.id);
 
           return (
-            <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
+            <ul key={`prod-${prod.id}-features`} className="list-disc ml-8 mr-auto">
               {featureList.map((feat, index) => (
-                <li key={index}><Text align="left">{feat}</Text></li>
+                <li key={index}><span className="text text-left">{feat}</span></li>
               ))}
             </ul>
           );
         })}
-      </SimpleGrid>
-    </Stack>
+      </div>
+    </div>
   );
 }

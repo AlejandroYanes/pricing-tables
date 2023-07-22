@@ -2,10 +2,11 @@
 
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { Button, Separator } from '@dealo/ui';
 
-import { GoogleButton, GitHubButton, DiscordButton } from 'components/SocialButtons';
-import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
+import GithubButton from './GitHubButton';
+import DiscordButton from './DiscordButton';
+import GoogleButton from './GoogleButton';
 
 const SignInForm = () => {
   const { status } = useSession();
@@ -28,7 +29,7 @@ const SignInForm = () => {
   return (
     <div className="w-[320px] flex flex-col gap-4">
       <h3 className="text-center">Get started now.</h3>
-      <GitHubButton onClick={() => handleSignIn('github')} />
+      <GithubButton onClick={() => handleSignIn('github')} />
       <DiscordButton onClick={() => handleSignIn('discord')} />
       <GoogleButton onClick={() => handleSignIn('google')} />
       <div className="flex items-center gap-2">

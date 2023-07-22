@@ -5,7 +5,19 @@ import type { DropResult } from 'react-beautiful-dnd';
 import { IconChevronDown, IconX } from '@tabler/icons-react';
 import type { FormPrice, FormProduct } from '@dealo/models';
 import { formatCurrency } from '@dealo/helpers';
-import { RenderIf } from '@dealo/ui';
+import {
+  RenderIf,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@dealo/ui';
 
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
@@ -25,9 +37,6 @@ import {
   changeCustomCTAUrl,
   changeCustomCTADescription,
 } from './state/actions';
-import { Button } from '../../components/ui/button';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '../../components/ui/dropdown-menu';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../components/ui/select';
 
 interface Props {
   showPanel: boolean;

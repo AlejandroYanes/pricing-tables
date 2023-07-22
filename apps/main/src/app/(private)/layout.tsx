@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
+import { Toaster } from '@dealo/ui';
 
 import AuthGuard from 'components/AuthGuard';
-import { Toaster } from 'components/ui/toaster';
 
 interface Props {
     children: ReactNode;

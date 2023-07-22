@@ -1,7 +1,5 @@
 import type { ReactNode } from 'react';
-import { RenderIf } from '@dealo/ui';
-
-import { Separator } from 'components/ui/separator';
+import { RenderIf, Separator } from '@dealo/ui';
 
 interface Props {
   leftContent: ReactNode;

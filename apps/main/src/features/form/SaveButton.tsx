@@ -1,10 +1,9 @@
 'use client'
 
 import { useState } from 'react';
+import { Button, useToast } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
-import { Button } from 'components/ui/button';
-import { useToast } from 'components/ui/use-toast';
 import useChangeHistory from './useChangeHistory';
 
 interface Props {

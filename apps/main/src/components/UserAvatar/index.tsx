@@ -1,6 +1,5 @@
 import { resolveInitials } from '@dealo/helpers';
-
-import { Avatar, AvatarImage, AvatarFallback } from 'components/ui/avatar';
+import { Avatar, AvatarImage, AvatarFallback } from '@dealo/ui';
 
 interface Props {
   user: {

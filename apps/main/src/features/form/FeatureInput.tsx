@@ -1,7 +1,5 @@
 import type { FeatureType } from '@dealo/models';
-
-import { Checkbox } from 'components/ui/checkbox';
-import { Input } from 'components/ui/input';
+import { Checkbox, Input } from '@dealo/ui';
 
 interface Props {
   type: FeatureType;

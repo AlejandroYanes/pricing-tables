@@ -2,18 +2,18 @@
 
 import { useState } from 'react';
 import dayjs from 'dayjs';
-
-import { trpc } from 'utils/trpc';
-import { Button } from 'components/ui/button';
-import Pagination from 'components/ui/pagination';
 import {
+  Button,
+  Pagination,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from 'components/ui/table';
+} from '@dealo/ui';
+
+import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
 
 const GuestsTable = () => {

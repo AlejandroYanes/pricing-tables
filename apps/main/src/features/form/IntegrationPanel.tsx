@@ -1,9 +1,5 @@
-import { Prism } from '@mantine/prism';
 import { useSession } from 'next-auth/react';
-
-import { Separator } from 'components/ui/separator';
-import Code from 'components/ui/code';
-import CodeBlock from 'components/ui/code-block';
+import { Code, CodeBlock, Separator } from '@dealo/ui';
 
 interface Props {
   widgetId: string;

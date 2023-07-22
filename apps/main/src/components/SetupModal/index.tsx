@@ -4,21 +4,22 @@ import { useState } from 'react';
 import Stripe from 'stripe';
 import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { RenderIf } from '@dealo/ui';
-
-import { trpc } from 'utils/trpc';
-import { guestStripeKey } from 'utils/stripe';
 import {
+  RenderIf,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from 'components/ui/dialog';
-import { Button } from '../ui/button';
-import { Input } from '../ui/input';
-import { Label } from '../ui/label';
-import { Alert, AlertDescription } from '../ui/alert';
-import CodeBlock from '../ui/code-block';
+  Button,
+  Input,
+  Label,
+  Alert,
+  AlertDescription,
+  CodeBlock,
+} from '@dealo/ui';
+
+import { trpc } from 'utils/trpc';
+import { guestStripeKey } from 'utils/stripe';
 
 type Status = 'input' | 'empty' | 'list';
 

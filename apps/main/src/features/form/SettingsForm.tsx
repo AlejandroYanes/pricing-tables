@@ -3,20 +3,25 @@ import { useRouter } from 'next/navigation';
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
-import { RenderIf } from '@dealo/ui';
+import {
+  RenderIf,
+  InputWithLabel,
+  SelectWithOptions,
+  Checkbox,
+  Label,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  Separator,
+  Button,
+} from '@dealo/ui';
 import { templatesList } from '@dealo/templates';
 
 import { trpc } from 'utils/trpc';
-import InputWithLabel from '../../components/ui/input-with-label';
 import TwoColumnsLayout from './TwoColumnsLayout';
 import { toggleUnitLabel, changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
 import { useSettingsPanelStates } from './state';
-import SelectWithOptions from '../../components/ui/select-with-options';
-import { Checkbox } from '../../components/ui/checkbox';
-import { Label } from '../../components/ui/label';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '../../components/ui/tooltip';
-import { Separator } from '../../components/ui/separator';
-import { Button } from '../../components/ui/button';
 
 interface Props {
   widgetId: string;

@@ -1,8 +1,7 @@
 'use client';
 
 import { IconNewSection } from '@tabler/icons-react';
-
-import { Button } from 'components/ui/button';
+import { Button } from '@dealo/ui';
 
 export default function AddBlock(props: { label: string; onClick: () => void }) {
   const { label, onClick } = props;

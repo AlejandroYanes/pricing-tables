@@ -4,14 +4,11 @@
 import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
-import { RenderIf } from '@dealo/ui';
+import { RenderIf, Alert, AlertTitle, AlertDescription, Tabs, TabsList, TabsTrigger, Loader } from '@dealo/ui';
 import { IconAlertCircle } from '@tabler/icons-react';
 
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/BaseLayout';
-import { Alert, AlertTitle, AlertDescription } from 'components/ui/alert';
-import { Tabs, TabsList, TabsTrigger } from 'components/ui/tabs';
-import Loader from 'components/ui/loader';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';
@@ -91,7 +88,7 @@ const FormPage = (props: Props) => {
   const [failedToFetchWidgetInfo, setFailedToFetchWidgetInfo] = useState(false);
 
   const [currentTab, setCurrentTab] = useState<FormTabs>('products');
-  const [showPanel, setShowPanel] = useState(true);
+  const [showPanel, setShowPanel] = useState(false);
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 

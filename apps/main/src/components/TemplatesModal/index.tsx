@@ -3,18 +3,17 @@
 
 import { useState } from 'react';
 import { skeletonMap, templatesList } from '@dealo/templates';
-import { RenderIf } from '@dealo/ui';
-
 import {
+  RenderIf,
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-} from 'components/ui/dialog';
-import { Input } from '../ui/input';
-import { Button } from '../ui/button';
-import { Separator } from '../ui/separator';
-import { Label } from '../ui/label';
+  Input,
+  Button,
+  Separator,
+  Label,
+} from '@dealo/ui';
 
 interface Props {
   opened: boolean;

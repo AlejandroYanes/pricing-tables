@@ -3,29 +3,28 @@
 import { useState } from 'react';
 import { IconAdjustments } from '@tabler/icons-react';
 import { useDebouncedState } from '@mantine/hooks';
-import { RenderIf } from '@dealo/ui';
-
-import { trpc } from 'utils/trpc';
-import UserAvatar from 'components/UserAvatar';
 import {
+  RenderIf,
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from 'components/ui/popover';
-import { Button } from 'components/ui/button';
-import { Label } from 'components/ui/label';
-import { RadioGroup, RadioGroupItem } from 'components/ui/radio-group';
-import Pagination from 'components/ui/pagination';
-import { Input } from 'components/ui/input';
-import {
+  Button,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Pagination,
+  Input,
   Table,
   TableBody,
   TableCell,
   TableHead,
   TableHeader,
   TableRow,
-} from 'components/ui/table';
-import { Badge } from 'components/ui/badge';
+  Badge,
+} from '@dealo/ui';
+
+import { trpc } from 'utils/trpc';
+import UserAvatar from 'components/UserAvatar';
 
 const UsersTable = () => {
   const [query, setQuery] = useDebouncedState('', 200);

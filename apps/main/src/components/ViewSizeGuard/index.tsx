@@ -4,9 +4,9 @@ import { type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import { useMediaQuery } from '@mantine/hooks';
 import Image from 'next/image';
+import { Button } from '@dealo/ui';
 
 import BaseLayout from '../BaseLayout';
-import { Button } from '../ui/button';
 
 interface Props {
   children: ReactNode;

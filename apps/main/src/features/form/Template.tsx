@@ -1,12 +1,23 @@
 import { useMemo } from 'react';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons-react';
 import { templatesMap } from '@dealo/templates';
-import { RenderIf } from '@dealo/ui';
+import {
+  RenderIf,
+  Button,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem,
+} from '@dealo/ui';
 
-import { Button } from 'components/ui/button';
-import { Alert, AlertTitle, AlertDescription } from 'components/ui/alert';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from 'components/ui/tooltip';
-import { Select, SelectContent, SelectTrigger, SelectValue, SelectItem } from 'components/ui/select';
 import { useTemplateStates } from './state';
 
 interface Props {

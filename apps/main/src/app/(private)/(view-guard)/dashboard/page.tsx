@@ -4,12 +4,12 @@ import { useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { Button } from '@dealo/ui';
 import { skeletonMap } from '@dealo/templates';
 
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/BaseLayout';
 import TemplatesModal from 'components/TemplatesModal';
-import { Button } from 'components/ui/button';
 import AddBlock from './AddBlock';
 
 const DashboardPage = () => {
