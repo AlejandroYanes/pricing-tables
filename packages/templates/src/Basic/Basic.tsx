@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import type { FormPrice } from '@dealo/models';
 import { RenderIf, PoweredBy, Tabs, TabsList, TabsTrigger, Button } from '@dealo/ui';
-import { generateQueryString } from '@dealo/helpers';
+import { type Colors, generateQueryString } from '@dealo/helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
@@ -11,24 +11,7 @@ import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
 import { resolvePricing } from './utils/resolve-pricing';
 import { resolveFeaturesForProduct } from './utils/resolve-features-for-product';
-
-// const useStyles = createStyles((theme, color: string) => ({
-//   productCard: {
-//     position: 'relative',
-//     boxSizing: 'border-box',
-//     border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-//     padding: '48px 32px 24px',
-//     borderRadius: '4px',
-//     width: '300px',
-//   },
-//   activeProductCard: {
-//     border: `1px solid ${theme.colors![color]![5]}`,
-//     width: '300px',
-//   },
-//   wideCard: {
-//     width: 'auto',
-//   },
-// }));
+import { BORDER_STYLES, BUTTON_STYLES, OUTLINE_BUTTON_STYLES, TEXT_STYLES } from './template-colors';
 
 export function BasicTemplate(props: TemplateProps) {
   const {
@@ -45,7 +28,6 @@ export function BasicTemplate(props: TemplateProps) {
     currency,
     environment = 'production',
   } = props;
-  // const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
@@ -119,19 +101,19 @@ export function BasicTemplate(props: TemplateProps) {
             <div
               data-active={isRecommended}
               data-wide={!!unitLabel}
-              className="flex flex-col items-center relative box-border border border-slate-200 dark:border-slate-800 pt-16 px-8 pb-8 rounded-md w-72 data-[active=true]:border-emerald-500 dark:data-[active=true]:border-emerald-500 data-[wide=true]:w-auto"
+              className={`flex flex-col items-center relative box-border border border-slate-200 dark:border-slate-800 pt-16 px-8 pb-8 rounded-md w-[300px] data-[wide=true]:w-auto ${BORDER_STYLES[color]}`}
               key={prod.id}
             >
               <span
                 data-active={isRecommended}
-                className="mb-4 text slate-900 dark:text-slate-100 font-bold data-[active=true]:text-emerald-500 dark:data-[active=true]:text-emerald-500"
+                className={`mb-4 text text-xl slate-900 dark:text-slate-100 font-bold ${TEXT_STYLES[color]}`}
               >
                 {prod.name}
               </span>
               <RenderIf condition={!isCustom}>
                 <span
                   data-active={isRecommended}
-                  className="mb-4 text text-center slate-900 dark:text-slate-100 font-bold text-2xl data-[active=true]:text-emerald-500 dark:data-[active=true]:text-emerald-500"
+                  className={`mb-4 text text-center slate-900 dark:text-slate-100 font-bold text-3xl ${TEXT_STYLES[color]}`}
                 >
                   {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
                 </span>
@@ -142,13 +124,13 @@ export function BasicTemplate(props: TemplateProps) {
                   <span className="text text-slate-400 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
                 <Link href={resolveBtnUrl()}>
-                  <Button color={color} variant={isRecommended ? 'default' : 'outline'}>
+                  <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>
                     {resolveBtnLabel()}
                   </Button>
                 </Link>
               </div>
               <RenderIf condition={isFirst}>
-                <PoweredBy top={170} left={-27} color={color} position="left" />
+                <PoweredBy color={color as Colors} position="left" style={{ top: 170, left: -32 }} />
               </RenderIf>
             </div>
           )

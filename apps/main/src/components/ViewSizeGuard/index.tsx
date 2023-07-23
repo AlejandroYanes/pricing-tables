@@ -18,8 +18,6 @@ const ViewSizeGuard = (props: Props) => {
   const router = useRouter();
   const matches = useMediaQuery(query);
 
-  console.log('matches', matches);
-
   if (matches) {
     return (
       <BaseLayout hideNavbar>

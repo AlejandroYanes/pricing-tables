@@ -3,4 +3,3 @@ export * from './Second';
 export * from './Third';
 export * from './constants/templates';
 export * from './constants/intervals';
-export * from './constants/colours';

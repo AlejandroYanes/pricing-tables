@@ -1,5 +1,6 @@
-import type { FormCallback, FormFeature, FormProduct } from '@dealo/models';
 import type Stripe from 'stripe';
+import type { FormCallback, FormFeature, FormProduct } from '@dealo/models';
+import { type Colors } from '@dealo/helpers';
 
 export interface TemplateProps {
   dev?: boolean;
@@ -8,7 +9,7 @@ export interface TemplateProps {
   products: FormProduct[];
   recommended: string | null;
   unitLabel: string | null;
-  color: string;
+  color: Colors;
   subscribeLabel: string;
   freeTrialLabel: string;
   callbacks: FormCallback[];

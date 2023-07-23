@@ -6,3 +6,4 @@ export * from './strings';
 export * from './fetch';
 export * from './arrays';
 export * from './dates';
+export * from './colors';
