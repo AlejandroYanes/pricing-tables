@@ -14,6 +14,7 @@ import {
   Separator,
   Label,
 } from '@dealo/ui';
+import { IconCircle } from '@tabler/icons-react';
 
 interface Props {
   opened: boolean;
@@ -25,7 +26,7 @@ interface Props {
 function TemplatesModal(props: Props) {
   const { loading, onSelect, onClose } = props;
 
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templatesList.at(0)?.id || null);
   const [name, setName] = useState('');
   const [showError, setShowError] = useState(false);
 
@@ -47,15 +48,17 @@ function TemplatesModal(props: Props) {
         </DialogHeader>
         <div className="flex items-stretch h-[600px]">
           <div className="flex flex-col w-[220px] min-h-[220px] flex-shrink-0">
-            <Input placeholder="Search" className="mb-2" />
+            <Input placeholder="Search" className="mb-6" />
             {templatesList.map((template) => (
               <Button
+                data-selected={selectedTemplate === template.id}
                 variant="ghost"
-                className="justify-start"
+                className="group justify-between mb-2 data-[selected=true]:border data-[selected=true]:border-emerald-500"
                 key={template.id}
                 onClick={() => setSelectedTemplate(template.id)}
               >
                 <span>{template.name}</span>
+                <IconCircle size={6} className="invisible group-data-[selected=true]:visible fill-emerald-500 stroke-emerald-500" />
               </Button>
             ))}
           </div>
