@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import Link from 'next/link';
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons-react';
 import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
+import type { Colors} from '@dealo/helpers';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
 import { Button, PoweredBy, RenderIf, Tabs, TabsList, TabsTrigger } from '@dealo/ui';
 
@@ -11,6 +12,7 @@ import { intervalsMap } from '../constants/intervals';
 import { resolveBillingIntervals } from '../Basic/utils/resolve-billing-intervals';
 import { filterProductsByInterval } from '../Basic/utils/filter-produts-by-interval';
 import { resolvePriceToShow } from '../Basic/utils/resolve-price-to-show';
+import { BUTTON_STYLES, CHECK_ICON_COLORS, PRODUCT_BUTTON_COLORS } from './template-colors';
 
 type PricingProps = {
   price: FormPrice;
@@ -110,17 +112,32 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
-const resolveCTA = (
-  product: FormProduct,
-  interval: Interval,
-  callbacks: FormCallback[],
-  env: string,
-  subscribeLabel: string,
-  freeTrialLabel: string,
-  widget: string,
-  currency: string | null | undefined,
-  dev: boolean,
-) => {
+interface CTAParams {
+  product: FormProduct;
+  interval: Interval;
+  callbacks: FormCallback[];
+  env: string;
+  subscribeLabel: string;
+  freeTrialLabel: string;
+  widget: string;
+  currency: string | null | undefined;
+  dev: boolean;
+  color: Colors;
+}
+
+const resolveCTA = (options: CTAParams) => {
+  const {
+    product,
+    interval,
+    callbacks,
+    env,
+    subscribeLabel,
+    freeTrialLabel,
+    widget,
+    currency,
+    dev,
+    color,
+  } = options;
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
   const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
@@ -150,7 +167,7 @@ const resolveCTA = (
     return (
       <>
         <Link href={resolveBtnUrl()} className="w-full px-8">
-          <Button className="w-full">{resolveBtnLabel()}</Button>
+          <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
         </Link>
         <span className="text text-center">{freeTrialDays} days</span>
       </>
@@ -159,7 +176,7 @@ const resolveCTA = (
 
   return (
     <Link href={resolveBtnUrl()} className="w-full px-8">
-      <Button className="w-full">{resolveBtnLabel()}</Button>
+      <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
     </Link>
   );
 };
@@ -238,7 +255,7 @@ export function ThirdTemplate(props: TemplateProps) {
                   data-active={isRecommended}
                   data-selected={isSelected}
                   variant="undecorated"
-                  className="group relative h-auto min-w-[480px] w-full flex items-center p-8 rounded-md border border-gray-200 dark:border-gray-800 data-[active=true]:border-emerald-500 dark:data-[active=true]:border-emerald-500 data-[active=true]:text-emerald-500 data-[selected=true]:bg-emerald-600 dark:data-[selected=true]:bg-emerald-600 data-[selected=true]:text-white dark:data-[selected=true]:text-white"
+                  className={`group relative h-auto min-w-[480px] w-full flex items-center p-8 rounded-md border ${PRODUCT_BUTTON_COLORS[color]}`}
                   onClick={() => setSelectedProduct(index)}
                 >
                   <RenderIf condition={isSelected} fallback={<IconCircle style={{ flexShrink: 0 }} />}>
@@ -258,7 +275,7 @@ export function ThirdTemplate(props: TemplateProps) {
             );
           })}
         </ul>
-        <div className="flex flex-col relative min-w-[360px] box-border py-8 rounded-sm bg-slate-200 dark:bg-gray-900">
+        <div className="flex flex-col relative min-w-[360px] box-border py-8 rounded-md bg-slate-50 dark:bg-gray-900">
           <ul className="flex flex-col gap-4 mb-4">
             {features.map((feature) => {
               const product = visibleProducts[selectedProduct] || visibleProducts[0]!;
@@ -290,7 +307,7 @@ export function ThirdTemplate(props: TemplateProps) {
                     </span>
                     <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
                       <IconCircleCheck
-                        className="fill-emerald-500 stroke-white dark:stroke-slate-800"
+                        className={CHECK_ICON_COLORS[color]}
                       />
                     </RenderIf>
                   </div>
@@ -298,17 +315,18 @@ export function ThirdTemplate(props: TemplateProps) {
               );
             })}
           </ul>
-          {resolveCTA(
-            visibleProducts[selectedProduct] || visibleProducts[0]!,
-            currentInterval,
+          {resolveCTA({
+            product: visibleProducts[selectedProduct] || visibleProducts[0]!,
+            interval: currentInterval,
             callbacks,
-            environment,
+            env: environment,
             subscribeLabel,
             freeTrialLabel,
             widget,
             currency,
-            !!dev,
-          )}
+            dev: !!dev,
+            color,
+          })}
           <PoweredBy color={color}  position="bottom" style={{ bottom: -32, left: '50%', transform: 'translateX(-50%)' }} />
         </div>
       </div>
