@@ -88,7 +88,7 @@ const FormPage = (props: Props) => {
   const [failedToFetchWidgetInfo, setFailedToFetchWidgetInfo] = useState(false);
 
   const [currentTab, setCurrentTab] = useState<FormTabs>('products');
-  const [showPanel, setShowPanel] = useState(false);
+  const [showPanel, setShowPanel] = useState(true);
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
