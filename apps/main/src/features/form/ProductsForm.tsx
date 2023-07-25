@@ -208,6 +208,7 @@ export default function ProductsForm(props: Props) {
           <div className="flex items-center justify-end">
             <div className="flex items-center flex-nowrap">
               <Button
+                variant="black"
                 className="rounded-r-none mr-[1px]"
                 onClick={() => {
                   setShowProducts(true);
@@ -218,7 +219,7 @@ export default function ProductsForm(props: Props) {
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger>
-                  <Button className="rounded-l-none">
+                  <Button variant="black" className="rounded-l-none">
                     <IconChevronDown size="1rem" stroke={1.5} />
                   </Button>
                 </DropdownMenuTrigger>
