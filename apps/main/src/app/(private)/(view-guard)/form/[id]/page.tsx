@@ -92,7 +92,7 @@ const FormPage = (props: Props) => {
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
-  const { name, color } = useFormPageStates();
+  const { name } = useFormPageStates();
 
   const {
     data,
