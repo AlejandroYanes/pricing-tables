@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import type { FormPrice } from '@dealo/models';
 import { RenderIf, PoweredBy, Tabs, TabsList, TabsTrigger, Button } from '@dealo/ui';
 import { type Colors, generateQueryString } from '@dealo/helpers';
@@ -123,11 +122,11 @@ export function BasicTemplate(props: TemplateProps) {
                 <RenderIf condition={hasFreeTrial}>
                   <span className="text text-slate-400 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
-                <Link href={resolveBtnUrl()}>
+                <a href={resolveBtnUrl()}>
                   <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>
                     {resolveBtnLabel()}
                   </Button>
-                </Link>
+                </a>
               </div>
               <RenderIf condition={isFirst}>
                 <PoweredBy color={color as Colors} position="left" style={{ top: 170, left: -32 }} />

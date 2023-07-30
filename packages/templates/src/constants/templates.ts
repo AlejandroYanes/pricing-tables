@@ -2,7 +2,7 @@ import type { Templates } from '@dealo/models';
 
 import { BasicTemplate, BasicSkeleton } from '../Basic';
 import { SecondTemplate, SecondSkeleton } from '../Second';
-import { ThirdSkeleton, ThirdTemplate } from '../Third';
+import { ThirdTemplate, ThirdSkeleton } from '../Third';
 
 export enum TEMPLATE_IDS {
   BASIC = '1',

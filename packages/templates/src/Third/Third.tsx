@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons-react';
 import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
 import type { Colors} from '@dealo/helpers';
@@ -166,18 +165,18 @@ const resolveCTA = (options: CTAParams) => {
   if (hasFreeTrial) {
     return (
       <>
-        <Link href={resolveBtnUrl()} className="w-full px-8">
+        <a href={resolveBtnUrl()} className="w-full px-8">
           <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
-        </Link>
+        </a>
         <span className="text text-center">{freeTrialDays} days</span>
       </>
     );
   }
 
   return (
-    <Link href={resolveBtnUrl()} className="w-full px-8">
+    <a href={resolveBtnUrl()} className="w-full px-8">
       <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
-    </Link>
+    </a>
   );
 };
 

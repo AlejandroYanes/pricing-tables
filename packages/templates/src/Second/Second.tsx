@@ -1,7 +1,6 @@
 /* eslint-disable max-len */
 import type { ReactNode} from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import Link from 'next/link';
 import { PoweredBy, RenderIf, Button, TabsList, TabsTrigger, Tabs } from '@dealo/ui';
 import type { FormPrice } from '@dealo/models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
@@ -181,7 +180,7 @@ export function SecondTemplate(props: TemplateProps) {
         case features.length + 1: {
           return (
             <td key={prod.id} data-active={isRecommended} className={`text-center py-2 px-4 ${CELL_STYLES[color]}`}>
-              <Link href={resolveBtnUrl()} className="block">
+              <a href={resolveBtnUrl()} className="block">
                 <Button
                   data-spaced={hasFreeTrial}
                   className={`mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
@@ -189,7 +188,7 @@ export function SecondTemplate(props: TemplateProps) {
                 >
                   {resolveBtnLabel()}
                 </Button>
-              </Link>
+              </a>
               <RenderIf condition={hasFreeTrial}>
                 <div className="mb-6">
                   <span className="text text-sm">{freeTrialDays} days</span>
@@ -253,14 +252,14 @@ export function SecondTemplate(props: TemplateProps) {
           </TabsList>
         </Tabs>
       </RenderIf>
-      <div style={{ position: 'relative' }}>
+      <div className="relative mt-2 ml-9">
         <table
-          className="table-fixed border-collapse border border-neutral-200/20 dark:border-slate-700"
+          className="table-fixed border-collapse border border-slate-200 dark:border-slate-700"
           style={{ width: `${visibleProducts.length * 300}px` }}
         >
           <tbody>{rows}</tbody>
         </table>
-        <PoweredBy color={color} position="left" style={{ left: -31, top: 160 }} />
+        <PoweredBy color={color} position="left" style={{ left: -31, top: 153 }} />
       </div>
     </div>
   );

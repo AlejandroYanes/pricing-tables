@@ -13,12 +13,9 @@
     "@dealo/models": "*",
     "@dealo/templates": "*",
     "@dealo/ui": "*",
-    "@emotion/cache": "11.10.7",
-    "@emotion/react": "11.10.5",
-    "@mantine/core": "6.0.5",
-    "@mantine/hooks": "6.0.5",
     "react": "18.2.0",
-    "react-dom": "18.2.0"
+    "react-dom": "18.2.0",
+    "tailwind-merge": "1.13.2"
   },
   "devDependencies": {
     "@dealo/tailwind-config": "*",
@@ -38,6 +35,9 @@
     "rollup-plugin-visualizer": "5.9.0",
     "shelljs": "0.8.5",
     "typescript": "5.1.3",
+    "autoprefixer": "10.4.14",
+    "postcss": "8.4.24",
+    "tailwindcss": "3.3.2",
     "vite": "^4.2.0"
   }
 }
