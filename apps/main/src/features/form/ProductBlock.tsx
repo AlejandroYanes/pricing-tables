@@ -1,6 +1,21 @@
 import { Fragment, useRef, useState } from 'react';
 import type Stripe from 'stripe';
 import {
+  ActionIcon,
+  Checkbox,
+  createStyles,
+  Divider,
+  Group,
+  Menu,
+  NumberInput,
+  Select,
+  Stack,
+  Text,
+  Tooltip,
+  UnstyledButton,
+  useMantineTheme,
+} from '@mantine/core';
+import {
   IconAlertCircle,
   IconChevronDown,
   IconChevronsDown,
@@ -8,36 +23,15 @@ import {
   IconDotsVertical,
   IconTrash,
   IconX
-} from '@tabler/icons-react';
-import type { FormPrice, FormProduct } from '@dealo/models';
-import { formatCurrency } from '@dealo/helpers';
-import {
-  RenderIf,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-  DropdownMenuSeparator,
-  Input,
-  Label,
-  Button,
-  Checkbox,
-  TooltipProvider,
-  Tooltip,
-  TooltipTrigger,
-  TooltipContent,
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@dealo/ui';
+} from '@tabler/icons';
+import type { FormPrice, FormProduct } from 'models';
+import { formatCurrency } from 'helpers';
+import { RenderIf } from 'ui';
 
 interface Props {
   isFirst: boolean;
   isLast: boolean;
   product: FormProduct;
-  value: FormProduct;
   onAddPrice: (productId: string, price: FormPrice) => void;
   onRemove: () => void;
   onRemovePrice: (productId: string, priceId: string) => void;
@@ -48,6 +42,35 @@ interface Props {
   onMoveDown: () => void;
   onMoveToBottom: () => void;
 }
+
+const useStyles = createStyles((theme) => ({
+  productBlock: {
+    position: 'relative',
+    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
+    borderRadius: '4px',
+    marginBottom: '16px',
+  },
+  deleteBtn: {
+    position: 'absolute',
+    top: '4px',
+    right: '4px'
+  },
+  flatButton: {
+    fontWeight: 600,
+    fontSize: '14px',
+    ['&:hover']: {
+      cursor: 'pointer',
+      color: theme.colorScheme === 'dark' ? theme.colors[theme.primaryColor]![4] : theme.colors[theme.primaryColor]![7],
+    },
+  },
+  actionButton: {
+    borderTop: 'none',
+    borderRight: 'none',
+    borderBottom: 'none',
+    borderRadius: 0,
+    borderBottomRightRadius: '3px',
+  },
+}));
 
 const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
   day: 'day',
@@ -104,7 +127,6 @@ export default function ProductBlock(props: Props) {
     isFirst,
     isLast,
     product,
-    value,
     onAddPrice,
     onRemove,
     onRemovePrice,
@@ -115,8 +137,8 @@ export default function ProductBlock(props: Props) {
     onMoveDown,
     onMoveToBottom,
   } = props;
-  // const { classes } = useStyles();
-  // const theme = useMantineTheme();
+  const { classes } = useStyles();
+  const theme = useMantineTheme();
 
   const [showPriceSelect, setShowPriceSelect] = useState(false);
   const interactionTimer = useRef<any>(undefined);
@@ -125,7 +147,7 @@ export default function ProductBlock(props: Props) {
     const selectedPrice = product.prices.find((price) => price.id === priceId);
 
     if (!selectedPrice) return;
-    onAddPrice(value.id, selectedPrice);
+    onAddPrice(product.id, selectedPrice);
     setShowPriceSelect(false);
     clearInteractionTimer();
   };
@@ -145,169 +167,153 @@ export default function ProductBlock(props: Props) {
     }
   }
 
-  const hasMorePrices = product.prices.length - value.prices.length > 0;
-  const remainingPrices = product.prices.length - value.prices.length;
+  const selectedPrices = product.prices.filter(p => p.isSelected);
+  const remainingPrices = product.prices.length - selectedPrices.length;
+  const hasMorePrices = remainingPrices > 0;
 
   const priceOptions = product.prices
-    .filter((price) => !value.prices.some((sp) => sp.id === price.id))
+    .filter(p => !p.isSelected)
     .map((price) => ({
       label: resolvePricing(price),
       value: price.id,
     }));
 
   return (
-    <div className="relative rounded-sm mb-4 border-solid border border-neutral-200 dark:border-neutral-700">
-      <div className="absolute top-1 right-1">
-        <DropdownMenu>
-          <DropdownMenuTrigger>
-            <Button component="span" variant="ghost" size="sm" className="h-7 p-2">
+    <div className={classes.productBlock}>
+      <div className={classes.deleteBtn}>
+        <Menu shadow="md" width={200}>
+          <Menu.Target>
+            <ActionIcon>
               <IconDotsVertical size={14} />
-            </Button>
-          </DropdownMenuTrigger>
+            </ActionIcon>
+          </Menu.Target>
 
-          <DropdownMenuContent className="w-[200px]">
-            <DropdownMenuItem disabled={isFirst} onClick={onMoveToTop}>
-              <IconChevronsUp size={14} />
-              Move to top
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={isFirst} onClick={onMoveUp}>
-              <IconChevronsUp size={14} />
-              Move up
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={isLast} onClick={onMoveDown}>
-              <IconChevronDown size={14} />
-              Move down
-            </DropdownMenuItem>
-            <DropdownMenuItem disabled={isLast} onClick={onMoveToBottom}>
-              <IconChevronsDown size={14} />
-              Move to bottom
-            </DropdownMenuItem>
+          <Menu.Dropdown>
+            <Menu.Item disabled={isFirst} onClick={onMoveToTop} icon={<IconChevronsUp size={14} />}>Move to top</Menu.Item>
+            <Menu.Item disabled={isFirst} onClick={onMoveUp} icon={<IconChevronsUp size={14} />}>Move up</Menu.Item>
+            <Menu.Item disabled={isLast} onClick={onMoveDown} icon={<IconChevronDown size={14} />}>Move down</Menu.Item>
+            <Menu.Item disabled={isLast} onClick={onMoveToBottom} icon={<IconChevronsDown size={14} />}>Move to bottom</Menu.Item>
 
-            <DropdownMenuSeparator />
-            <DropdownMenuItem destructive onClick={onRemove}>
-              <IconTrash size={14} />
-              Delete
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
+            <Menu.Divider />
+            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={onRemove}>Delete</Menu.Item>
+          </Menu.Dropdown>
+        </Menu>
       </div>
-      <div className="flex items-center gap-2">
-        <span className="py-4 pl-4 text font-bold">{value.name}</span>
+      <Group spacing={4}>
+        <Text weight="bold" py={16} pl={16}>{product.name}</Text>
         <RenderIf condition={!product.active}>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <IconAlertCircle size={18} />
-              </TooltipTrigger>
-              <TooltipContent className="w-[280px]">
-                {disabledProductLabel}
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </RenderIf>
-      </div>
-      <div className="flex flex-col">
-        {(value.prices || []).map((price, index, list) => (
-          <Fragment key={price.id}>
-            {/* eslint-disable-next-line max-len */}
-            <div className={`flex flex-col px-4 py-2 gap-2 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 dark:border-neutral-700 relative ${hasMorePrices ? 'pb-4' : ''}`}>
-              <RenderIf condition={list.length > 1}>
-                <div className="absolute top-1 right-1">
-                  <Button className="rounded-full h-7 px-2" variant="ghost" size="sm" onClick={() => onRemovePrice(value.id, price.id)}>
-                    <IconX size={14} />
-                  </Button>
-                </div>
-              </RenderIf>
-              <div className="flex items-center gap-1">
-                <span className="text">
-                  {resolvePricing(price)}
-                </span>
-                <RenderIf condition={!price.active}>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger>
-                        <IconAlertCircle size={18} />
-                      </TooltipTrigger>
-                      <TooltipContent className="w-[280px]">{disabledPriceLabel}</TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </RenderIf>
-              </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`free-trial-checkbox-${price.id}`}
-                  checked={price.hasFreeTrial}
-                  onChange={() => undefined}
-                  onClick={() => onToggleFreeTrial(value.id, price.id)}
-                />
-                <Label htmlFor={`free-trial-checkbox-${price.id}`} className="cursor-pointer">
-                  Include free trial
-                </Label>
-              </div>
-              <RenderIf condition={price.hasFreeTrial}>
-                <div className="flex flex-col gap-2 mb-2">
-                  <Label htmlFor="free-trial-days">Days</Label>
-                  <Input
-                    id="free-trial-days"
-                    type="number"
-                    min={1}
-                    value={price.freeTrialDays}
-                    onChange={(event) => onFreeTrialDaysChange(value.id, price.id, Number(event.target.value))}
-                  />
-                </div>
-              </RenderIf>
+          <Tooltip label={disabledProductLabel} width={280} multiline position="right">
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+              <IconAlertCircle size={18} />
             </div>
+          </Tooltip>
+        </RenderIf>
+      </Group>
+      <Stack>
+        {(selectedPrices || []).map((price, index, list) => (
+          <Fragment key={price.id}>
+            <Divider orientation="horizontal" />
+            <Stack px={16} pb={!hasMorePrices ? 16 : 0} spacing="sm" style={{ position: 'relative' }}>
+              <RenderIf condition={list.length > 1}>
+                <div className={classes.deleteBtn}>
+                  <ActionIcon radius="xl" onClick={() => onRemovePrice(product.id, price.id)}>
+                    <IconX size={14} />
+                  </ActionIcon>
+                </div>
+              </RenderIf>
+              <Group align="center" spacing={4}>
+                <Text component="span">
+                  {resolvePricing(price)}
+                </Text>
+                <RenderIf condition={!price.active}>
+                  <Tooltip label={disabledPriceLabel} width={280} multiline position="right">
+                    <span style={{ display: 'flex', alignItems: 'center' }}>
+                      <IconAlertCircle size={18} />
+                    </span>
+                  </Tooltip>
+                </RenderIf>
+              </Group>
+              <Checkbox
+                label="Include free trial"
+                checked={price.hasFreeTrial}
+                onChange={() => undefined}
+                onClick={() => onToggleFreeTrial(product.id, price.id)}
+              />
+              <RenderIf condition={price.hasFreeTrial}>
+                <NumberInput
+                  mb="xs"
+                  label="Days"
+                  min={1}
+                  stepHoldDelay={500}
+                  stepHoldInterval={100}
+                  value={price.freeTrialDays}
+                  onChange={(days) => onFreeTrialDaysChange(product.id, price.id, days! as number)}
+                />
+              </RenderIf>
+            </Stack>
+            <RenderIf condition={index === list.length - 1 && hasMorePrices}>
+              <Divider orientation="horizontal" />
+            </RenderIf>
           </Fragment>
         ))}
-      </div>
+      </Stack>
       <RenderIf condition={hasMorePrices}>
         <RenderIf
-          condition={showPriceSelect}
+          condition={!showPriceSelect}
           fallback={
-            <div className="flex justify-between items-center h-[42px] px-4 py-3">
-              <span className="text text-sm text-neutral-500 dark:text-neutral-300">
-                {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
-              </span>
-              <Button
-                variant="link"
-                className="p-0"
-                onClick={() => {
-                  setShowPriceSelect(true);
+            <Group
+              spacing={0}
+              h={42}
+              onMouseEnter={clearInteractionTimer}
+              onMouseLeave={startInteractionTimer}
+            >
+              <Select
+                initiallyOpened
+                radius="xs"
+                style={{ flex: 1 }}
+                styles={{
+                  input: {
+                    height: 42,
+                    border: 'none',
+                    borderTopRightRadius: 0,
+                    borderBottomRightRadius: 0,
+                    borderTopLeftRadius: 0,
+                    borderBottomLeftRadius: 3,
+                  },
+                  separatorLabel: {
+                    color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
+                  },
                 }}
+                data={priceOptions}
+                onChange={handleSelectPrice}
+              />
+              <ActionIcon
+                onClick={() => {
+                  setShowPriceSelect(false);
+                  clearInteractionTimer();
+                }}
+                variant="default"
+                size={42}
+                className={classes.actionButton}
               >
-                Add another price
-              </Button>
-            </div>
+                <IconX size="1rem" stroke={1.5} />
+              </ActionIcon>
+            </Group>
           }
         >
-          <div
-            className="flex items-center h-[42px]"
-            onMouseEnter={clearInteractionTimer}
-            onMouseLeave={startInteractionTimer}
-          >
-            <Select onValueChange={handleSelectPrice} defaultOpen>
-              <SelectTrigger className="rounded-r-none rounded-tl-none rounded-bl-[3px] border-y-0 border-l-0 h-[42px]">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                {priceOptions.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-            <Button
+          <Group h={42} px={16} py={10} align="center" position="apart">
+            <Text color="dimmed" size="sm">
+              {`${remainingPrices} ${remainingPrices > 1 ? 'prices' : 'price'} remaining`}
+            </Text>
+            <UnstyledButton
+              className={classes.flatButton}
               onClick={() => {
-                setShowPriceSelect(false);
-                clearInteractionTimer();
+                setShowPriceSelect(true);
               }}
-              variant="ghost"
-              className="h-[42px] rounded-l-none rounded-tr-none rounded-br-[3px]"
             >
-              <IconX size="1rem" stroke={1.5} />
-            </Button>
-          </div>
+              Add another price
+            </UnstyledButton>
+          </Group>
         </RenderIf>
       </RenderIf>
     </div>

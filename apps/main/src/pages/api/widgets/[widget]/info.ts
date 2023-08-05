@@ -132,24 +132,39 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           }),
         };
 
-        for (let priceIndex = 0; priceIndex < widgetPrices.length; priceIndex++) {
-          const widgetPrice = widgetPrices[priceIndex]!;
-          const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id)!;
+        stripePrices
+          .filter((stripePrice) => stripePrice.product === widgetProd.id)
+          .forEach(stripePrice => {
+            const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
+            const widgetPrice = widgetCurrentPrice
+              ? {
+                ...widgetCurrentPrice,
+                isSelected: true,
+              }
+              : {
+                hasFreeTrial: 0,
+                freeTrialDays: 0,
+                productId: '',
+                mask: '',
+                order: Number.MAX_VALUE,
+                isSelected: false,
+              };
 
-          if (!stripePrice.active) continue;
-
-          finalProduct.prices.push({
-            ...widgetPrice,
-            ...stripePrice,
-            hasFreeTrial: !!widgetPrice.hasFreeTrial,
-            ...({
-              productId: widgetProd.id,
-              product: undefined as any,
-            }),
+            if (stripePrice.active) {
+              finalProduct.prices.push({
+                ...widgetPrice,
+                ...stripePrice,
+                hasFreeTrial: !!widgetPrice.hasFreeTrial,
+                ...({
+                  productId: widgetProd.id,
+                  product: undefined as any,
+                }),
+              });
+            }
           });
-        }
       }
 
+      finalProduct.prices.sort((a, b) => a.order - b.order);
       finalProducts.push(finalProduct);
     }
 
@@ -194,4 +209,4 @@ type Widget = {
 type Callback = { id: string; env: string; url: string; order: number };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number; isSelected: boolean };

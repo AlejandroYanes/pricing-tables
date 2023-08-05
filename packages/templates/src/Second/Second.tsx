@@ -137,7 +137,7 @@ export function SecondTemplate(props: TemplateProps) {
       const { isCustom } = prod;
       const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
       const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
-      const isRecommended = prod.id === recommended;
+      const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
       const resolveBtnLabel = () => {
         if (type === 'one_time') return 'Buy Now';
