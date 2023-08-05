@@ -19,6 +19,14 @@ import {
   Alert,
   AlertTitle,
   AlertDescription,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
@@ -112,6 +120,8 @@ export default function ProductsForm(props: Props) {
   const [query, setQuery] = useDebouncedState<string | undefined>(undefined, 200);
   const interactionTimer = useRef<any>(undefined);
 
+  const [open, setOpen] = useState(false);
+
   const {
     data,
     isFetching: isFetchingStripeProducts,
@@ -157,8 +167,8 @@ export default function ProductsForm(props: Props) {
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
     .flatMap((prices) => prices.map((price) => ({
       label: resolvePricing(price),
-      key: `${price.productId}-${price.id}`,
-      value: price.product,
+      value: `${price.productId}-${price.id}`,
+      // value: price.product,
       group: price.product,
     })));
 
@@ -242,7 +252,7 @@ export default function ProductsForm(props: Props) {
               className="rounded-r-none mr-[1px]"
               onClick={() => {
                 setShowProducts(true);
-                startInteractionTimer();
+                // startInteractionTimer();
               }}
             >
               {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
@@ -265,8 +275,8 @@ export default function ProductsForm(props: Props) {
       <RenderIf condition={showProducts}>
         <div
           className="flex items-center"
-          onMouseEnter={clearInteractionTimer}
-          onMouseLeave={startInteractionTimer}
+          // onMouseEnter={clearInteractionTimer}
+          // onMouseLeave={startInteractionTimer}
         >
           {/*<Select onValueChange={handleAddProduct}>*/}
           {/*  <SelectTrigger className="w-full rounded-r-none">*/}
@@ -280,23 +290,59 @@ export default function ProductsForm(props: Props) {
           {/*    ))}*/}
           {/*  </SelectContent>*/}
           {/*</Select>*/}
-          <Autocomplete
-            initiallyOpened
-            data={productOptions}
-            value={query}
-            onChange={setQuery}
-            onItemSubmit={(item: AutocompleteItem) => handleAddProduct(item.key)}
-            maxDropdownHeight={300}
-            rightSection={isFetchingStripeProducts ? <Loader size={16} /> : <IconSelector size={16} />}
-            nothingFound={isFetchingStripeProducts ? 'Loading...' : 'No products found'}
-            style={{ flex: 1 }}
-            styles={{
-              input: {
-                borderTopRightRadius: 0,
-                borderBottomRightRadius: 0,
-              },
-            }}
-          />
+          <Popover open={open} onOpenChange={setOpen}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={open}
+                className="justify-between rounded-r-none flex-1"
+              >
+                Select framework...
+                <IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <Command>
+                <CommandInput
+                  placeholder="Search framework..."
+                  value={query}
+                  onValueChange={(nextQ) => setQuery(nextQ)}
+                />
+                <CommandEmpty>No framework found.</CommandEmpty>
+                <CommandGroup>
+                  {productOptions.map((product) => (
+                    <CommandItem
+                      key={product.value}
+                      onSelect={() => {
+                        handleAddProduct(product.value);
+                        setOpen(false);
+                      }}
+                    >
+                      {product.label}
+                    </CommandItem>
+                  ))}
+                </CommandGroup>
+              </Command>
+            </PopoverContent>
+          </Popover>
+          {/*<Autocomplete*/}
+          {/*  initiallyOpened*/}
+          {/*  data={productOptions}*/}
+          {/*  value={query}*/}
+          {/*  onChange={setQuery}*/}
+          {/*  onItemSubmit={(item: AutocompleteItem) => handleAddProduct(item.key)}*/}
+          {/*  maxDropdownHeight={300}*/}
+          {/*  rightSection={isFetchingStripeProducts ? <Loader size={16} /> : <IconSelector size={16} />}*/}
+          {/*  nothingFound={isFetchingStripeProducts ? 'Loading...' : 'No products found'}*/}
+          {/*  style={{ flex: 1 }}*/}
+          {/*  styles={{*/}
+          {/*    input: {*/}
+          {/*      borderTopRightRadius: 0,*/}
+          {/*      borderBottomRightRadius: 0,*/}
+          {/*    },*/}
+          {/*  }}*/}
+          {/*/>*/}
           <Button
             onClick={() => {
               setQuery(undefined);
