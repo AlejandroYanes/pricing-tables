@@ -7,7 +7,6 @@ import Link from 'next/link';
 import { RenderIf, Alert, AlertTitle, AlertDescription, Tabs, TabsList, TabsTrigger, Loader } from '@dealo/ui';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
@@ -33,20 +32,6 @@ const errorScreen = (
             Dashboard
           </Link>
           . If this problem persists, please contact us.
-        </AlertDescription>
-      </Alert>
-    </div>
-  </BaseLayout>
-);
-
-const noStripeScreen = (
-  <BaseLayout showBackButton>
-    <div className="flex flex-col justify-center items-center mt-16">
-      <Alert>
-        <IconAlertCircle size="1rem" />
-        <AlertTitle>Ooops....</AlertTitle>
-        <AlertDescription>
-          Something happened and we {`can't`} connect with Stripe, please try again later.
         </AlertDescription>
       </Alert>
     </div>
@@ -94,16 +79,6 @@ const FormPage = (props: Props) => {
 
   const { name } = useFormPageStates();
 
-  const {
-    data,
-    isFetching: isFetchingStripeProducts,
-    isError: failedToFetchStripeProducts,
-  } = trpc.stripe.list.useQuery(undefined, {
-    refetchOnWindowFocus: false,
-    enabled: isLoaded,
-  });
-  const productsList = data || [];
-
   useEffect(() => {
     if (widgetId && !startedFirstCall.current) {
       startedFirstCall.current = true;
@@ -121,11 +96,7 @@ const FormPage = (props: Props) => {
     return errorScreen;
   }
 
-  if (failedToFetchStripeProducts) {
-    return noStripeScreen;
-  }
-
-  if (!isLoaded || isFetchingStripeProducts) {
+  if (!isLoaded) {
     return <LoadingScreen />;
   }
 
@@ -164,7 +135,7 @@ const FormPage = (props: Props) => {
         </div>
         <div className="flex items-stretch min-h-[calc(100vh-170px)]">
           <RenderIf condition={currentTab === 'products'}>
-            <ProductsForm showPanel={showPanel} template={templateNode} products={productsList} />
+            <ProductsForm showPanel={showPanel} template={templateNode} />
           </RenderIf>
           <RenderIf condition={currentTab === 'visuals'}>
             <VisualsForm showPanel={showPanel} template={templateNode}/>

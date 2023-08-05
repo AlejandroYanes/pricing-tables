@@ -1,13 +1,25 @@
+'use client'
+
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Alert, Button, Group, Menu, Stack, Autocomplete, useMantineTheme, Loader, type AutocompleteItem } from '@mantine/core';
+import { Autocomplete, Loader, type AutocompleteItem } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconChevronDown, IconSelector, IconX } from '@tabler/icons';
-import type { FormPrice } from 'models';
-import { formatCurrency } from 'helpers';
-import { RenderIf } from 'ui';
+import { IconAlertCircle, IconChevronDown, IconSelector, IconX } from '@tabler/icons-react';
+import type { FormPrice } from '@dealo/models';
+import { formatCurrency } from '@dealo/helpers';
+import {
+  RenderIf,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+} from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/BaseLayout';
@@ -80,11 +92,15 @@ const resolvePricing = (price: FormPrice): string => {
 
 const noStripeScreen = (
   <BaseLayout showBackButton>
-    <Stack mt={60} justify="center" align="center">
-      <Alert title="Ooops..." variant="outline" color="gray">
-        Something happened and we {`can't`} connect with Stripe, please try again later.
+    <div className="flex flex-col justify-center items-center mt-16">
+      <Alert>
+        <IconAlertCircle size="1rem" />
+        <AlertTitle>Ooops....</AlertTitle>
+        <AlertDescription>
+          Something happened and we {`can't`} connect with Stripe, please try again later.
+        </AlertDescription>
       </Alert>
-    </Stack>
+    </div>
   </BaseLayout>
 );
 
@@ -94,7 +110,6 @@ export default function ProductsForm(props: Props) {
   const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
   const [query, setQuery] = useDebouncedState<string | undefined>(undefined, 200);
-  const theme = useMantineTheme();
   const interactionTimer = useRef<any>(undefined);
 
   const {
@@ -120,7 +135,10 @@ export default function ProductsForm(props: Props) {
       clearTimeout(interactionTimer.current);
       interactionTimer.current = undefined;
     }
-    interactionTimer.current = setTimeout(() => setShowProducts(false), 5000);
+    interactionTimer.current = setTimeout(() => {
+      setShowProducts(false);
+      setQuery(undefined);
+    }, 5000);
   }
 
   const clearInteractionTimer = () => {
@@ -217,43 +235,51 @@ export default function ProductsForm(props: Props) {
         );
       })}
       <RenderIf condition={!showProducts}>
-        <Group position="right" align="center">
-          <Group noWrap spacing={1}>
+        <div className="flex items-center justify-end">
+          <div className="flex items-center flex-nowrap">
             <Button
+              variant="black"
+              className="rounded-r-none mr-[1px]"
               onClick={() => {
                 setShowProducts(true);
                 startInteractionTimer();
               }}
-              style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
             >
               {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
             </Button>
-            <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
-              <Menu.Target>
-                <ActionIcon
-                  variant="filled"
-                  color="primary"
-                  size={36}
-                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                >
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button component="span" variant="black" className="rounded-l-none">
                   <IconChevronDown size="1rem" stroke={1.5} />
-                </ActionIcon>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item onClick={addCustomProduct}>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={addCustomProduct}>
                   Add a custom product
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
-        </Group>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </RenderIf>
       <RenderIf condition={showProducts}>
-        <Group
-          spacing={0}
+        <div
+          className="flex items-center"
           onMouseEnter={clearInteractionTimer}
           onMouseLeave={startInteractionTimer}
         >
+          {/*<Select onValueChange={handleAddProduct}>*/}
+          {/*  <SelectTrigger className="w-full rounded-r-none">*/}
+          {/*    <SelectValue />*/}
+          {/*  </SelectTrigger>*/}
+          {/*  <SelectContent>*/}
+          {/*    {productOptions.map((option) => (*/}
+          {/*      <SelectItem key={option.value} value={option.value}>*/}
+          {/*        {option.label}*/}
+          {/*      </SelectItem>*/}
+          {/*    ))}*/}
+          {/*  </SelectContent>*/}
+          {/*</Select>*/}
           <Autocomplete
             initiallyOpened
             data={productOptions}
@@ -269,24 +295,20 @@ export default function ProductsForm(props: Props) {
                 borderTopRightRadius: 0,
                 borderBottomRightRadius: 0,
               },
-              separatorLabel: {
-                color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
-              },
             }}
           />
-          <ActionIcon
+          <Button
             onClick={() => {
-              setShowProducts(false);
               setQuery(undefined);
+              setShowProducts(false);
               clearInteractionTimer();
             }}
-            variant="default"
-            size={36}
-            style={{ borderLeft: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+            variant="outline"
+            className="rounded-l-none border-l-0"
           >
             <IconX size="1rem" stroke={1.5} />
-          </ActionIcon>
-        </Group>
+          </Button>
+        </div>
       </RenderIf>
     </>
   );
