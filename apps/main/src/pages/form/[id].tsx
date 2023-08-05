@@ -6,7 +6,6 @@ import { useRouter } from 'next/router';
 import { Alert, Anchor, Group, Loader, MantineProvider, Stack, Tabs, useMantineTheme } from '@mantine/core';
 import { RenderIf } from 'ui';
 
-import { trpc } from 'utils/trpc';
 import authGuard from 'utils/hoc/authGuard';
 import BaseLayout from 'components/BaseLayout';
 import ProductsForm from 'features/form/ProductsForm';
