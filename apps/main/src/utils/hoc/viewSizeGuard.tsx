@@ -6,7 +6,7 @@ import { useMediaQuery } from '@mantine/hooks';
 
 import BaseLayout from 'components/BaseLayout';
 
-const query = '(max-width: 1280px)';
+const query = '(max-width: 586px)';
 
 export default function viewSizeGuard(Component: JSXElementConstructor<any> | null) {
   return (props: any) => {

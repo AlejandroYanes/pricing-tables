@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import { ITEMS_PER_PAGE_LIMIT } from 'helpers';
 
 import initDb from 'utils/planet-scale';
 import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
@@ -80,13 +79,23 @@ export const widgetsRouter = createTRPCRouter({
             ctaLabel: z.string().nullish(),
             ctaUrl: z.string().nullish(),
             prices: z.array(
-              z.object({
-                id: z.string(),
-                order: z.number(),
-                mask: z.string().cuid2(),
-                hasFreeTrial: z.boolean(),
-                freeTrialDays: z.number(),
-              }),
+              z.discriminatedUnion('isSelected', [
+                z.object({
+                  isSelected: z.literal(true),
+                  mask: z.string().cuid2(),
+                }),
+                z.object({
+                  isSelected: z.literal(false),
+                  mask: z.string().nullish(),
+                }),
+              ]).and(
+                z.object({
+                  id: z.string(),
+                  order: z.number(),
+                  hasFreeTrial: z.boolean(),
+                  freeTrialDays: z.number(),
+                })
+              ),
             ),
           })
         ),
@@ -187,7 +196,9 @@ export const widgetsRouter = createTRPCRouter({
       }
 
       // managing prices
-      const widgetPrices = products.flatMap((product) => product.prices.map((price) => ({ ...price, productId: product.id })));
+      const widgetPrices = products.flatMap((product) => product.prices
+        .filter(price => price.isSelected)
+        .map((price) => ({ ...price, productId: product.id })));
       const storedPrices = await ctx.prisma.price.findMany({
         where: { widgetId },
         select: {
@@ -205,7 +216,7 @@ export const widgetsRouter = createTRPCRouter({
             widgetId,
             id: price.id,
             productId: price.productId,
-            mask: price.mask,
+            mask: price.mask!,
             hasFreeTrial: price.hasFreeTrial,
             freeTrialDays: price.freeTrialDays,
             order: price.order,

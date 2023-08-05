@@ -2,13 +2,13 @@
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Alert, Button, createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
-import { IconAlertCircle, IconCheck } from '@tabler/icons';
+import { Alert, Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import Image from 'next/image';
 
 import BaseLayout from 'components/BaseLayout';
-import SignInForm from '../../components/SignInForm';
+import SignInForm from 'components/SignInForm';
 
 const errorsMap: { [error: string]: string } = {
   fallback: "Seems something went wrong but we can't point to what, please contact the developers and send the url you have right now.",

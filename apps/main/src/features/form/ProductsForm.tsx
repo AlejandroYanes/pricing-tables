@@ -1,13 +1,16 @@
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { ActionIcon, Button, Group, Menu, Select, useMantineTheme } from '@mantine/core';
+import { ActionIcon, Alert, Button, Group, Menu, Stack, Autocomplete, useMantineTheme, Loader, type AutocompleteItem } from '@mantine/core';
+import { useDebouncedState } from '@mantine/hooks';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconChevronDown, IconX } from '@tabler/icons';
-import type { FormPrice, FormProduct } from 'models';
+import { IconChevronDown, IconSelector, IconX } from '@tabler/icons';
+import type { FormPrice } from 'models';
 import { formatCurrency } from 'helpers';
 import { RenderIf } from 'ui';
 
+import { trpc } from 'utils/trpc';
+import BaseLayout from 'components/BaseLayout';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
 import CustomProductBlock from './CustomProductBlock';
@@ -30,7 +33,6 @@ import {
 interface Props {
   showPanel: boolean;
   template: ReactNode;
-  products: FormProduct[];
 }
 
 const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
@@ -76,16 +78,35 @@ const resolvePricing = (price: FormPrice): string => {
   return 'Unable to resolve pricing';
 };
 
+const noStripeScreen = (
+  <BaseLayout showBackButton>
+    <Stack mt={60} justify="center" align="center">
+      <Alert title="Ooops..." variant="outline" color="gray">
+        Something happened and we {`can't`} connect with Stripe, please try again later.
+      </Alert>
+    </Stack>
+  </BaseLayout>
+);
+
 export default function ProductsForm(props: Props) {
-  const { showPanel, template, products } = props;
+  const { showPanel, template } = props;
 
   const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
+  const [query, setQuery] = useDebouncedState<string | undefined>(undefined, 200);
   const theme = useMantineTheme();
   const interactionTimer = useRef<any>(undefined);
 
+  const {
+    data,
+    isFetching: isFetchingStripeProducts,
+    isError: failedToFetchStripeProducts,
+  } = trpc.stripe.list.useQuery(query, { refetchOnWindowFocus: false, keepPreviousData: true });
+  const products = data || [];
+
   const handleAddProduct = (selectedId: string) => {
     addProduct(products, selectedId);
+    setQuery(undefined);
     setShowProducts(false);
 
     if (interactionTimer.current) {
@@ -109,19 +130,23 @@ export default function ProductsForm(props: Props) {
     }
   }
 
+  if (failedToFetchStripeProducts) {
+    return noStripeScreen;
+  }
+
   const productOptions = products
     .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
     .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
     .flatMap((prices) => prices.map((price) => ({
       label: resolvePricing(price),
-      value: `${price.productId}-${price.id}`,
+      key: `${price.productId}-${price.id}`,
+      value: price.product,
       group: price.product,
     })));
 
   const panelContent = (
     <>
       {selectedProducts.map((prod, index) => {
-        const baseProduct = products.find((p) => p.id === prod.id)!;
         const isFirst = index === 0;
         const isLast = index === selectedProducts.length - 1;
 
@@ -178,8 +203,7 @@ export default function ProductsForm(props: Props) {
             isFirst={isFirst}
             isLast={isLast}
             key={prod.id}
-            value={prod}
-            product={baseProduct}
+            product={prod}
             onAddPrice={handleAddPrice}
             onRemove={() => removeProduct(index)}
             onRemovePrice={removePrice}
@@ -192,73 +216,77 @@ export default function ProductsForm(props: Props) {
           />
         );
       })}
-      <RenderIf condition={productOptions.length > 0}>
-        <RenderIf condition={!showProducts}>
-          <Group position="right" align="center">
-            <Group noWrap spacing={1}>
-              <Button
-                onClick={() => {
-                  setShowProducts(true);
-                  startInteractionTimer();
-                }}
-                style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
-              >
-                {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
-              </Button>
-              <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
-                <Menu.Target>
-                  <ActionIcon
-                    variant="filled"
-                    color="primary"
-                    size={36}
-                    style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
-                  >
-                    <IconChevronDown size="1rem" stroke={1.5} />
-                  </ActionIcon>
-                </Menu.Target>
-                <Menu.Dropdown>
-                  <Menu.Item onClick={addCustomProduct}>
-                    Add a custom product
-                  </Menu.Item>
-                </Menu.Dropdown>
-              </Menu>
-            </Group>
-          </Group>
-        </RenderIf>
-        <RenderIf condition={showProducts}>
-          <Group
-            spacing={0}
-            onMouseEnter={clearInteractionTimer}
-            onMouseLeave={startInteractionTimer}
-          >
-            <Select
-              initiallyOpened
-              data={productOptions}
-              onChange={handleAddProduct}
-              style={{ flex: 1 }}
-              styles={{
-                input: {
-                  borderTopRightRadius: 0,
-                  borderBottomRightRadius: 0,
-                },
-                separatorLabel: {
-                  color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
-                },
-              }}
-            />
-            <ActionIcon
+      <RenderIf condition={!showProducts}>
+        <Group position="right" align="center">
+          <Group noWrap spacing={1}>
+            <Button
               onClick={() => {
-                setShowProducts(false);
-                clearInteractionTimer();
+                setShowProducts(true);
+                startInteractionTimer();
               }}
-              variant="default"
-              size={36}
-              style={{ borderLeft: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+              style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
             >
-              <IconX size="1rem" stroke={1.5} />
-            </ActionIcon>
+              {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
+            </Button>
+            <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
+              <Menu.Target>
+                <ActionIcon
+                  variant="filled"
+                  color="primary"
+                  size={36}
+                  style={{ borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+                >
+                  <IconChevronDown size="1rem" stroke={1.5} />
+                </ActionIcon>
+              </Menu.Target>
+              <Menu.Dropdown>
+                <Menu.Item onClick={addCustomProduct}>
+                  Add a custom product
+                </Menu.Item>
+              </Menu.Dropdown>
+            </Menu>
           </Group>
-        </RenderIf>
+        </Group>
+      </RenderIf>
+      <RenderIf condition={showProducts}>
+        <Group
+          spacing={0}
+          onMouseEnter={clearInteractionTimer}
+          onMouseLeave={startInteractionTimer}
+        >
+          <Autocomplete
+            initiallyOpened
+            data={productOptions}
+            value={query}
+            onChange={setQuery}
+            onItemSubmit={(item: AutocompleteItem) => handleAddProduct(item.key)}
+            maxDropdownHeight={300}
+            rightSection={isFetchingStripeProducts ? <Loader size={16} /> : <IconSelector size={16} />}
+            nothingFound={isFetchingStripeProducts ? 'Loading...' : 'No products found'}
+            style={{ flex: 1 }}
+            styles={{
+              input: {
+                borderTopRightRadius: 0,
+                borderBottomRightRadius: 0,
+              },
+              separatorLabel: {
+                color: theme.colorScheme === 'dark' ? theme.colors.gray[0] : theme.colors.gray[9],
+              },
+            }}
+          />
+          <ActionIcon
+            onClick={() => {
+              setShowProducts(false);
+              setQuery(undefined);
+              clearInteractionTimer();
+            }}
+            variant="default"
+            size={36}
+            style={{ borderLeft: 'none', borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }}
+          >
+            <IconX size="1rem" stroke={1.5} />
+          </ActionIcon>
+        </Group>
       </RenderIf>
     </>
   );

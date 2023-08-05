@@ -42,6 +42,7 @@ export default function Template(props: Props) {
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
       const intervals = prod.prices
+        .filter((price) => price.isSelected)
         .map((price) => {
           if (price.type === 'one_time') {
             return 'one_time';

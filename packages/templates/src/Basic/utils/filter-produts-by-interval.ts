@@ -9,16 +9,26 @@ export const filterProductsByInterval = (products: FormProduct[], interval: Inte
     if (prod.isCustom) return prod;
 
     if (interval === 'one_time') {
-      return prod.prices.some((price) => price.type === 'one_time');
+      return prod.prices
+        .filter(price => price.isSelected )
+        .some((price) => price.type === 'one_time');
     }
 
-    if (interval === 'month_3') {
-      return prod.prices.some((price) => price.recurring?.interval === 'month' && price.recurring?.interval_count === 3);
-    }
-    if (interval === 'month_6') {
-      return prod.prices.some((price) => price.recurring?.interval === 'month' && price.recurring?.interval_count === 6);
+    if (interval.includes('_')) {
+      const intervalArray = interval.split('_');
+      return prod.prices
+        .filter(price => price.isSelected )
+        .some((price) => (
+          price.recurring?.interval === intervalArray[0] &&
+          price.recurring?.interval_count.toString() === intervalArray[1]
+        ));
     }
 
-    return prod.prices.some((price) => price.recurring?.interval === interval && price.recurring?.interval_count === 1);
+    return prod.prices
+      .filter(price => price.isSelected )
+      .some((price) => (
+        price.recurring?.interval === interval &&
+        price.recurring?.interval_count === 1
+      ));
   });
 };
