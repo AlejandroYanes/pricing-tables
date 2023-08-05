@@ -132,36 +132,39 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           }),
         };
 
-        stripePrices.forEach(stripePrice => {
-          const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
-          const widgetPrice = widgetCurrentPrice
-            ? {
-              ...widgetCurrentPrice,
-              isSelected: true,
-            }
-            : {
-              hasFreeTrial: 0,
-              freeTrialDays: 0,
-              productId: '',
-              mask: '',
-              order: Number.MAX_VALUE,
-              isSelected: false,
-            };
+        stripePrices
+          .filter((stripePrice) => stripePrice.product === widgetProd.id)
+          .forEach(stripePrice => {
+            const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
+            const widgetPrice = widgetCurrentPrice
+              ? {
+                ...widgetCurrentPrice,
+                isSelected: true,
+              }
+              : {
+                hasFreeTrial: 0,
+                freeTrialDays: 0,
+                productId: '',
+                mask: '',
+                order: Number.MAX_VALUE,
+                isSelected: false,
+              };
 
-          if (stripePrice.active) {
-            finalProduct.prices.push({
-              ...widgetPrice,
-              ...stripePrice,
-              hasFreeTrial: !!widgetPrice.hasFreeTrial,
-              ...({
-                productId: widgetProd.id,
-                product: undefined as any,
-              }),
-            });
-          }
-        })
+            if (stripePrice.active) {
+              finalProduct.prices.push({
+                ...widgetPrice,
+                ...stripePrice,
+                hasFreeTrial: !!widgetPrice.hasFreeTrial,
+                ...({
+                  productId: widgetProd.id,
+                  product: undefined as any,
+                }),
+              });
+            }
+          });
       }
 
+      finalProduct.prices.sort((a, b) => a.order - b.order);
       finalProducts.push(finalProduct);
     }
 

@@ -9,12 +9,13 @@ export function removePrice(productId: string, priceId: string) {
   if (!selectedProduct || !selectedPrice) return;
 
   const updatedPrices = selectedProduct.prices.map(p => {
-    if (p.id === priceId){
+    if (p.id === priceId) {
       return  {
         ...p,
         isSelected: false,
+        order: Number.MAX_VALUE,
       }
-    };
+    }
     return  p;
   })
   products[productIndex] = { ...selectedProduct!, prices: updatedPrices };

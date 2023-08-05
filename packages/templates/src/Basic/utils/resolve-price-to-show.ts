@@ -11,7 +11,7 @@ export const resolvePriceToShow = (prod: FormProduct, interval: Interval) => {
     if (interval.includes('_')) {
       const intervalArray = interval.split('_');
       return price.isSelected && price.recurring?.interval_count.toString() === intervalArray[1];
-    };
+    }
 
     return price.isSelected && price.recurring?.interval === interval;
   })!;
