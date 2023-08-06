@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { useDebouncedState } from '@mantine/hooks';
 import type { DropResult } from 'react-beautiful-dnd';
 import { IconAlertCircle, IconChevronDown, IconSearch, IconSelector, IconX } from '@tabler/icons-react';
 import type { FormPrice } from '@dealo/models';
@@ -43,6 +42,7 @@ import {
   changeCustomCTAUrl,
   changeCustomCTADescription,
 } from './state/actions';
+import { useDebounce } from '../../utils/hooks/useDebounce';
 
 interface Props {
   showPanel: boolean;
@@ -113,6 +113,8 @@ export default function ProductsForm(props: Props) {
   const [showProducts, setShowProducts] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState<string | undefined>(undefined);
+  const [apiQuery, setApiQuery] = useState<string | undefined>(undefined);
+  const { debounceCall } = useDebounce(250);
 
   const interactionTimer = useRef<any>(undefined);
 
@@ -120,12 +122,21 @@ export default function ProductsForm(props: Props) {
     data,
     isFetching: isFetchingStripeProducts,
     isError: failedToFetchStripeProducts,
-  } = trpc.stripe.list.useQuery(query, { refetchOnWindowFocus: false, keepPreviousData: true });
+  } = trpc.stripe.list.useQuery(apiQuery, { refetchOnWindowFocus: false, keepPreviousData: true });
   const products = data || [];
+
+  const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setQuery(value);
+    debounceCall(() => {
+      setApiQuery(value);
+    });
+  };
 
   const handleAddProduct = (productId: string, priceId: string) => {
     addProduct(products, productId, priceId);
     setQuery(undefined);
+    setApiQuery(undefined);
     setShowProducts(false);
 
     if (interactionTimer.current) {
@@ -286,7 +297,7 @@ export default function ProductsForm(props: Props) {
                 <IconSearch className="h-4 w-4 stroke-slate-500" />
                 <Input
                   value={query || ''}
-                  onChange={(e) => setQuery(e.target.value)}
+                  onChange={handleSearch}
                   placeholder="Search products..."
                   variant="undecorated"
                   className="border-none outline-none pl-2 pr-0"
