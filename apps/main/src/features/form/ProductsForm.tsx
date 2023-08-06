@@ -305,7 +305,7 @@ export default function ProductsForm(props: Props) {
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
-              <div className="flex items-center justify-between px-2 border-b border-slate-200 mb-2">
+              <div className="flex items-center justify-between px-2 mb-2 border-b border-slate-200 dark:border-slate-800">
                 <IconSearch className="h-4 w-4 stroke-slate-500" />
                 <Input
                   value={query || ''}
@@ -324,7 +324,7 @@ export default function ProductsForm(props: Props) {
                         <li key={price.id}>
                           <Button
                             variant="undecorated"
-                            className="p-1 pl-2 h-auto w-full justify-start rounded-sm hover:bg-slate-100"
+                            className="p-1 pl-2 h-auto w-full justify-start rounded-sm hover:bg-slate-100 dark:hover:bg-slate-800"
                             onClick={() => handleAddProduct(product.id, price.id)}
                           >
                             {resolvePricing(price)}
