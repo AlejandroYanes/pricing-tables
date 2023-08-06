@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import Stripe from 'stripe';
-import { showNotification } from '@mantine/notifications';
 import { IconAlertCircle } from '@tabler/icons-react';
 import {
   RenderIf,
@@ -16,6 +15,7 @@ import {
   Alert,
   AlertDescription,
   CodeBlock,
+  useToast,
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
@@ -24,15 +24,21 @@ import { guestStripeKey } from 'utils/stripe';
 type Status = 'input' | 'empty' | 'list';
 
 export default function SetupModal() {
-  const [open, setOpen] = useState<boolean>(true);
   const [apiKey, setApiKey] = useState<string>('');
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<boolean>(false);
   const [status, setStatus] = useState<Status>('input');
   const [products, setProducts] = useState<Stripe.Product[]>([]);
 
+  const { toast } = useToast();
+
   const { mutate } = trpc.user.setup.useMutation({
-    onSuccess: () => window.location.reload(),
+    onSuccess: () => {
+      toast({
+        title: 'Hooray! Your account is now setup.',
+      });
+      window.location.reload();
+    },
   });
 
   const handleSetup = async () => {
@@ -76,14 +82,8 @@ export default function SetupModal() {
 
   const handleConfirm = async () => {
     setLoading(true);
-    await mutate(apiKey);
-    showNotification({
-      message:'Hooray! Your account is now setup.'
-    });
-    setOpen(false);
+    mutate(apiKey);
   };
-
-  if (!open) return null;
 
   return (
     <Dialog open>

@@ -1,6 +1,16 @@
-import { ActionIcon, createStyles, Divider, Menu, Stack, Textarea, TextInput, } from '@mantine/core';
 import { IconChevronDown, IconChevronsDown, IconChevronsUp, IconDotsVertical, IconTrash } from '@tabler/icons-react';
 import type { FormProduct } from '@dealo/models';
+import {
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+  InputWithLabel,
+  Separator,
+  TextareaWithLabel,
+} from '@dealo/ui';
 
 interface Props {
   isFirst: boolean;
@@ -17,20 +27,6 @@ interface Props {
   onMoveToBottom: () => void;
 }
 
-const useStyles = createStyles((theme) => ({
-  productBlock: {
-    position: 'relative',
-    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-    borderRadius: '4px',
-    marginBottom: '16px',
-  },
-  deleteBtn: {
-    position: 'absolute',
-    top: '4px',
-    right: '4px'
-  },
-}));
-
 export default function CustomProductBlock(props: Props) {
   const {
     isFirst,
@@ -46,48 +42,62 @@ export default function CustomProductBlock(props: Props) {
     onMoveDown,
     onMoveToBottom,
   } = props;
-  const { classes } = useStyles();
 
   return (
-    <div className={classes.productBlock}>
-      <div className={classes.deleteBtn}>
-        <Menu shadow="md" width={200}>
-          <Menu.Target>
-            <ActionIcon>
+    <div className="relative rounded-sm mb-4 border-solid border border-slate-200 dark:border-slate-700">
+      <div className="absolute top-1 right-1">
+        <DropdownMenu>
+          <DropdownMenuTrigger>
+            <Button component="span" variant="ghost" size="sm" className="h-7 p-2">
               <IconDotsVertical size={14} />
-            </ActionIcon>
-          </Menu.Target>
+            </Button>
+          </DropdownMenuTrigger>
 
-          <Menu.Dropdown>
-            <Menu.Item disabled={isFirst} onClick={onMoveToTop} icon={<IconChevronsUp size={14} />}>Move to top</Menu.Item>
-            <Menu.Item disabled={isFirst} onClick={onMoveUp} icon={<IconChevronsUp size={14} />}>Move up</Menu.Item>
-            <Menu.Item disabled={isLast} onClick={onMoveDown} icon={<IconChevronDown size={14} />}>Move down</Menu.Item>
-            <Menu.Item disabled={isLast} onClick={onMoveToBottom} icon={<IconChevronsDown size={14} />}>Move to bottom</Menu.Item>
+          <DropdownMenuContent className="w-[200px]">
+            <DropdownMenuItem disabled={isFirst} onClick={onMoveToTop}>
+              <IconChevronsUp size={14} />
+              Move to top
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isFirst} onClick={onMoveUp}>
+              <IconChevronsUp size={14} />
+              Move up
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isLast} onClick={onMoveDown}>
+              <IconChevronDown size={14} />
+              Move down
+            </DropdownMenuItem>
+            <DropdownMenuItem disabled={isLast} onClick={onMoveToBottom}>
+              <IconChevronsDown size={14} />
+              Move to bottom
+            </DropdownMenuItem>
 
-            <Menu.Divider />
-            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={onRemove}>Delete</Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem destructive onClick={onRemove}>
+              <IconTrash size={14} />
+              Delete
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
-      <TextInput m={16} label="Name" value={value.name || ''} onChange={(e) => onCTANameChange(e.target.value)} />
-      <Divider orientation="horizontal" />
-      <Stack p={16}>
-        <TextInput label="Button Label" value={value.ctaLabel || ''} onChange={(e) => onCTALabelChange(e.target.value)} />
-        <TextInput
+      <div className="p-4">
+        <InputWithLabel label="Name" value={value.name || ''} onChange={(e) => onCTANameChange(e.target.value)} />
+      </div>
+      <Separator orientation="horizontal" />
+      <div className="flex flex-col p-4 gap-4">
+        <InputWithLabel label="Button Label" value={value.ctaLabel || ''} onChange={(e) => onCTALabelChange(e.target.value)} />
+        <InputWithLabel
           label="Button URL"
           placeholder="https://your.domain.com/get-quote"
           value={value.ctaUrl || ''}
           onChange={(e) => onCTAUrlChange(e.target.value)}
         />
-        <Textarea
+        <TextareaWithLabel
           label="Description"
-          autosize
-          minRows={2}
-          maxRows={4}
+          rows={4}
           value={value.description!}
           onChange={(e) => onDescriptionChange(e.target.value)}
         />
-      </Stack>
+      </div>
     </div>
   );
 }

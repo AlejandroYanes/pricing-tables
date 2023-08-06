@@ -2,10 +2,10 @@
 
 import { type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import { useMediaQuery } from '@mantine/hooks';
 import Image from 'next/image';
 import { Button } from '@dealo/ui';
 
+import { useMediaQuery } from 'utils/hooks/useMediaQuery';
 import BaseLayout from '../BaseLayout';
 
 interface Props {

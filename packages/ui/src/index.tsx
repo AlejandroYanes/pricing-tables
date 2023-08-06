@@ -1,5 +1,4 @@
 export * from './Logo';
-export * from './pricing-theme-provider';
 export * from './render-if';
 export * from './powered-by';
 export * from './alert';
@@ -26,6 +25,8 @@ export * from './select-with-options';
 export * from './separator';
 export * from './table';
 export * from './tabs';
+export * from './textarea';
+export * from './textarea-with-label';
 export * from './toast';
 export * from './toaster';
 export * from './use-toast';

@@ -19,7 +19,7 @@ import {
   PopoverTrigger,
   PopoverContent,
   Loader,
-  Input,
+  Input, useToast,
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
@@ -118,6 +118,8 @@ export default function ProductsForm(props: Props) {
 
   const interactionTimer = useRef<any>(undefined);
 
+  const { toast } = useToast();
+
   const {
     data,
     isFetching: isFetchingStripeProducts,
@@ -142,6 +144,16 @@ export default function ProductsForm(props: Props) {
     if (interactionTimer.current) {
       clearTimeout(interactionTimer.current);
       interactionTimer.current = undefined;
+    }
+  };
+
+  const handleAddCustomProduct = () => {
+    const success = addCustomProduct();
+    if (!success) {
+      toast({
+        variant: 'destructive',
+        description: 'You can only have 2 custom products',
+      });
     }
   };
 
@@ -261,7 +273,7 @@ export default function ProductsForm(props: Props) {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={addCustomProduct}>
+                <DropdownMenuItem onClick={handleAddCustomProduct}>
                   Add a custom product
                 </DropdownMenuItem>
               </DropdownMenuContent>

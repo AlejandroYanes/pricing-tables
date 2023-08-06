@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { openConfirmModal } from '@mantine/modals';
-import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';
 import {
   RenderIf,
@@ -15,6 +14,14 @@ import {
   TooltipTrigger,
   Separator,
   Button,
+  useToast,
+  AlertDialogContent,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogCancel,
+  AlertDialogAction, AlertDialog,
 } from '@dealo/ui';
 import { templatesList } from '@dealo/templates';
 
@@ -69,21 +76,23 @@ export default function SettingsForm(props: Props) {
   } = useSettingsPanelStates();
 
   const router = useRouter();
+  const { toast } = useToast();
+
+  const [showDeleteModal, toggleConfirmModal] = useState(false);
 
   const { mutate: deleteWidget } = trpc.widgets.deleteWidget.useMutation({
     onSuccess: () => router.push('/dashboard'),
-    onError: () => showNotification({ title: 'Error', message: 'Something went wrong', color: 'red' }),
+    onError: () => {
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'There was an error while deleting the widget.',
+      });
+    },
   });
 
   const handleDelete = () => {
-    openConfirmModal({
-      centered: true,
-      title: 'Just to confirm',
-      children: 'Are you sure you want to delete this widget? This action cannot be undone.',
-      labels: { confirm: 'Delete', cancel: 'No' },
-      confirmProps: { color: 'red' },
-      onConfirm: () => deleteWidget(widgetId)
-    });
+    toggleConfirmModal(true);
   };
 
   const templateOptions = templatesList.map((temp) => ({ label: temp.name, value: temp.id }));
@@ -195,6 +204,25 @@ export default function SettingsForm(props: Props) {
         <Button variant="destructive-outline" className="w-full" onClick={handleDelete}>
           Delete widget
         </Button>
+        <AlertDialog open={showDeleteModal}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription className="pb-4">
+                Are you sure you want to delete this widget? This action cannot be undone.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => toggleConfirmModal(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => deleteWidget(widgetId)}
+              >
+                Delete
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
     </>
   );

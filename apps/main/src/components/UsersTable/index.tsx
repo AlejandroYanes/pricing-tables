@@ -2,7 +2,6 @@
 
 import { useState } from 'react';
 import { IconAdjustments } from '@tabler/icons-react';
-import { useDebouncedState } from '@mantine/hooks';
 import {
   RenderIf,
   Popover,
@@ -25,16 +24,23 @@ import {
 
 import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
+import { useDebounce } from '../../utils/hooks/useDebounce';
 
 const UsersTable = () => {
-  const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [isSetup, setIsSetup] = useState<string>('all');
+  const [query, setQuery] = useState('');
+
+  const { debounceCall } = useDebounce(250);
 
   const {
     data: { results, count } = { results: [], count: 0 },
   } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
+
+  const handleSearch = (value: string) => {
+    debounceCall(() => setQuery(value));
+  }
 
   const handleFilterChange = (value: string) => {
     setIsSetup(value);
@@ -47,7 +53,7 @@ const UsersTable = () => {
         <Input
           placeholder="Search users"
           className="w-[280px]"
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => handleSearch(e.target.value)}
         />
         <Popover>
           <PopoverTrigger asChild>

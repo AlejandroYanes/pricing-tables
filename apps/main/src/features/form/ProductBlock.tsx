@@ -153,7 +153,7 @@ export default function ProductBlock(props: Props) {
     }));
 
   return (
-    <div className="relative rounded-sm mb-4 border-solid border border-neutral-200 dark:border-neutral-700">
+    <div className="relative rounded-sm mb-4 border-solid border border-slate-200 dark:border-slate-700">
       <div className="absolute top-1 right-1">
         <DropdownMenu>
           <DropdownMenuTrigger>
