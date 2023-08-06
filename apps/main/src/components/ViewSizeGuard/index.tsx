@@ -12,7 +12,7 @@ interface Props {
   children: ReactNode;
 }
 
-const query = '(max-width: 586px)'; // TODO: change to 1280px when ready
+const query = '(max-width: 1280px)';
 
 const ViewSizeGuard = (props: Props) => {
   const router = useRouter();
