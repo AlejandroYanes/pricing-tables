@@ -133,8 +133,11 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
         };
 
         stripePrices
-          .filter((stripePrice) => stripePrice.product === widgetProd.id)
+          // TODO: remove the tier filter once we support tiers (DEV-14)
+          .filter((stripePrice) => stripePrice.product === widgetProd.id && stripePrice.billing_scheme !== 'tiered')
           .forEach(stripePrice => {
+            if (!stripePrice.active) return;
+
             const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
             const widgetPrice = widgetCurrentPrice
               ? {
@@ -150,17 +153,15 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
                 isSelected: false,
               };
 
-            if (stripePrice.active) {
-              finalProduct.prices.push({
-                ...widgetPrice,
-                ...stripePrice,
-                hasFreeTrial: !!widgetPrice.hasFreeTrial,
-                ...({
-                  productId: widgetProd.id,
-                  product: undefined as any,
-                }),
-              });
-            }
+            finalProduct.prices.push({
+              ...widgetPrice,
+              ...stripePrice,
+              hasFreeTrial: !!widgetPrice.hasFreeTrial,
+              ...({
+                productId: widgetProd.id,
+                product: undefined as any,
+              }),
+            });
           });
       }
 

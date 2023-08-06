@@ -167,7 +167,11 @@ export function SecondTemplate(props: TemplateProps) {
             <td key={prod.id} data-active={isRecommended} className={`align-top py-2 px-4 ${CELL_STYLES[color]}`}>
               <div className="flex flex-col items-center gap-4 py-4 h-full">
                 <span className="text text-[32px]">{prod.name}</span>
-                {isCustom ? <span className="text mt-auto whitespace-break-spaces">{prod.description}</span> : null}
+                {
+                  isCustom
+                    ? <span className="text text-center mt-auto whitespace-break-spaces">{prod.description}</span>
+                    : null
+                }
                 {
                   !isCustom
                     ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
@@ -259,7 +263,7 @@ export function SecondTemplate(props: TemplateProps) {
         >
           <tbody>{rows}</tbody>
         </table>
-        <PoweredBy color={color} position="left" style={{ left: -31, top: 153 }} />
+        <PoweredBy color={color} position="left" style={{ left: -31, top: 168 }} />
       </div>
     </div>
   );
