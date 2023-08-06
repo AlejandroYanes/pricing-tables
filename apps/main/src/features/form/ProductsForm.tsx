@@ -1,12 +1,9 @@
-'use client'
-
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { Autocomplete, Loader, type AutocompleteItem } from '@mantine/core';
 import { useDebouncedState } from '@mantine/hooks';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconAlertCircle, IconChevronDown, IconSelector, IconX } from '@tabler/icons-react';
+import { IconAlertCircle, IconChevronDown, IconSearch, IconSelector, IconX } from '@tabler/icons-react';
 import type { FormPrice } from '@dealo/models';
 import { formatCurrency } from '@dealo/helpers';
 import {
@@ -22,11 +19,8 @@ import {
   Popover,
   PopoverTrigger,
   PopoverContent,
-  Command,
-  CommandInput,
-  CommandEmpty,
-  CommandGroup,
-  CommandItem,
+  Loader,
+  Input,
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
@@ -117,10 +111,10 @@ export default function ProductsForm(props: Props) {
 
   const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
-  const [query, setQuery] = useDebouncedState<string | undefined>(undefined, 200);
-  const interactionTimer = useRef<any>(undefined);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [query, setQuery] = useState<string | undefined>(undefined);
 
-  const [open, setOpen] = useState(false);
+  const interactionTimer = useRef<any>(undefined);
 
   const {
     data,
@@ -129,8 +123,8 @@ export default function ProductsForm(props: Props) {
   } = trpc.stripe.list.useQuery(query, { refetchOnWindowFocus: false, keepPreviousData: true });
   const products = data || [];
 
-  const handleAddProduct = (selectedId: string) => {
-    addProduct(products, selectedId);
+  const handleAddProduct = (productId: string, priceId: string) => {
+    addProduct(products, productId, priceId);
     setQuery(undefined);
     setShowProducts(false);
 
@@ -162,15 +156,7 @@ export default function ProductsForm(props: Props) {
     return noStripeScreen;
   }
 
-  const productOptions = products
-    .filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id))
-    .map((prod) => (prod.prices || []).map((price) => ({ ...price, product: prod.name, productId: prod.id })))
-    .flatMap((prices) => prices.map((price) => ({
-      label: resolvePricing(price),
-      value: `${price.productId}-${price.id}`,
-      // value: price.product,
-      group: price.product,
-    })));
+  const productOptions = products.filter((product) => !selectedProducts.some((sProd) => sProd.id === product.id));
 
   const panelContent = (
     <>
@@ -252,7 +238,7 @@ export default function ProductsForm(props: Props) {
               className="rounded-r-none mr-[1px]"
               onClick={() => {
                 setShowProducts(true);
-                // startInteractionTimer();
+                startInteractionTimer();
               }}
             >
               {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
@@ -275,74 +261,64 @@ export default function ProductsForm(props: Props) {
       <RenderIf condition={showProducts}>
         <div
           className="flex items-center"
-          // onMouseEnter={clearInteractionTimer}
-          // onMouseLeave={startInteractionTimer}
+          onMouseEnter={clearInteractionTimer}
+          onMouseLeave={startInteractionTimer}
         >
-          {/*<Select onValueChange={handleAddProduct}>*/}
-          {/*  <SelectTrigger className="w-full rounded-r-none">*/}
-          {/*    <SelectValue />*/}
-          {/*  </SelectTrigger>*/}
-          {/*  <SelectContent>*/}
-          {/*    {productOptions.map((option) => (*/}
-          {/*      <SelectItem key={option.value} value={option.value}>*/}
-          {/*        {option.label}*/}
-          {/*      </SelectItem>*/}
-          {/*    ))}*/}
-          {/*  </SelectContent>*/}
-          {/*</Select>*/}
-          <Popover open={open} onOpenChange={setOpen}>
+          <Popover open={showDropdown} onOpenChange={setShowDropdown}>
             <PopoverTrigger asChild>
               <Button
                 variant="outline"
                 role="combobox"
-                aria-expanded={open}
-                className="justify-between rounded-r-none flex-1"
+                aria-expanded={showDropdown}
+                className="justify-between rounded-r-none flex-1 font-normal"
               >
                 Select framework...
-                <IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                <RenderIf
+                  condition={isFetchingStripeProducts}
+                  fallback={<IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />}
+                >
+                  <Loader size="xs" color="black" />
+                </RenderIf>
               </Button>
             </PopoverTrigger>
             <PopoverContent className="p-0">
-              <Command>
-                <CommandInput
-                  placeholder="Search framework..."
-                  value={query}
-                  onValueChange={(nextQ) => setQuery(nextQ)}
+              <div className="flex items-center justify-between px-2 border-b border-slate-200 mb-2">
+                <IconSearch className="h-4 w-4 stroke-slate-500" />
+                <Input
+                  value={query || ''}
+                  onChange={(e) => setQuery(e.target.value)}
+                  placeholder="Search products..."
+                  variant="undecorated"
+                  className="border-none outline-none pl-2 pr-0"
                 />
-                <CommandEmpty>No framework found.</CommandEmpty>
-                <CommandGroup>
-                  {productOptions.map((product) => (
-                    <CommandItem
-                      key={product.value}
-                      onSelect={() => {
-                        handleAddProduct(product.value);
-                        setOpen(false);
-                      }}
-                    >
-                      {product.label}
-                    </CommandItem>
-                  ))}
-                </CommandGroup>
-              </Command>
+              </div>
+              <ul className="flex flex-col gap-1">
+                {productOptions.map((product) => (
+                  <li key={product.id} className="flex flex-col p-1">
+                    <span className="text text-sm text-slate-500 pl-1 mb-1">{product.name}</span>
+                    <ul className="flex flex-col">
+                      {product.prices.map((price) => (
+                        <li key={price.id}>
+                          <Button
+                            variant="undecorated"
+                            className="p-1 pl-2 h-auto w-full justify-start rounded-sm hover:bg-slate-100"
+                            onClick={() => handleAddProduct(product.id, price.id)}
+                          >
+                            {resolvePricing(price)}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+              <RenderIf condition={productOptions.length === 0}>
+                <div className="flex flex-col items-center justify-center p-4">
+                  <span className="text text-slate-500">No products found</span>
+                </div>
+              </RenderIf>
             </PopoverContent>
           </Popover>
-          {/*<Autocomplete*/}
-          {/*  initiallyOpened*/}
-          {/*  data={productOptions}*/}
-          {/*  value={query}*/}
-          {/*  onChange={setQuery}*/}
-          {/*  onItemSubmit={(item: AutocompleteItem) => handleAddProduct(item.key)}*/}
-          {/*  maxDropdownHeight={300}*/}
-          {/*  rightSection={isFetchingStripeProducts ? <Loader size={16} /> : <IconSelector size={16} />}*/}
-          {/*  nothingFound={isFetchingStripeProducts ? 'Loading...' : 'No products found'}*/}
-          {/*  style={{ flex: 1 }}*/}
-          {/*  styles={{*/}
-          {/*    input: {*/}
-          {/*      borderTopRightRadius: 0,*/}
-          {/*      borderBottomRightRadius: 0,*/}
-          {/*    },*/}
-          {/*  }}*/}
-          {/*/>*/}
           <Button
             onClick={() => {
               setQuery(undefined);

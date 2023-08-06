@@ -57,6 +57,7 @@ export function BasicTemplate(props: TemplateProps) {
         <Tabs
           value={currentInterval}
           onValueChange={setCurrentInterval as any}
+          className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
         >
           <TabsList>
             {billingIntervals.map((interval) => (
@@ -120,7 +121,7 @@ export function BasicTemplate(props: TemplateProps) {
               <span className="text text-center mb-4">{prod.description}</span>
               <div className="flex flex-col items-center mt-auto">
                 <RenderIf condition={hasFreeTrial}>
-                  <span className="text text-slate-400 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
+                  <span className="text text-slate-500 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
                 <a href={resolveBtnUrl()}>
                   <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>

@@ -168,7 +168,7 @@ const resolveCTA = (options: CTAParams) => {
         <a href={resolveBtnUrl()} className="w-full px-8">
           <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
         </a>
-        <span className="text text-center">{freeTrialDays} days</span>
+        <span className="text text-center text-slate-500 mt-2">With a {freeTrialDays} days free trial</span>
       </>
     );
   }
@@ -231,7 +231,7 @@ export function ThirdTemplate(props: TemplateProps) {
         <Tabs
           value={currentInterval}
           onValueChange={setCurrentInterval as any}
-          className="mx-auto mb-8"
+          className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
         >
           <TabsList>
             {billingIntervals.map((interval) => (

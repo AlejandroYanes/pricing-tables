@@ -191,7 +191,7 @@ export function SecondTemplate(props: TemplateProps) {
               </a>
               <RenderIf condition={hasFreeTrial}>
                 <div className="mb-6">
-                  <span className="text text-sm">{freeTrialDays} days</span>
+                  <span data-active={isRecommended} className="text text-sm text-slate-500 data-[active=true]:text-white">With a {freeTrialDays} days free trial</span>
                 </div>
               </RenderIf>
             </td>
@@ -243,7 +243,7 @@ export function SecondTemplate(props: TemplateProps) {
         <Tabs
           value={currentInterval}
           onValueChange={setCurrentInterval as any}
-          className="mx-auto mb-8"
+          className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
         >
           <TabsList>
             {billingIntervals.map((interval) => (

@@ -204,7 +204,7 @@ export default function ProductBlock(props: Props) {
         </RenderIf>
       </div>
       <div className="flex flex-col">
-        {(product.prices || []).map((price, index, list) => (
+        {(product.prices || []).filter((price) => price.isSelected).map((price, index, list) => (
           <Fragment key={price.id}>
             {/* eslint-disable-next-line max-len */}
             <div className={`flex flex-col px-4 py-2 gap-2 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 dark:border-neutral-700 relative ${hasMorePrices ? 'pb-4' : ''}`}>

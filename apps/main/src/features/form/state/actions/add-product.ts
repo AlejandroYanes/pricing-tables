@@ -4,8 +4,7 @@ import { apply } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
-export function addProduct(productList: FormProduct[], selectedId: string) {
-  const [productId, priceId] = selectedId.split('-');
+export function addProduct(productList: FormProduct[], productId: string, priceId: string) {
   const selectedProduct = productList!.find((prod) => prod.id === productId);
   const selectedPrice = selectedProduct?.prices.find((price) => price.id === priceId);
 
