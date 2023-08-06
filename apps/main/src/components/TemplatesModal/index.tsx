@@ -1,9 +1,20 @@
 /* eslint-disable max-len */
+'use client'
+
 import { useState } from 'react';
-import { Button, createStyles, Divider, Group, Modal, rem, ScrollArea, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
-import { IconSearch } from '@tabler/icons';
-import { skeletonMap, templatesList } from 'templates';
-import { RenderIf } from 'ui';
+import { skeletonMap, templatesList } from '@dealo/templates';
+import {
+  RenderIf,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  Input,
+  Button,
+  Separator,
+  Label,
+} from '@dealo/ui';
+import { IconCircle } from '@tabler/icons-react';
 
 interface Props {
   opened: boolean;
@@ -12,38 +23,14 @@ interface Props {
   onClose: () => void;
 }
 
-const useStyles = createStyles((theme) => ({
-  mainLink: {
-    display: 'flex',
-    alignItems: 'center',
-    width: '100%',
-    fontSize: theme.fontSizes.xs,
-    padding: `${rem(8)} ${theme.spacing.xs}`,
-    borderRadius: theme.radius.sm,
-    border: `1px solid transparent`,
-    fontWeight: 500,
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
-      color: theme.colorScheme === 'dark' ? theme.white : theme.black,
-    },
-  },
-  selectedLink: {
-    borderColor: theme.colors.teal[5],
-  },
-}));
-
 function TemplatesModal(props: Props) {
   const { loading, onSelect, onClose } = props;
 
-  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(null);
+  const [selectedTemplate, setSelectedTemplate] = useState<string | null>(templatesList.at(0)?.id || null);
   const [name, setName] = useState('');
   const [showError, setShowError] = useState(false);
 
   const Skeleton = selectedTemplate ? skeletonMap[selectedTemplate] : () => null;
-
-  const { classes, cx } = useStyles();
 
   const handleSelect = () => {
     if (!name) {
@@ -54,64 +41,60 @@ function TemplatesModal(props: Props) {
   };
 
   return (
-    <Modal
-      transitionProps={{ transition: 'fade', duration: 200 }}
-      size="80%"
-      opened
-      onClose={onClose}
-      title={<Text size="lg" weight="bold">Choose a template</Text>}
-    >
-      <Group align="stretch" style={{ height: '600px' }}>
-        <Stack style={{ width: '220px', minHeight: '220px', flexShrink: 0 }}>
-          <TextInput
-            placeholder="Search"
-            size="xs"
-            mb="md"
-            icon={<IconSearch size="0.8rem" stroke={1.5} />}
-            rightSectionWidth={70}
-          />
-          {templatesList.map((template) => (
-            <UnstyledButton
-              key={template.id}
-              className={cx(classes.mainLink, { [classes.selectedLink]: selectedTemplate === template.id })}
-              onClick={() => setSelectedTemplate(template.id)}
-            >
-              <Text>{template.name}</Text>
-            </UnstyledButton>
-          ))}
-        </Stack>
-        <Divider orientation="vertical" />
-        <Stack style={{ flex: 1 }}>
-          <ScrollArea style={{ flex: 1 }}>
-            <Stack align="center">
-              <RenderIf condition={selectedTemplate !== null}>
+    <Dialog open modal onOpenChange={onClose}>
+      <DialogContent className="w-4/5">
+        <DialogHeader>
+          <DialogTitle>Choose template</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-stretch h-[600px]">
+          <div className="flex flex-col w-[220px] min-h-[220px] flex-shrink-0">
+            <Input placeholder="Search" className="mb-6" />
+            {templatesList.map((template) => (
+              <Button
+                data-selected={selectedTemplate === template.id}
+                variant="ghost"
+                className="group justify-between mb-2 data-[selected=true]:border data-[selected=true]:border-emerald-500"
+                key={template.id}
+                onClick={() => setSelectedTemplate(template.id)}
+              >
+                <span>{template.name}</span>
+                <IconCircle size={6} className="invisible group-data-[selected=true]:visible fill-emerald-500 stroke-emerald-500" />
+              </Button>
+            ))}
+          </div>
+          <Separator orientation="vertical" className="mx-4" />
+          <div className="flex flex-col flex-1">
+            <RenderIf condition={selectedTemplate !== null}>
+              <div className="mx-auto">
                 {/* @ts-ignore */}
                 <Skeleton scale={0.8} />
-              </RenderIf>
-            </Stack>
-          </ScrollArea>
-          <Group mt="auto" position="right" align="flex-end">
-            <TextInput
-              label="Name"
-              value={name}
-              error={showError}
-              disabled={!selectedTemplate || loading}
-              onChange={(e) => {
-                setName(e.target.value);
-                setShowError(false);
-              }}
-            />
-            <Button
-              loading={loading}
-              disabled={!selectedTemplate}
-              onClick={handleSelect}
-            >
-              Select
-            </Button>
-          </Group>
-        </Stack>
-      </Group>
-    </Modal>
+              </div>
+            </RenderIf>
+            <div className="flex items-end justify-end mt-auto w-full gap-2">
+              <div className="flex flex-col gap-1">
+                <Label htmlFor="stripe-api-key">Name</Label>
+                <Input
+                  id="stripe-api-key"
+                  className={showError ? 'border-destructive' : ''}
+                  value={name}
+                  disabled={!selectedTemplate || loading}
+                  onChange={(e) => {
+                    setName(e.target.value);
+                    setShowError(false);
+                  }}
+                />
+              </div>
+              <Button
+                disabled={!selectedTemplate}
+                onClick={handleSelect}
+              >
+                Select
+              </Button>
+            </div>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
   );
 }
 

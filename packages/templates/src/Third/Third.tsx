@@ -1,61 +1,17 @@
+/* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
-import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons';
-import type { FormCallback, FormPrice, FormProduct } from 'models';
-import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
-import { PoweredBy, RenderIf } from 'ui';
+import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons-react';
+import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
+import type { Colors} from '@dealo/helpers';
+import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
+import { Button, PoweredBy, RenderIf, Tabs, TabsList, TabsTrigger } from '@dealo/ui';
 
 import type { TemplateProps, Interval } from '../constants/types';
 import { intervalsMap } from '../constants/intervals';
 import { resolveBillingIntervals } from '../Basic/utils/resolve-billing-intervals';
 import { filterProductsByInterval } from '../Basic/utils/filter-produts-by-interval';
 import { resolvePriceToShow } from '../Basic/utils/resolve-price-to-show';
-
-const useStyles = createStyles((theme, color: string) => ({
-  itemsList: {
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    gap: theme.spacing.md,
-  },
-  productBlock: {
-    position: 'relative',
-    minWidth: '460px',
-    width: '100%',
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing.lg,
-    borderRadius: theme.radius.md,
-    border: `1px solid ${theme.colorScheme === 'light' ? theme.colors.gray[2] : theme.colors.dark[4]}`,
-  },
-  selected: {
-    color: 'white',
-    borderColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![9],
-    backgroundColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![9],
-  },
-  recommended: {
-    color: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6],
-    borderColor: theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6],
-  },
-  whiteBadge: {
-    color: 'white',
-    borderColor: 'white',
-  },
-  featuresBox: {
-    position: 'relative',
-    minWidth: '360px',
-    boxSizing: 'border-box',
-    borderRadius: theme.radius.md,
-    backgroundColor: theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8],
-    padding: `${theme.spacing.lg} 0`,
-  },
-  featureBlock: {
-    padding: `${theme.spacing.md} ${theme.spacing.xl}`,
-  },
-}));
+import { BUTTON_STYLES, CHECK_ICON_COLORS, PRODUCT_BUTTON_COLORS } from './template-colors';
 
 type PricingProps = {
   price: FormPrice;
@@ -87,28 +43,30 @@ const resolvePricing = (options: PricingProps) => {
   if (type === 'one_time') {
     if (transform_quantity) {
       return (
-        <Stack spacing={0} ml="auto" style={{ flexShrink: 0 }}>
-          <Group spacing={4}>
-            <Text component="sup" size={18} mt={-8} color={isSelected ? undefined : 'dimmed'}>
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <sup data-active={isSelected} className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
               {getCurrencySymbol(currency)}
-            </Text>
-            <Text size={48} style={{ lineHeight: 1 }}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</Text>
-          </Group>
-          <Text component="sub" color={isSelected ? undefined : 'dimmed'}>
+            </sup>
+            <span className="text text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+          </div>
+          <sub data-active={isSelected} className="text text-white leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
             {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
-          </Text>
-        </Stack>
+          </sub>
+        </div>
       );
     }
 
     return (
-      <Group spacing={4} ml="auto" noWrap style={{ flexShrink: 0 }}>
-        <Text component="sup">{getCurrencySymbol(currency)}</Text>
-        <Text size={48}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</Text>
+      <div className="flex ga-1 ml-auto shrink-0">
+        <sup data-active={isSelected} className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+          {getCurrencySymbol(currency)}
+        </sup>
+        <span className="text text-white text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
         <RenderIf condition={!!unitLabel}>
-          <Text component="sub">{` per ${unitLabel}`}</Text>
+          <sub data-active={isSelected} className="text text-white leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">{` per ${unitLabel}`}</sub>
         </RenderIf>
-      </Group>
+      </div>
     );
   }
 
@@ -118,52 +76,67 @@ const resolvePricing = (options: PricingProps) => {
   if (billing_scheme === 'per_unit') {
     if (transform_quantity) {
       return (
-        <Stack spacing={0} ml="auto" style={{ flexShrink: 0 }}>
-          <Group spacing={4}>
-            <Text component="sup" size={18} mt={-8} color={isSelected ? undefined : 'dimmed'}>
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <sup data-active={isSelected} className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
               {getCurrencySymbol(currency)}
-            </Text>
-            <Text size={48} style={{ lineHeight: 1 }}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</Text>
-            <Text component="sub" color={isSelected ? undefined : 'dimmed'} size={18} mb={-8}>
+            </sup>
+            <span className="text text-white text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <sub data-active={isSelected} className="text text-white text-[18px] mb-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
               {`/ ${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`}
-            </Text>
-          </Group>
-          <Text component="sub" color={isSelected ? undefined : 'dimmed'}>
+            </sub>
+          </div>
+          <sub data-active={isSelected} className="text text-white text-[18px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
             {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
-          </Text>
-        </Stack>
+          </sub>
+        </div>
       );
     }
 
     return (
-      <Group spacing={4} ml="auto" noWrap style={{ flexShrink: 0 }}>
-        <Text size={48} style={{ lineHeight: 1 }}>
+      <div className="flex items-center gap-1 ml-auto flex-nowrap shrink-0">
+        <span className="text text-[48px] leading-none">
           {getCurrencySymbol(currency)}
-        </Text>
-        <Text size={48} style={{ lineHeight: 1 }}>
+        </span>
+        <span className="text text-[48px] leading-none">
           {formatCurrencyWithoutSymbol(unit_amount! / 100)}
-        </Text>
-        <Text component="sub" size={18} mb={-8}>
+        </span>
+        <sub className="text text-[18px] mb-[-8px]">
           {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
-        </Text>
-      </Group>
+        </sub>
+      </div>
     );
   }
 
   return 'Unable to resolve pricing';
 };
 
-const resolveCTA = (
-  product: FormProduct,
-  interval: Interval,
-  callbacks: FormCallback[],
-  env: string,
-  subscribeLabel: string,
-  freeTrialLabel: string,
-  widget: string,
-  currency: string | null | undefined,
-  dev: boolean,
-) => {
+interface CTAParams {
+  product: FormProduct;
+  interval: Interval;
+  callbacks: FormCallback[];
+  env: string;
+  subscribeLabel: string;
+  freeTrialLabel: string;
+  widget: string;
+  currency: string | null | undefined;
+  dev: boolean;
+  color: Colors;
+}
+
+const resolveCTA = (options: CTAParams) => {
+  const {
+    product,
+    interval,
+    callbacks,
+    env,
+    subscribeLabel,
+    freeTrialLabel,
+    widget,
+    currency,
+    dev,
+    color,
+  } = options;
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
   const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
@@ -192,13 +165,19 @@ const resolveCTA = (
   if (hasFreeTrial) {
     return (
       <>
-        <Button mx="xl" component="a" href={resolveBtnUrl()}>{resolveBtnLabel()}</Button>
-        <Text align="center">{freeTrialDays} days</Text>
+        <a href={resolveBtnUrl()} className="w-full px-8">
+          <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
+        </a>
+        <span className="text text-center text-slate-500 mt-2">With a {freeTrialDays} days free trial</span>
       </>
     );
   }
 
-  return <Button mx="xl" component="a" href={resolveBtnUrl()}>{resolveBtnLabel()}</Button>;
+  return (
+    <a href={resolveBtnUrl()} className="w-full px-8">
+      <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
+    </a>
+  );
 };
 
 export function ThirdTemplate(props: TemplateProps) {
@@ -216,8 +195,6 @@ export function ThirdTemplate(props: TemplateProps) {
     environment = 'production',
     currency,
   } = props;
-  const theme = useMantineTheme();
-  const { classes, cx } = useStyles(color);
 
   const [selectedProduct, setSelectedProduct] = useState<number>(() => {
     const index = products.findIndex((product) => product.id === recommended);
@@ -249,12 +226,22 @@ export function ThirdTemplate(props: TemplateProps) {
   const productToHighlight = !!visibleProducts[selectedProduct] ? selectedProduct : 0;
 
   return (
-    <Stack align="center">
+    <div className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
-        <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        <Tabs
+          value={currentInterval}
+          onValueChange={setCurrentInterval as any}
+          className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
+        >
+          <TabsList>
+            {billingIntervals.map((interval) => (
+              <TabsTrigger key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </RenderIf>
-      <Group align="start" spacing={32}>
-        <ul className={classes.itemsList}>
+      <div className="flex gap-8">
+        <ul className="flex flex-col gap-4">
           {visibleProducts.map((prod, index) => {
             const { isCustom } = prod;
             const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
@@ -263,29 +250,32 @@ export function ThirdTemplate(props: TemplateProps) {
 
             return (
               <li key={prod.id}>
-                <UnstyledButton
-                  className={cx(classes.productBlock, { [classes.recommended]: isRecommended, [classes.selected]: isSelected })}
+                <Button
+                  data-active={isRecommended}
+                  data-selected={isSelected}
+                  variant="undecorated"
+                  className={`group relative h-auto min-w-[480px] w-full flex items-center p-8 rounded-md border ${PRODUCT_BUTTON_COLORS[color]}`}
                   onClick={() => setSelectedProduct(index)}
                 >
                   <RenderIf condition={isSelected} fallback={<IconCircle style={{ flexShrink: 0 }} />}>
                     <IconCircleCheck color="white" style={{ flexShrink: 0 }} />
                   </RenderIf>
-                  <Stack ml="md" mr="3rem" spacing={2}>
-                    <Text size={18}>{prod.name}</Text>
-                    <Text style={{ maxWidth: '360px' }}>{prod.description}</Text>
-                  </Stack>
+                  <div className="flex flex-col ml-4 mr-16 gap-0.5">
+                    <span className="text text-left text-[18px]">{prod.name}</span>
+                    <span className="max-w-[360px]">{prod.description}</span>
+                  </div>
                   {
                     !isCustom
                       ? resolvePricing({ price: priceToShow, unitLabel, currency, isSelected })
                       : null
                   }
-                </UnstyledButton>
+                </Button>
               </li>
             );
           })}
         </ul>
-        <Stack className={classes.featuresBox}>
-          <ul className={classes.itemsList}>
+        <div className="flex flex-col relative min-w-[360px] box-border py-8 rounded-md bg-slate-50 dark:bg-gray-900">
+          <ul className="flex flex-col gap-4 mb-4">
             {features.map((feature) => {
               const product = visibleProducts[selectedProduct] || visibleProducts[0]!;
               const prodValue = feature.products.find((prod) => prod.id === product.id)!;
@@ -309,36 +299,36 @@ export function ThirdTemplate(props: TemplateProps) {
               }
 
               return (
-                <li key={feature.id} className={classes.featureBlock}>
-                  <Group align="center" position="apart">
-                    <Text size="sm">
+                <li key={feature.id} className="py-4 px-8">
+                  <div className="flex items-center justify-between">
+                    <span className="text text-sm">
                       {label}
-                    </Text>
+                    </span>
                     <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
                       <IconCircleCheck
-                        fill={theme.colors[color]![8]}
-                        color={theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8]}
+                        className={CHECK_ICON_COLORS[color]}
                       />
                     </RenderIf>
-                  </Group>
+                  </div>
                 </li>
               );
             })}
           </ul>
-          {resolveCTA(
-            visibleProducts[selectedProduct] || visibleProducts[0]!,
-            currentInterval,
+          {resolveCTA({
+            product: visibleProducts[selectedProduct] || visibleProducts[0]!,
+            interval: currentInterval,
             callbacks,
-            environment,
+            env: environment,
             subscribeLabel,
             freeTrialLabel,
             widget,
             currency,
-            !!dev,
-          )}
-          <PoweredBy color={color}  position="bottom" bottom={-26} left="50%" style={{ transform: 'translateX(-50%)' }} />
-        </Stack>
-      </Group>
-    </Stack>
+            dev: !!dev,
+            color,
+          })}
+          <PoweredBy color={color}  position="bottom" style={{ bottom: -32, left: '50%', transform: 'translateX(-50%)' }} />
+        </div>
+      </div>
+    </div>
   );
 }

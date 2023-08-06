@@ -1,4 +1,4 @@
-import type { FormProduct } from 'models';
+import type { FormProduct } from '@dealo/models';
 
 import type { Interval } from '../../constants/types';
 
@@ -25,7 +25,7 @@ export const filterProductsByInterval = (products: FormProduct[], interval: Inte
     }
 
     return prod.prices
-      .filter(price => price.isSelected )
+      .filter(price => price.isSelected)
       .some((price) => (
         price.recurring?.interval === interval &&
         price.recurring?.interval_count === 1

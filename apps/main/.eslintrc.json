@@ -72,7 +72,7 @@
     }],
     "@typescript-eslint/consistent-type-imports": "warn",
     "@typescript-eslint/no-non-null-assertion": "off",
-    "@typescript-eslint/no-unused-vars": ["warn", { "varsIgnorePattern": "^_" }],
+    "@typescript-eslint/no-unused-vars": ["warn", { "argsIgnorePattern": "^_" }],
     "@typescript-eslint/no-explicit-any": "off",
     "@typescript-eslint/explicit-function-return-type": "off",
     "@typescript-eslint/explicit-module-boundary-types": "off",
@@ -92,6 +92,15 @@
     }
   },
   "ignorePatterns": [
-    "node_modules/", "dist/", "public/", "jest.config.js", "jest.setup.js", "client.mjs", "server.mjs", "schema.mjs"
+    "node_modules/",
+    "dist/",
+    "public/",
+    "jest.config.js",
+    "jest.setup.js",
+    "client.mjs",
+    "server.mjs",
+    "schema.mjs",
+    "tailwind.config.js",
+    "postcss.config.js"
   ]
 }

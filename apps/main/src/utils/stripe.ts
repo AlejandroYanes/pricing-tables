@@ -1,6 +1,6 @@
 import { pick } from 'radash';
 import Stripe from 'stripe';
-import type { FormPrice, FormProduct } from 'models';
+import type { FormPrice, FormProduct } from '@dealo/models';
 
 export default function initStripe(apiKey: string) {
   return new Stripe(apiKey, {

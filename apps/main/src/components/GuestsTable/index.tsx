@@ -1,75 +1,84 @@
-import { createStyles, Group, Pagination, Select, Table, Text } from '@mantine/core';
-import dayjs from 'dayjs';
-import { calculateTotal } from 'helpers';
+'use client'
 
+import { useState } from 'react';
+import dayjs from 'dayjs';
+import {
+  Button,
+  Pagination,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@dealo/ui';
+
+import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
 
-interface Props {
-  page: number;
-  pageSize: number;
-  count: number;
-  data: { id: string; name: string; createdAt: Date; userId: string | null }[];
-  onPageChange: (nextPage: number) => void;
-  onPageSizeChange: (nextPageSize: number) => void;
-}
+const GuestsTable = () => {
+  const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
 
-const useStyles = createStyles((theme) => ({
-  footer: {
-    position: 'sticky',
-    bottom: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
-}));
+  const {
+    data: { results, count } = { results: [], count: 0 },
+    refetch,
+  } = trpc.widgets.listGuestWidgets.useQuery({ page, pageSize }, { keepPreviousData: true });
 
-const GuestsTable = (props: Props) => {
-  const { page, pageSize, count, data, onPageChange, onPageSizeChange } = props;
-  const { classes } = useStyles();
-
-  const rows = data.map((widget) => (
-    <tr key={widget.id}>
-      <td>
-        <Group spacing="sm">
-          <UserAvatar user={null} />
-          <div>
-            <Text size="sm" weight={500}>
-              {widget.name}
-            </Text>
-            <Text size="xs" color="dimmed">
-              {widget.userId}
-            </Text>
-          </div>
-        </Group>
-      </td>
-
-      <td>{dayjs(widget.createdAt).format('DD MMMM, YY')}</td>
-    </tr>
-  ));
+  const { mutate, isLoading } = trpc.widgets.deleteGuestWidgets.useMutation({
+    onSuccess: () => refetch(),
+  });
 
   return (
     <>
-      <Table verticalSpacing="sm" horizontalSpacing="lg">
-        <thead>
-          <tr>
-            <th>Widget</th>
-            <th style={{ width: '130px' }}>Created At</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
+      <div className="flex justify-end items-center mb-4">
+        <Button
+          variant="destructive"
+          onClick={() => mutate()}
+          disabled={isLoading}
+        >
+          Delete All
+        </Button>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Widget</TableHead>
+            <TableHead style={{ width: '130px' }}>Created At</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {results.map((widget) => (
+            <TableRow key={widget.id}>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <UserAvatar user={null} />
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold">
+                      {widget.name}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {widget.userId}
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+
+              <TableCell>{dayjs(widget.createdAt).format('DD MMMM, YY')}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
-      <Group position="apart" py="lg" className={classes.footer}>
-        <Select
-          defaultValue="25"
-          data={['5', '10', '25', '50', '100']}
-          onChange={(value) => onPageSizeChange(Number(value))}
-          style={{ width: 80 }}
-        />
+      <div className="flex items-center justify-between py-6 sticky bottom-0 bg-white">
+        <span className="text-sm font-medium">{`Total: ${count}`}</span>
         <Pagination
-          withEdges
-          value={page}
-          onChange={onPageChange}
-          total={calculateTotal(count, pageSize)}
+          page={page}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          total={count}
         />
-      </Group>
+      </div>
     </>
   );
 }

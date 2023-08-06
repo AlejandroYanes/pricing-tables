@@ -26,7 +26,7 @@ import { type Session } from 'next-auth';
  */
 import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
-import { ROLES } from 'models';
+import { ROLES } from '@dealo/models';
 
 import initStripe, { guestStripeKey } from 'utils/stripe';
 import { getServerAuthSession } from '../auth';

@@ -1,5 +1,5 @@
 import { create } from 'zustand'
-import type { WidgetFormState } from 'models';
+import type { WidgetFormState } from '@dealo/models';
 
 export const useWidgetFormStore = create<WidgetFormState>(() => ({
   products: [],

@@ -1,4 +1,4 @@
-import type { FeatureType } from 'models';
+import type { FeatureType } from '@dealo/models';
 
 import { useWidgetFormStore } from '../widget-state';
 

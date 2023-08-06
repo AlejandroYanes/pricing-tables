@@ -1,147 +1,144 @@
+'use client'
+
 import { useState } from 'react';
+import { IconAdjustments } from '@tabler/icons-react';
 import {
-  Badge,
-  Group,
-  Pagination,
-  Select,
-  Table,
-  Text,
-  TextInput,
-  createStyles,
+  RenderIf,
   Popover,
-  ActionIcon,
-  Stack,
-  Divider,
-  Radio,
-} from '@mantine/core';
-import { IconFilter } from '@tabler/icons';
-import { calculateTotal } from 'helpers';
-import { RenderIf } from 'ui';
-import { useDebouncedState } from '@mantine/hooks';
+  PopoverContent,
+  PopoverTrigger,
+  Button,
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Pagination,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Badge,
+} from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
-
-const useStyles = createStyles((theme) => ({
-  footer: {
-    position: 'sticky',
-    bottom: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
-}));
+import { useDebounce } from '../../utils/hooks/useDebounce';
 
 const UsersTable = () => {
-  const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [isSetup, setIsSetup] = useState<string>('all');
+  const [query, setQuery] = useState('');
+
+  const { debounceCall } = useDebounce(250);
 
   const {
     data: { results, count } = { results: [], count: 0 },
   } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
-  const { classes } = useStyles();
+
+  const handleSearch = (value: string) => {
+    debounceCall(() => setQuery(value));
+  }
 
   const handleFilterChange = (value: string) => {
     setIsSetup(value);
     setPage(1);
   };
 
-  const rows = results.map((user) => (
-    <tr key={user.id}>
-      <td>
-        <Group spacing="sm">
-          <UserAvatar user={user} />
-          <div>
-            <Text size="sm" weight={500}>
-              {user.name ?? 'Anonymous'}
-            </Text>
-            <Text size="xs" color="dimmed">
-              {user.email ?? 'no email'}
-            </Text>
-          </div>
-        </Group>
-      </td>
-
-      <td>
-        <RenderIf
-          condition={user.isSetup}
-          fallback={
-            <Badge color="orange">No</Badge>
-          }
-        >
-          <Badge color="green">Yes</Badge>
-        </RenderIf>
-      </td>
-
-      <td>{user.isSetup ? user._count.widgets : 'N/A'}</td>
-    </tr>
-  ));
-
   return (
     <>
-      <Group position="apart">
-        <TextInput
-          my="lg"
-          mr="auto"
-          defaultValue=""
+      <div className="flex justify-between items-center mb-4">
+        <Input
           placeholder="Search users"
-          sx={{ width: '280px' }}
-          onChange={(e) => setQuery(e.target.value)}
+          className="w-[280px]"
+          onChange={(e) => handleSearch(e.target.value)}
         />
-        <Popover width={200} position="bottom-end">
-          <Popover.Target>
-            <ActionIcon variant="filled" size="lg"><IconFilter /></ActionIcon>
-          </Popover.Target>
-
-          <Popover.Dropdown>
-            <Stack>
-              <Text size="sm" weight={500}>Filters</Text>
-              <Divider />
-              <Stack>
-                <Text size="sm" weight={500}>Is Setup</Text>
-                <Radio.Group
-                  name="status"
-                  value={isSetup}
-                  onChange={(value: string) => handleFilterChange(value)}
-                >
-                  <Stack spacing="xs">
-                    <Radio value="all" label="All" />
-                    <Radio value="yes" label="Yes" />
-                    <Radio value="no" label="No" />
-                  </Stack>
-                </Radio.Group>
-              </Stack>
-            </Stack>
-          </Popover.Dropdown>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost">
+              <IconAdjustments />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent align="end" className="w-[200px]">
+            <div className="flex flex-col gap-4">
+              <span className="text text-sm font-semibold">Is Setup</span>
+              <RadioGroup
+                name="status"
+                value={isSetup}
+                onValueChange={(value: string) => handleFilterChange(value)}
+              >
+                <div className="flex flex-col gap-2">
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="all" id="r1" />
+                    <Label htmlFor="r1">All</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="yes" id="r2" />
+                    <Label htmlFor="r2">Yes</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="no" id="r3" />
+                    <Label htmlFor="r3">No</Label>
+                  </div>
+                </div>
+              </RadioGroup>
+            </div>
+          </PopoverContent>
         </Popover>
-      </Group>
-      <Table verticalSpacing="sm" horizontalSpacing="lg">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th style={{ width: '100px' }}>Is Setup</th>
-            <th style={{ width: '130px' }}>Widgets</th>
-          </tr>
-        </thead>
-        <tbody>{rows}</tbody>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead style={{ width: '100px' }}>Is Setup</TableHead>
+            <TableHead style={{ width: '130px' }}>Widgets</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {results.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <UserAvatar user={user} />
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold">
+                      {user.name ?? 'Anonymous'}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {user.email ?? 'no email'}
+                    </span>
+                  </div>
+                </div>
+              </TableCell>
+
+              <TableCell>
+                <RenderIf
+                  condition={user.isSetup}
+                  fallback={
+                    <Badge variant="secondary">No</Badge>
+                  }
+                >
+                  <Badge variant="success">Yes</Badge>
+                </RenderIf>
+              </TableCell>
+
+              <TableCell>{user.isSetup ? user._count.widgets : 'N/A'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
-      <Group position="apart" py="lg" className={classes.footer}>
-        <Group align="center">
-          <Select
-            defaultValue="25"
-            data={['5', '10', '25', '50', '100']}
-            onChange={(value) => setPageSize(Number(value))}
-            style={{ width: 80 }}
-          />
-          <Text>{`Total: ${count}`}</Text>
-        </Group>
+      <div className="flex items-center justify-between py-6 sticky bottom-0 bg-white">
+        <span className="text-sm font-medium">{`Total: ${count}`}</span>
         <Pagination
-          withEdges
-          value={page}
-          onChange={setPage}
-          total={calculateTotal(count, pageSize)}
+          page={page}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          total={count}
         />
-      </Group>
+      </div>
     </>
   );
 }
