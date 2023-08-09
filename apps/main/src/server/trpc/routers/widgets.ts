@@ -50,6 +50,7 @@ export const widgetsRouter = createTRPCRouter({
         id: true,
         name: true,
         template: true,
+        color: true,
       },
     });
   }),

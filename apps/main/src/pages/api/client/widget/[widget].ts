@@ -144,6 +144,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
               productId: widgetProd.id,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
               mask: '',
+              isSelected: true,
               product: undefined as any,
             }),
           });

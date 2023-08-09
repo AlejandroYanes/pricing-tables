@@ -127,7 +127,21 @@ const FormPage = () => {
         <title>Dealo | Form</title>
       </Head>
       <BaseLayout showBackButton title={name}>
-        <MantineProvider theme={{ primaryColor: color, colorScheme: theme.colorScheme }}>
+        <MantineProvider
+          theme={{
+            // primaryColor: theme.colorScheme === 'dark' ? 'gray' : 'dark',
+            primaryColor: color,
+            colorScheme: theme.colorScheme,
+            // components: {
+            //   Button: {
+            //     defaultProps: {
+            //       color: 'dark',
+            //       variant: theme.colorScheme === 'dark' ? 'white' : 'filled',
+            //     },
+            //   },
+            // },
+          }}
+        >
           <Group
             mb="xl"
             pb="sm"
