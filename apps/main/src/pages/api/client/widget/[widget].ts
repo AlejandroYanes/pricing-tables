@@ -1,11 +1,34 @@
 /* eslint-disable max-len */
+import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from '@dealo/models';
+import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
+import { corsMiddleware } from 'utils/api';
 import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
-export async function getWidgetInfo(widgetId: string): Promise<ReducedWidgetInfo> {
+const inputSchema = z.object({
+  widget: z.string().cuid(),
+});
+
+async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (!inputSchema.safeParse(req.query).success) {
+    res.status(400).json({ error: 'Invalid widget parameter' });
+    return;
+  }
+
+  const { widget } = req.query;
+  const widgetData: WidgetInfo = await getWidgetData(widget as string);
+
+  const seconds = 60;
+  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
+  res.status(200).json(widgetData);
+}
+
+export default corsMiddleware(handler);
+
+async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   const db = initDb();
 
   const widgetFields = [
@@ -18,7 +41,6 @@ export async function getWidgetInfo(widgetId: string): Promise<ReducedWidgetInfo
     '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
     '`pricing-tables`.`PriceWidget`.`userId`',
   ];
-
   const widget = (
     await db.execute(`SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`, [widgetId])
   ).rows[0] as Widget;
@@ -121,8 +143,8 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
               id: widgetPrice.mask,
               productId: widgetProd.id,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
-              isSelected: true,
               mask: '',
+              isSelected: true,
               product: undefined as any,
             }),
           });
@@ -163,7 +185,7 @@ type Feature = { id: string; name: string; type: string; value: string; productI
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
 type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };
 
-export type ReducedWidgetInfo = {
+type WidgetInfo = {
   template: string;
   recommended: string | null;
   color: string;

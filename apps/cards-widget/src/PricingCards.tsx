@@ -81,7 +81,8 @@ const PricingCards = (props: Props) => {
 
   useEffect(() => {
     if (widget) {
-      const domain = import.meta.env.DEV ? 'http://localhost:3000' : 'https://dealo.app';
+      // const domain = import.meta.env.DEV ? 'http://localhost:3000' : 'https://dealo.app';
+      const domain = 'http://localhost:3000';
       const url = new URL(`${domain}/w/${widget}`);
       url.searchParams.set('theme', colorScheme);
       if (env) url.searchParams.set('env', env);
@@ -99,6 +100,7 @@ const PricingCards = (props: Props) => {
             const oldScriptPath = script.getAttribute('src');
             if (oldScriptPath && oldScriptPath.startsWith('/')) {
               script.setAttribute('src', `${domain}${oldScriptPath}`);
+              return fetch(`${domain}${oldScriptPath}`);
             }
           });
 
