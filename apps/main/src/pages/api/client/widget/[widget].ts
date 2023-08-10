@@ -143,6 +143,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
               id: widgetPrice.mask,
               productId: widgetProd.id,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
+              isSelected: true,
               mask: '',
               product: undefined as any,
             }),
