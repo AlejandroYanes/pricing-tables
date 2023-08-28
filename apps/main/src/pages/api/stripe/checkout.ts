@@ -3,7 +3,7 @@ import { z } from 'zod';
 
 import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
-import initStripe, { guestStripeKey } from 'utils/stripe';
+import initStripe from 'utils/stripe';
 
 type SessionQuery = {
   productId: string;
@@ -56,7 +56,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const { priceId, userId, successUrl, cancelUrl  } = sessionQuery;
 
     const isGuest = userId.startsWith('guest_');
-    let stripeKey = guestStripeKey;
+    let stripeKey = env.STRIPE_GUEST_KEY;
 
     if (!isGuest) {
       const user = (

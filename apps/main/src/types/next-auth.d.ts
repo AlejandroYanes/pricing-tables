@@ -10,6 +10,7 @@ declare module 'next-auth' {
       id: string;
       role: string | null;
       isSetup: boolean;
+      hasLegacySetup: boolean;
     } & DefaultSession['user'];
   }
 }
