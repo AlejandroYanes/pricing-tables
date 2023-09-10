@@ -4,9 +4,10 @@ import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from 'models';
 import { z } from 'zod';
 
+import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
-import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 const inputSchema = z.object({
   widget: z.string().cuid(),
@@ -66,7 +67,7 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
     await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
   ).rows[0] as { stripeKey: string; role: string };
 
-  const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
+  const stripeKey = !widgetUser ? env.STRIPE_GUEST_KEY : widgetUser.stripeKey;
   const stripe = initStripe(stripeKey);
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 

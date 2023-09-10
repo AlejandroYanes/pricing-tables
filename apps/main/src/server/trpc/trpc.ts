@@ -28,7 +28,8 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ROLES } from 'models';
 
-import initStripe, { guestStripeKey } from 'utils/stripe';
+import { env } from 'env/server.mjs';
+import initStripe from 'utils/stripe';
 import { getServerAuthSession } from '../auth';
 import { prisma } from '../db';
 
@@ -143,7 +144,8 @@ export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
       ctx: {
         // infers the `session` as non-nullable
         session: { ...ctx.session, user: ctx.session.user },
-        stripe: initStripe(guestStripeKey),
+        prisma: ctx.prisma,
+        stripe: initStripe(env.STRIPE_GUEST_KEY),
       },
     });
   }
@@ -160,6 +162,7 @@ export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: { ...ctx.session, user: ctx.session.user },
+      prisma: ctx.prisma,
       stripe: initStripe(data.stripeKey),
     },
   });

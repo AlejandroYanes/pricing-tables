@@ -2,6 +2,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
 import initDb from 'utils/planet-scale';
+import { notifyOfNewSetup } from 'utils/slack';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const event: Stripe.Event = req.body;
@@ -14,6 +15,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       await db.transaction(async (tx) => {
         await tx.execute('UPDATE `pricing-tables`.`User` SET `stripeConnected` = true, `stripeKey` = null WHERE `stripeAccount` = ?', [id]);
       });
+      const { name } = (
+        await db.execute('SELECT name FROM `pricing-tables`.`User` WHERE `stripeAccount` = ?', [id])
+      ).rows[0] as { name: string };
+      notifyOfNewSetup({ name });
     }
   }
 

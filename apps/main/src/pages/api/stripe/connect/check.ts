@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { env } from 'env/server.mjs';
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
+import { notifyOfNewSetup } from 'utils/slack';
 import { authOptions } from '../../auth/[...nextauth]';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -35,6 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     });
 
     res.status(200).json({ connected: true });
+    notifyOfNewSetup({ name: session.user.name! });
     return;
   }
 
