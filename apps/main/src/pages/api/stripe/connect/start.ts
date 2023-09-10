@@ -31,7 +31,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
     refresh_url: `${platformUrl}/api/stripe/connect/start`,
-    return_url: `${platformUrl}/stripe/return`,
+    return_url: `${platformUrl}/stripe/connect/return`,
     type: 'account_onboarding',
   });
 
