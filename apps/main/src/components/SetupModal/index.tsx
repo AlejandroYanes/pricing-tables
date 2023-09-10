@@ -1,14 +1,10 @@
 import { useSession } from 'next-auth/react';
 import { Button, Group, Loader, Modal, Stack, Text } from '@mantine/core';
 import { RenderIf } from 'ui';
-import { callAPI } from 'helpers';
+import Link from 'next/link';
 
 export default function SetupModal() {
   const { data, status: sessionStatus } = useSession();
-
-  const initiateOnboarding = () => {
-    return callAPI({ url: '/api/stripe/connect/start' });
-  };
 
   if (sessionStatus === 'loading') {
     return (
@@ -65,7 +61,7 @@ export default function SetupModal() {
     >
       <RenderIf condition={hasLegacySetup}>
         <Text>
-          We are updating the way you connect to your Stripe account. <br/>
+          We are updating the way we connect to your Stripe account. <br/>
           We are moving to a more secure way, which basically means that we will no longer require knowing your Stripe key.
           For this to work we need you to complete a few steps, this time within Stripe.
           After you complete the steps, we will remove your Stripe key from our database.
@@ -73,13 +69,15 @@ export default function SetupModal() {
       </RenderIf>
       <RenderIf condition={!hasLegacySetup && !isSetup}>
         <Text>
-          Welcome, as a final step we need you to connect your Stripe account to our app.
+          Welcome, as a final step we need you to connect your Stripe account to our platform.
           We will redirect you to Stripe, where you will be asked to complete a series of steps.
           After that you will be free to use our app.
         </Text>
       </RenderIf>
-      <Group position="right" mt="md" onClick={initiateOnboarding}>
-        <Button>Proceed</Button>
+      <Group position="right" mt="md">
+        <Link href="/api/stripe/connect/start">
+          <Button>Proceed</Button>
+        </Link>
       </Group>
     </Modal>
   );

@@ -122,6 +122,7 @@ model User {
     image           String?
     stripeKey       String?
     stripeAccount   String?
+    stripeConnected Boolean   @default(false)
     role            String?    @default("USER")
     accounts        Account[]
     sessions        Session[]

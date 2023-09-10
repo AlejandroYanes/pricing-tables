@@ -4,6 +4,7 @@ import { getServerSession } from 'next-auth';
 import { env } from 'env/server.mjs';
 import { authMiddleware } from 'utils/api';
 import initStripe from 'utils/stripe';
+import initDb from 'utils/planet-scale';
 import { authOptions } from '../../auth/[...nextauth]';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
@@ -20,11 +21,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     type: 'standard',
   });
 
+  const db = initDb();
+
+  await db.transaction(async (tx) => {
+    await tx.execute( 'UPDATE `pricing-tables`.`User` SET `stripeAccount` = ? WHERE `id` = ?', [account.id, session.user!.id]);
+  });
+
   const platformUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
   const accountLink = await stripe.accountLinks.create({
     account: account.id,
     refresh_url: `${platformUrl}/api/stripe/connect/start`,
-    return_url: `${platformUrl}/stripe/connect/return`,
+    return_url: `${platformUrl}/stripe/return`,
     type: 'account_onboarding',
   });
 
