@@ -21,14 +21,15 @@ export const authOptions: NextAuthOptions = {
         // eslint-disable-next-line max-len
         const dbUser = (
           // eslint-disable-next-line max-len
-          await db.execute('SELECT `User`.id, `User`.stripeKey, `User`.stripeAccount, `User`.`role` FROM `pricing-tables`.User WHERE id = ?', [token.sub!])
-        ).rows[0] as { id: string; stripeKey: string; stripeAccount: string; role: string };
+          await db.execute('SELECT `User`.id, `User`.stripeKey, `User`.stripeConnected, `User`.`role` FROM `pricing-tables`.User WHERE id = ?', [token.sub!])
+        ).rows[0] as { id: string; stripeKey: string; stripeConnected: boolean; role: string };
 
         if (!dbUser) {
           session.user.isSetup = true;
           session.user.role = 'GUEST';
         } else {
-          session.user.isSetup = !!dbUser.stripeAccount;
+          // noinspection PointlessBooleanExpressionJS
+          session.user.isSetup = !!dbUser.stripeConnected;
           session.user.hasLegacySetup = !!dbUser.stripeKey;
           session.user.role = dbUser.role;
         }
