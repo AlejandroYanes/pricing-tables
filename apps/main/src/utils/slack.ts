@@ -22,7 +22,7 @@ export function notifyOfNewSignup(data: Payload) {
 
 export function notifyOfNewSetup(data: Payload) {
   return sendNotification({
-    text: `A user just setup his account:\n*${data.name}*\n`,
+    text: `A user just setup his account:\n*${data.name}*\n (With New Setup)`,
   });
 }
 

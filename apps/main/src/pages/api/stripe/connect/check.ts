@@ -18,12 +18,17 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const stripe = initStripe(env.STRIPE_SECRET_KEY);
   const db = initDb();
 
-  const { stripeAccount } = (
-    await db.execute('SELECT stripeAccount FROM `pricing-tables`.`User` WHERE `id` = ?', [session.user.id])
-  ).rows[0] as { stripeAccount: string };
+  const { stripeAccount, stripeConnected } = (
+    await db.execute('SELECT stripeAccount, stripeConnected FROM `pricing-tables`.`User` WHERE `id` = ?', [session.user.id])
+  ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
   if (!stripeAccount) {
     res.status(200).json({ connected: false });
+    return;
+  }
+
+  if (stripeConnected) {
+    res.status(200).json({ connected: true });
     return;
   }
 
