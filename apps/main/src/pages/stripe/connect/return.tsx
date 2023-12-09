@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { useRouter } from 'next/router';
 import { Button, Loader, Stack, Text } from '@mantine/core';
 import { RenderIf } from 'ui';
 
@@ -12,7 +11,6 @@ type Status = 'pending' | 'success' | 'incomplete' | 'failed';
 
 const ReturnPage = () => {
   const { status: sessionStatus, data } = useSession();
-  const router = useRouter();
 
   const [status, setStatus] = useState<Status>('pending');
   const abortRef = useRef<AbortController | undefined>(undefined);
@@ -31,7 +29,8 @@ const ReturnPage = () => {
       if (data?.connected === true) {
         setStatus('success');
         setTimeout(() => {
-          router.push('/dashboard');
+          const platformUrl = window.location.origin;
+          window.location.href = `${platformUrl}/dashboard`;
         }, 1000);
       } else {
         setStatus('incomplete');
