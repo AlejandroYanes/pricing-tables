@@ -3,7 +3,7 @@
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+    previewFeatures = []
 }
 
 datasource db {
@@ -27,7 +27,7 @@ model PriceWidget {
     createdAt           DateTime      @default(now())
     products            Product[]
     callbacks           Callback[]
-    userId              String?
+    userId              String
     user                User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -118,9 +118,11 @@ model User {
     id              String    @id @default(cuid())
     name            String?
     email           String?   @unique
-    emailVerified   DateTime?
+    emailVerified    DateTime?
     image           String?
     stripeKey       String?
+    stripeAccount   String?
+    stripeConnected Boolean   @default(false)
     role            String?    @default("USER")
     accounts        Account[]
     sessions        Session[]

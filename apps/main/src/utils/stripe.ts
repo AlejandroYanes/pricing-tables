@@ -2,13 +2,14 @@ import { pick } from 'radash';
 import Stripe from 'stripe';
 import type { FormPrice, FormProduct } from 'models';
 
-export default function initStripe(apiKey: string) {
-  return new Stripe(apiKey, {
-    apiVersion: '2022-11-15',
+import { env } from 'env/server.mjs';
+
+export const STRIPE_API_VERSION = '2022-11-15';
+export default function initStripe() {
+  return new Stripe(env.STRIPE_SECRET_KEY, {
+    apiVersion: STRIPE_API_VERSION,
   });
 }
-
-export const guestStripeKey = 'sk_test_51MgxvIJIZhxRN8vV5sWzNgHYLINskNmKeKzzhROJScoVBeuiRmovr14TjysgTfIrOOqhK1c2anQBjtkkZIsuj3qu00hyBA6DUu'
 
 export function reduceStripeProduct(product: Stripe.Product) {
   return pick(product, ['id', 'name', 'description', 'default_price', 'active']) as FormProduct;

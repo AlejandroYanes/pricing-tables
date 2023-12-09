@@ -1,39 +1,38 @@
 import { z } from 'zod';
 
-import { notifyOfDeletedAccount, notifyOfNewSetup } from 'utils/slack';
-import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
+import { notifyOfDeletedAccount } from 'utils/slack';
+import { adminProcedure, createTRPCRouter, stripeProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
-  setup: protectedProcedure.input(z.string()).mutation(async ({ input: apiKey, ctx }) => {
-    await ctx.prisma.user.update({
-      where: {
-        id: ctx.session.user.id,
-      },
-      data: {
-        stripeKey: apiKey,
-      },
-    });
-    notifyOfNewSetup({ name: ctx.session.user.name! });
-  }),
-
   listUsers: adminProcedure
     .input(z.object({
       page: z.number().min(1),
       pageSize: z.number(),
       query: z.string().nullish(),
-      isSetup: z.enum(['all', 'yes', 'no']),
+      isSetup: z.enum(['yes', 'no']).nullish(),
+      hasLegacy: z.enum(['yes', 'no']).nullish(),
     }))
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, query, isSetup } = input;
+      const { page, pageSize, query, isSetup, hasLegacy } = input;
 
       let setupQuery = {};
       let searchQuery = {};
 
       if (isSetup === 'yes') {
         setupQuery = {
-          stripeKey: { not: null },
+          stripeConnected: true,
         };
       } else if (isSetup === 'no') {
+        setupQuery = {
+          stripeConnected: false,
+        };
+      }
+
+      if (hasLegacy === 'yes') {
+        setupQuery = {
+          stripeKey: { not: null },
+        };
+      } else if (hasLegacy === 'no') {
         setupQuery = {
           stripeKey: null,
         };
@@ -58,6 +57,7 @@ export const userRouter = createTRPCRouter({
         email: true,
         image: true,
         stripeKey: true,
+        stripeConnected: true,
         _count: {
           select: {
             widgets: true,
@@ -73,7 +73,8 @@ export const userRouter = createTRPCRouter({
       })).map((res) => ({
         ...res,
         stripeKey: undefined,
-        isSetup: !!res.stripeKey,
+        isSetup: !!res.stripeConnected,
+        hasLegacy: !!res.stripeKey,
       }));
       const count = await ctx.prisma.user.count({
         where: whereQuery,
@@ -81,14 +82,23 @@ export const userRouter = createTRPCRouter({
       return { results, count };
     }),
 
-  deleteAccount: protectedProcedure
+  deleteAccount: stripeProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
+      const { stripeAccount } = (await ctx.prisma.user.findFirst({
+        where: {
+          id: user.id,
+        },
+        select: {
+          stripeAccount: true,
+        },
+      }))!;
       await ctx.prisma.user.delete({
         where: {
           id: user.id,
         },
       });
-      notifyOfDeletedAccount({ name: user.name! });
+      await ctx.stripe.accounts.del(stripeAccount!);
+      await notifyOfDeletedAccount({ name: user.name! });
     }),
 });

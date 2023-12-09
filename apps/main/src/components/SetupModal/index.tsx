@@ -1,77 +1,45 @@
-import { useState } from 'react';
-import Stripe from 'stripe';
-import { Alert, Anchor, Button, Group, Modal, Text, TextInput } from '@mantine/core';
-import { Prism } from '@mantine/prism';
-import { showNotification } from '@mantine/notifications';
-import { IconAlertCircle } from '@tabler/icons';
+import { useSession } from 'next-auth/react';
+import { Button, Group, Loader, Modal, Stack, Text } from '@mantine/core';
 import { RenderIf } from 'ui';
-
-import { trpc } from 'utils/trpc';
-import { guestStripeKey } from 'utils/stripe';
-
-type Status = 'input' | 'empty' | 'list';
+import Link from 'next/link';
 
 export default function SetupModal() {
-  const [open, setOpen] = useState<boolean>(true);
-  const [apiKey, setApiKey] = useState<string>('');
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<boolean>(false);
-  const [status, setStatus] = useState<Status>('input');
-  const [products, setProducts] = useState<Stripe.Product[]>([]);
+  const { data, status: sessionStatus } = useSession();
 
-  const { mutate } = trpc.user.setup.useMutation({
-    onSuccess: () => window.location.reload(),
-  });
-
-  const handleSetup = async () => {
-    try {
-      setLoading(true);
-      const stripeClient = new Stripe(apiKey, {
-        apiVersion: '2022-11-15',
-      });
-      const response = await stripeClient.products.list({
-        active: true,
-        limit: 5,
-      });
-      if (response.data.length === 0) {
-        setStatus('empty');
-        setLoading(false);
-        return;
-      }
-      setProducts(response.data);
-      setStatus('list');
-      setLoading(false);
-    } catch (error) {
-      console.log(error);
-      setError(true);
-      setLoading(false);
-    }
+  if (sessionStatus === 'loading') {
+    return (
+      <Modal
+        opened
+        closeOnEscape={false}
+        closeOnClickOutside={false}
+        onClose={() => undefined}
+        title={<Text size="lg" weight="bold">Just a moment please.</Text>}
+      >
+        <Stack align="center" justify="center" py="md">
+          <Loader />
+        </Stack>
+      </Modal>
+    );
   }
 
-  const handleReset = () => {
-    setStatus('input');
-    setProducts([]);
-    setApiKey('');
-    setError(false);
-    setLoading(false);
+  if (!data?.user) {
+    return (
+      <Modal
+        opened
+        closeOnEscape={false}
+        closeOnClickOutside={false}
+        onClose={() => undefined}
+        title={<Text size="lg" weight="bold">Hi there</Text>}
+      >
+        <Text>
+          Something is wrong with your session, please reload the page and make sure you are signed in.
+          If the problem persists, please contact us.
+        </Text>
+      </Modal>
+    );
   }
 
-  const handleCancel = () => {
-    setStatus('input');
-    setProducts([]);
-    setApiKey('');
-  };
-
-  const handleConfirm = async () => {
-    setLoading(true);
-    await mutate(apiKey);
-    showNotification({
-      message:'Hooray! Your account is now setup.'
-    });
-    setOpen(false);
-  };
-
-  if (!open) return null;
+  const { user: { isSetup, hasLegacySetup } } = data;
 
   return (
     <Modal
@@ -80,7 +48,7 @@ export default function SetupModal() {
       size="lg"
       styles={{
         body: {
-          minHeight: '260px',
+          // minHeight: '260px',
           display: 'flex',
           flexDirection: 'column',
         },
@@ -91,50 +59,26 @@ export default function SetupModal() {
       onClose={() => undefined}
       title={<Text size="lg" weight="bold">Hi there</Text>}
     >
-      <RenderIf condition={status === 'input'}>
+      <RenderIf condition={hasLegacySetup}>
         <Text>
-          In order to help you, we need to be able to connect to your Stripe account to read your products and prices,
-          {` don't`} worry, we {`won't`} create anything, just read, we promise 🤞.
-          If you {`don't`} know how to get your API key, you can read about it {' '}
-          <Anchor href="https://stripe.com/docs/keys" target="_blank">on the Stripe docs</Anchor>.
+          We are updating the way we connect to your Stripe account. <br/>
+          We are moving to a more secure way, which basically means that we will no longer require knowing your Stripe key.
+          For this to work we need you to complete a few steps, this time within Stripe.
+          After you complete the steps, we will remove your Stripe key from our database.
         </Text>
-        <Text mt="sm">If you do not have a Stripe key but still want to test, {`here's`} one from us:</Text>
-        <Prism language="markup">
-          {guestStripeKey}
-        </Prism>
-        <TextInput autoFocus my="xl" label="Stripe API Key" value={apiKey} onChange={(e) => setApiKey(e.target.value)} />
-        <RenderIf condition={error}>
-          <Alert my="md" icon={<IconAlertCircle size="1rem" />} color="red" variant="outline">
-            Seems like we {`couldn't`} connect to your Stripe account,
-            please try again and make sure you are using the correct API key.
-          </Alert>
-        </RenderIf>
-        <Group mt="xl" position="right">
-          <Button loading={loading} onClick={handleSetup}>Test connection</Button>
-        </Group>
       </RenderIf>
-      <RenderIf condition={status === 'empty'}>
+      <RenderIf condition={!hasLegacySetup && !isSetup}>
         <Text>
-          We {`couldn't`} find any products in your Stripe account, please make sure you have at least one product.
+          Welcome, as a final step we need you to connect your Stripe account to our platform.
+          We will redirect you to Stripe, where you will be asked to complete a series of steps.
+          After that you will be free to use our app.
         </Text>
-        <Group mt="auto" position="right">
-          <Button onClick={handleReset}>Try another account</Button>
-        </Group>
       </RenderIf>
-      <RenderIf condition={status === 'list'} >
-        <Text mt="xl">Do you recognise these products?</Text>
-        <ul>
-          {products.map((product) => (
-            <li key={product.id}>
-              {product.name}
-            </li>
-          ))}
-        </ul>
-        <Group mt="xl" position="right">
-          <Button onClick={handleCancel} variant="outline" color="gray">No</Button>
-          <Button onClick={handleConfirm} loading={loading}>Yes</Button>
-        </Group>
-      </RenderIf>
+      <Group position="right" mt="md">
+        <Link href="/api/stripe/connect/start">
+          <Button>Proceed</Button>
+        </Link>
+      </Group>
     </Modal>
   );
 }

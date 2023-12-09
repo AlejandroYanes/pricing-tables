@@ -6,7 +6,7 @@ import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
-import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 const inputSchema = z.object({
   widget: z.string().cuid(),
@@ -66,11 +66,10 @@ async function getWidgetData(widgetId: string) {
     : [];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
-  ).rows[0] as { stripeKey: string; role: string };
+    await db.execute('SELECT `pricing-tables`.`User`.`stripeAccount` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
+  ).rows[0] as { stripeAccount: string; role: string };
 
-  const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
-  const stripe = initStripe(stripeKey);
+  const stripe = initStripe();
 
   return {
     id: widget.id,
@@ -84,17 +83,17 @@ async function getWidgetData(widgetId: string) {
     unitLabel: widget.unitLabel,
     successUrl: widget.checkoutSuccessUrl,
     cancelUrl: widget.checkoutCancelUrl,
-    products: await normaliseProducts(stripe, products, prices),
+    products: await normaliseProducts(stripe, widgetUser.stripeAccount, products, prices),
     features: normaliseFeatures(features, products),
   };
 }
 
-async function normaliseProducts(stripe: Stripe, products: Product[], prices: Price[]) {
+async function normaliseProducts(stripe: Stripe, stripeAccount: string, products: Product[], prices: Price[]) {
   if (products!.length > 0) {
     const stripeProducts: FormProduct[] = (
       await stripe.products.list({
         ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
@@ -103,7 +102,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
         query: `${pricesQuery}`,
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripePrice);
 
     const finalProducts: FormProduct[] = [];

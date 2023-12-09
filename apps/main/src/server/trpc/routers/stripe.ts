@@ -7,8 +7,8 @@ export const stripeRouter = createTRPCRouter({
   list: stripeProcedure.input(z.string().nullish()).query(async ({ ctx, input }) => {
 
     const promise = !!input
-      ? ctx.stripe.products.search({ limit: 10, query: `active:"true" AND name~"${input}"` })
-      : ctx.stripe.products.list({ active: true, limit: 10 });
+      ? ctx.stripe.products.search({ limit: 10, query: `active:"true" AND name~"${input}"` }, { stripeAccount: ctx.stripeAccount })
+      : ctx.stripe.products.list({ active: true, limit: 10 }, { stripeAccount: ctx.stripeAccount });
 
     const products = (await promise).data.map(reduceStripeProduct);
 
@@ -19,7 +19,7 @@ export const stripeRouter = createTRPCRouter({
           query: `${pricesQuery}`,
           expand: ['data.currency_options'],
           limit: 50,
-        })
+        }, { stripeAccount: ctx.stripeAccount })
       ).data.map(reduceStripePrice);
 
       for (const price of prices) {

@@ -28,7 +28,7 @@ import { initTRPC, TRPCError } from '@trpc/server';
 import superjson from 'superjson';
 import { ROLES } from 'models';
 
-import initStripe, { guestStripeKey } from 'utils/stripe';
+import initStripe from 'utils/stripe';
 import { getServerAuthSession } from '../auth';
 import { prisma } from '../db';
 
@@ -89,7 +89,7 @@ const t = initTRPC.context<typeof createTRPCContext>().create({
 export const createTRPCRouter = t.router;
 
 /**
- * Public (unauthed) procedure
+ * Public (un-authed) procedure
  *
  * This is the base piece you use to build new queries and mutations on your
  * tRPC API. It does not guarantee that a user querying is authorized, but you
@@ -137,22 +137,11 @@ export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
 });
 
 export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
-  // to be removed when the guest role is removed
-  if (ctx.session.user.role === ROLES.GUEST) {
-    return next({
-      ctx: {
-        // infers the `session` as non-nullable
-        session: { ...ctx.session, user: ctx.session.user },
-        stripe: initStripe(guestStripeKey),
-      },
-    });
-  }
-
   const data = await ctx.prisma.user.findUnique({
     where: { id: ctx.session?.user?.id },
-    select: { stripeKey: true },
+    select: { stripeAccount: true },
   });
-  if (!data || !data.stripeKey) {
+  if (!data || !data.stripeAccount) {
     throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
   }
 
@@ -160,7 +149,9 @@ export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     ctx: {
       // infers the `session` as non-nullable
       session: { ...ctx.session, user: ctx.session.user },
-      stripe: initStripe(data.stripeKey),
+      prisma: ctx.prisma,
+      stripe: initStripe(),
+      stripeAccount: data.stripeAccount,
     },
   });
 });
