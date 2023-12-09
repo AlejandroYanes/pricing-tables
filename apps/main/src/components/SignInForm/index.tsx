@@ -1,6 +1,6 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
-import { Button, Divider, Stack, Text, Title } from '@mantine/core';
+import { Stack, Title } from '@mantine/core';
 
 import { GoogleButton } from 'components/SocialButtons';
 import { GithubButton } from '../SocialButtons/GitHibButton';
@@ -30,15 +30,6 @@ const SignInForm = () => {
       <GithubButton onClick={() => handleSignIn('github')} />
       <DiscordButton onClick={() => handleSignIn('discord')} />
       <GoogleButton onClick={() => handleSignIn('google')} />
-      {/* TODO: to be deleted once the guess user is safely not in use */}
-      {/*<Divider my="md" label="OR" labelPosition="center" />*/}
-      {/*<Button variant="default" onClick={() => handleSignIn('credentials')}>*/}
-      {/*  Try as a Guest*/}
-      {/*</Button>*/}
-      {/*<Text size="sm">*/}
-      {/*  When trying as a <strong>Guest</strong> anything you create will be deleted in 5 days.*/}
-      {/*  This is done to prevent abuse of the service. Also, when signing out you will lose access to all you may have created.*/}
-      {/*</Text>*/}
     </Stack>
   );
 };
