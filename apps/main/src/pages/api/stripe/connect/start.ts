@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import { authMiddleware } from 'utils/api';
@@ -16,26 +17,52 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   const stripe = initStripe();
-
-  const account = await stripe.accounts.create({
-    type: 'standard',
-  });
-
   const db = initDb();
+  const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
-  await db.transaction(async (tx) => {
-    await tx.execute( 'UPDATE `pricing-tables`.`User` SET `stripeAccount` = ? WHERE `id` = ?', [account.id, session.user!.id]);
-  });
+  const { stripeAccount, stripeConnected } = (
+    await db.execute('SELECT stripeAccount, stripeConnected FROM `pricing-tables`.`User` WHERE `id` = ?', [session.user.id])
+  ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
-  const platformUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
+  if (!stripeAccount) {
+    const newAccount = await stripe.accounts.create({
+      type: 'standard',
+    });
+
+    await db.transaction(async (tx) => {
+      await tx.execute( 'UPDATE `pricing-tables`.`User` SET `stripeAccount` = ? WHERE `id` = ?', [newAccount.id, session.user!.id]);
+    });
+
+    const accountLinkUrl = await generateStripeAccountLink(stripe, newAccount.id, platformUrl);
+    res.redirect(303, accountLinkUrl);
+    return;
+  }
+
+  if (stripeConnected) {
+    res.redirect(303, `${platformUrl}/stripe/connect/return`);
+    return;
+  }
+
+  const account = await stripe.accounts.retrieve(stripeAccount);
+
+  if (account.charges_enabled) {
+    res.redirect(303, `${platformUrl}/stripe/connect/return`);
+    return;
+  }
+
+  const accountLinkUrl = await generateStripeAccountLink(stripe, stripeAccount, platformUrl);
+  res.redirect(303, accountLinkUrl);
+}
+
+export default authMiddleware(handler);
+
+const generateStripeAccountLink = async (stripe: Stripe, accountId: string, platformUrl: string) => {
   const accountLink = await stripe.accountLinks.create({
-    account: account.id,
+    account: accountId,
     refresh_url: `${platformUrl}/api/stripe/connect/start`,
     return_url: `${platformUrl}/stripe/connect/return`,
     type: 'account_onboarding',
   });
 
-  res.redirect(303, accountLink.url);
-}
-
-export default authMiddleware(handler);
+  return accountLink.url;
+};

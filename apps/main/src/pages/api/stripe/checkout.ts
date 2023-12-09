@@ -30,8 +30,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     res.status(400).json({ error: parsedBody.error });
     return;
   }
-
-  const fallbackUrl = process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : env.NEXTAUTH_URL;
+  const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
   const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type, email, currency } = parsedBody.data;
   const db = initDb();
@@ -65,8 +64,8 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
     const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=cancelled` : undefined;
 
-    const fallbackSuccessUrl = `${fallbackUrl}/checkout/success`;
-    const fallbackCancelUrl = `${fallbackUrl}/checkout/cancelled`;
+    const fallbackSuccessUrl = `${platformUrl}/checkout/success`;
+    const fallbackCancelUrl = `${platformUrl}/checkout/cancelled`;
 
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
@@ -88,12 +87,12 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     }, { stripeAccount: user.stripeAccount });
 
     if (!checkoutSession.url) {
-      res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
+      res.redirect(303, `${platformUrl}/checkout/error?status=checkout_session_url_not_found`);
       return;
     }
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
-    res.redirect(303, `${fallbackUrl}/checkout/error?status=internal_error`);
+    res.redirect(303, `${platformUrl}/checkout/error?status=internal_error`);
   }
 }
