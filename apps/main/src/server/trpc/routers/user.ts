@@ -9,19 +9,30 @@ export const userRouter = createTRPCRouter({
       page: z.number().min(1),
       pageSize: z.number(),
       query: z.string().nullish(),
-      isSetup: z.enum(['all', 'yes', 'no']),
+      isSetup: z.enum(['yes', 'no']).nullish(),
+      hasLegacy: z.enum(['yes', 'no']).nullish(),
     }))
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, query, isSetup } = input;
+      const { page, pageSize, query, isSetup, hasLegacy } = input;
 
       let setupQuery = {};
       let searchQuery = {};
 
       if (isSetup === 'yes') {
         setupQuery = {
-          stripeKey: { not: null },
+          stripeConnected: true,
         };
       } else if (isSetup === 'no') {
+        setupQuery = {
+          stripeConnected: false,
+        };
+      }
+
+      if (hasLegacy === 'yes') {
+        setupQuery = {
+          stripeKey: { not: null },
+        };
+      } else if (hasLegacy === 'no') {
         setupQuery = {
           stripeKey: null,
         };
@@ -46,6 +57,7 @@ export const userRouter = createTRPCRouter({
         email: true,
         image: true,
         stripeKey: true,
+        stripeConnected: true,
         _count: {
           select: {
             widgets: true,
@@ -61,7 +73,8 @@ export const userRouter = createTRPCRouter({
       })).map((res) => ({
         ...res,
         stripeKey: undefined,
-        isSetup: !!res.stripeKey,
+        isSetup: !!res.stripeConnected,
+        hasLegacy: !!res.stripeKey,
       }));
       const count = await ctx.prisma.user.count({
         where: whereQuery,

@@ -11,10 +11,10 @@ import {
   Popover,
   ActionIcon,
   Stack,
-  Divider,
   Radio,
+  Button,
 } from '@mantine/core';
-import { IconFilter } from '@tabler/icons';
+import { IconAdjustmentsAlt } from '@tabler/icons';
 import { calculateTotal } from 'helpers';
 import { RenderIf } from 'ui';
 import { useDebouncedState } from '@mantine/hooks';
@@ -34,48 +34,48 @@ const UsersTable = () => {
   const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [isSetup, setIsSetup] = useState<string>('all');
+  const [isSetup, setIsSetup] = useState<string | undefined>();
+  const [hasLegacy, setHasLegacy] = useState<string | undefined>('yes');
 
   const {
     data: { results, count } = { results: [], count: 0 },
-  } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
+  } = trpc.user.listUsers.useQuery(
+    { query, page, pageSize, isSetup: isSetup as any, hasLegacy: hasLegacy as any },
+    { keepPreviousData: true },
+  );
   const { classes } = useStyles();
 
   const handleFilterChange = (value: string) => {
-    setIsSetup(value);
+    const [filter, filterValue] = value.split('-');
+
+    if (filter === 'setup') {
+      setIsSetup(filterValue);
+      setHasLegacy(undefined);
+    } else {
+      setHasLegacy(filterValue);
+      setIsSetup(undefined);
+    }
+
     setPage(1);
   };
 
-  const rows = results.map((user) => (
-    <tr key={user.id}>
-      <td>
-        <Group spacing="sm">
-          <UserAvatar user={user} />
-          <div>
-            <Text size="sm" weight={500}>
-              {user.name ?? 'Anonymous'}
-            </Text>
-            <Text size="xs" color="dimmed">
-              {user.email ?? 'no email'}
-            </Text>
-          </div>
-        </Group>
-      </td>
+  const clearFilters = () => {
+    setIsSetup(undefined);
+    setHasLegacy(undefined);
+    setPage(1);
+  };
 
-      <td>
-        <RenderIf
-          condition={user.isSetup}
-          fallback={
-            <Badge color="orange">No</Badge>
-          }
-        >
-          <Badge color="green">Yes</Badge>
-        </RenderIf>
-      </td>
+  const resolveStatusFilter = () => {
+    if (isSetup) {
+      return isSetup === 'yes' ? 'setup-yes' : 'setup-no';
+    }
 
-      <td>{user.isSetup ? user._count.widgets : 'N/A'}</td>
-    </tr>
-  ));
+    if (hasLegacy) {
+      return hasLegacy === 'yes' ? 'legacy-yes' : 'legacy-no';
+    }
+
+    return undefined;
+  };
 
   return (
     <>
@@ -90,28 +90,29 @@ const UsersTable = () => {
         />
         <Popover width={200} position="bottom-end">
           <Popover.Target>
-            <ActionIcon variant="filled" size="lg"><IconFilter /></ActionIcon>
+            <ActionIcon variant="filled" size="lg"><IconAdjustmentsAlt stroke={1} /></ActionIcon>
           </Popover.Target>
 
           <Popover.Dropdown>
             <Stack>
-              <Text size="sm" weight={500}>Filters</Text>
-              <Divider />
-              <Stack>
-                <Text size="sm" weight={500}>Is Setup</Text>
-                <Radio.Group
-                  name="status"
-                  value={isSetup}
-                  onChange={(value: string) => handleFilterChange(value)}
-                >
-                  <Stack spacing="xs">
-                    <Radio value="all" label="All" />
-                    <Radio value="yes" label="Yes" />
-                    <Radio value="no" label="No" />
-                  </Stack>
-                </Radio.Group>
-              </Stack>
+              <Radio.Group
+                name="has-setup"
+                value={resolveStatusFilter()}
+                onChange={(value: string) => handleFilterChange(value)}
+              >
+                <Stack spacing="xs">
+                  <Text size="sm" weight={500}>Is Setup</Text>
+                  <Radio value="setup-yes" label="Yes" />
+                  <Radio value="setup-no" label="No" />
+                  <Text size="sm" weight={500}>Has legacy setup</Text>
+                  <Radio value="legacy-yes" label="Yes" />
+                  <Radio value="legacy-no" label="No" />
+                </Stack>
+              </Radio.Group>
             </Stack>
+            <Group position="right" mt="sm">
+              <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
+            </Group>
           </Popover.Dropdown>
         </Popover>
       </Group>
@@ -120,10 +121,52 @@ const UsersTable = () => {
           <tr>
             <th>User</th>
             <th style={{ width: '100px' }}>Is Setup</th>
+            <th style={{ width: '100px' }}>Legacy</th>
             <th style={{ width: '130px' }}>Widgets</th>
           </tr>
         </thead>
-        <tbody>{rows}</tbody>
+        <tbody>{results.map((user) => (
+          <tr key={user.id}>
+            <td>
+              <Group spacing="sm">
+                <UserAvatar user={user}/>
+                <div>
+                  <Text size="sm" weight={500}>
+                    {user.name ?? 'Anonymous'}
+                  </Text>
+                  <Text size="xs" color="dimmed">
+                    {user.email ?? 'no email'}
+                  </Text>
+                </div>
+              </Group>
+            </td>
+
+            <td>
+              <RenderIf
+                condition={user.isSetup}
+                fallback={
+                  <Badge color="orange">No</Badge>
+                }
+              >
+                <Badge color="green">Yes</Badge>
+              </RenderIf>
+            </td>
+
+            <td>
+              <RenderIf
+                condition={user.hasLegacy}
+                fallback={
+                  <Badge color="orange">No</Badge>
+                }
+              >
+                <Badge color="green">Yes</Badge>
+              </RenderIf>
+            </td>
+
+            <td>{user.isSetup ? user._count.widgets : 'N/A'}</td>
+          </tr>
+        ))}
+        </tbody>
       </Table>
       <Group position="apart" py="lg" className={classes.footer}>
         <Group align="center">

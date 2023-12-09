@@ -15,7 +15,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const stripe = initStripe(env.STRIPE_SECRET_KEY);
+  const stripe = initStripe();
 
   const account = await stripe.accounts.create({
     type: 'standard',

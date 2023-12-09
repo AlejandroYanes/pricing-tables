@@ -1,52 +1,28 @@
+/* eslint-disable max-len */
 import NextAuth, { type NextAuthOptions } from 'next-auth';
 import GoogleProvider from 'next-auth/providers/google';
 import GithubProvider from 'next-auth/providers/github';
 import DiscordProvider from 'next-auth/providers/discord';
-import CredentialsProvider from 'next-auth/providers/credentials';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import { createId } from '@paralleldrive/cuid2';
 
 import { env } from 'env/server.mjs';
 import { prisma } from 'server/db';
-import initDb from 'utils/planet-scale';
 
 export const authOptions: NextAuthOptions = {
   callbacks: {
     // Include user.id on session
-    async session({ session, token }) {
+    async session({ session, user }) {
       if (session.user) {
-        // to be removed once the guest role is removed
-        session.user.id = token.sub!;
-        const db = initDb();
-        // eslint-disable-next-line max-len
-        const dbUser = (
-          // eslint-disable-next-line max-len
-          await db.execute('SELECT `User`.id, `User`.stripeKey, `User`.stripeConnected, `User`.`role` FROM `pricing-tables`.User WHERE id = ?', [token.sub!])
-        ).rows[0] as { id: string; stripeKey: string; stripeConnected: boolean; role: string };
-
-        if (!dbUser) {
-          session.user.isSetup = true;
-          session.user.role = 'GUEST';
-        } else {
-          // noinspection PointlessBooleanExpressionJS
-          session.user.isSetup = !!dbUser.stripeConnected;
-          session.user.hasLegacySetup = !!dbUser.stripeKey;
-          session.user.role = dbUser.role;
-        }
-        // old safe way
-        // session.user.id = user?.id;
-        // session.user.isSetup = !!(user as any).stripeKey;
-        // session.user.role = (user as any).role;
+        session.user.id = user?.id;
+        session.user.isSetup = !!(user as any).stripeConnected;
+        session.user.hasLegacySetup = !!(user as any).stripeKey;
+        session.user.role = (user as any).role;
       }
       return session;
     },
   },
   pages: {
     signIn: '/signin'
-  },
-  // to be removed once the guest role is removed
-  session: {
-    strategy: 'jwt',
   },
   // Configure one or more authentication providers
   adapter: PrismaAdapter(prisma),
@@ -63,16 +39,6 @@ export const authOptions: NextAuthOptions = {
       clientId: env.DISCORD_CLIENT_ID,
       clientSecret: env.DISCORD_CLIENT_SECRET,
     }),
-    // to be removed once the guest role is removed
-    CredentialsProvider({
-      name: 'Credentials',
-      credentials: {
-        username: { label: 'Username', type: 'text', placeholder: '' },
-      },
-      async authorize() {
-        return { id: `guest_${createId()}`, name: 'John Doe', email: 'john.doe@example.com' };
-      }
-    })
   ],
 };
 

@@ -1,7 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getServerSession } from 'next-auth';
 
-import { env } from 'env/server.mjs';
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
 import { notifyOfNewSetup } from 'utils/slack';
@@ -15,7 +14,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     return;
   }
 
-  const stripe = initStripe(env.STRIPE_SECRET_KEY);
+  const stripe = initStripe();
   const db = initDb();
 
   const { stripeAccount, stripeConnected } = (

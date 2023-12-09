@@ -55,19 +55,12 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
     const { priceId, userId, successUrl, cancelUrl  } = sessionQuery;
 
-    const isGuest = userId.startsWith('guest_');
-    let stripeKey = env.STRIPE_GUEST_KEY;
-
-    if (!isGuest) {
-      const user = (
-        await db.execute(
-          `SELECT stripeKey FROM User WHERE id = ?`,
-          [userId],
-        )
-      ).rows[0] as { stripeKey: string };
-
-      stripeKey = user.stripeKey;
-    }
+    const user = (
+      await db.execute(
+        `SELECT stripeAccount FROM User WHERE id = ?`,
+        [userId],
+      )
+    ).rows[0] as { stripeAccount: string };
 
     const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
     const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=cancelled` : undefined;
@@ -78,7 +71,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
 
-    const stripe = initStripe(stripeKey);
+    const stripe = initStripe();
 
     const checkoutSession = await stripe.checkout.sessions.create({
       line_items: [
@@ -92,7 +85,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
       currency,
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
-    });
+    }, { stripeAccount: user.stripeAccount });
 
     if (!checkoutSession.url) {
       res.redirect(303, `${fallbackUrl}/checkout/error?status=checkout_session_url_not_found`);
