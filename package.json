@@ -16,7 +16,7 @@
     "lint:main": "turbo run lint --filter main"
   },
   "devDependencies": {
-    "turbo": "^1.10.13"
+    "turbo": "^1.11.1"
   },
   "engines": {
     "node": ">=16.8.0"
