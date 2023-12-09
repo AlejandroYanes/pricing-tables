@@ -28,6 +28,7 @@ export const serverSchema = z.object({
   SLACK_USERS_CHANNEL: z.string(),
   // Stripe keys
   STRIPE_SECRET_KEY: z.string(),
+  PLATFORM_URL: z.string().url().nullish(),
 });
 
 /**
@@ -48,6 +49,7 @@ export const serverEnv = {
   GITHUB_CLIENT_SECRET: process.env.GITHUB_CLIENT_SECRET,
   SLACK_USERS_CHANNEL: process.env.SLACK_USERS_CHANNEL,
   STRIPE_SECRET_KEY: process.env.STRIPE_SECRET_KEY,
+  PLATFORM_URL: process.env.PLATFORM_URL,
 };
 
 /**
