@@ -110,7 +110,7 @@ export function CustomNavbar(props: Props) {
           <HoverCard.Dropdown>
             <Text size="sm">
               This platform is still an alpha version, so if you find any bugs or have any suggestions,
-              please let me know at <Anchor href="mailto:alejandro@dealo.app">alejandro@dealo.app</Anchor>!
+              please let me know at <Anchor href="mailto:support@dealo.app">support@dealo.app</Anchor>!
             </Text>
           </HoverCard.Dropdown>
         </HoverCard>

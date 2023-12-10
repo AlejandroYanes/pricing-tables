@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { CSVLink } from 'react-csv';
 import {
   Badge,
   Group,
@@ -13,11 +14,12 @@ import {
   Stack,
   Radio,
   Button,
+  Indicator,
 } from '@mantine/core';
-import { IconAdjustmentsAlt } from '@tabler/icons';
+import { useDebouncedState } from '@mantine/hooks';
+import { IconAdjustmentsAlt, IconDatabaseExport } from '@tabler/icons';
 import { calculateTotal } from 'helpers';
 import { RenderIf } from 'ui';
-import { useDebouncedState } from '@mantine/hooks';
 
 import { trpc } from 'utils/trpc';
 import UserAvatar from 'components/UserAvatar';
@@ -35,7 +37,9 @@ const UsersTable = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [isSetup, setIsSetup] = useState<string | undefined>();
-  const [hasLegacy, setHasLegacy] = useState<string | undefined>('yes');
+  const [hasLegacy, setHasLegacy] = useState<string | undefined>();
+
+  const { classes } = useStyles();
 
   const {
     data: { results, count } = { results: [], count: 0 },
@@ -43,7 +47,8 @@ const UsersTable = () => {
     { query, page, pageSize, isSetup: isSetup as any, hasLegacy: hasLegacy as any },
     { keepPreviousData: true },
   );
-  const { classes } = useStyles();
+
+  const csvData: string[][] = [['name', 'email']].concat(results.map((user) => ([user.name || '-', user.email || '-'])));
 
   const handleFilterChange = (value: string) => {
     const [filter, filterValue] = value.split('-');
@@ -88,33 +93,48 @@ const UsersTable = () => {
           sx={{ width: '280px' }}
           onChange={(e) => setQuery(e.target.value)}
         />
-        <Popover width={200} position="bottom-end">
-          <Popover.Target>
-            <ActionIcon variant="filled" size="lg"><IconAdjustmentsAlt stroke={1} /></ActionIcon>
-          </Popover.Target>
-
-          <Popover.Dropdown>
-            <Stack>
-              <Radio.Group
-                name="has-setup"
-                value={resolveStatusFilter()}
-                onChange={(value: string) => handleFilterChange(value)}
+        <Group spacing="xs">
+          <Popover width={200} position="bottom-end">
+            <Popover.Target>
+              <Indicator
+                withBorder
+                position="bottom-center"
+                size={12}
+                disabled={resolveStatusFilter() === undefined}
               >
-                <Stack spacing="xs">
-                  <Text size="sm" weight={500}>Is Setup</Text>
-                  <Radio value="setup-yes" label="Yes" />
-                  <Radio value="setup-no" label="No" />
-                  <Text size="sm" weight={500}>Has legacy setup</Text>
-                  <Radio value="legacy-yes" label="Yes" />
-                  <Radio value="legacy-no" label="No" />
-                </Stack>
-              </Radio.Group>
-            </Stack>
-            <Group position="right" mt="sm">
-              <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
-            </Group>
-          </Popover.Dropdown>
-        </Popover>
+                <ActionIcon variant="filled" size="lg">
+                  <IconAdjustmentsAlt stroke={1} />
+                </ActionIcon>
+              </Indicator>
+            </Popover.Target>
+            <Popover.Dropdown>
+              <Stack>
+                <Radio.Group
+                  name="has-setup"
+                  value={resolveStatusFilter()}
+                  onChange={(value: string) => handleFilterChange(value)}
+                >
+                  <Stack spacing="xs">
+                    <Text size="sm" weight={500}>Is Setup</Text>
+                    <Radio value="setup-yes" label="Yes" />
+                    <Radio value="setup-no" label="No" />
+                    <Text size="sm" weight={500}>Has legacy setup</Text>
+                    <Radio value="legacy-yes" label="Yes" />
+                    <Radio value="legacy-no" label="No" />
+                  </Stack>
+                </Radio.Group>
+              </Stack>
+              <Group position="right" mt="sm">
+                <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
+              </Group>
+            </Popover.Dropdown>
+          </Popover>
+          <CSVLink data={csvData} filename="dealo_users.csv" target="_blank">
+            <ActionIcon variant="filled" size="lg">
+              <IconDatabaseExport stroke={1} />
+            </ActionIcon>
+          </CSVLink>
+        </Group>
       </Group>
       <Table verticalSpacing="sm" horizontalSpacing="lg">
         <thead>
