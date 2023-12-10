@@ -85,13 +85,13 @@ export default function SettingsForm(props: Props) {
       <Select label="Recommended Product" data={productOptions} value={recommended} onChange={setRecommended} />
       <TextInput label="CTA button label" value={subscribeLabel} onChange={(e) => setSubscribeLabel(e.target.value)} />
       <TextInput label="Free trial button label" value={freeTrialLabel} onChange={(e) => setFreeTrialLabel(e.target.value)} />
-      <Checkbox
-        mt="md"
-        label="Use unit labels"
-        checked={usesUnitLabel}
-        onChange={() => undefined}
-        onClick={toggleUnitLabel}
-      />
+      {/*<Checkbox*/}
+      {/*  mt="md"*/}
+      {/*  label="Use unit labels"*/}
+      {/*  checked={usesUnitLabel}*/}
+      {/*  onChange={() => undefined}*/}
+      {/*  onClick={toggleUnitLabel}*/}
+      {/*/>*/}
       <RenderIf condition={usesUnitLabel}>
         <TextInput
           mt={-12}
