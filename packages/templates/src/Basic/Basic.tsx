@@ -1,10 +1,10 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
 import type { FormPrice } from 'models';
-import { RenderIf, PoweredBy, AbsoluteContent } from 'ui';
+import { PoweredBy, RenderIf } from 'ui';
 import { generateQueryString } from 'helpers';
 
-import type { TemplateProps, Interval } from '../constants/types';
+import type { Interval, TemplateProps } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
 import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
@@ -43,6 +43,7 @@ export function BasicTemplate(props: TemplateProps) {
     callbacks,
     currency,
     environment = 'production',
+    isMobile = false,
   } = props;
   const { classes, cx } = useStyles(color);
 
@@ -69,12 +70,97 @@ export function BasicTemplate(props: TemplateProps) {
 
   if (visibleProducts.length === 0) return null;
 
+  if (isMobile) {
+    return (
+      <Stack align="center">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        </RenderIf>
+        {visibleProducts.map((prod, index) => {
+          const isFirst = index === 0;
+
+          const { isCustom } = prod;
+          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
+          const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
+
+          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
+          const featureList = resolveFeaturesForProduct(features, prod.id);
+
+          const resolveBtnLabel = () => {
+            if (type === 'one_time') return 'Buy Now';
+            if (isCustom) return prod.ctaLabel;
+            return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+          };
+
+          const resolveBtnUrl = () => {
+            if (isCustom) return prod.ctaUrl || '';
+
+            const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+            const queryParams: Record<string, string> = {
+              widget_id: widget,
+              product_id: dev ? prod.mask! : prod.id,
+              price_id: dev ? priceToShow.mask! : priceToShow.id,
+              currency: currency || priceToShow.currency,
+              payment_type: type,
+            };
+            const queryString = generateQueryString(queryParams);
+            return `${callbackUrl}?${queryString}`;
+          };
+
+          return (
+            <Stack key={prod.id} align="center" mb="lg">
+              <Stack
+                align="center"
+                className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
+              >
+                <Text
+                  style={{ fontSize: '18px' }}
+                  weight="bold"
+                  color={isRecommended ? color : undefined}
+                >
+                  {prod.name}
+                </Text>
+                <RenderIf condition={!isCustom}>
+                  <Text
+                    weight="bold"
+                    align="center"
+                    style={{ fontSize: '32px' }}
+                    color={isRecommended ? color : undefined}
+                  >
+                    {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
+                  </Text>
+                </RenderIf>
+                <Text align="center">{prod.description}</Text>
+                <Stack mt="auto" align="center">
+                  <RenderIf condition={hasFreeTrial}>
+                    <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
+                  </RenderIf>
+                  <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
+                    {resolveBtnLabel()}
+                  </Button>
+                </Stack>
+                <RenderIf condition={isFirst}>
+                  <PoweredBy top={170} left={-27} color={color} position="left"/>
+                </RenderIf>
+              </Stack>
+              <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
+                {featureList.map((feat, index) => (
+                  <li key={index}><Text align="left">{feat}</Text></li>
+                ))}
+              </ul>
+            </Stack>
+          )
+        })}
+      </Stack>
+    );
+  }
+
   return (
     <Stack align="center">
       <RenderIf condition={billingIntervals.length > 1}>
         <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
       </RenderIf>
-      <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={visibleProducts.length} spacing="sm">
+      <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={isMobile ? 1 : visibleProducts.length} spacing="sm">
         {visibleProducts.map((prod, index) => {
           const isFirst = index === 0;
 

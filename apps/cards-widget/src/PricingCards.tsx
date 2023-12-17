@@ -4,9 +4,9 @@ import ReactDOM from 'react-dom/client'
 import createCache from '@emotion/cache'
 import type { EmotionCache } from '@emotion/react';
 import { PricingThemeProvider } from 'ui';
-import { templatesMap } from 'templates';
+import { mockTemplate, templatesMap } from 'templates';
 import { callAPI } from 'helpers';
-import type { FormCallback, FormFeature, FormProduct } from 'models';
+import type { WidgetInfo } from 'models';
 
 interface Props {
   cache?: EmotionCache;
@@ -15,20 +15,6 @@ interface Props {
   theme?: string;
   currency?: string;
 }
-
-type WidgetInfo = {
-  id: string;
-  template: string;
-  recommended: string;
-  color: string;
-  currency: string;
-  unitLabel: string;
-  subscribeLabel: string;
-  freeTrialLabel: string;
-  products: FormProduct[];
-  features: FormFeature[];
-  callbacks: FormCallback[];
-};
 
 const PricingCards = (props: Props) => {
   const { cache, widget, currency, env, theme: colorScheme = 'light' } = props;
@@ -51,7 +37,9 @@ const PricingCards = (props: Props) => {
 
   if (!widgetInfo) return null;
 
-  const Template = widgetInfo.template ? templatesMap[widgetInfo.template]! : () => null;
+  const { render: Template, calculateIsMobile } = widgetInfo.template
+    ? templatesMap[widgetInfo.template]!
+    : mockTemplate;
 
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
@@ -76,6 +64,7 @@ const PricingCards = (props: Props) => {
         freeTrialLabel={freeTrialLabel}
         callbacks={callbacks}
         environment={selectedEnv}
+        isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
       />
     </PricingThemeProvider>
   );
@@ -83,6 +72,7 @@ const PricingCards = (props: Props) => {
 
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
+  // resizeObserver: ResizeObserver;
 
   props: Props = {
     cache: undefined,
@@ -106,6 +96,17 @@ class Wrapper extends HTMLElement {
       theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
     };
+
+    // window.addEventListener('resize', () => {
+    //   console.log(window.innerWidth, window.innerHeight);
+    // });
+    // this.resizeObserver = new ResizeObserver((entries) => {
+    //   for (const entry of entries) {
+    //     const rect = entry.target.getBoundingClientRect();
+    //     console.log(rect.width);
+    //   }
+    // });
+    // this.resizeObserver.observe(this);
   }
 
   render() {
