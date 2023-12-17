@@ -1,7 +1,8 @@
 /* eslint-disable max-len */
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { Button, createStyles, Group, SegmentedControl, Stack, Table, Text } from '@mantine/core';
+import { Accordion, Button, createStyles, Group, SegmentedControl, Stack, Table, Text, useMantineTheme } from '@mantine/core';
+import { IconCircleCheck, IconCircleX } from '@tabler/icons';
 import { PoweredBy, RenderIf } from 'ui';
 import type { FormPrice } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
@@ -34,7 +35,19 @@ const useStyles = createStyles((theme, { count, color }: { color: string; count:
   recommended: {
     color: 'white',
     backgroundColor: theme.colors[color]![8],
-  }
+  },
+  itemsList: {
+    listStyle: 'none',
+    padding: 0,
+    margin: 0,
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'stretch',
+    gap: theme.spacing.xs,
+  },
+  featureBlock: {
+    padding: `2px ${theme.spacing.md}`,
+  },
 }));
 
 type PricingProps = {
@@ -132,6 +145,7 @@ export function SecondTemplate(props: TemplateProps) {
     callbacks,
     environment = 'production',
     currency,
+    isMobile = false,
   } = props;
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -143,6 +157,7 @@ export function SecondTemplate(props: TemplateProps) {
     [currentInterval, products],
   );
 
+  const theme = useMantineTheme();
   const { classes, cx } = useStyles({ color, count: visibleProducts.length });
 
   useEffect(() => {
@@ -158,6 +173,124 @@ export function SecondTemplate(props: TemplateProps) {
   }, [products]);
 
   if (visibleProducts.length === 0) return null;
+
+  if (isMobile) {
+    const items = visibleProducts.map((product) => {
+      const { isCustom } = product;
+      const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
+      const isRecommended = product.id === recommended;
+      const recommendedColor = theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6];
+
+      const resolveBtnLabel = () => {
+        if (priceToShow.type === 'one_time') return 'Buy Now';
+        if (isCustom) return product.ctaLabel;
+        return priceToShow.hasFreeTrial ? freeTrialLabel : subscribeLabel;
+      };
+
+      const resolveBtnUrl = () => {
+        if (isCustom) return product.ctaUrl || '';
+
+        const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+        const queryParams: Record<string, string> = {
+          widget_id: widget,
+          product_id: dev ? product.mask! : product.id,
+          price_id: dev ? priceToShow.mask! : priceToShow.id,
+          currency: currency || priceToShow.currency,
+          payment_type: priceToShow.type,
+        };
+        const queryString = generateQueryString(queryParams);
+        return `${callbackUrl}?${queryString}`;
+      };
+
+      return (
+        <Accordion.Item value={product.id} key={product.id}>
+          <Accordion.Control>
+            <Group align="center" position="apart" style={{ color: isRecommended ? recommendedColor : undefined }}>
+              <Stack ml="md" mr="3rem" spacing={2}>
+                <Text size={18} weight="bold">{product.name}</Text>
+                <Text style={{ maxWidth: '360px' }}>{product.description}</Text>
+              </Stack>
+              {
+                !isCustom
+                  ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
+                  : null
+              }
+            </Group>
+          </Accordion.Control>
+          <Accordion.Panel>
+            <ul className={classes.itemsList}>
+              {features.map((feature) => {
+                const prodValue = feature.products.find((prod) => prod.id === product.id)!;
+                const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
+                if (feature.type !== 'boolean' && !prodValue.value) return null;
+
+                let label = '';
+
+                switch (feature.type) {
+                  case 'boolean':
+                    label = feature.name;
+                    break;
+                  case 'compose':
+                    label = `${prodValue.value} ${feature.name}`;
+                    break;
+                  case 'string':
+                    label = prodValue.value;
+                    break;
+                  default:
+                    break;
+                }
+
+                return (
+                  <li key={feature.id} className={classes.featureBlock}>
+                    <Group align="center" position="apart">
+                      <Text size="sm">
+                        {label}
+                      </Text>
+                      <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
+                        <IconCircleCheck
+                          fill={theme.colors[color]![8]}
+                          color={theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8]}
+                        />
+                      </RenderIf>
+                    </Group>
+                  </li>
+                );
+              })}
+            </ul>
+            <Stack mt="xl">
+              <Button
+                uppercase
+                component="a"
+                href={resolveBtnUrl()}
+                mt="xl"
+                mb={priceToShow.hasFreeTrial ? 'sm' : 'xl'}
+                color={color}
+                variant={isRecommended ? 'filled' : 'outline'}
+              >
+                {resolveBtnLabel()}
+              </Button>
+              <RenderIf condition={priceToShow.hasFreeTrial}>
+                <Text size="sm" mb="lg">{priceToShow.freeTrialDays} days</Text>
+              </RenderIf>
+            </Stack>
+          </Accordion.Panel>
+        </Accordion.Item>
+      )
+    });
+
+    const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
+
+    return (
+      <Stack align="center">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        </RenderIf>
+        <Accordion chevronPosition="left" variant="contained" defaultValue={recommendedProduct?.id}>
+          {items}
+        </Accordion>
+      </Stack>
+    );
+  }
 
   const rows = new Array(features.length + 2).fill(1).map((_, index) => {
     const columns = visibleProducts.map((prod) => {

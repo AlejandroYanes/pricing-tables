@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ActionIcon, Alert, Group, Select, Tooltip } from '@mantine/core';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons';
-import { templatesMap } from 'templates';
+import { templatesMap, mockTemplate } from 'templates';
 import { RenderIf } from 'ui';
 
 import { useTemplateStates } from './state';
@@ -37,7 +37,7 @@ export default function Template(props: Props) {
     freeTrialLabel,
     color,
   } = useTemplateStates();
-  const WidgetTemplate = templateId ? templatesMap[templateId]! : () => null;
+  const { render: WidgetTemplate } = templateId ? templatesMap[templateId]! : mockTemplate;
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -146,6 +146,7 @@ export default function Template(props: Props) {
         callbacks={callbacks}
         environment={env}
         currency={currency}
+        isMobile={true}
       />
     </>
   );

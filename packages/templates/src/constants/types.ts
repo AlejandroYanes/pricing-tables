@@ -14,6 +14,7 @@ export interface TemplateProps {
   callbacks: FormCallback[];
   environment?: string;
   currency?: string | null;
+  isMobile?: boolean;
 }
 
 export interface SkeletonProps {

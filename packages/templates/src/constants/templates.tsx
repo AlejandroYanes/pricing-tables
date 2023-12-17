@@ -1,4 +1,4 @@
-import type { Templates } from 'models';
+import type { Templates, WidgetInfo } from 'models';
 
 import { BasicTemplate, BasicSkeleton } from '../Basic';
 import { SecondTemplate, SecondSkeleton } from '../Second';
@@ -16,11 +16,36 @@ export const templatesList: Templates[] = [
   { id: TEMPLATE_IDS.THIRD, name: 'Third Template' },
 ];
 
-export const templatesMap: Record<string, (props?: any) => JSX.Element | null> = {
-  [TEMPLATE_IDS.BASIC]: BasicTemplate,
-  [TEMPLATE_IDS.SECOND]: SecondTemplate,
-  [TEMPLATE_IDS.THIRD]: ThirdTemplate,
+interface TemplatesMap {
+  [s: string]: {
+    render: (props?: any) => JSX.Element | null;
+    calculateIsMobile: (widget: WidgetInfo, screenWidth: number) => boolean;
+  };
+}
+export const templatesMap: TemplatesMap = {
+  [TEMPLATE_IDS.BASIC]: {
+    render: BasicTemplate,
+    calculateIsMobile: (widget: WidgetInfo, screenWidth: number) => {
+      const { products } = widget;
+      const width = products.length * 300;
+      return screenWidth < width;
+    },
+  },
+  [TEMPLATE_IDS.SECOND]: {
+    render: SecondTemplate,
+    calculateIsMobile: (widget: WidgetInfo, screenWidth: number) => {
+      const { products } = widget;
+      const width = products.length * 300;
+      return screenWidth < width;
+    },
+  },
+  [TEMPLATE_IDS.THIRD]: {
+    render: ThirdTemplate,
+    calculateIsMobile: (_widget, screenWidth: number) => screenWidth < 900,
+  },
 };
+
+export const mockTemplate = { render: () => null, calculateIsMobile: () => false };
 
 export const skeletonMap: Record<string, (props?: any) => JSX.Element> = {
   [TEMPLATE_IDS.BASIC]: BasicSkeleton,

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
+import { Accordion, Button, createStyles, Group, SegmentedControl, Stack, Text, UnstyledButton, useMantineTheme } from '@mantine/core';
 import { IconCircleCheck, IconCircleX, IconCircle } from '@tabler/icons';
 import type { FormCallback, FormPrice, FormProduct } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
@@ -54,6 +54,9 @@ const useStyles = createStyles((theme, color: string) => ({
   },
   featureBlock: {
     padding: `${theme.spacing.md} ${theme.spacing.xl}`,
+  },
+  mobileBlock: {
+    padding: `2px ${theme.spacing.md}`,
   },
 }));
 
@@ -153,17 +156,29 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
-const resolveCTA = (
-  product: FormProduct,
-  interval: Interval,
-  callbacks: FormCallback[],
-  env: string,
-  subscribeLabel: string,
-  freeTrialLabel: string,
-  widget: string,
-  currency: string | null | undefined,
-  dev: boolean,
-) => {
+interface CTAProps {
+  product: FormProduct;
+  interval: Interval;
+  callbacks: FormCallback[];
+  env: string;
+  subscribeLabel: string;
+  freeTrialLabel: string;
+  widget: string;
+  currency: string | null | undefined;
+  dev: boolean;
+}
+const resolveCTA = (options: CTAProps) => {
+  const {
+    product,
+    interval,
+    callbacks,
+    env,
+    subscribeLabel,
+    freeTrialLabel,
+    widget,
+    currency,
+    dev,
+  } = options;
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
   const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
@@ -215,6 +230,7 @@ export function ThirdTemplate(props: TemplateProps) {
     callbacks,
     environment = 'production',
     currency,
+    isMobile,
   } = props;
   const theme = useMantineTheme();
   const { classes, cx } = useStyles(color);
@@ -248,6 +264,102 @@ export function ThirdTemplate(props: TemplateProps) {
 
   const productToHighlight = !!visibleProducts[selectedProduct] ? selectedProduct : 0;
 
+  if (isMobile) {
+    const items = visibleProducts.map((product) => {
+      const { isCustom } = product;
+      const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
+      const isRecommended = product.id === recommended;
+      const recommendedColor = theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6]
+
+      return (
+        <Accordion.Item value={product.id} key={product.id}>
+          <Accordion.Control>
+            <Group align="center" style={{ color: isRecommended ? recommendedColor : undefined }}>
+              <Stack ml="md" mr="3rem" spacing={2}>
+                <Text size={18} weight="bold">{product.name}</Text>
+                <Text style={{ maxWidth: '360px' }}>{product.description}</Text>
+              </Stack>
+              {
+                !isCustom
+                  ? resolvePricing({ price: priceToShow, unitLabel, currency, isSelected: true })
+                  : null
+              }
+            </Group>
+          </Accordion.Control>
+          <Accordion.Panel>
+            <ul className={classes.itemsList}>
+              {features.map((feature) => {
+                const prodValue = feature.products.find((prod) => prod.id === product.id)!;
+                const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
+                if (feature.type !== 'boolean' && !prodValue.value) return null;
+
+                let label = '';
+
+                switch (feature.type) {
+                  case 'boolean':
+                    label = feature.name;
+                    break;
+                  case 'compose':
+                    label = `${prodValue.value} ${feature.name}`;
+                    break;
+                  case 'string':
+                    label = prodValue.value;
+                    break;
+                  default:
+                    break;
+                }
+
+                return (
+                  <li key={feature.id} className={classes.mobileBlock}>
+                    <Group align="center" position="apart">
+                      <Text size="sm">
+                        {label}
+                      </Text>
+                      <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
+                        <IconCircleCheck
+                          fill={theme.colors[color]![8]}
+                          color={theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8]}
+                        />
+                      </RenderIf>
+                    </Group>
+                  </li>
+                );
+              })}
+            </ul>
+            <Stack mt="xl">
+              {resolveCTA(
+                {
+                  product,
+                  interval: currentInterval,
+                  callbacks,
+                  env: environment,
+                  subscribeLabel,
+                  freeTrialLabel,
+                  widget,
+                  currency,
+                  dev: !!dev,
+                },
+              )}
+            </Stack>
+          </Accordion.Panel>
+        </Accordion.Item>
+      )
+    });
+
+    const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
+
+    return (
+      <Stack align="center">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        </RenderIf>
+        <Accordion chevronPosition="left" variant="contained" defaultValue={recommendedProduct?.id}>
+          {items}
+        </Accordion>
+      </Stack>
+    );
+  }
+
   return (
     <Stack align="center">
       <RenderIf condition={billingIntervals.length > 1}>
@@ -271,7 +383,7 @@ export function ThirdTemplate(props: TemplateProps) {
                     <IconCircleCheck color="white" style={{ flexShrink: 0 }} />
                   </RenderIf>
                   <Stack ml="md" mr="3rem" spacing={2}>
-                    <Text size={18}>{prod.name}</Text>
+                    <Text size={18} weight="bold">{prod.name}</Text>
                     <Text style={{ maxWidth: '360px' }}>{prod.description}</Text>
                   </Stack>
                   {
@@ -326,15 +438,17 @@ export function ThirdTemplate(props: TemplateProps) {
             })}
           </ul>
           {resolveCTA(
-            visibleProducts[selectedProduct] || visibleProducts[0]!,
-            currentInterval,
-            callbacks,
-            environment,
-            subscribeLabel,
-            freeTrialLabel,
-            widget,
-            currency,
-            !!dev,
+            {
+              product: visibleProducts[selectedProduct]!,
+              interval: currentInterval,
+              callbacks,
+              env: environment,
+              subscribeLabel,
+              freeTrialLabel,
+              widget,
+              currency,
+              dev: !!dev,
+            },
           )}
           <PoweredBy color={color}  position="bottom" bottom={-26} left="50%" style={{ transform: 'translateX(-50%)' }} />
         </Stack>

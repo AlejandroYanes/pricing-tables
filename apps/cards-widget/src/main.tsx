@@ -4,7 +4,6 @@ import './PricingCards';
 
 // ReactDOM.createRoot(document.getElementById('pricing-cards') as HTMLElement).render(
 //   <React.StrictMode>
-//     {/* @ts-ignore */}
-//     <pricing-cards widget="clky0rlr70001jeahix5g38o2" theme="light" />
+//     <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme="light"/>
 //   </React.StrictMode>,
 // );
