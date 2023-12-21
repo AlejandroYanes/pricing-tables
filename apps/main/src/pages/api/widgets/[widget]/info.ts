@@ -31,19 +31,19 @@ async function getWidgetData(widgetId: string) {
   const db = initDb();
 
   const widgetFields = [
-    '\`pricing-tables\`.\`PriceWidget\`.\`id\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`template\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`name\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`recommended\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`color\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`unitLabel\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`subscribeLabel\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`freeTrialLabel\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`userId\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`checkoutSuccessUrl\`',
-    '\`pricing-tables\`.\`PriceWidget\`.\`checkoutCancelUrl\`',
+    'PriceWidget.id',
+    'PriceWidget.template',
+    'PriceWidget.name',
+    'PriceWidget.recommended',
+    'PriceWidget.color',
+    'PriceWidget.unitLabel',
+    'PriceWidget.subscribeLabel',
+    'PriceWidget.freeTrialLabel',
+    'PriceWidget.userId',
+    'PriceWidget.checkoutSuccessUrl',
+    'PriceWidget.checkoutCancelUrl',
   ];
-  const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`;
+  const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`;
 
   log.info('get_widget_data_query', { query: widgetQuery, widgetId });
 
