@@ -134,7 +134,7 @@ export default function IntegrationPanel(props: Props) {
         Make sure to add the query parameters we added to your page to the url.
       </Text>
       <Prism language="javascript">
-        {`https://dealo.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
@@ -143,6 +143,12 @@ export default function IntegrationPanel(props: Props) {
         <br />
         If {`we're`} not able to find the page that initiated the checkout,
         we will redirect the user to our own pages that will show a success or error message (though this should never happen).
+      </Text>
+      <Title order={3}>We can help you generate the Checkout session</Title>
+      <Text component="p">
+        If on the callback section of the <Code>Settings</Code> panel you set the url to
+        <Code>https://dealo.app/api/stripe/checkout/start</Code>, we will generate the checkout session for you
+        (adding all the required parameters).
       </Text>
       <Title order={3}>Using our API route to retrieve the information</Title>
       <Text component="p">

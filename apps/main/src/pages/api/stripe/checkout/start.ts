@@ -24,15 +24,15 @@ const inputSchema = z.object({
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {
-  const parsedBody = inputSchema.safeParse(req.query);
+  const parsedParams = inputSchema.safeParse(req.query);
 
-  if (!parsedBody.success) {
-    res.status(400).json({ error: parsedBody.error });
+  if (!parsedParams.success) {
+    res.status(400).json({ error: parsedParams.error });
     return;
   }
   const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
-  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type, email, currency } = parsedBody.data;
+  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type, email, currency } = parsedParams.data;
   const db = initDb();
 
   try {
@@ -80,10 +80,13 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
-      customer_email: email,
-      currency,
+      customer_email: email || 'test.subject@gmail.com',
+      currency: currency || 'gbp',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,
+      metadata: {
+        source: 'dealo',
+      },
     }, { stripeAccount: user.stripeAccount });
 
     if (!checkoutSession.url) {

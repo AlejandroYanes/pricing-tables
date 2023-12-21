@@ -11,7 +11,7 @@ export default function CheckoutError() {
           <IconAlertTriangle size={88} />
           <Title order={3} w={480}>
             Something went wrong, please contact support at {' '}
-            <Anchor href="mailto:alejandro.yanes94@gmail.com">alejandro.yanes94@gmail.com</Anchor>
+            <Anchor href="mailto:support@dealo.app">support@dealo.app</Anchor>
             .
           </Title>
         </Group>

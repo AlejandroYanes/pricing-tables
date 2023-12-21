@@ -1,11 +1,25 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
+import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
+import initStripe from 'utils/stripe';
 import { notifyOfNewSetup } from 'utils/slack';
+import { buffer } from 'utils/api';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const event: Stripe.Event = req.body;
+  const payload = await buffer(req);
+  const sig = req.headers['stripe-signature']!;
+
+  let event: Stripe.Event;
+
+  try {
+    const stripe = initStripe();
+    event = stripe.webhooks.constructEvent(payload, sig, env.STRIPE_CONNECT_WEBHOOK_SECRET);
+  } catch (err: any) {
+    console.log(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   if (event.type === 'account.updated') {
     const { id, charges_enabled } = event.data.object as Stripe.Account;
