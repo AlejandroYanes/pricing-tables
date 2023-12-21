@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
-import { env } from 'env/server.mjs';
+// import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
-import { buffer } from 'utils/api';
+// import { buffer } from 'utils/api';
 
 // export const config = {
 //   api: {
@@ -17,7 +17,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   console.log('------------------- stripe-signature:', signature);
 
   const stripe = initStripe();
-  let event: Stripe.Event = req.body as Stripe.Event;
+  const event: Stripe.Event = req.body as Stripe.Event;
 
   // try {
   //   const payload = await buffer(req);

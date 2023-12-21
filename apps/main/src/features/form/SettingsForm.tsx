@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
@@ -9,7 +9,7 @@ import { templatesList } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
-import { toggleUnitLabel, changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
+import { changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
 import { useSettingsPanelStates } from './state';
 
 interface Props {
