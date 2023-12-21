@@ -52,6 +52,7 @@
     "models": "*",
     "next": "14.0.4",
     "next-auth": "4.20.1",
+    "next-axiom": "^1.1.1",
     "radash": "10.8.1",
     "react": "18.2.0",
     "react-beautiful-dnd": "13.1.1",
