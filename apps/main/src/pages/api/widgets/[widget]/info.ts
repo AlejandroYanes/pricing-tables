@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { log } from 'next-axiom';
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
@@ -45,37 +44,33 @@ async function getWidgetData(widgetId: string) {
   ];
   const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`;
 
-  log.info('get_widget_data_query', { query: widgetQuery, widgetId });
-
   const widget = (
     await db.execute(widgetQuery, [widgetId])
   ).rows[0] as Widget;
 
-  const callbacksQuery = 'SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`';
-
-  log.info('get_callback_data_query', { query: callbacksQuery, widgetId });
+  const callbacksQuery = 'SELECT Callback.id, Callback.env, Callback.url, Callback.order FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt';
 
   const callbacks = (
     await db.execute(callbacksQuery, [widgetId])
   ).rows as Callback[];
 
   const features = (
-    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId`, `pricing-tables`.`Feature`.`order` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.Feature.order, `pricing-tables`.Feature.createdAt', [widgetId])
+    await db.execute('SELECT Feature.id, Feature.name, Feature.type, Feature.value, Feature.productId, Feature.order FROM Feature WHERE Feature.widgetId = ? ORDER BY Feature.order, Feature.createdAt', [widgetId])
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask`, `pricing-tables`.`Product`.`order` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order`, `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT Product.id, Product.isCustom, Product.name, Product.description, Product.ctaLabel, Product.ctaUrl, Product.mask, Product.order FROM Product WHERE Product.widgetId = ? ORDER BY Product.order, Product.createdAt', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
   const prices = prodIds.length > 0
     ? (
-      await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask`, `pricing-tables`.`Price`.`order` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order`, `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
     ).rows as Price[]
     : [];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeAccount` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
+    await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
   ).rows[0] as { stripeAccount: string; role: string };
 
   const stripe = initStripe();
