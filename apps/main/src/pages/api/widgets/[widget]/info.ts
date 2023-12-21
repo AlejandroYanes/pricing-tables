@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { log } from 'next-axiom';
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
@@ -42,12 +43,19 @@ async function getWidgetData(widgetId: string) {
     '`pricing-tables`.`PriceWidget`.`checkoutSuccessUrl`',
     '`pricing-tables`.`PriceWidget`.`checkoutCancelUrl`',
   ];
+  const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`;
+
+  log.info('get_widget_data_query', { query: widgetQuery, widgetId });
+
   const widget = (
-    await db.execute(`SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`, [widgetId])
+    await db.execute(widgetQuery, [widgetId])
   ).rows[0] as Widget;
 
+  const callbacksQuery = 'SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`';
+  log.info('get_callback_data_query', { query: callbacksQuery, widgetId });
+
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute(callbacksQuery, [widgetId])
   ).rows as Callback[];
 
   const features = (
