@@ -31,17 +31,17 @@ async function getWidgetData(widgetId: string) {
   const db = initDb();
 
   const widgetFields = [
-    '`pricing-tables`.`PriceWidget`.`id`',
-    '`pricing-tables`.`PriceWidget`.`template`',
-    '`pricing-tables`.`PriceWidget`.`name`',
-    '`pricing-tables`.`PriceWidget`.`recommended`',
-    '`pricing-tables`.`PriceWidget`.`color`',
-    '`pricing-tables`.`PriceWidget`.`unitLabel`',
-    '`pricing-tables`.`PriceWidget`.`subscribeLabel`',
-    '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
-    '`pricing-tables`.`PriceWidget`.`userId`',
-    '`pricing-tables`.`PriceWidget`.`checkoutSuccessUrl`',
-    '`pricing-tables`.`PriceWidget`.`checkoutCancelUrl`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`id\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`template\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`name\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`recommended\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`color\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`unitLabel\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`subscribeLabel\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`freeTrialLabel\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`userId\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`checkoutSuccessUrl\`',
+    '\`pricing-tables\`.\`PriceWidget\`.\`checkoutCancelUrl\`',
   ];
   const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`;
 
@@ -52,6 +52,7 @@ async function getWidgetData(widgetId: string) {
   ).rows[0] as Widget;
 
   const callbacksQuery = 'SELECT `pricing-tables`.`Callback`.`id`, `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url`, `pricing-tables`.`Callback`.`order` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`';
+
   log.info('get_callback_data_query', { query: callbacksQuery, widgetId });
 
   const callbacks = (
