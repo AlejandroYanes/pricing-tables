@@ -27,10 +27,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   return res.status(400).send(`Webhook Error: ${err.message}`);
   // }
 
-  console.log('---------------------');
-  console.log('event');
-  console.log(event);
-
   // TODO: handle checkout.session.completed event
   if (event.type === 'checkout.session.completed') {
     const { account, data } = event as Stripe.Event;
@@ -39,21 +35,22 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const isFromPlatform = session.metadata?.source === 'dealo';
     if (!isFromPlatform) {
+      console.log(`❌ Webhook Error: event not from platform`);
       return res.status(400).send(`Webhook Error: event not from platform`);
     }
 
     const hasMissingParams = !session.subscription || !session.customer;
     if (hasMissingParams) {
       // TODO: handle failed payment (eg: send error email to user)
+      console.log(`❌ Webhook Error: missing params`);
       return res.status(400).send(`Webhook Error: missing params`);
     }
 
     if (session.payment_status !== 'paid') {
       // TODO: handle failed payment (eg: send error email to user)
+      console.log(`❌ Webhook Error: payment failed`);
       return res.status(400).send(`Webhook Error: payment failed`);
     }
-
-    console.log('-----------------: update user subscription status', account, session.subscription);
 
     // TODO: update user's subscription status
     const db = initDb();
