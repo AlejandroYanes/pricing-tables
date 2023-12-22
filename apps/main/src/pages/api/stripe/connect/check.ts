@@ -18,7 +18,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const db = initDb();
 
   const { stripeAccount, stripeConnected } = (
-    await db.execute('SELECT stripeAccount, stripeConnected FROM `pricing-tables`.`User` WHERE `id` = ?', [session.user.id])
+    await db.execute('SELECT stripeAccount, stripeConnected FROM User WHERE id = ?', [session.user.id])
   ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
   if (!stripeAccount) {
@@ -36,7 +36,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   if (account.charges_enabled) {
     await db.transaction(async (tx) => {
       // eslint-disable-next-line max-len
-      await tx.execute('UPDATE `pricing-tables`.`User` SET `stripeConnected` = true, `stripeKey` = null WHERE `id` = ?', [session.user!.id]);
+      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user!.id]);
     });
 
     res.status(200).json({ connected: true });
