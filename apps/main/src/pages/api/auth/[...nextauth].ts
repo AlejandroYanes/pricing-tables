@@ -13,10 +13,12 @@ export const authOptions: NextAuthOptions = {
     // Include user.id on session
     async session({ session, user }) {
       if (session.user) {
+        const { stripeConnected, stripeKey, stripeSubscription, role } = user as any;
         session.user.id = user?.id;
-        session.user.isSetup = !!(user as any).stripeConnected;
-        session.user.hasLegacySetup = !!(user as any).stripeKey;
-        session.user.role = (user as any).role;
+        session.user.isSetup = !!stripeConnected;
+        session.user.hasLegacySetup = !!stripeKey;
+        session.user.hasSubscription = !!stripeSubscription;
+        session.user.role = role;
       }
       return session;
     },

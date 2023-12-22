@@ -14,20 +14,19 @@ interface Payload {
   name: string;
 }
 
-export function notifyOfNewSignup(data: Payload) {
-  return sendNotification({
-    text: `A new user just signed up:\n*${data.name}*\n`,
-  });
-}
-
 export function notifyOfNewSetup(data: Payload) {
   return sendNotification({
     text: `A user just setup his account:\n*${data.name}*\n (With New Setup)`,
   });
 }
 
-export function notifyOfDeletedAccount(data: Payload) {
+interface DeletedPayload extends Payload {
+  hadSubscription: boolean;
+}
+
+export function notifyOfDeletedAccount(data: DeletedPayload) {
+  const { name, hadSubscription } = data;
   return sendNotification({
-    text: `A user just deleted his account:\n*${data.name}*\n`,
+    text: `A user just deleted his account:\n*${name}*\n ${hadSubscription ? '(With Subscription)' : ''}`,
   });
 }

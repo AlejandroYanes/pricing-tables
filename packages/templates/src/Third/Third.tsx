@@ -156,6 +156,36 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
+// eslint-disable-next-line max-len
+const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
+
+  if (type === 'one_time') return 'Buy Now';
+  if (isCustom) return prod.ctaLabel;
+  return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+};
+
+// eslint-disable-next-line max-len
+const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+
+  if (isCustom) return prod.ctaUrl || '';
+
+  const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+  const hasQueryParams = callbackUrl.includes('?');
+
+  const queryParams: Record<string, string> = {
+    widget_id: widgetId,
+    product_id: dev ? prod.mask! : prod.id,
+    price_id: dev ? priceToShow.mask! : priceToShow.id,
+    currency: currency || priceToShow.currency,
+    payment_type: type,
+  };
+
+  const queryString = generateQueryString(queryParams);
+  return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
+};
+
 interface CTAProps {
   product: FormProduct;
   interval: Interval;
@@ -181,39 +211,65 @@ const resolveCTA = (options: CTAProps) => {
   } = options;
   const { isCustom } = product;
   const priceToShow = !isCustom ? resolvePriceToShow(product, interval) : {} as FormPrice;
-  const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
-
-  const resolveBtnLabel = () => {
-    if (type === 'one_time') return 'Buy Now';
-    if (isCustom) return product.ctaLabel;
-    return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-  };
-
-  const resolveBtnUrl = () => {
-    if (isCustom) return product.ctaUrl || '';
-
-    const callbackUrl = callbacks.find((cb) => cb.env === env)!.url;
-    const queryParams: Record<string, string> = {
-      widget_id: widget,
-      product_id: dev ? product.mask! : product.id,
-      price_id: dev ? priceToShow.mask! : priceToShow.id,
-      currency: currency || priceToShow.currency,
-      payment_type: type,
-    };
-    const queryString = generateQueryString(queryParams);
-    return `${callbackUrl}?${queryString}`;
-  };
+  const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
 
   if (hasFreeTrial) {
     return (
       <>
-        <Button mx="xl" component="a" href={resolveBtnUrl()}>{resolveBtnLabel()}</Button>
+        <Button
+          mx="xl"
+          component="a"
+          href={resolveBtnUrl({
+            isCustom: !!isCustom,
+            prod: product,
+            priceToShow,
+            type: priceToShow.type,
+            dev,
+            widgetId: widget,
+            callbacks,
+            environment: env,
+            currency,
+          })}
+        >{resolveBtnLabel({
+            type: priceToShow.type,
+            prod: product,
+            isCustom: !!isCustom,
+            hasFreeTrial: priceToShow.hasFreeTrial,
+            freeTrialLabel,
+            subscribeLabel,
+          })}
+        </Button>
         <Text align="center">{freeTrialDays} days</Text>
       </>
     );
   }
 
-  return <Button mx="xl" component="a" href={resolveBtnUrl()}>{resolveBtnLabel()}</Button>;
+  return (
+    <Button
+      mx="xl"
+      component="a"
+      href={resolveBtnUrl({
+        isCustom: !!isCustom,
+        prod: product,
+        priceToShow,
+        type: priceToShow.type,
+        dev,
+        widgetId: widget,
+        callbacks,
+        environment: env,
+        currency,
+      })}
+    >
+      {resolveBtnLabel({
+        type: priceToShow.type,
+        prod: product,
+        isCustom: !!isCustom,
+        hasFreeTrial: priceToShow.hasFreeTrial,
+        freeTrialLabel,
+        subscribeLabel,
+      })}
+    </Button>
+  );
 };
 
 export function ThirdTemplate(props: TemplateProps) {

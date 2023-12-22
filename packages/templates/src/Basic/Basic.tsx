@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { FormPrice } from 'models';
+import type { FormCallback, FormPrice, FormProduct } from 'models';
 import { PoweredBy, RenderIf } from 'ui';
 import { generateQueryString } from 'helpers';
 
@@ -28,6 +28,36 @@ const useStyles = createStyles((theme, color: string) => ({
     width: 'auto',
   },
 }));
+
+// eslint-disable-next-line max-len
+const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
+
+  if (type === 'one_time') return 'Buy Now';
+  if (isCustom) return prod.ctaLabel;
+  return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+};
+
+// eslint-disable-next-line max-len
+const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+
+  if (isCustom) return prod.ctaUrl || '';
+
+  const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+  const hasQueryParams = callbackUrl.includes('?');
+
+  const queryParams: Record<string, string> = {
+    widget_id: widgetId,
+    product_id: dev ? prod.mask! : prod.id,
+    price_id: dev ? priceToShow.mask! : priceToShow.id,
+    currency: currency || priceToShow.currency,
+    payment_type: type,
+  };
+
+  const queryString = generateQueryString(queryParams);
+  return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
+};
 
 export function BasicTemplate(props: TemplateProps) {
   const {
@@ -81,31 +111,10 @@ export function BasicTemplate(props: TemplateProps) {
 
           const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
-          const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
+          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
           const featureList = resolveFeaturesForProduct(features, prod.id);
-
-          const resolveBtnLabel = () => {
-            if (type === 'one_time') return 'Buy Now';
-            if (isCustom) return prod.ctaLabel;
-            return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-          };
-
-          const resolveBtnUrl = () => {
-            if (isCustom) return prod.ctaUrl || '';
-
-            const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-            const queryParams: Record<string, string> = {
-              widget_id: widget,
-              product_id: dev ? prod.mask! : prod.id,
-              price_id: dev ? priceToShow.mask! : priceToShow.id,
-              currency: currency || priceToShow.currency,
-              payment_type: type,
-            };
-            const queryString = generateQueryString(queryParams);
-            return `${callbackUrl}?${queryString}`;
-          };
 
           return (
             <Stack key={prod.id} align="center" mb="lg">
@@ -135,8 +144,30 @@ export function BasicTemplate(props: TemplateProps) {
                   <RenderIf condition={hasFreeTrial}>
                     <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                   </RenderIf>
-                  <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
-                    {resolveBtnLabel()}
+                  <Button
+                    component="a"
+                    href={resolveBtnUrl({
+                      isCustom: !!isCustom,
+                      prod,
+                      priceToShow,
+                      type: priceToShow.type,
+                      dev: !!dev,
+                      widgetId: widget,
+                      callbacks,
+                      environment,
+                      currency,
+                    })}
+                    color={color}
+                    variant={isRecommended ? 'filled' : 'outline'}
+                  >
+                    {resolveBtnLabel({
+                      type: priceToShow.type,
+                      prod,
+                      isCustom: !!isCustom,
+                      hasFreeTrial: priceToShow.hasFreeTrial,
+                      freeTrialLabel,
+                      subscribeLabel,
+                    })}
                   </Button>
                 </Stack>
                 <RenderIf condition={isFirst}>
@@ -166,30 +197,9 @@ export function BasicTemplate(props: TemplateProps) {
 
           const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
-          const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
+          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
-
-          const resolveBtnLabel = () => {
-            if (type === 'one_time') return 'Buy Now';
-            if (isCustom) return prod.ctaLabel;
-            return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-          };
-
-          const resolveBtnUrl = () => {
-            if (isCustom) return prod.ctaUrl || '';
-
-            const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-            const queryParams: Record<string, string> = {
-              widget_id: widget,
-              product_id: dev ? prod.mask! : prod.id,
-              price_id: dev ? priceToShow.mask! : priceToShow.id,
-              currency: currency || priceToShow.currency,
-              payment_type: type,
-            };
-            const queryString = generateQueryString(queryParams);
-            return `${callbackUrl}?${queryString}`;
-          };
 
           return (
             <Stack
@@ -219,8 +229,30 @@ export function BasicTemplate(props: TemplateProps) {
                 <RenderIf condition={hasFreeTrial}>
                   <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
                 </RenderIf>
-                <Button component="a" href={resolveBtnUrl()} color={color} variant={isRecommended ? 'filled' : 'outline'}>
-                  {resolveBtnLabel()}
+                <Button
+                  component="a"
+                  href={resolveBtnUrl({
+                    isCustom: !!isCustom,
+                    prod,
+                    priceToShow,
+                    type: priceToShow.type,
+                    dev: !!dev,
+                    widgetId: widget,
+                    callbacks,
+                    environment,
+                    currency,
+                  })}
+                  color={color}
+                  variant={isRecommended ? 'filled' : 'outline'}
+                >
+                  {resolveBtnLabel({
+                    type: priceToShow.type,
+                    prod,
+                    isCustom: !!isCustom,
+                    hasFreeTrial: priceToShow.hasFreeTrial,
+                    freeTrialLabel,
+                    subscribeLabel,
+                  })}
                 </Button>
               </Stack>
               <RenderIf condition={isFirst}>

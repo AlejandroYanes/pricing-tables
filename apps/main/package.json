@@ -14,6 +14,7 @@
     "prisma:seed": "npx prisma db seed",
     "prisma:push": "npx prisma db push",
     "prisma:migrate": "npx prisma migrate dev --preview-feature",
+    "stripe:listen": "stripe listen --load-from-webhooks-api --forward-to localhost:3000",
     "test": "jest --watch",
     "test:ci": "jest --ci"
   },

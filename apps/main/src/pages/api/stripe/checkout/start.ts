@@ -19,7 +19,7 @@ const inputSchema = z.object({
   price_id: z.string().cuid2(),
   currency: z.string().length(3),
   email: z.string().email().optional(),
-  disable_email: z.boolean().optional(),
+  internal_flow: z.enum(['true', 'false']).optional(),
   payment_type: z.literal('one_time').or(z.literal('recurring')),
 });
 
@@ -32,7 +32,15 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
   }
   const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
-  const { widget_id: widgetId, product_id: prodMask, price_id: priceMask, payment_type, email, currency } = parsedParams.data;
+  const {
+    widget_id: widgetId,
+    product_id: prodMask,
+    price_id: priceMask,
+    payment_type,
+    currency,
+    email,
+    internal_flow,
+  } = parsedParams.data;
   const db = initDb();
 
   try {
@@ -61,14 +69,31 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
       )
     ).rows[0] as { stripeAccount: string };
 
-    const refererSuccessUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=success` : undefined;
-    const refererCancelUrl = req.headers['referer'] ? `${req.headers['referer']}?payment_status=cancelled` : undefined;
+    const referer = req.headers['referer'];
+    let refererSuccessUrl;
+    let refererCancelUrl;
+
+    if (referer) {
+      const hasQueryParams = referer.includes('?');
+      refererSuccessUrl = hasQueryParams ? `${referer}&payment_status=success` : `${referer}?payment_status=success`;
+      refererCancelUrl = hasQueryParams ? `${referer}&payment_status=cancelled` : `${referer}?payment_status=cancelled`;
+    }
 
     const fallbackSuccessUrl = `${platformUrl}/checkout/success`;
     const fallbackCancelUrl = `${platformUrl}/checkout/cancelled`;
 
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
+
+    console.log('-------------------Stripe checkout start', {
+      platformUrl,
+      refererSuccessUrl,
+      refererCancelUrl,
+      fallbackCancelUrl,
+      fallbackSuccessUrl,
+      finalSuccessUrl,
+      finalCancelUrl,
+    });
 
     const stripe = initStripe();
 
@@ -86,6 +111,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
       cancel_url: finalCancelUrl,
       metadata: {
         source: 'dealo',
+        internal_flow: internal_flow ? 'true' : 'false',
       },
     }, { stripeAccount: user.stripeAccount });
 
@@ -96,6 +122,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
     res.redirect(303, checkoutSession.url);
   } catch (err) {
+    console.log('❌ Stripe Checkout error:', err);
     res.redirect(303, `${platformUrl}/checkout/error?status=internal_error`);
   }
 }

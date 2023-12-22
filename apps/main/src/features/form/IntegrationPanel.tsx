@@ -132,9 +132,13 @@ export default function IntegrationPanel(props: Props) {
       <Text component="p" m={0}>
         To generate a Stripe checkout session you need redirect the user to our <Code>checkout</Code> API route.
         Make sure to add the query parameters we added to your page to the url.
+        <br />
+        {`It's`} not required, but we recommend adding the {`user's`} <Code>email</Code> as well,
+        it will help auto-complete the session form and avoid asking the user for their email twice
+        or them adding a different one.
       </Text>
       <Prism language="javascript">
-        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>&email=<...>`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
@@ -144,12 +148,12 @@ export default function IntegrationPanel(props: Props) {
         If {`we're`} not able to find the page that initiated the checkout,
         we will redirect the user to our own pages that will show a success or error message (though this should never happen).
       </Text>
-      <Title order={3}>We can help you generate the Checkout session</Title>
-      <Text component="p">
-        If on the callback section of the <Code>Settings</Code> panel you set the url to
-        <Code>https://dealo.app/api/stripe/checkout/start</Code>, we will generate the checkout session for you
-        (adding all the required parameters).
-      </Text>
+      {/*<Title order={3}>We can help you generate the Checkout session</Title>*/}
+      {/*<Text component="p">*/}
+      {/*  If on the callback section of the <Code>Settings</Code> panel you set the url to*/}
+      {/*  <Code>https://dealo.app/api/stripe/checkout/start</Code>, we will generate the checkout session for you*/}
+      {/*  (adding all the required parameters).*/}
+      {/*</Text>*/}
       <Title order={3}>Using our API route to retrieve the information</Title>
       <Text component="p">
         The other option is to use our API route to get the real product and price <Code>ids</Code>

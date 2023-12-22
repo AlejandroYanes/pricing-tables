@@ -85,20 +85,33 @@ export const userRouter = createTRPCRouter({
   deleteAccount: stripeProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
-      const { stripeAccount } = (await ctx.prisma.user.findFirst({
+      const { stripeAccount, stripeCustomerId, stripeSubscriptionId } = (await ctx.prisma.user.findFirst({
         where: {
           id: user.id,
         },
         select: {
           stripeAccount: true,
+          stripeCustomerId: true,
+          stripeSubscriptionId: true,
         },
       }))!;
+
       await ctx.prisma.user.delete({
         where: {
           id: user.id,
         },
       });
+
       await ctx.stripe.accounts.del(stripeAccount!);
-      await notifyOfDeletedAccount({ name: user.name! });
+
+      if (stripeCustomerId) {
+        await ctx.stripe.customers.del(stripeCustomerId);
+      }
+
+      if (stripeSubscriptionId) {
+        await ctx.stripe.subscriptions.del(stripeSubscriptionId);
+      }
+
+      await notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!stripeSubscriptionId });
     }),
 });

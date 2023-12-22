@@ -1,12 +1,13 @@
 import { useRouter } from 'next/router';
+import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import { Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
-import type { TablerIcon } from '@tabler/icons';
-import { IconArrowLeft, IconInfoCircle, IconLogout, IconSettings, IconTrash, IconUser, IconUsers } from '@tabler/icons';
+import { type TablerIcon, IconArrowLeft, IconInfoCircle, IconLogout, IconReceipt, IconTrash, IconUser, IconUsers } from '@tabler/icons';
 import { RenderIf } from 'ui';
 import { ROLES } from 'models';
 
+import { env } from 'env/client.mjs';
 import { trpc } from 'utils/trpc';
 
 const useStyles = createStyles((theme) => ({
@@ -132,7 +133,26 @@ export function CustomNavbar(props: Props) {
               <Menu.Divider />
             </RenderIf>
             <Menu.Label>{user?.name}</Menu.Label>
-            <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
+            <RenderIf
+              condition={!!user?.hasSubscription}
+              fallback={
+                <Menu.Item
+                  component={Link}
+                  href="/pricing"
+                  icon={<IconReceipt size={14} />}
+                >
+                Pricing
+                </Menu.Item>
+              }
+            >
+              <Menu.Item
+                component="a"
+                href={`${env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK}${user?.email ? `?prefilled_email=${user.email}` : ''}`}
+                icon={<IconReceipt size={14} />}
+              >
+                Billing
+              </Menu.Item>
+            </RenderIf>
             <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
             <Menu.Divider />
             <Menu.Label>Danger zone</Menu.Label>

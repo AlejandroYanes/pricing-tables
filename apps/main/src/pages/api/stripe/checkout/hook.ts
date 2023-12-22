@@ -13,7 +13,7 @@ import initStripe from 'utils/stripe';
 // };
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const signature = req.headers['stripe-signature']!;
+  // const signature = req.headers['stripe-signature']!;
 
   const stripe = initStripe();
   const event: Stripe.Event = req.body as Stripe.Event;
@@ -26,41 +26,46 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   return res.status(400).send(`Webhook Error: ${err.message}`);
   // }
 
-  // TODO: handle checkout.session.completed event
   if (event.type === 'checkout.session.completed') {
     const { account, data } = event as Stripe.Event;
     const { id: sessionId } = data.object as Stripe.Checkout.Session;
-    const session = await stripe.checkout.sessions.retrieve(sessionId, { stripeAccount: account });
+    const session = await stripe.checkout.sessions.retrieve(
+      sessionId,
+      { expand: ['customer'] },
+      { stripeAccount: account },
+    );
 
     const isFromPlatform = session.metadata?.source === 'dealo';
-    if (!isFromPlatform) {
-      console.log(`❌ Webhook Error: event not from platform`);
-      return res.status(400).send(`Webhook Error: event not from platform`);
+    const isInternalFlow = session.metadata?.internal_flow === 'true';
+    if (!isFromPlatform || isInternalFlow) {
+      res.status(200).json({ received: true });
     }
 
     const hasMissingParams = !session.subscription || !session.customer;
     if (hasMissingParams) {
-      // TODO: handle failed payment (eg: send error email to user)
+      // TODO: handle failed payment (eg: send a message to a slack channel)
       console.log(`❌ Webhook Error: missing params`);
       return res.status(400).send(`Webhook Error: missing params`);
     }
 
     if (session.payment_status !== 'paid') {
-      // TODO: handle failed payment (eg: send error email to user)
+      // TODO: notify user of failed payment (eg: send error email to user)
       console.log(`❌ Webhook Error: payment failed`);
-      return res.status(400).send(`Webhook Error: payment failed`);
+      res.status(200).json({ received: true });
     }
 
-    // TODO: update user's subscription status
-    const db = initDb();
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE stripeAccount = ?`,
-        [session.subscription, session.customer, account],
-      );
-    });
+    if (isInternalFlow) {
+      const customer = session.customer as Stripe.Customer;
+      const db = initDb();
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE email = ?`,
+          [session.subscription, customer.id, customer.email],
+        );
+      });
 
-    // TODO: send confirmation email to user
+      // TODO: send confirmation email to user
+    }
   }
 
   res.status(200).json({ received: true });
