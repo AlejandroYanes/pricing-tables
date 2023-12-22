@@ -6,7 +6,7 @@ import { createTRPCRouter, stripeProcedure } from '../trpc';
 export const stripeRouter = createTRPCRouter({
   list: stripeProcedure.input(z.string().nullish()).query(async ({ ctx, input }) => {
 
-    console.log('-------------------stripe_account', ctx.stripeAccount, input);
+    console.log('----------------------stripe_account', ctx.stripeAccount, input);
 
     const promise = !!input
       ? ctx.stripe.products.search({ limit: 10, query: `active:"true" AND name~"${input}"` }, { stripeAccount: ctx.stripeAccount })
@@ -16,7 +16,9 @@ export const stripeRouter = createTRPCRouter({
 
     console.log('----------------------products', products);
 
-    const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
+    const pricesQuery = products.map((prod) => `product:"${prod.id}"`).join(' OR ');
+
+    console.log('----------------------pricesQuery', pricesQuery);
     if (!!pricesQuery) {
       const prices = (
         await ctx.stripe.prices.search({
