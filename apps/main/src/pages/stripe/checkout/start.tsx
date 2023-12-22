@@ -12,13 +12,13 @@ const CheckoutStartPage = () => {
   const { data, status } = useSession();
   useEffect(() => {
     if (router.query.payment_status === 'cancelled') {
-      console.log('❌ Pricing page: Payment cancelled - redirecting to pricing');
+      console.log('❌ Checkout page: Payment cancelled - redirecting to pricing page');
       router.replace('/pricing');
       return;
     }
 
     if (status === 'authenticated' && router.query.internal_flow === 'true') {
-      console.log('✅ Pricing page: User is authenticated - redirecting to checkout');
+      console.log('✅ Checkout page: User is authenticated - redirecting to checkout');
       const queryString = generateQueryString({ ...router.query, email: data?.user?.email });
       router.push(`/api/stripe/checkout/start?${queryString}`);
     }

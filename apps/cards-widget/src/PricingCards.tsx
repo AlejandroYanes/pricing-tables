@@ -14,24 +14,34 @@ interface Props {
   env?: string;
   theme?: string;
   currency?: string;
+  internal?: boolean;
 }
 
 const PricingCards = (props: Props) => {
-  const { cache, widget, currency, env, theme: colorScheme = 'light' } = props;
+  const { cache, widget, currency, env, theme: colorScheme = 'light', internal } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
-    if (widget) {
-      callAPI({
-        url: `https://dealo.app/api/client/widget/${widget}`,
-        method: 'GET',
-      })
-        .then((res) => {
-          setWidgetInfo(res as any);
+    if (window) {
+      const currentUrl = new URL(window.location.href);
+      const fetchUrl = internal
+        ? `${currentUrl.origin}/api/client/widget/${widget}`
+        : `https://dealo.app/api/client/widget/${widget}`;
+
+      console.log('fetchUrl', fetchUrl);
+
+      if (widget) {
+        callAPI({
+          url: `https://dealo.app/api/client/widget/${widget}`,
+          method: 'GET',
         })
-        .catch((err) => {
-          console.log(err);
-        });
+          .then((res) => {
+            setWidgetInfo(res as any);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
     }
   }, [widget]);
 
@@ -80,6 +90,7 @@ class Wrapper extends HTMLElement {
     env: undefined,
     theme: undefined,
     currency: undefined,
+    internal: false,
   };
 
   constructor() {
@@ -95,18 +106,8 @@ class Wrapper extends HTMLElement {
       widget: this.getAttribute('widget') || undefined,
       theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
+      internal: !!this.getAttribute('internal'),
     };
-
-    // window.addEventListener('resize', () => {
-    //   console.log(window.innerWidth, window.innerHeight);
-    // });
-    // this.resizeObserver = new ResizeObserver((entries) => {
-    //   for (const entry of entries) {
-    //     const rect = entry.target.getBoundingClientRect();
-    //     console.log(rect.width);
-    //   }
-    // });
-    // this.resizeObserver.observe(this);
   }
 
   render() {
@@ -114,7 +115,7 @@ class Wrapper extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'currency', 'widget', 'env'];
+    return ['theme', 'currency', 'widget', 'env', 'internal'];
   }
 
   attributeChangedCallback(name: string, oldValue: any, newValue: any) {
