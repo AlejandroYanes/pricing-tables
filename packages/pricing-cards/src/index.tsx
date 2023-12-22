@@ -25,14 +25,13 @@ const PricingCards = (props: Props) => {
     if (window) {
       const currentUrl = new URL(window.location.href);
       const fetchUrl = internal
+        // ? `http://localhost:3000/api/client/widget/${widget}`
         ? `${currentUrl.origin}/api/client/widget/${widget}`
-        : `https://dealo.app/api/client/widget/${widget}`;
-
-      console.log('fetchUrl', fetchUrl);
+        : `https://www.dealo.app/api/client/widget/${widget}`;
 
       if (widget) {
         callAPI({
-          url: `https://dealo.app/api/client/widget/${widget}`,
+          url: fetchUrl,
           method: 'GET',
         })
           .then((res) => {
@@ -133,3 +132,4 @@ class Wrapper extends HTMLElement {
 
 customElements.define('pricing-cards', Wrapper);
 
+export default PricingCards;

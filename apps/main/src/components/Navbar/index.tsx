@@ -14,7 +14,7 @@ const useStyles = createStyles((theme) => ({
   header: {
     display: 'flex',
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'flex-start',
     alignItems: 'center',
     border: 'none',
   },
@@ -57,11 +57,12 @@ function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
 interface Props {
   title?: string;
   showBackButton?: boolean;
+  hideUserControls?: boolean;
   backRoute?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton = false, title, backRoute } = props;
+  const { showBackButton = false, hideUserControls, title, backRoute } = props;
   const { classes } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
@@ -101,67 +102,69 @@ export function CustomNavbar(props: Props) {
         <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
       </RenderIf>
       <Title ml="md">{title}</Title>
-      <Group ml="auto">
-        <HoverCard width={280} shadow="md" position="bottom-end">
-          <HoverCard.Target>
-            <div>
-              <NavbarLink icon={IconInfoCircle} />
-            </div>
-          </HoverCard.Target>
-          <HoverCard.Dropdown>
-            <Text size="sm">
-              This platform is still an alpha version, so if you find any bugs or have any suggestions,
-              please let me know at <Anchor href="mailto:support@dealo.app">support@dealo.app</Anchor>!
-            </Text>
-          </HoverCard.Dropdown>
-        </HoverCard>
-        <Menu shadow="md" width={200} offset={18} position="bottom-end">
-          <Menu.Target>
-            <div>
-              <NavbarLink icon={IconUser} />
-            </div>
-          </Menu.Target>
-          <Menu.Dropdown>
-            <RenderIf condition={user?.role === ROLES.ADMIN}>
-              <Menu.Label>Management</Menu.Label>
-              <Menu.Item
-                onClick={() => router.push('/users')}
-                icon={<IconUsers size={14} />}
-              >
-                Manage Users
-              </Menu.Item>
-              <Menu.Divider />
-            </RenderIf>
-            <Menu.Label>{user?.name}</Menu.Label>
-            <RenderIf
-              condition={!!user?.hasSubscription}
-              fallback={
+      <RenderIf condition={!hideUserControls}>
+        <Group ml="auto">
+          <HoverCard width={280} shadow="md" position="bottom-end">
+            <HoverCard.Target>
+              <div>
+                <NavbarLink icon={IconInfoCircle} />
+              </div>
+            </HoverCard.Target>
+            <HoverCard.Dropdown>
+              <Text size="sm">
+                This platform is still an alpha version, so if you find any bugs or have any suggestions,
+                please let me know at <Anchor href="mailto:support@dealo.app">support@dealo.app</Anchor>!
+              </Text>
+            </HoverCard.Dropdown>
+          </HoverCard>
+          <Menu shadow="md" width={200} offset={18} position="bottom-end">
+            <Menu.Target>
+              <div>
+                <NavbarLink icon={IconUser} />
+              </div>
+            </Menu.Target>
+            <Menu.Dropdown>
+              <RenderIf condition={user?.role === ROLES.ADMIN}>
+                <Menu.Label>Management</Menu.Label>
                 <Menu.Item
-                  component={Link}
-                  href="/pricing"
+                  onClick={() => router.push('/users')}
+                  icon={<IconUsers size={14} />}
+                >
+                  Manage Users
+                </Menu.Item>
+                <Menu.Divider />
+              </RenderIf>
+              <Menu.Label>{user?.name}</Menu.Label>
+              <RenderIf
+                condition={!!user?.hasSubscription}
+                fallback={
+                  <Menu.Item
+                    component={Link}
+                    href="/pricing"
+                    icon={<IconReceipt size={14} />}
+                  >
+                    Pricing
+                  </Menu.Item>
+                }
+              >
+                <Menu.Item
+                  component="a"
+                  href={`${env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK}${user?.email ? `?prefilled_email=${user.email}` : ''}`}
                   icon={<IconReceipt size={14} />}
                 >
-                Pricing
+                  Billing
                 </Menu.Item>
-              }
-            >
-              <Menu.Item
-                component="a"
-                href={`${env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK}${user?.email ? `?prefilled_email=${user.email}` : ''}`}
-                icon={<IconReceipt size={14} />}
-              >
-                Billing
+              </RenderIf>
+              <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
+              <Menu.Divider />
+              <Menu.Label>Danger zone</Menu.Label>
+              <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
+                Delete my account
               </Menu.Item>
-            </RenderIf>
-            <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-            <Menu.Divider />
-            <Menu.Label>Danger zone</Menu.Label>
-            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
-              Delete my account
-            </Menu.Item>
-          </Menu.Dropdown>
-        </Menu>
-      </Group>
+            </Menu.Dropdown>
+          </Menu>
+        </Group>
+      </RenderIf>
     </Header>
   );
 }

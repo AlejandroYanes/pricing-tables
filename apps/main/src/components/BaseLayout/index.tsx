@@ -21,6 +21,7 @@ const useStyles = createStyles((theme) => ({
 
 interface Props {
   hideNavbar?: boolean;
+  hideUserControls?: boolean;
   showBackButton?: boolean;
   backRoute?: string;
   title?: string;
