@@ -129,26 +129,16 @@ export function CustomNavbar(props: Props) {
               >
                 Manage Users
               </Menu.Item>
-              <Menu.Item
-                onClick={() => router.push('/guests')}
-                icon={<IconUsers size={14} />}
-              >
-                Manage Guests
-              </Menu.Item>
               <Menu.Divider />
             </RenderIf>
-            <Menu.Label>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</Menu.Label>
-            <RenderIf condition={user?.role !== ROLES.GUEST}>
-              <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
-            </RenderIf>
+            <Menu.Label>{user?.name}</Menu.Label>
+            <Menu.Item icon={<IconSettings size={14} />}>Settings</Menu.Item>
             <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-            <RenderIf condition={user?.role !== ROLES.GUEST}>
-              <Menu.Divider />
-              <Menu.Label>Danger zone</Menu.Label>
-              <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
-                Delete my account
-              </Menu.Item>
-            </RenderIf>
+            <Menu.Divider />
+            <Menu.Label>Danger zone</Menu.Label>
+            <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
+              Delete my account
+            </Menu.Item>
           </Menu.Dropdown>
         </Menu>
       </Group>

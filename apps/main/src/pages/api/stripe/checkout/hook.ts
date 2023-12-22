@@ -14,7 +14,6 @@ import initStripe from 'utils/stripe';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const signature = req.headers['stripe-signature']!;
-  console.log('------------------- stripe-signature:', signature);
 
   const stripe = initStripe();
   const event: Stripe.Event = req.body as Stripe.Event;
@@ -55,7 +54,10 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     // TODO: update user's subscription status
     const db = initDb();
     await db.transaction(async (tx) => {
-      await tx.execute(`UPDATE User SET stripeSubscriptionId = ? WHERE stripeAccount = ?`, [session.subscription, account]);
+      await tx.execute(
+        `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE stripeAccount = ?`,
+        [session.subscription, session.customer, account],
+      );
     });
 
     // TODO: send confirmation email to user
