@@ -27,7 +27,7 @@ const CheckoutStartPage = () => {
   return (
     <>
       <Head>
-        <title>Dealo | Stripe Connect results</title>
+        <title>Dealo | Stripe Checkout start</title>
       </Head>
       <BaseLayout>
         <Stack align="center" justify="center" style={{ width: '100%', padding: '86px' }}>
