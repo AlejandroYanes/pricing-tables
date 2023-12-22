@@ -12,7 +12,7 @@ export const stripeRouter = createTRPCRouter({
 
     const products = (await promise).data.map(reduceStripeProduct);
 
-    const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
+    const pricesQuery = products.map((prod) => `product:"${prod.id}"`).join(' OR ');
     if (!!pricesQuery) {
       const prices = (
         await ctx.stripe.prices.search({
