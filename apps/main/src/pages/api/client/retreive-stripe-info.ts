@@ -32,10 +32,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const db = initDb();
 
     const product = (
-      await db.execute('SELECT `pricing-tables`.Product.id FROM `pricing-tables`.`Product` WHERE `mask` = ? AND `widgetId` = ?', [product_id, widget_id])
+      await db.execute('SELECT Product.id FROM Product WHERE mask = ? AND widgetId = ?', [product_id, widget_id])
     ).rows as { id: string }[];
     const price = (
-      await db.execute('SELECT `pricing-tables`.Price.id FROM `pricing-tables`.Price WHERE `mask` = ? AND `widgetId` = ?', [price_id, widget_id])
+      await db.execute('SELECT Price.id FROM Price WHERE mask = ? AND widgetId = ?', [price_id, widget_id])
     ).rows as { id: string }[];
 
     if (!product[0] || !price[0]) {

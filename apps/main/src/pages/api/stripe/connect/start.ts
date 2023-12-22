@@ -21,7 +21,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
   const { stripeAccount, stripeConnected } = (
-    await db.execute('SELECT stripeAccount, stripeConnected FROM `pricing-tables`.`User` WHERE `id` = ?', [session.user.id])
+    await db.execute('SELECT stripeAccount, stripeConnected FROM User WHERE id = ?', [session.user.id])
   ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
   if (!stripeAccount) {
@@ -30,7 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     });
 
     await db.transaction(async (tx) => {
-      await tx.execute( 'UPDATE `pricing-tables`.`User` SET `stripeAccount` = ? WHERE `id` = ?', [newAccount.id, session.user!.id]);
+      await tx.execute( 'UPDATE User SET stripeAccount = ? WHERE id = ?', [newAccount.id, session.user!.id]);
     });
 
     const accountLinkUrl = await generateStripeAccountLink(stripe, newAccount.id, platformUrl);
