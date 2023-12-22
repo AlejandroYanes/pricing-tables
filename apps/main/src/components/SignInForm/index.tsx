@@ -9,16 +9,16 @@ const SignInForm = () => {
   const { status } = useSession();
   const { query, ...router } = useRouter();
 
-  const buildPricingUrl = () => {
-    const pricingPageRoute = '/pricing';
+  const buildCheckoutUrl = () => {
+    const checkoutPageRoute = '/stripe/checkout/start';
     const searchParams = generateQueryString(query);
-    return `${pricingPageRoute}?${searchParams}}`;
+    return `${checkoutPageRoute}?${searchParams}}`;
   }
 
   const handleSignIn = (provider: string) => {
     if (status === 'authenticated') {
       if (query.internal_flow === 'true') {
-        router.push(buildPricingUrl());
+        router.push(buildCheckoutUrl());
       } else {
         router.push('/dashboard');
       }
@@ -26,7 +26,7 @@ const SignInForm = () => {
     }
 
     if (query.internal_flow === 'true') {
-      const checkoutUrl = buildPricingUrl();
+      const checkoutUrl = buildCheckoutUrl();
       signIn(provider, { callbackUrl: checkoutUrl });
     } else {
       signIn(provider, { callbackUrl: '/dashboard' });
