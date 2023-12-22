@@ -1,11 +1,13 @@
+/* eslint-disable max-len */
+import { useEffect } from 'react';
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, useMantineTheme, MediaQuery } from '@mantine/core';
+import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, MediaQuery } from '@mantine/core';
+import { useColorScheme } from '@mantine/hooks';
 import { IconCheck } from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
-import SignInForm from 'components/SignInForm';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -93,9 +95,42 @@ const useStyles = createStyles((theme) => ({
   },
 }));
 
+const youtubeEmbed = (
+  <>
+    <MediaQuery smallerThan="xs" styles={{ display: 'none' }}>
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+        title="Pricing Cards Demo"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        width="560"
+        height="315"
+        allowFullScreen
+        style={{ border: 'none' }}
+      >
+      </iframe>
+    </MediaQuery>
+    <MediaQuery largerThan="xs" styles={{ display: 'none' }}>
+      <iframe
+        src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
+        title="Pricing Cards Demo"
+        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+        width="320"
+        height="260"
+        allowFullScreen
+        style={{ border: 'none', marginBottom: '32px' }}
+      >
+      </iframe>
+    </MediaQuery>
+  </>
+);
+
 const Home: NextPage = () => {
-  const theme = useMantineTheme();
   const { classes } = useStyles();
+  const colorScheme = useColorScheme();
+
+  useEffect(() => {
+    import('pricing-cards');
+  }, []);
 
   return (
     <>
@@ -129,66 +164,53 @@ const Home: NextPage = () => {
                 }
               >
                 <List.Item>
-                  <b>Powered by Stripe</b> – use the products you already have to create a pricing widget in minutes
+                  <b>Easy setup</b> – just copy and paste the code snippets to your website
                 </List.Item>
                 <List.Item>
-                  <b>Easy setup</b> – just copy and paste the code snippets to your website
+                  <b>Powered by Stripe</b> – use the products you already have to create a pricing widget in minutes
                 </List.Item>
                 <List.Item>
                   <b>Easy checkout</b> – redirect your customers to our checkout API, we will generate a checkout session for you
                 </List.Item>
               </List>
 
-              <a
-                href="https://www.producthunt.com/posts/dealo?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-dealo"
-                target="_blank"
-                rel="noreferrer"
-                style={{ margin: '60px auto 0' }}
-              >
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  // eslint-disable-next-line max-len
-                  src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=${theme.colorScheme}&period=weekly&topic_id=237`}
-                  alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"
-                  style={{ width: '250px', height: '54px' }}
-                  width="250"
-                  height="54"
-                />
-              </a>
+              {/* TODO: hid the Product Hunt badge for now, review later */}
+              {/*<a*/}
+              {/*  href="https://www.producthunt.com/posts/dealo?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-dealo"*/}
+              {/*  target="_blank"*/}
+              {/*  rel="noreferrer"*/}
+              {/*  style={{ margin: '60px auto 0' }}*/}
+              {/*>*/}
+              {/*  /!* eslint-disable-next-line @next/next/no-img-element *!/*/}
+              {/*  <img*/}
+              {/*    // eslint-disable-next-line max-len*/}
+              {/*    src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=${theme.colorScheme}&period=weekly&topic_id=237`}*/}
+              {/*    alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"*/}
+              {/*    style={{ width: '250px', height: '54px' }}*/}
+              {/*    width="250"*/}
+              {/*    height="54"*/}
+              {/*  />*/}
+              {/*</a>*/}
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
-          <Group align="flex-start" mt="xl" grow className={classes.bottom}>
-            <Stack>
-              <SignInForm />
-            </Stack>
-            <Stack>
-              <MediaQuery smallerThan="xs" styles={{ display: 'none' }}>
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-                  title="Pricing Cards Demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  width="560"
-                  height="315"
-                  allowFullScreen
-                  style={{ border: 'none' }}
-                >
-                </iframe>
-              </MediaQuery>
-              <MediaQuery largerThan="xs" styles={{ display: 'none' }}>
-                <iframe
-                  src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-                  title="Pricing Cards Demo"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                  width="320"
-                  height="260"
-                  allowFullScreen
-                  style={{ border: 'none', marginBottom: '32px' }}
-                >
-                </iframe>
-              </MediaQuery>
-            </Stack>
-          </Group>
+          {/*{youtubeEmbed}*/}
+          <Stack mt="xl" align="center" justify="center">
+            <Title order={1} mb="xl">Get started now.</Title>
+            {/* @ts-ignore */}
+            <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
+            <Text color="dimmed" mt="lg">This is a working example of a pricing widget.</Text>
+          </Stack>
+          {/*<Group align="flex-start" mt={86} grow className={classes.bottom}>*/}
+          {/*  <Stack>*/}
+          {/*    /!*<SignInForm />*!/*/}
+          {/*    /!* @ts-ignore *!/*/}
+          {/*    <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />*/}
+          {/*  </Stack>*/}
+          {/*  <Stack>*/}
+          {/*    {youtubeEmbed}*/}
+          {/*  </Stack>*/}
+          {/*</Group>*/}
         </div>
       </BaseLayout>
     </>
