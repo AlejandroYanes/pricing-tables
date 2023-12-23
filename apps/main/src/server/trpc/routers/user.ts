@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+import initDb from 'utils/planet-scale';
 import { notifyOfDeletedAccount } from 'utils/slack';
 import { adminProcedure, createTRPCRouter, stripeProcedure } from '../trpc';
 
@@ -85,49 +86,38 @@ export const userRouter = createTRPCRouter({
   deleteAccount: stripeProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
-      const { stripeAccount, stripeCustomerId, stripeSubscriptionId, checkoutRecords } = (await ctx.prisma.user.findFirst({
-        where: {
-          id: user.id,
-        },
-        select: {
-          stripeAccount: true,
-          stripeCustomerId: true,
-          stripeSubscriptionId: true,
-          checkoutRecords: {
-            where: {
-              isActive: true,
-            },
-            select: {
-              id: true,
-              user: {
-                select: {
-                  stripeAccount: true,
-                },
-              },
-            },
-          },
-        },
-      }))!;
+      const db = initDb();
 
-      if (checkoutRecords.length > 0 && checkoutRecords[0]) {
-        const checkoutRecord = checkoutRecords[0];
-        const { stripeAccount: checkoutAccount } = checkoutRecord.user;
-        if (stripeSubscriptionId) {
-          // TODO: add the stripe account that generated the checkout session
-          await ctx.stripe.subscriptions.del(stripeSubscriptionId, { stripeAccount: checkoutAccount! });
-        }
+      const checkoutRecord = (
+        await db.execute(`
+          SELECT US1.stripeCustomerId, US1.stripeCustomerId, stripeSubscriptionId, US2.stripeAccount
+          FROM CheckoutRecord CR
+              JOIN User US1 ON CR.userId = US1.id
+              JOIN PriceWidget PW ON CR.widgetId = PW.id
+              JOIN User US2 ON PW.userId = US2.id
+          WHERE CR.isActive = true AND US1.id = ?
+        `, [user.id])
+      ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string; stripeSubscriptionId?: string };
 
-        if (stripeCustomerId) {
-          // TODO: add the stripe account that generated the checkout session
-          await ctx.stripe.customers.del(stripeCustomerId, { stripeAccount: checkoutAccount! });
-        }
+      if (!checkoutRecord) {
+        return;
       }
 
-      await ctx.stripe.accounts.del(stripeAccount!);
-      await ctx.prisma.user.delete({
-        where: {
-          id: user.id,
-        },
+      const { stripeCustomerId, stripeSubscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
+
+      if (stripeSubscriptionId) {
+        await ctx.stripe.subscriptions.del(stripeSubscriptionId, { stripeAccount: checkoutAccount! });
+      }
+
+      if (stripeCustomerId) {
+        await ctx.stripe.customers.del(stripeCustomerId, { stripeAccount: checkoutAccount! });
+      }
+
+      await ctx.stripe.accounts.del(checkoutAccount!);
+
+      await db.transaction(async (tx) => {
+        await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [user.id]);
+        await tx.execute('DELETE FROM User WHERE id = ?', [user.id]);
       });
 
       await notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!stripeSubscriptionId });

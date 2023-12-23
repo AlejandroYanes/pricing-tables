@@ -10,7 +10,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: Authe
   const stripe = initStripe();
   const db = initDb();
 
-  const { stripeCustomerId, stripeAccount } = (
+  const checkoutRecord = (
     await db.execute(`
       SELECT US1.stripeCustomerId, US2.stripeAccount
       FROM CheckoutRecord CR
@@ -20,6 +20,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: Authe
       WHERE CR.isActive = true AND US1.id = ?
     `, [session.user.id])
   ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string };
+
+  if (!checkoutRecord) {
+    res.status(400).json({ error: 'No checkout record found' });
+    return;
+  }
+  const { stripeCustomerId, stripeAccount } = checkoutRecord;
 
   if (!stripeCustomerId) {
     res.status(400).json({ error: 'No Stripe customer ID found' });
