@@ -17,32 +17,23 @@ const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widg
 const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
 const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
 
-const requestBody = () => `{ widget_id: <...>, product_id: <...>, price_id: <...> }`;
-
 // eslint-disable-next-line max-len
 const curlCommand = (apiKey: string) => `
-curl -X POST https://dealo.app/api/client/retreive-stripe-info \\
+curl -X POST https://dealo.app/api/client/stripe/info?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...> \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
-     -d '{ "widget_id": "<...>", "product_id": "<...>", "price_id": "<...>" }'
 `;
 
 // eslint-disable-next-line max-len
 const jsCommand = (apiKey: string) => `
-const url = 'https://dealo.app/api/client/retreive-stripe-info';
-const data = {
-  widget_id: '<...>',
-  product_id: '<...>',
-  price_id: '<...>'
-};
+const url = 'https://dealo.app/api/client/stripe/info?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>';
 
 fetch(url, {
-  method: 'POST',
+  method: 'GET',
   headers: {
     'Content-Type': 'application/json',
     'X-Api-Key': '${apiKey}'
   },
-  body: JSON.stringify(data)
 })
   .then(response => response.json())
   .then(data => console.log(data))
@@ -114,7 +105,7 @@ export default function IntegrationPanel(props: Props) {
         If you leave the url empty it will just add the parameters to the page url.
         Eg:
         <Prism language="javascript" mt="md">
-          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>`}
         </Prism>
         <br />
         This is done so you can use your own signup flow before collecting the payment.
@@ -163,11 +154,8 @@ export default function IntegrationPanel(props: Props) {
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
       </Text>
-      <Prism language="javascript">{`https://dealo.app/api/client/retreive-stripe-info`}</Prism>
+      <Prism language="javascript">{`https://dealo.app/api/client/stripe/info`}</Prism>
       <Text component="p" mt="md">
-        This request needs to be a <Code>POST</Code> request with the body:
-        <Prism language="json">{requestBody()}</Prism>
-        <br />
         It will return an object with the real <Code>ids</Code> for the product and price.
       </Text>
       <Text>The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</Text>

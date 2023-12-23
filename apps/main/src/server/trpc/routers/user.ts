@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
 import initDb from 'utils/planet-scale';
 import { notifyOfDeletedAccount } from 'utils/slack';
@@ -100,7 +101,10 @@ export const userRouter = createTRPCRouter({
       ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string; stripeSubscriptionId?: string };
 
       if (!checkoutRecord) {
-        return;
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No checkout record found',
+        });
       }
 
       const { stripeCustomerId, stripeSubscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
