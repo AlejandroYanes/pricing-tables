@@ -7,7 +7,6 @@ import { type TablerIcon, IconArrowLeft, IconInfoCircle, IconLogout, IconReceipt
 import { RenderIf } from 'ui';
 import { ROLES } from 'models';
 
-import { env } from 'env/client.mjs';
 import { trpc } from 'utils/trpc';
 
 const useStyles = createStyles((theme) => ({
@@ -148,8 +147,8 @@ export function CustomNavbar(props: Props) {
                 }
               >
                 <Menu.Item
-                  component="a"
-                  href={`${env.NEXT_PUBLIC_STRIPE_CUSTOMER_PORTAL_LINK}${user?.email ? `?prefilled_email=${user.email}` : ''}`}
+                  component={Link}
+                  href="/api/stripe/customer/portal"
                   icon={<IconReceipt size={14} />}
                 >
                   Billing

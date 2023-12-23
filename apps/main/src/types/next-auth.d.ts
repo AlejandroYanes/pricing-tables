@@ -14,4 +14,14 @@ declare module 'next-auth' {
       hasSubscription: boolean;
     } & DefaultSession['user'];
   }
+
+  interface AuthenticatedSession extends Session {
+    user: {
+      id: string;
+      role: string | null;
+      isSetup: boolean;
+      hasLegacySetup: boolean;
+      hasSubscription: boolean;
+    } & DefaultSession['user'];
+  }
 }

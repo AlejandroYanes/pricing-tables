@@ -85,16 +85,6 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
 
-    console.log('-------------------Stripe checkout start', {
-      platformUrl,
-      refererSuccessUrl,
-      refererCancelUrl,
-      fallbackCancelUrl,
-      fallbackSuccessUrl,
-      finalSuccessUrl,
-      finalCancelUrl,
-    });
-
     const stripe = initStripe();
 
     const checkoutSession = await stripe.checkout.sessions.create({
@@ -112,6 +102,9 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
       metadata: {
         source: 'dealo',
         internal_flow: internal_flow ? 'true' : 'false',
+        widgetId,
+        productId: sessionQuery.productId,
+        priceId: sessionQuery.priceId,
       },
     }, { stripeAccount: user.stripeAccount });
 

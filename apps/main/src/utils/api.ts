@@ -1,22 +1,25 @@
-import type { Session } from 'next-auth';
-import { getServerSession } from 'next-auth';
+import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
 import { authOptions } from '../pages/api/auth/[...nextauth]';
 
-type NextHandler = (req: NextApiRequest, res: NextApiResponse, session?: Session) => Promise<void>;
+type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
-export const authMiddleware = (next: NextHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
+export const authMiddleware = (next: AuthenticatedHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, authOptions);
 
-  if (!session) {
+  if (!session || !session.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  return next(req, res, session);
+  const authenticatedSession = { ...session, user: session.user! } as AuthenticatedSession;
+
+  return next(req, res, authenticatedSession);
 }
 
-export const corsMiddleware = (next: NextHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
+type CorsHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+
+export const corsMiddleware = (next: CorsHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');

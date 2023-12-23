@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
+import { createId } from '@paralleldrive/cuid2';
 
 // import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
@@ -56,11 +57,21 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     if (isInternalFlow) {
       const customer = session.customer as Stripe.Customer;
+      const { widgetId, productId, priceId } = session.metadata!;
       const db = initDb();
+
       await db.transaction(async (tx) => {
+        const { id: userId } = (
+          await tx.execute('SELECT id FROM User WHERE email = ?', [customer.email])
+        ).rows[0] as { id: string };
         await tx.execute(
-          `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE email = ?`,
-          [session.subscription, customer.id, customer.email],
+          `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE id = ?`,
+          [session.subscription, customer.id, userId],
+        );
+        await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
+        await tx.execute(
+          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId) VALUES (?, ?, ?, ?, ?, ?)',
+          [createId(), sessionId, userId, widgetId, productId, priceId],
         );
       });
 

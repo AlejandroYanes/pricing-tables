@@ -1,21 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
+import { type AuthenticatedSession } from 'next-auth';
 import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import { authMiddleware } from 'utils/api';
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
-import { authOptions } from '../../auth/[...nextauth]';
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = (await getServerSession(req, res, authOptions))!;
-
-  if (!session.user) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
-
+async function handler(_: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) {
   const stripe = initStripe();
   const db = initDb();
   const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;

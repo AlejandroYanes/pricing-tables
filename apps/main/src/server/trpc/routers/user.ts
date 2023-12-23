@@ -85,7 +85,7 @@ export const userRouter = createTRPCRouter({
   deleteAccount: stripeProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
-      const { stripeAccount, stripeCustomerId, stripeSubscriptionId } = (await ctx.prisma.user.findFirst({
+      const { stripeAccount, stripeCustomerId, stripeSubscriptionId, checkoutRecords } = (await ctx.prisma.user.findFirst({
         where: {
           id: user.id,
         },
@@ -93,24 +93,42 @@ export const userRouter = createTRPCRouter({
           stripeAccount: true,
           stripeCustomerId: true,
           stripeSubscriptionId: true,
+          checkoutRecords: {
+            where: {
+              isActive: true,
+            },
+            select: {
+              id: true,
+              user: {
+                select: {
+                  stripeAccount: true,
+                },
+              },
+            },
+          },
         },
       }))!;
 
+      if (checkoutRecords.length > 0 && checkoutRecords[0]) {
+        const checkoutRecord = checkoutRecords[0];
+        const { stripeAccount: checkoutAccount } = checkoutRecord.user;
+        if (stripeSubscriptionId) {
+          // TODO: add the stripe account that generated the checkout session
+          await ctx.stripe.subscriptions.del(stripeSubscriptionId, { stripeAccount: checkoutAccount! });
+        }
+
+        if (stripeCustomerId) {
+          // TODO: add the stripe account that generated the checkout session
+          await ctx.stripe.customers.del(stripeCustomerId, { stripeAccount: checkoutAccount! });
+        }
+      }
+
+      await ctx.stripe.accounts.del(stripeAccount!);
       await ctx.prisma.user.delete({
         where: {
           id: user.id,
         },
       });
-
-      await ctx.stripe.accounts.del(stripeAccount!);
-
-      if (stripeCustomerId) {
-        await ctx.stripe.customers.del(stripeCustomerId);
-      }
-
-      if (stripeSubscriptionId) {
-        await ctx.stripe.subscriptions.del(stripeSubscriptionId);
-      }
 
       await notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!stripeSubscriptionId });
     }),
