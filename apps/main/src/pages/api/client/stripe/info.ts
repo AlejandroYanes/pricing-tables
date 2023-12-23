@@ -26,7 +26,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const { widget_id, product_id, price_id } = req.query;
+  const { widget_id, product_id, price_id } = parsedBody.data;
 
   try {
     const db = initDb();

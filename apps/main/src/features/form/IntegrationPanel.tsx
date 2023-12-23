@@ -119,6 +119,7 @@ export default function IntegrationPanel(props: Props) {
           </li>
         </ul>
       </Text>
+
       <Title order={3}>Generating a Stripe Checkout</Title>
       <Text component="p" m={0}>
         To generate a Stripe checkout session you need redirect the user to our <Code>checkout</Code> API route.
@@ -139,12 +140,7 @@ export default function IntegrationPanel(props: Props) {
         If {`we're`} not able to find the page that initiated the checkout,
         we will redirect the user to our own pages that will show a success or error message (though this should never happen).
       </Text>
-      {/*<Title order={3}>We can help you generate the Checkout session</Title>*/}
-      {/*<Text component="p">*/}
-      {/*  If on the callback section of the <Code>Settings</Code> panel you set the url to*/}
-      {/*  <Code>https://dealo.app/api/stripe/checkout/start</Code>, we will generate the checkout session for you*/}
-      {/*  (adding all the required parameters).*/}
-      {/*</Text>*/}
+
       <Title order={3}>Using our API route to retrieve the information</Title>
       <Text component="p">
         The other option is to use our API route to get the real product and price <Code>ids</Code>
@@ -160,10 +156,27 @@ export default function IntegrationPanel(props: Props) {
       </Text>
       <Text>The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</Text>
       <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
-      <Text>{`Here's`} how it would look</Text>
+      <Text>{`Here's`} how it would look:</Text>
       <Prism language="bash">{curlCommand(data!.user!.id)}</Prism>
-      <Text mt="md">{`Here's`} a JavaScript version</Text>
+      <Text mt="md">{`Here's`} a JavaScript version:</Text>
       <Prism language="jsx">{jsCommand(data!.user!.id)}</Prism>
+
+      <Title order={3}>Generating a Stripe Customer Portal</Title>
+      <Text component="p" m={0}>
+        To generate a Stripe Customer Portal you need redirect the user to our API route.
+        For this one we only need the Stripe <Code>customer_id</Code> associated with the user.
+      </Text>
+      <Prism language="javascript">
+        {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}
+      </Prism>
+      <Text component="p">
+        This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
+        After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
+        or we will redirect them to the same page they were before (the one that initiated the checkout).
+      </Text>
+      <Text>This request also needs the API Key header:</Text>
+      <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
+
       <Space h="xl" />
     </Stack>
   );
