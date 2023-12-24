@@ -127,10 +127,13 @@ export default function IntegrationPanel(props: Props) {
         <br />
         {`It's`} not required, but we recommend adding the {`user's`} <Code>email</Code> as well,
         it will help auto-complete the session form and avoid asking the user for their email twice
-        or them adding a different one.
+        or them adding a different one. If you have the {`Stripe's`} <Code>customer_id</Code> you can add that as well
+        (in or place of the <Code>email</Code>), it helps in not creating duplicate customers.
+        This can be useful if the user had a previous subscription with you.
       </Text>
       <Prism language="javascript">
-        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>&email=<...>`}
+        {/* eslint-disable-next-line max-len */}
+        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>&email=<...>&customer_id=<...>`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.

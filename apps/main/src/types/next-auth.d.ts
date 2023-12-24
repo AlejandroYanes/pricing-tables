@@ -9,6 +9,7 @@ declare module 'next-auth' {
     user?: {
       id: string;
       role: string | null;
+      customerId: string | null;
       isSetup: boolean;
       hasLegacySetup: boolean;
       hasSubscription: boolean;
@@ -19,6 +20,7 @@ declare module 'next-auth' {
     user: {
       id: string;
       role: string | null;
+      customerId: string | null;
       isSetup: boolean;
       hasLegacySetup: boolean;
       hasSubscription: boolean;

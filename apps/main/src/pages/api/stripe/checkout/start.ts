@@ -19,6 +19,7 @@ const inputSchema = z.object({
   price_id: z.string().cuid2(),
   currency: z.string().length(3),
   email: z.string().email().optional(),
+  customer_id: z.string().optional(),
   internal_flow: z.enum(['true', 'false']).optional(),
   payment_type: z.literal('one_time').or(z.literal('recurring')),
 });
@@ -39,6 +40,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     payment_type,
     currency,
     email,
+    customer_id,
     internal_flow,
   } = parsedParams.data;
   const db = initDb();
@@ -95,7 +97,8 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
-      customer_email: email,
+      customer_email: customer_id ? undefined : email,
+      customer: customer_id,
       currency: currency || 'gbp',
       success_url: finalSuccessUrl,
       cancel_url: finalCancelUrl,

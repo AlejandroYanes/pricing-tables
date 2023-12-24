@@ -19,7 +19,11 @@ const CheckoutStartPage = () => {
 
     if (status === 'authenticated' && router.query.internal_flow === 'true') {
       console.log('✅ Checkout page: User is authenticated - redirecting to checkout');
-      const queryString = generateQueryString({ ...router.query, email: data?.user?.email });
+      const queryString = generateQueryString({
+        ...router.query,
+        email: data?.user?.email,
+        customer_id: data?.user?.customerId,
+      });
       router.push(`/api/stripe/checkout/start?${queryString}`);
     }
   }, [status]);
