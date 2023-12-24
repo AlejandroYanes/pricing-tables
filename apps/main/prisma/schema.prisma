@@ -89,16 +89,17 @@ model Callback {
 }
 
 model CheckoutRecord {
-    id              String          @id @default(cuid())
-    sessionId       String
-    userId          String
-    widgetId        String
-    productId       String
-    priceId         String
-    createdAt       DateTime        @default(now())
-    isActive        Boolean         @default(true)
-    widget          PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
-    user            User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+    id                    String          @id @default(cuid())
+    sessionId             String
+    userId                String
+    widgetId              String
+    productId             String
+    priceId               String
+    stripeSubscriptionId  String
+    createdAt             DateTime        @default(now())
+    isActive              Boolean         @default(true)
+    widget                PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+    user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Necessary for Next auth

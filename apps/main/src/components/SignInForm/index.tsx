@@ -12,7 +12,7 @@ const SignInForm = () => {
   const buildCheckoutUrl = () => {
     const checkoutPageRoute = '/stripe/checkout/start';
     const searchParams = generateQueryString(query);
-    return `${checkoutPageRoute}?${searchParams}}`;
+    return `${checkoutPageRoute}?${searchParams}`;
   }
 
   const handleSignIn = (provider: string) => {

@@ -70,8 +70,9 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         );
         await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
         await tx.execute(
-          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId) VALUES (?, ?, ?, ?, ?, ?)',
-          [createId(), sessionId, userId, widgetId, productId, priceId],
+          // eslint-disable-next-line max-len
+          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, stripeSubscriptionId) VALUES (?, ?, ?, ?, ?, ?, ?)',
+          [createId(), sessionId, userId, widgetId, productId, priceId, session.subscription],
         );
       });
 
