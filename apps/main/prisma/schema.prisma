@@ -96,6 +96,9 @@ model CheckoutRecord {
     productId             String
     priceId               String
     stripeSubscriptionId  String
+    cancelAt              Int?
+    cancelledAt           Int?
+    cancellationDetails   String?
     createdAt             DateTime        @default(now())
     isActive              Boolean         @default(true)
     widget                PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
@@ -139,7 +142,6 @@ model User {
     stripeAccount         String?
     stripeConnected       Boolean   @default(false)
     stripeCustomerId      String?
-    stripeSubscriptionId  String?
     role                  String?    @default("USER")
     accounts              Account[]
     sessions              Session[]

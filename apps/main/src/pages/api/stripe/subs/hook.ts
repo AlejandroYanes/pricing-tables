@@ -3,6 +3,11 @@ import type Stripe from 'stripe';
 
 // import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
+import {
+  notifyOfRenewedSubscription,
+  notifyOfSubscriptionCancellation,
+  notifyOfSubscriptionSoftCancellation
+} from '../../../../utils/slack';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -26,27 +31,60 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   //   return res.status(400).send(`Webhook Error: ${err.message}`);
   // }
 
-  if (event.type === 'customer.subscription.deleted') {
-    const { data } = event as Stripe.Event;
-    const { id: subsId } = data.object as Stripe.Subscription;
+  const { data } = event as Stripe.Event;
+  const subscription = data.object as Stripe.Subscription;
+  const { id: subsId } = subscription;
 
-    const db = initDb();
+  const db = initDb();
 
-    const dbInfo = (
-      await db.execute(`
-        SELECT US1.id
+  const dbInfo = (
+    await db.execute(`
+        SELECT US1.id, US1.name
         FROM CheckoutRecord CR
           JOIN User US1 ON CR.userId = US1.id
         WHERE CR.isActive = true AND CR.stripeSubscriptionId = ?
       `, [subsId])
-    ).rows[0] as { id: string } | undefined;
+  ).rows[0] as { id: string; name: string } | undefined;
 
-    if (dbInfo) {
-      const { id: userId } = dbInfo;
+  if (!dbInfo) {
+    res.status(200).json({ received: true });
+    return;
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    const { id: userId, name } = dbInfo;
+    await db.transaction(async (tx) => {
+      await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE WHERE isActive = TRUE AND userId = ?', [userId]);
+    });
+    notifyOfSubscriptionCancellation({ name });
+  }
+
+  if (event.type === 'customer.subscription.updated') {
+    const { cancel_at, canceled_at, cancellation_details } = subscription;
+    const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription>;
+    const isCancelling = cancel_at && !previousAttributes.cancel_at;
+    const isRenewing = !canceled_at && previousAttributes.canceled_at;
+
+    if (isCancelling) {
+      const { id: userId, name } = dbInfo;
       await db.transaction(async (tx) => {
-        await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE WHERE isActive = TRUE AND userId = ?', [userId]);
-        await tx.execute('UPDATE User SET stripeSubscriptionId = NULL WHERE id = ?', [userId]);
+        await tx.execute(
+          'UPDATE CheckoutRecord SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE isActive = TRUE AND userId = ?',
+          [cancel_at, canceled_at, JSON.stringify(cancellation_details), userId],
+        );
       });
+      notifyOfSubscriptionSoftCancellation({ name, cancelAt: cancel_at! });
+    }
+
+    if (isRenewing) {
+      const { id: userId, name } = dbInfo;
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          'UPDATE CheckoutRecord SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE isActive = TRUE AND userId = ?',
+          [userId],
+        );
+      });
+      notifyOfRenewedSubscription({ name });
     }
   }
 

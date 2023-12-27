@@ -5,6 +5,7 @@ import { createId } from '@paralleldrive/cuid2';
 // import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
+import { notifyOfNewSubscription } from '../../../../utils/slack';
 // import { buffer } from 'utils/api';
 
 // export const config = {
@@ -60,14 +61,11 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       const { widgetId, productId, priceId } = session.metadata!;
       const db = initDb();
 
+      const { id: userId, name } = (
+        await db.execute('SELECT id, name FROM User WHERE email = ?', [customer.email])
+      ).rows[0] as { id: string; name: string };
+
       await db.transaction(async (tx) => {
-        const { id: userId } = (
-          await tx.execute('SELECT id FROM User WHERE email = ?', [customer.email])
-        ).rows[0] as { id: string };
-        await tx.execute(
-          `UPDATE User SET stripeSubscriptionId = ?, stripeCustomerId = ? WHERE id = ?`,
-          [session.subscription, customer.id, userId],
-        );
         await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
         await tx.execute(
           // eslint-disable-next-line max-len
@@ -76,6 +74,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         );
       });
 
+      await notifyOfNewSubscription({ name });
       // TODO: send confirmation email to user
     }
   }

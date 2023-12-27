@@ -7,13 +7,19 @@ import initStripe from 'utils/stripe';
 import { notifyOfNewSetup } from 'utils/slack';
 import { buffer } from 'utils/api';
 
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const payload = await buffer(req);
   const sig = req.headers['stripe-signature']!;
 
   let event: Stripe.Event;
 
   try {
+    const payload = await buffer(req);
     const stripe = initStripe();
     event = stripe.webhooks.constructEvent(payload, sig, env.STRIPE_CONNECT_WEBHOOK_SECRET);
   } catch (err: any) {
