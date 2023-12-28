@@ -1,6 +1,6 @@
 // import React from 'react'
 // import ReactDOM from 'react-dom/client'
-// import 'pricing-cards';
+import 'pricing-cards';
 
 // ReactDOM.createRoot(document.getElementById('pricing-cards') as HTMLElement).render(
 //   <React.StrictMode>
