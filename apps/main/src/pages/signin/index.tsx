@@ -80,8 +80,9 @@ export default function SigninPage() {
   }
 
   useEffect(() => {
-    if (status === 'authenticated' && query.internal_flow === 'true') {
-      router.push(buildCheckoutUrl());
+    if (status === 'authenticated') {
+      const url = query.internal_flow === 'true' ? buildCheckoutUrl() : '/dashboard';
+      router.push(url);
     }
   }, [status]);
 
@@ -101,6 +102,8 @@ export default function SigninPage() {
       </>
     );
   }
+
+  if (status === 'authenticated') return null;
 
   if (hasErrors) {
     return (
