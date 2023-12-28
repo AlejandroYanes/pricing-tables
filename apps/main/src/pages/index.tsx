@@ -3,7 +3,7 @@ import { useEffect } from 'react';
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title, MediaQuery } from '@mantine/core';
+import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
 import { IconCheck } from '@tabler/icons';
 
@@ -94,35 +94,6 @@ const useStyles = createStyles((theme) => ({
     },
   },
 }));
-
-const youtubeEmbed = (
-  <>
-    <MediaQuery smallerThan="xs" styles={{ display: 'none' }}>
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-        title="Pricing Cards Demo"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        width="560"
-        height="315"
-        allowFullScreen
-        style={{ border: 'none' }}
-      >
-      </iframe>
-    </MediaQuery>
-    <MediaQuery largerThan="xs" styles={{ display: 'none' }}>
-      <iframe
-        src="https://www.youtube-nocookie.com/embed/EwyFL4IT9Mo"
-        title="Pricing Cards Demo"
-        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-        width="320"
-        height="260"
-        allowFullScreen
-        style={{ border: 'none', marginBottom: '32px' }}
-      >
-      </iframe>
-    </MediaQuery>
-  </>
-);
 
 const Home: NextPage = () => {
   const { classes } = useStyles();

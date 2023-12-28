@@ -1,7 +1,6 @@
 import { z } from 'zod';
 
-import initDb from 'utils/planet-scale';
-import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
+import { createTRPCRouter, protectedProcedure } from '../trpc';
 
 export const widgetsRouter = createTRPCRouter({
   create: protectedProcedure.input(z.object({ name: z.string(), template: z.string() })).mutation(async ({ ctx, input }) => {
