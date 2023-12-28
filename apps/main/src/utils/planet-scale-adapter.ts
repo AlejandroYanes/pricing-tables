@@ -85,7 +85,6 @@ export default function PlanetScaleAdapter(): Adapter {
       });
     },
     getSessionAndUser: async (sessionToken) => {
-      console.log('------------------ planet-scale-adapter - getSessionAndUser');
       const userAndSession = (
         await db.execute(
           `
@@ -115,10 +114,15 @@ export default function PlanetScaleAdapter(): Adapter {
 
       const checkoutRecord = (
         await db.execute(
-          'SELECT stripeSubscriptionId, isActive FROM CheckoutRecord WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
+          'SELECT subscriptionId, isActive, currentPeriodEnd, cancelAt FROM CheckoutRecord WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
           [userAndSession.userId],
         )
-      ).rows[0] as { stripeSubscriptionId: string; isActive: boolean } | undefined;
+      ).rows[0] as {
+        subscriptionId: string;
+        isActive: boolean;
+        currentPeriodEnd: number;
+        cancelAt: number;
+      } | undefined;
 
       const { id, name, email, emailVerified, image, role, stripeConnected, stripeKey, stripeCustomerId, userId, expires } = userAndSession;
       return {
@@ -132,7 +136,9 @@ export default function PlanetScaleAdapter(): Adapter {
           stripeCustomerId,
           isSetup: stripeConnected,
           hasLegacySetup: !!stripeKey,
-          hasSubscription: !!checkoutRecord?.stripeSubscriptionId,
+          hasSubscription: !!checkoutRecord?.subscriptionId && checkoutRecord.isActive,
+          subscriptionEndsAt: checkoutRecord?.currentPeriodEnd,
+          subscriptionCancelAt: checkoutRecord?.cancelAt,
         } as AdapterUser,
         session: { sessionToken, userId, expires: new Date(expires) } as AdapterSession,
       };

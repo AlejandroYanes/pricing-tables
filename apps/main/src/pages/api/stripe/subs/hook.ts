@@ -7,7 +7,7 @@ import {
   notifyOfRenewedSubscription,
   notifyOfSubscriptionCancellation,
   notifyOfSubscriptionSoftCancellation
-} from '../../../../utils/slack';
+} from 'utils/slack';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -42,7 +42,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         SELECT US1.id, US1.name
         FROM CheckoutRecord CR
           JOIN User US1 ON CR.userId = US1.id
-        WHERE CR.isActive = true AND CR.stripeSubscriptionId = ?
+        WHERE CR.isActive = true AND CR.subscriptionId = ?
       `, [subsId])
   ).rows[0] as { id: string; name: string } | undefined;
 

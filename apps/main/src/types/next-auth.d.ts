@@ -13,6 +13,8 @@ declare module 'next-auth' {
       isSetup: boolean;
       hasLegacySetup: boolean;
       hasSubscription: boolean;
+      subscriptionEndsAt: number | null;
+      subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
 
@@ -24,6 +26,8 @@ declare module 'next-auth' {
       isSetup: boolean;
       hasLegacySetup: boolean;
       hasSubscription: boolean;
+      subscriptionEndsAt: number | null;
+      subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
 }

@@ -5,7 +5,7 @@ import { createId } from '@paralleldrive/cuid2';
 // import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
-import { notifyOfNewSubscription } from '../../../../utils/slack';
+import { notifyOfNewSubscription, notifyOfSubscriptionMissingParams, notifyOfSubscriptionPaymentFailed } from '../../../../utils/slack';
 // import { buffer } from 'utils/api';
 
 // export const config = {
@@ -33,7 +33,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     const { id: sessionId } = data.object as Stripe.Checkout.Session;
     const session = await stripe.checkout.sessions.retrieve(
       sessionId,
-      { expand: ['customer'] },
+      { expand: ['customer', 'subscription'] },
       { stripeAccount: account },
     );
 
@@ -45,19 +45,29 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
     const hasMissingParams = !session.subscription || !session.customer;
     if (hasMissingParams) {
-      // TODO: handle failed payment (eg: send a message to a slack channel)
       console.log(`❌ Webhook Error: missing params`);
+      notifyOfSubscriptionMissingParams({
+        name: (session.customer as Stripe.Customer).name!,
+        missingCustomer: !session.customer,
+        missingSubscription: !session.subscription,
+      });
       return res.status(400).send(`Webhook Error: missing params`);
     }
 
     if (session.payment_status !== 'paid') {
       // TODO: notify user of failed payment (eg: send error email to user)
       console.log(`❌ Webhook Error: payment failed`);
+      notifyOfSubscriptionPaymentFailed({
+        name: (session.customer as Stripe.Customer).name!,
+        customerEmail: (session.customer as Stripe.Customer).email!,
+        subscriptionId: (session.subscription as Stripe.Subscription).id,
+      });
       res.status(200).json({ received: true });
     }
 
     if (isInternalFlow) {
       const customer = session.customer as Stripe.Customer;
+      const { id: subscriptionId, current_period_start, current_period_end } = session.subscription as Stripe.Subscription;
       const { widgetId, productId, priceId } = session.metadata!;
       const db = initDb();
 
@@ -66,11 +76,12 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ).rows[0] as { id: string; name: string };
 
       await db.transaction(async (tx) => {
+        await tx.execute('UPDATE User SET stripeCustomerId = ? WHERE id = ?', [customer.id, userId]);
         await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
         await tx.execute(
           // eslint-disable-next-line max-len
-          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, stripeSubscriptionId) VALUES (?, ?, ?, ?, ?, ?, ?)',
-          [createId(), sessionId, userId, widgetId, productId, priceId, session.subscription],
+          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+          [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end],
         );
       });
 

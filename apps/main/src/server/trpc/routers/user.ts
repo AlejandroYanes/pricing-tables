@@ -91,14 +91,14 @@ export const userRouter = createTRPCRouter({
 
       const checkoutRecord = (
         await db.execute(`
-          SELECT US1.stripeCustomerId, US1.stripeCustomerId, stripeSubscriptionId, US2.stripeAccount
+          SELECT US1.stripeCustomerId, US1.stripeCustomerId, subscriptionId, US2.stripeAccount
           FROM CheckoutRecord CR
               JOIN User US1 ON CR.userId = US1.id
               JOIN PriceWidget PW ON CR.widgetId = PW.id
               JOIN User US2 ON PW.userId = US2.id
           WHERE CR.isActive = true AND US1.id = ?
         `, [user.id])
-      ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string; stripeSubscriptionId?: string };
+      ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string; subscriptionId?: string };
 
       if (!checkoutRecord) {
         throw new TRPCError({
@@ -107,10 +107,10 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      const { stripeCustomerId, stripeSubscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
+      const { stripeCustomerId, subscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
 
-      if (stripeSubscriptionId) {
-        await ctx.stripe.subscriptions.del(stripeSubscriptionId, { stripeAccount: checkoutAccount! });
+      if (subscriptionId) {
+        await ctx.stripe.subscriptions.cancel(subscriptionId, { stripeAccount: checkoutAccount! });
       }
 
       if (stripeCustomerId) {
@@ -124,6 +124,6 @@ export const userRouter = createTRPCRouter({
         await tx.execute('DELETE FROM User WHERE id = ?', [user.id]);
       });
 
-      await notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!stripeSubscriptionId });
+      await notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!subscriptionId });
     }),
 });

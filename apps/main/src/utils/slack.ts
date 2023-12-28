@@ -79,3 +79,59 @@ export function notifyOfSubscriptionCancellation(data: Payload) {
     },
   );
 }
+
+interface MissingParamsPayload extends Payload {
+  missingSubscription: boolean;
+  missingCustomer: boolean;
+}
+
+export function notifyOfSubscriptionMissingParams(data: MissingParamsPayload) {
+  return sendNotification(
+    env.SLACK_SUBSCRIPTIONS_CHANNEL,
+    {
+      // eslint-disable-next-line max-len
+      text: `The subscription for user *${data.name}* is missing params.\n*Missing Customer:${data.missingCustomer ? 'YES' : 'NO'}*\n\n*Missing Subscription:${data.missingSubscription ? 'YES' : 'NO'}*\n`,
+    },
+  );
+}
+
+interface PaymentFailedPayload extends Payload {
+  subscriptionId: string;
+  customerEmail: string;
+}
+
+export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
+  return sendNotification(
+    env.SLACK_SUBSCRIPTIONS_CHANNEL,
+    {
+      // eslint-disable-next-line max-len
+      text: `The payment for user *${data.name}* has failed.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+    },
+  );
+}
+
+interface InvoicePayload extends Payload {
+  invoiceId: string;
+  subscriptionId: string;
+  customerEmail: string;
+}
+
+export function notifyOfInvoiceFailedToFinalize(data: InvoicePayload) {
+  return sendNotification(
+    env.SLACK_INVOICES_CHANNEL,
+    {
+      // eslint-disable-next-line max-len
+      text: `The invoice *${data.invoiceId}* for user *${data.name}* has failed to finalize.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+    },
+  );
+}
+
+export function notifyOfInvoicePaymentActionRequired(data: InvoicePayload) {
+  return sendNotification(
+    env.SLACK_INVOICES_CHANNEL,
+    {
+      // eslint-disable-next-line max-len
+      text: `The invoice *${data.invoiceId}* for user *${data.name}* requires payment action.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+    },
+  );
+}
