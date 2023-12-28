@@ -75,7 +75,7 @@ export function notifyOfSubscriptionCancellation(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `The subscription for user *${data.name}* has been cancelled.`,
+      text: `The *${data.name}*'s subscription has been cancelled.`,
     },
   );
 }
@@ -90,7 +90,7 @@ export function notifyOfSubscriptionMissingParams(data: MissingParamsPayload) {
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `The subscription for user *${data.name}* is missing params.\n*Missing Customer:${data.missingCustomer ? 'YES' : 'NO'}*\n\n*Missing Subscription:${data.missingSubscription ? 'YES' : 'NO'}*\n`,
+      text: `A subscription for user *${data.name}* is missing params.\n*Missing Customer:${data.missingCustomer ? 'YES' : 'NO'}*\n\n*Missing Subscription:${data.missingSubscription ? 'YES' : 'NO'}*\n`,
     },
   );
 }
@@ -105,7 +105,7 @@ export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `The payment for user *${data.name}* has failed.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `A payment for user *${data.name}* has failed.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -121,7 +121,7 @@ export function notifyOfInvoiceFailedToFinalize(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `The invoice *${data.invoiceId}* for user *${data.name}* has failed to finalize.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}* has failed to finalize.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -131,7 +131,20 @@ export function notifyOfInvoicePaymentActionRequired(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `The invoice *${data.invoiceId}* for user *${data.name}* requires payment action.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}* requires payment action.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+    },
+  );
+}
+
+interface EmailPayload {
+  email: string;
+}
+
+export function notifyOfFailedEmail(data: EmailPayload) {
+  return sendNotification(
+    env.SLACK_EMAILS_CHANNEL,
+    {
+      text: `An email for *${data.email}* has failed to send.`,
     },
   );
 }
