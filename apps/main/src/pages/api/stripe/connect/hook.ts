@@ -5,7 +5,7 @@ import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfNewSetup } from 'utils/slack';
-import { buffer } from 'utils/api';
+import { buffer, corsMiddleware } from 'utils/api';
 
 export const config = {
   api: {
@@ -13,7 +13,7 @@ export const config = {
   },
 };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   const sig = req.headers['stripe-signature']!;
 
   let event: Stripe.Event;
@@ -44,3 +44,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).json({ received: true });
 }
+
+export default corsMiddleware(handler);

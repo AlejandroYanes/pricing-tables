@@ -8,6 +8,7 @@ import {
   notifyOfSubscriptionCancellation,
   notifyOfSubscriptionSoftCancellation
 } from 'utils/slack';
+import { corsMiddleware } from 'utils/api';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -17,7 +18,7 @@ import {
 //   },
 // };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // const signature = req.headers['stripe-signature']!;
 
   // const stripe = initStripe();
@@ -90,3 +91,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).json({ received: true });
 }
+
+export default corsMiddleware(handler);

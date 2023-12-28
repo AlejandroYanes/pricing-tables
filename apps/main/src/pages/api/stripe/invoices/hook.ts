@@ -5,6 +5,7 @@ import type Stripe from 'stripe';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired } from 'utils/slack';
+import { corsMiddleware } from 'utils/api';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -14,7 +15,7 @@ import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired }
 //   },
 // };
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+async function handler(req: NextApiRequest, res: NextApiResponse) {
   // const signature = req.headers['stripe-signature']!;
 
   // const stripe = initStripe();
@@ -86,3 +87,5 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   res.status(200).json({ received: true });
 }
+
+export default corsMiddleware(handler);

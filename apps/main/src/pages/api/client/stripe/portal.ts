@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
+import { corsMiddleware } from 'utils/api';
 
 const inputSchema = z.object({
   customer_id: z.string(),
@@ -52,4 +53,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.redirect(303, customerPortal.url);
 }
 
-export default handler;
+export default corsMiddleware(handler);
