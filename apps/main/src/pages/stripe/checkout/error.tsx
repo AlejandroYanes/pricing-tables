@@ -1,9 +1,15 @@
-import { Anchor, Group, Stack, Title } from '@mantine/core';
+import { useRouter } from 'next/router';
+import Link from 'next/link';
+import { Anchor, Button, Group, Stack, Title } from '@mantine/core';
 import { IconAlertTriangle } from '@tabler/icons';
+import { RenderIf } from 'ui';
 
 import BaseLayout from 'components/BaseLayout';
 
 export default function CheckoutError() {
+  const { query } = useRouter();
+
+  const isInternalFlow = query.internal_flow === 'true';
   return (
     <BaseLayout hideNavbar>
       <Stack align="center" justify="center" style={{ height: '100vh' }}>
@@ -15,6 +21,11 @@ export default function CheckoutError() {
             .
           </Title>
         </Group>
+        <RenderIf condition={isInternalFlow}>
+          <Link href="/dashboard">
+            <Button>Go to Dashboard</Button>
+          </Link>
+        </RenderIf>
       </Stack>
     </BaseLayout>
   );
