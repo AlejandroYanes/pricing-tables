@@ -3,16 +3,15 @@ import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
 import { Center, createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
-import { useColorScheme } from '@mantine/hooks';
 import {
   IconBrush,
   IconCheck,
   IconClock,
+  IconCopy,
   IconFlask,
   IconHelp,
   IconMathOff,
   IconPower,
-  IconSettings,
   IconStar,
   IconTrendingUp,
   IconUser
@@ -146,7 +145,6 @@ const Card = ({ title, text, icon }: { title: string; text: string; icon: JSX.El
 
 const Home: NextPage = () => {
   const { classes } = useStyles();
-  const colorScheme = useColorScheme();
 
   return (
     <>
@@ -211,8 +209,8 @@ const Home: NextPage = () => {
           <Group style={{ justifyContent: 'space-around' }} mb={140}>
             <Stack style={{ width: '40%' }}>
               <Title order={2} mb="xl">How it works</Title>
-              <IconListItem icon={<IconSettings />} title="Setup" text="Copy and paste the provided code snippets to your website." />
-              <IconListItem icon={<IconBrush />} title="Customize" text="Pick from our choise of templates and add your colours." />
+              <IconListItem icon={<IconBrush />} title="Customize" text="Pick from our choise of templates, add your products and splash your colours." />
+              <IconListItem icon={<IconCopy />} title="Embed" text="Copy and paste the provided code snippets to your website." />
               <IconListItem icon={<IconCheck size={28} />} title="Checkout" text="Redirect your customers to our checkout API for a smooth transaction process." />
             </Stack>
             <Stack style={{ width: '40%' }}>
