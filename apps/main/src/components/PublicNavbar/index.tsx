@@ -3,7 +3,6 @@ import Link from 'next/link';
 import { createStyles, Group, Header, Text, UnstyledButton } from '@mantine/core';
 import { IconArrowLeft } from '@tabler/icons';
 import { RenderIf } from 'ui';
-import Image from 'next/image';
 
 const useStyles = createStyles((theme) => ({
   header: {
@@ -67,27 +66,21 @@ function NavbarLink({ label, link }: NavbarLinkProps) {
 }
 
 interface Props {
-  showLogo?: boolean;
   showBackButton?: boolean;
   backRoute?: string;
 }
 
 export default function PublicNavbar(props: Props) {
-  const { showLogo = false, showBackButton = false, backRoute } = props;
+  const { showBackButton = false, backRoute } = props;
   const { classes } = useStyles();
   const router = useRouter();
 
   return (
     <Header height={64} className={classes.header} mb="xl" zIndex={1}>
       <RenderIf condition={showBackButton}>
-        <UnstyledButton mr="16px" onClick={() => backRoute ? router.push(backRoute) : router.back()} className={classes.link}>
+        <UnstyledButton onClick={() => backRoute ? router.push(backRoute) : router.back()} className={classes.link}>
           <IconArrowLeft stroke={1.5} />
         </UnstyledButton>
-      </RenderIf>
-      <RenderIf condition={showLogo}>
-        <Link href="/">
-          <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={32} height={32} />
-        </Link>
       </RenderIf>
       <Group ml="auto">
         <NavbarLink label="Pricing" link="/pricing" />

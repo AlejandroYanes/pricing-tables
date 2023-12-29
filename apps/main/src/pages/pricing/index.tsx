@@ -1,17 +1,32 @@
 import { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { useColorScheme } from '@mantine/hooks';
-import { Button, Stack, Text, Title } from '@mantine/core';
+import { Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
 
 import BaseLayout from 'components/BaseLayout';
 import PublicNavbar from 'components/PublicNavbar';
+
+const useStyles = createStyles((theme) => ({
+  title: {
+    color: theme.colors.teal[6],
+    fontSize: rem(64),
+    lineHeight: 1.2,
+    fontWeight: 900,
+
+    [theme.fn.smallerThan('xs')]: {
+      fontSize: rem(28),
+    },
+  },
+}));
 
 const PricingPage = () => {
   const { data, status } = useSession();
   const user = data?.user;
 
+  const { classes } = useStyles();
   const colorScheme = useColorScheme();
 
   useEffect(() => {
@@ -27,8 +42,17 @@ const PricingPage = () => {
           <title>Dealo | Pricing</title>
         </Head>
         <BaseLayout hideNavbar>
-          <PublicNavbar showLogo showBackButton backRoute="/" />
+          <PublicNavbar showBackButton backRoute="/" />
           <Stack justify="center" align="center" style={{ margin: '0 auto', height: 'calc(100vh - 88px)' }}>
+            <Group position="center">
+              <Group spacing={0}>
+                <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
+                <Title order={1} mb="md" className={classes.title}>ealo</Title>
+              </Group>
+            </Group>
+            <Text align="center" size="xl" mb={64}>
+              Pick a plan to start using Dealo, you can cancel at any time.
+            </Text>
             {/* @ts-ignore */}
             <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
           </Stack>
