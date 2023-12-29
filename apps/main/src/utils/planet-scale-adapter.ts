@@ -16,17 +16,17 @@ export default function PlanetScaleAdapter(): Adapter {
         );
       });
       return (
-        await db.execute('SELECT * FROM User WHERE id = ?', [userId])
+        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [userId])
       ).rows[0] as AdapterUser;
     },
     getUser: async (id) => {
       return (
-        await db.execute('SELECT * FROM User WHERE id = ?', [id])
+        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [id])
       ).rows[0] as AdapterUser;
     },
     getUserByEmail: async (email) => {
       return (
-        await db.execute('SELECT * FROM User WHERE email = ?', [email])
+        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE email = ?', [email])
       ).rows[0] as AdapterUser;
     },
     getUserByAccount: async (provider) => {
@@ -71,7 +71,7 @@ export default function PlanetScaleAdapter(): Adapter {
       });
       return (
         await db.execute(
-          'SELECT * FROM Account WHERE provider = ? providerAccountId = ?',
+          'SELECT * FROM Account WHERE provider = ? AND providerAccountId = ?',
           [data.provider, data.providerAccountId],
         )
       ).rows[0] as AdapterAccount;
@@ -162,8 +162,8 @@ export default function PlanetScaleAdapter(): Adapter {
     updateSession: async (data) => {
       await db.transaction(async (tx) => {
         await tx.execute(
-          'UPDATE Session SET expires = ?, userId = ? WHERE sessionToken = ?',
-          [data.expires, data.userId, data.sessionToken],
+          'UPDATE Session SET expires = ? WHERE sessionToken = ?',
+          [data.expires, data.sessionToken],
         );
       });
       const session =  (
