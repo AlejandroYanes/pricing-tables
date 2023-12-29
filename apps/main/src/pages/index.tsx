@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-import { useEffect } from 'react';
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
@@ -21,6 +20,7 @@ import {
 
 import BaseLayout from 'components/BaseLayout';
 import PublicNavbar from 'components/PublicNavbar';
+import PricingWidget from 'components/PricingWidget';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -148,10 +148,6 @@ const Home: NextPage = () => {
   const { classes } = useStyles();
   const colorScheme = useColorScheme();
 
-  useEffect(() => {
-    import('pricing-cards');
-  }, []);
-
   return (
     <>
       <Head>
@@ -229,8 +225,7 @@ const Home: NextPage = () => {
 
           <Stack mt="xl" align="center" justify="center">
             <Title order={1} mb="xl">Get started now.</Title>
-            {/* @ts-ignore */}
-            <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
+            <PricingWidget />
             <Text color="dimmed" mt="lg">This is a working example of a pricing widget.</Text>
           </Stack>
         </div>

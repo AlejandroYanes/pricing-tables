@@ -13,7 +13,7 @@ const PricingWidget = () => {
     import('pricing-cards');
   }, []);
 
-  const widget = isDevelopment() ? PRODUCTION_WIDGET : DEVELOPMENT_WIDGET;
+  const widget = isDevelopment() ? DEVELOPMENT_WIDGET : PRODUCTION_WIDGET;
 
   return (
     <>
