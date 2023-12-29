@@ -18,12 +18,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const { widget } = req.query;
-  const widgetData: WidgetInfo = await getWidgetData(widget as string);
+  const widgetId = req.query.widget as string;
 
-  const seconds = 60;
-  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
-  res.status(200).json(widgetData);
+  try {
+    const widgetData = await getWidgetData(widgetId);
+    res.status(200).json(widgetData);
+  } catch (e: any) {
+    console.error(`❌ Error fetching data for widget: ${widgetId}`, e.message);
+    res.status(400).json({ error: `❌ Error fetching data for widget: ${widgetId}` });
+  }
 }
 
 export default corsMiddleware(handler);
@@ -43,7 +46,11 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   ];
   const widget = (
     await db.execute(`SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`, [widgetId])
-  ).rows[0] as Widget;
+  ).rows[0] as Widget | undefined;
+
+  if (!widget) {
+    throw new Error('Widget not found');
+  }
 
   const callbacks = (
     await db.execute('SELECT Callback.env, Callback.url FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt', [widgetId])

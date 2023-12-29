@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useRouter } from 'next/router';
-import { ActionIcon, Button, Checkbox, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
+import { ActionIcon, Button, Divider, Group, Select, Stack, Text, TextInput, Tooltip } from '@mantine/core';
 import { openConfirmModal } from '@mantine/modals';
 import { showNotification } from '@mantine/notifications';
 import { IconInfoCircle, IconTrash } from '@tabler/icons';
@@ -9,7 +9,7 @@ import { templatesList } from 'templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
-import { toggleUnitLabel, changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
+import { changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
 import { useSettingsPanelStates } from './state';
 
 interface Props {
@@ -21,14 +21,23 @@ interface Props {
 const callbackHelp = `
 Callbacks are used to construct the URL that the CTA (Call To Action) button will redirect to.
 We add params like widget_id, product_id, price_id and currency to the URL
-so that you and we can identify the elements. This can be useful if you want to insert your sign up flow before collecting the payment.
+so that you and we can identify the elements.
+This can be useful if you will most likely want to insert your sign up flow before collecting the payment.
+These URLs can be relative (eg: /api/product) or absolute (eg: https://your.server.com/api/product).
 `;
 
-const checkoutHelp = `
-These URLs are used to redirect the user after the payment is completed or canceled.
-If you leave them empty, we will use the referer URL from the request and add a payment_status query (eg: ?payment_status=success).
-As a last resource, we will use our own fallback pages.
-`;
+const checkoutHelp = (
+  <>
+    {`
+      These URLs are used to redirect the user after the payment is completed or canceled.
+      If you leave them empty, we will use the referer URL from the request and add a payment_status query (eg: ?payment_status=success).
+      As a last resource, we will use our own fallback pages.
+    `}
+    <br />
+    <br />
+    {`IMPORTANT: These URLs MUST be absolute (eg: https://your.server.com/success) as they are used by Stripe and will fail otherwise.`}
+  </>
+);
 
 export default function SettingsForm(props: Props) {
   const {
@@ -106,7 +115,7 @@ export default function SettingsForm(props: Props) {
           <Tooltip
             transitionProps={{ duration: 200 }}
             label={callbackHelp}
-            width={360}
+            width={380}
             position="right"
             multiline
             withArrow

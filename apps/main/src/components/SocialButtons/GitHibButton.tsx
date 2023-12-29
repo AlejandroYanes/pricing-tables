@@ -2,7 +2,7 @@ import type { ButtonProps } from '@mantine/core';
 import { Button } from '@mantine/core';
 import { IconBrandGithub } from '@tabler/icons';
 
-export function GithubButton(props: ButtonProps & { onClick: () => void }) {
+export default function GithubButton(props: ButtonProps & { onClick: () => void }) {
   return (
     <Button
       {...props}

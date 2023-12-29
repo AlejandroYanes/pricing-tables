@@ -1,6 +1,5 @@
 {
   "name": "cards-widget",
-  "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -13,12 +12,9 @@
     "@emotion/react": "11.10.5",
     "@mantine/core": "6.0.5",
     "@mantine/hooks": "6.0.5",
-    "helpers": "*",
-    "models": "*",
+    "pricing-cards": "*",
     "react": "18.2.0",
-    "react-dom": "18.2.0",
-    "templates": "*",
-    "ui": "*"
+    "react-dom": "18.2.0"
   },
   "devDependencies": {
     "@types/react": "18.0.27",

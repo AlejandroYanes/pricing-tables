@@ -1,18 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { getServerSession } from 'next-auth';
+import type { AuthenticatedSession } from 'next-auth';
 
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
 import { notifyOfNewSetup } from 'utils/slack';
-import { authOptions } from '../../auth/[...nextauth]';
+import { sendWelcomeEmail } from 'utils/resend';
+import { authMiddleware } from 'utils/api';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const session = (await getServerSession(req, res, authOptions))!;
-
-  if (!session.user) {
-    res.status(401).json({ error: 'Unauthorized' });
-    return;
-  }
+async function handler(_: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) {
 
   const stripe = initStripe();
   const db = initDb();
@@ -34,15 +29,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
   const account = await stripe.accounts.retrieve(stripeAccount);
 
   if (account.charges_enabled) {
+    const checkoutRecord = (
+      await db.execute('SELECT id FROM CheckoutRecord WHERE isActive = TRUE AND userId = ?', [session.user.id])
+    ).rows[0] as { id: string } | undefined;
+
     await db.transaction(async (tx) => {
       // eslint-disable-next-line max-len
-      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user!.id]);
+      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
     });
 
     res.status(200).json({ connected: true });
     notifyOfNewSetup({ name: session.user.name! });
+    sendWelcomeEmail({
+      to: session.user.email!,
+      name: session.user.name!,
+      withSubscription: !!checkoutRecord,
+    });
     return;
   }
 
   res.status(200).json({ connected: false });
 }
+
+export default authMiddleware(handler);

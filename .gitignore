@@ -43,3 +43,4 @@ yarn-error.log*
 
 .idea
 .turbo
+/apps/emails/.react-email

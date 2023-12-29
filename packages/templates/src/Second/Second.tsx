@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Accordion, Button, createStyles, Group, SegmentedControl, Stack, Table, Text, useMantineTheme } from '@mantine/core';
 import { IconCircleCheck, IconCircleX } from '@tabler/icons';
 import { PoweredBy, RenderIf } from 'ui';
-import type { FormPrice } from 'models';
+import type { FormCallback, FormPrice, FormProduct } from 'models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from 'helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
@@ -131,6 +131,34 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
+const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
+
+  if (type === 'one_time') return 'Buy Now';
+  if (isCustom) return prod.ctaLabel;
+  return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+};
+
+const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+
+  if (isCustom) return prod.ctaUrl || '';
+
+  const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+  const hasQueryParams = callbackUrl.includes('?');
+
+  const queryParams: Record<string, string> = {
+    widget_id: widgetId,
+    product_id: dev ? prod.mask! : prod.id,
+    price_id: dev ? priceToShow.mask! : priceToShow.id,
+    currency: currency || priceToShow.currency,
+    payment_type: type,
+  };
+
+  const queryString = generateQueryString(queryParams);
+  return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
+};
+
 export function SecondTemplate(props: TemplateProps) {
   const {
     dev,
@@ -180,27 +208,6 @@ export function SecondTemplate(props: TemplateProps) {
       const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
       const isRecommended = product.id === recommended;
       const recommendedColor = theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6];
-
-      const resolveBtnLabel = () => {
-        if (priceToShow.type === 'one_time') return 'Buy Now';
-        if (isCustom) return product.ctaLabel;
-        return priceToShow.hasFreeTrial ? freeTrialLabel : subscribeLabel;
-      };
-
-      const resolveBtnUrl = () => {
-        if (isCustom) return product.ctaUrl || '';
-
-        const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-        const queryParams: Record<string, string> = {
-          widget_id: widget,
-          product_id: dev ? product.mask! : product.id,
-          price_id: dev ? priceToShow.mask! : priceToShow.id,
-          currency: currency || priceToShow.currency,
-          payment_type: priceToShow.type,
-        };
-        const queryString = generateQueryString(queryParams);
-        return `${callbackUrl}?${queryString}`;
-      };
 
       return (
         <Accordion.Item value={product.id} key={product.id}>
@@ -261,13 +268,30 @@ export function SecondTemplate(props: TemplateProps) {
               <Button
                 uppercase
                 component="a"
-                href={resolveBtnUrl()}
+                href={resolveBtnUrl({
+                  isCustom: !!isCustom,
+                  prod: product,
+                  priceToShow,
+                  type: priceToShow.type,
+                  dev: !!dev,
+                  widgetId: widget,
+                  callbacks,
+                  environment,
+                  currency,
+                })}
                 mt="xl"
                 mb={priceToShow.hasFreeTrial ? 'sm' : 'xl'}
                 color={color}
                 variant={isRecommended ? 'filled' : 'outline'}
               >
-                {resolveBtnLabel()}
+                {resolveBtnLabel({
+                  type: priceToShow.type,
+                  prod: product,
+                  isCustom: !!isCustom,
+                  hasFreeTrial: priceToShow.hasFreeTrial,
+                  freeTrialLabel,
+                  subscribeLabel,
+                })}
               </Button>
               <RenderIf condition={priceToShow.hasFreeTrial}>
                 <Text size="sm" mb="lg">{priceToShow.freeTrialDays} days</Text>
@@ -299,27 +323,6 @@ export function SecondTemplate(props: TemplateProps) {
       const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
       const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
-      const resolveBtnLabel = () => {
-        if (type === 'one_time') return 'Buy Now';
-        if (isCustom) return prod.ctaLabel;
-        return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-      };
-
-      const resolveBtnUrl = () => {
-        if (isCustom) return prod.ctaUrl || '';
-
-        const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-        const queryParams: Record<string, string> = {
-          widget_id: widget,
-          product_id: dev ? prod.mask! : prod.id,
-          price_id: dev ? priceToShow.mask! : priceToShow.id,
-          currency: currency || priceToShow.currency,
-          payment_type: type,
-        };
-        const queryString = generateQueryString(queryParams);
-        return `${callbackUrl}?${queryString}`;
-      };
-
       switch (index) {
         // pricing
         case 0:
@@ -343,13 +346,23 @@ export function SecondTemplate(props: TemplateProps) {
               <Button
                 uppercase
                 component="a"
-                href={resolveBtnUrl()}
+                href={resolveBtnUrl({
+                  isCustom: !!isCustom,
+                  prod,
+                  priceToShow,
+                  type: priceToShow.type,
+                  dev: !!dev,
+                  widgetId: widget,
+                  callbacks,
+                  environment,
+                  currency,
+                })}
                 mt="xl"
                 mb={hasFreeTrial ? 'sm' : 'xl'}
                 color={color}
                 variant={isRecommended ? 'white' : 'outline'}
               >
-                {resolveBtnLabel()}
+                {resolveBtnLabel({ type, prod, isCustom: !!isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel })}
               </Button>
               <RenderIf condition={hasFreeTrial}>
                 <Text size="sm" mb="lg">{freeTrialDays} days</Text>

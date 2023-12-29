@@ -1,27 +1,36 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/router';
 import { Stack, Title } from '@mantine/core';
+import { generateQueryString } from 'helpers';
 
-import { GoogleButton } from 'components/SocialButtons';
-import { GithubButton } from '../SocialButtons/GitHibButton';
-import { DiscordButton } from '../SocialButtons/DiscordButton';
+import { GoogleButton, GithubButton, DiscordButton } from 'components/SocialButtons';
 
 const SignInForm = () => {
   const { status } = useSession();
-  const router = useRouter();
+  const { query, ...router } = useRouter();
+
+  const buildCheckoutUrl = () => {
+    const checkoutPageRoute = '/stripe/checkout/start';
+    const searchParams = generateQueryString(query);
+    return `${checkoutPageRoute}?${searchParams}`;
+  }
 
   const handleSignIn = (provider: string) => {
     if (status === 'authenticated') {
-      router.push('/dashboard');
+      if (query.internal_flow === 'true') {
+        router.push(buildCheckoutUrl());
+      } else {
+        router.push('/dashboard');
+      }
       return;
     }
 
-    if (provider === 'credentials') {
-      signIn('credentials', { callbackUrl: '/dashboard' }, { userName: 'guest' });
-      return;
+    if (query.internal_flow === 'true') {
+      const checkoutUrl = buildCheckoutUrl();
+      signIn(provider, { callbackUrl: checkoutUrl });
+    } else {
+      signIn(provider, { callbackUrl: '/dashboard' });
     }
-
-    signIn(provider, { callbackUrl: '/dashboard' });
   }
 
   return (

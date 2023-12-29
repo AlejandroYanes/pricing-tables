@@ -17,32 +17,23 @@ const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widg
 const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
 const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
 
-const requestBody = () => `{ widget_id: <...>, product_id: <...>, price_id: <...> }`;
-
 // eslint-disable-next-line max-len
 const curlCommand = (apiKey: string) => `
-curl -X POST https://dealo.app/api/client/retreive-stripe-info \\
+curl -X POST https://dealo.app/api/client/stripe/info?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...> \\
      -H "X-Api-Key: ${apiKey}" \\
      -H "Content-Type: application/json" \\
-     -d '{ "widget_id": "<...>", "product_id": "<...>", "price_id": "<...>" }'
 `;
 
 // eslint-disable-next-line max-len
 const jsCommand = (apiKey: string) => `
-const url = 'https://dealo.app/api/client/retreive-stripe-info';
-const data = {
-  widget_id: '<...>',
-  product_id: '<...>',
-  price_id: '<...>'
-};
+const url = 'https://dealo.app/api/client/stripe/info?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>';
 
 fetch(url, {
-  method: 'POST',
+  method: 'GET',
   headers: {
     'Content-Type': 'application/json',
     'X-Api-Key': '${apiKey}'
   },
-  body: JSON.stringify(data)
 })
   .then(response => response.json())
   .then(data => console.log(data))
@@ -114,7 +105,7 @@ export default function IntegrationPanel(props: Props) {
         If you leave the url empty it will just add the parameters to the page url.
         Eg:
         <Prism language="javascript" mt="md">
-          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+          {`https://your-page.com/?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>`}
         </Prism>
         <br />
         This is done so you can use your own signup flow before collecting the payment.
@@ -128,13 +119,21 @@ export default function IntegrationPanel(props: Props) {
           </li>
         </ul>
       </Text>
+
       <Title order={3}>Generating a Stripe Checkout</Title>
       <Text component="p" m={0}>
         To generate a Stripe checkout session you need redirect the user to our <Code>checkout</Code> API route.
         Make sure to add the query parameters we added to your page to the url.
+        <br />
+        {`It's`} not required, but we recommend adding the {`user's`} <Code>email</Code> as well,
+        it will help auto-complete the session form and avoid asking the user for their email twice
+        or them adding a different one. If you have the {`Stripe's`} <Code>customer_id</Code> you can add that as well
+        (in or place of the <Code>email</Code>), it helps in not creating duplicate customers.
+        This can be useful if the user had a previous subscription with you.
       </Text>
       <Prism language="javascript">
-        {`https://dealo.app/api/stripe/checkout?widget_id=<...>&product_id=<...>&price_id=<...>&currency=gbp`}
+        {/* eslint-disable-next-line max-len */}
+        {`https://dealo.app/api/stripe/checkout/start?widget_id=<...>&product_id=<...>&price_id=<...>&currency=<...>&email=<...>&customer_id=<...>`}
       </Prism>
       <Text component="p">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
@@ -144,6 +143,7 @@ export default function IntegrationPanel(props: Props) {
         If {`we're`} not able to find the page that initiated the checkout,
         we will redirect the user to our own pages that will show a success or error message (though this should never happen).
       </Text>
+
       <Title order={3}>Using our API route to retrieve the information</Title>
       <Text component="p">
         The other option is to use our API route to get the real product and price <Code>ids</Code>
@@ -153,19 +153,33 @@ export default function IntegrationPanel(props: Props) {
         but rather a hash that we generate, this is for security reasons.
         In order to get the real <Code>ids</Code> you will need to make a request to our API.
       </Text>
-      <Prism language="javascript">{`https://dealo.app/api/client/retreive-stripe-info`}</Prism>
+      <Prism language="javascript">{`https://dealo.app/api/client/stripe/info`}</Prism>
       <Text component="p" mt="md">
-        This request needs to be a <Code>POST</Code> request with the body:
-        <Prism language="json">{requestBody()}</Prism>
-        <br />
         It will return an object with the real <Code>ids</Code> for the product and price.
       </Text>
       <Text>The request also needs this API Key header to validate {`it's`} you {`who's`} making the request</Text>
       <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
-      <Text>{`Here's`} how it would look</Text>
+      <Text>{`Here's`} how it would look:</Text>
       <Prism language="bash">{curlCommand(data!.user!.id)}</Prism>
-      <Text mt="md">{`Here's`} a JavaScript version</Text>
+      <Text mt="md">{`Here's`} a JavaScript version:</Text>
       <Prism language="jsx">{jsCommand(data!.user!.id)}</Prism>
+
+      <Title order={3}>Generating a Stripe Customer Portal</Title>
+      <Text component="p" m={0}>
+        To generate a Stripe Customer Portal you need redirect the user to our API route.
+        For this one we only need the Stripe <Code>customer_id</Code> associated with the user.
+      </Text>
+      <Prism language="javascript">
+        {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}
+      </Prism>
+      <Text component="p">
+        This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
+        After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
+        or we will redirect them to the same page they were before (the one that initiated the checkout).
+      </Text>
+      <Text>This request also needs the API Key header:</Text>
+      <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
+
       <Space h="xl" />
     </Stack>
   );

@@ -2,7 +2,7 @@ import type { ButtonProps} from '@mantine/core';
 import { Button } from '@mantine/core';
 import { IconBrandDiscord } from '@tabler/icons';
 
-export function DiscordButton(props: ButtonProps & { onClick: () => void }) {
+export default function DiscordButton(props: ButtonProps & { onClick: () => void }) {
   return (
     <Button
       leftIcon={<IconBrandDiscord size={16} />}

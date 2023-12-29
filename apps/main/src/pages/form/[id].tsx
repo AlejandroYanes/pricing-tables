@@ -40,7 +40,7 @@ const errorScreen = (
 const LoadingScreen = () => {
   const theme = useMantineTheme();
   return (
-    <BaseLayout showBackButton>
+    <BaseLayout showBackButton backRoute="/dashboard">
       <Stack style={{ height: 'calc(100vh - 170px)', width: 'calc(100vw - 96px)' }}>
         <Group
           mb="xl"
@@ -126,7 +126,7 @@ const FormPage = () => {
       <Head>
         <title>Dealo | Form</title>
       </Head>
-      <BaseLayout showBackButton title={name}>
+      <BaseLayout showBackButton backRoute="/dashboard" title={name}>
         <MantineProvider theme={{ primaryColor: color, colorScheme: theme.colorScheme }}>
           <Group
             mb="xl"

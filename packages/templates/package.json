@@ -1,9 +1,10 @@
 {
   "name": "templates",
   "version": "0.0.0",
+  "type": "module",
+  "license": "MIT",
   "main": "./src/index.tsx",
   "types": "./src/index.tsx",
-  "license": "MIT",
   "scripts": {
     "lint": "eslint \"**/*.ts*\""
   },

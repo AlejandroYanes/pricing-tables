@@ -1,14 +1,18 @@
 /* eslint-disable max-len */
+import { useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
-import { Alert, Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
-import { IconAlertCircle } from '@tabler/icons';
-import { RenderIf } from 'ui';
 import Image from 'next/image';
+import { useSession } from 'next-auth/react';
+import { Alert, Button, createStyles, Group, Loader, rem, Stack, Text, Title } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons';
+import { generateQueryString } from 'helpers';
 
 import BaseLayout from 'components/BaseLayout';
+import PublicNavbar from 'components/PublicNavbar';
 import SignInForm from 'components/SignInForm';
+import RenderWithDelay from 'components/RenderWithDelay';
 
 const errorsMap: { [error: string]: string } = {
   fallback: "Seems something went wrong but we can't point to what, please contact the developers and send the url you have right now.",
@@ -62,40 +66,53 @@ const useStyles = createStyles((theme) => ({
 }));
 
 export default function SigninPage() {
-  const { query } = useRouter();
+  const { status } = useSession();
+  const router = useRouter();
+  const { query } = router;
   const hasErrors = !!query.error;
   const errorMessage = errorsMap[query.error as string] || errorsMap.fallback;
 
   const { classes } = useStyles();
 
-  return (
-    <>
-      <Head>
-        <title>Dealo</title>
-      </Head>
-      <BaseLayout>
-        <RenderIf
-          fallback={
-            <Stack spacing={32} align="center" mx="auto">
-              <div className={classes.inner}>
-                <div className={classes.content}>
-                  <Group spacing={0}>
-                    <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
-                    <Title order={1} mb="md" className={classes.title}>ealo</Title>
-                  </Group>
-                  <Title className={classes.subtitle}>
-                    A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
-                  </Title>
-                  <Text color="dimmed" mt="md">
-                    Build fully functional pricing widgets in minutes using our set of templates.
-                  </Text>
-                </div>
-              </div>
-              <SignInForm />
+  const buildCheckoutUrl = () => {
+    const checkoutPageRoute = '/stripe/checkout/start';
+    const searchParams = generateQueryString(query);
+    return `${checkoutPageRoute}?${searchParams}`;
+  }
+
+  useEffect(() => {
+    if (status === 'authenticated') {
+      const url = query.internal_flow === 'true' ? buildCheckoutUrl() : '/dashboard';
+      router.push(url);
+    }
+  }, [status]);
+
+  if (status === 'loading') {
+    return (
+      <>
+        <Head>
+          <title>Dealo | Signin</title>
+        </Head>
+        <BaseLayout hideUserControls>
+          <RenderWithDelay delay={1000}>
+            <Stack align="center" justify="center" spacing="xl" style={{ maxWidth: '700px', margin: '48px auto 0' }}>
+              <Loader />
             </Stack>
-          }
-          condition={hasErrors}
-        >
+          </RenderWithDelay>
+        </BaseLayout>
+      </>
+    );
+  }
+
+  if (status === 'authenticated') return null;
+
+  if (hasErrors) {
+    return (
+      <>
+        <Head>
+          <title>Dealo | Signin</title>
+        </Head>
+        <BaseLayout hideUserControls>
           <Stack spacing="xl" style={{ maxWidth: '700px', margin: '48px auto 0' }}>
             <Alert
               icon={<IconAlertCircle size={16} />}
@@ -111,7 +128,35 @@ export default function SigninPage() {
               </Link>
             </Group>
           </Stack>
-        </RenderIf>
+        </BaseLayout>
+      </>
+    );
+  }
+
+  return (
+    <>
+      <Head>
+        <title>Dealo | Signin</title>
+      </Head>
+      <BaseLayout hideNavbar>
+        <PublicNavbar showBackButton backRoute="/" />
+        <Stack spacing={32} align="center" mx="auto" mt={86}>
+          <div className={classes.inner}>
+            <div className={classes.content}>
+              <Group spacing={0}>
+                <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
+                <Title order={1} mb="md" className={classes.title}>ealo</Title>
+              </Group>
+              <Title className={classes.subtitle}>
+                A platform to streamline <br /> <span className={classes.highlight}>pricing</span> <br /> into your website.
+              </Title>
+              <Text color="dimmed" mt="md">
+                Build fully functional pricing widgets in minutes using our set of templates.
+              </Text>
+            </div>
+          </div>
+          <SignInForm />
+        </Stack>
       </BaseLayout>
     </>
   );
