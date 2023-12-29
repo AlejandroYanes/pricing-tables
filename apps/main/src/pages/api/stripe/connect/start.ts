@@ -31,14 +31,14 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
   }
 
   if (stripeConnected) {
-    res.redirect(303, `${platformUrl}/stripe/connect/return`);
+    res.redirect(303, `${platformUrl}/dashboard`);
     return;
   }
 
   const account = await stripe.accounts.retrieve(stripeAccount);
 
   if (account.charges_enabled) {
-    res.redirect(303, `${platformUrl}/stripe/connect/return`);
+    res.redirect(303, `${platformUrl}/dashboard`);
     return;
   }
 

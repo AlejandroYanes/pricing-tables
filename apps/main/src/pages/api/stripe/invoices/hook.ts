@@ -2,10 +2,10 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
 // import { env } from 'env/server.mjs';
+import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired } from 'utils/slack';
-import { corsMiddleware } from 'utils/api';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -61,6 +61,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (event.type === 'invoice.finalization_failed') {
+    // noinspection ES6MissingAwait
     notifyOfInvoiceFailedToFinalize({
       name: dbInfo.name,
       customerEmail: dbInfo.email,
@@ -70,6 +71,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (event.type === 'invoice.payment_action_required') {
+    // noinspection ES6MissingAwait
     notifyOfInvoicePaymentActionRequired({
       name: dbInfo.name,
       customerEmail: dbInfo.email,

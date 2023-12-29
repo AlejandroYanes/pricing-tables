@@ -2,13 +2,14 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
 // import { env } from 'env/server.mjs';
+import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import {
   notifyOfRenewedSubscription,
   notifyOfSubscriptionCancellation,
   notifyOfSubscriptionSoftCancellation
 } from 'utils/slack';
-import { corsMiddleware } from 'utils/api';
+import { sendSubscriptionCancelledEmail } from 'utils/resend';
 // import initStripe from 'utils/stripe';
 // import { buffer } from 'utils/api';
 
@@ -40,12 +41,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   const dbInfo = (
     await db.execute(`
-        SELECT US1.id, US1.name
+        SELECT US1.id, US1.name, US1.email
         FROM CheckoutRecord CR
           JOIN User US1 ON CR.userId = US1.id
         WHERE CR.isActive = true AND CR.subscriptionId = ?
       `, [subsId])
-  ).rows[0] as { id: string; name: string } | undefined;
+  ).rows[0] as { id: string; name: string; email: string } | undefined;
 
   if (!dbInfo) {
     res.status(200).json({ received: true });
@@ -67,14 +68,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const isRenewing = !canceled_at && previousAttributes.canceled_at;
 
     if (isCancelling) {
-      const { id: userId, name } = dbInfo;
+      const { id: userId, name, email } = dbInfo;
       await db.transaction(async (tx) => {
         await tx.execute(
           'UPDATE CheckoutRecord SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE isActive = TRUE AND userId = ?',
           [cancel_at, canceled_at, JSON.stringify(cancellation_details), userId],
         );
       });
+      // noinspection ES6MissingAwait
       notifyOfSubscriptionSoftCancellation({ name, cancelAt: cancel_at! });
+      // noinspection ES6MissingAwait
+      sendSubscriptionCancelledEmail({ name, to: email });
     }
 
     if (isRenewing) {
@@ -85,6 +89,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           [userId],
         );
       });
+      // noinspection ES6MissingAwait
       notifyOfRenewedSubscription({ name });
     }
   }

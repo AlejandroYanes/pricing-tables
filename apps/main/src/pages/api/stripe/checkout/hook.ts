@@ -3,14 +3,15 @@ import type Stripe from 'stripe';
 import { createId } from '@paralleldrive/cuid2';
 
 // import { env } from 'env/server.mjs';
+import { corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
-import { corsMiddleware } from 'utils/api';
 import {
   notifyOfNewSubscription,
   notifyOfSubscriptionMissingParams,
   notifyOfSubscriptionPaymentFailed,
 } from 'utils/slack';
+import { sendFailedPaymentEmail } from 'utils/resend';
 // import { buffer } from 'utils/api';
 
 // export const config = {
@@ -44,7 +45,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     const isFromPlatform = session.metadata?.source === 'dealo';
     const isInternalFlow = session.metadata?.internal_flow === 'true';
-    if (!isFromPlatform || isInternalFlow) {
+    if (!isFromPlatform || !isInternalFlow) {
       res.status(200).json({ received: true });
     }
 
@@ -59,40 +60,41 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return res.status(400).send(`Webhook Error: missing params`);
     }
 
+    const customer = session.customer as Stripe.Customer;
+    const { id: subscriptionId, current_period_start, current_period_end } = session.subscription as Stripe.Subscription;
+    const { widgetId, productId, priceId } = session.metadata!;
+    const db = initDb();
+
+    const { id: userId, name, email } = (
+      await db.execute('SELECT id, name, email FROM User WHERE email = ?', [customer.email])
+    ).rows[0] as { id: string; name: string; email: string };
+
     if (session.payment_status !== 'paid') {
-      // TODO: notify user of failed payment (eg: send error email to user)
       console.log(`❌ Webhook Error: payment failed`);
+      // noinspection ES6MissingAwait
       notifyOfSubscriptionPaymentFailed({
-        name: (session.customer as Stripe.Customer).name!,
-        customerEmail: (session.customer as Stripe.Customer).email!,
-        subscriptionId: (session.subscription as Stripe.Subscription).id,
+        name,
+        customerEmail: email,
+        subscriptionId: subscriptionId,
       });
+      // noinspection ES6MissingAwait
+      sendFailedPaymentEmail({ to: email, name });
       res.status(200).json({ received: true });
+      return;
     }
 
-    if (isInternalFlow) {
-      const customer = session.customer as Stripe.Customer;
-      const { id: subscriptionId, current_period_start, current_period_end } = session.subscription as Stripe.Subscription;
-      const { widgetId, productId, priceId } = session.metadata!;
-      const db = initDb();
+    await db.transaction(async (tx) => {
+      await tx.execute('UPDATE User SET stripeCustomerId = ? WHERE id = ?', [customer.id, userId]);
+      await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
+      await tx.execute(
+        // eslint-disable-next-line max-len
+        'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end],
+      );
+    });
 
-      const { id: userId, name } = (
-        await db.execute('SELECT id, name FROM User WHERE email = ?', [customer.email])
-      ).rows[0] as { id: string; name: string };
-
-      await db.transaction(async (tx) => {
-        await tx.execute('UPDATE User SET stripeCustomerId = ? WHERE id = ?', [customer.id, userId]);
-        await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
-        await tx.execute(
-          // eslint-disable-next-line max-len
-          'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-          [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end],
-        );
-      });
-
-      await notifyOfNewSubscription({ name });
-      // TODO: send confirmation email to user
-    }
+    // noinspection ES6MissingAwait
+    notifyOfNewSubscription({ name });
   }
 
   res.status(200).json({ received: true });

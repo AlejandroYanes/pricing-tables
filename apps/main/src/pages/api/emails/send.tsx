@@ -1,5 +1,5 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
-import { VercelInviteUserEmail } from 'email-templates';
+import { WelcomeEmail } from 'email-templates';
 
 import { env } from 'env/server.mjs';
 import { sendEmail } from 'utils/resend';
@@ -10,7 +10,7 @@ export default async function handler(_: NextApiRequest, res: NextApiResponse) {
     to: 'alejandro@dealo.app',
     subject: 'Test',
     body: (
-      <VercelInviteUserEmail
+      <WelcomeEmail
         logoImage={`${baseUrl}/emails/vercel-logo.png`}
         userImage={`${baseUrl}/emails/vercel-user.png`}
         teamImage={`${baseUrl}/emails/vercel-team.png`}
