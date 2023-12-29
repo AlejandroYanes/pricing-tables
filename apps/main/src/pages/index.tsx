@@ -3,11 +3,24 @@ import { useEffect } from 'react';
 import { type NextPage } from 'next';
 import Head from 'next/head';
 import Image from 'next/image';
-import { createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
+import { Center, createStyles, Group, List, rem, Stack, Text, ThemeIcon, Title } from '@mantine/core';
 import { useColorScheme } from '@mantine/hooks';
-import { IconCheck } from '@tabler/icons';
+import {
+  IconBrush,
+  IconCheck,
+  IconClock,
+  IconFlask,
+  IconHelp,
+  IconMathOff,
+  IconPower,
+  IconSettings,
+  IconStar,
+  IconTrendingUp,
+  IconUser
+} from '@tabler/icons';
 
 import BaseLayout from 'components/BaseLayout';
+import PublicNavbar from 'components/PublicNavbar';
 
 const useStyles = createStyles((theme) => ({
   wrapper: {
@@ -93,7 +106,43 @@ const useStyles = createStyles((theme) => ({
       },
     },
   },
+
+  darkerSection: {
+    padding: `${rem(24)} ${rem(24)}`,
+    borderRadius: theme.radius.md,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[6] : theme.colors.gray[0],
+  },
+  card: {
+    width: '30%',
+    borderRadius: theme.radius.sm,
+    padding: `${rem(20)} ${rem(24)}`,
+    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : 'white',
+    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.dark[4] : theme.colors.gray[2]}`,
+  }
 }));
+
+const IconListItem = ({ title, text, icon }: { title: string; text: string; icon: JSX.Element }) => (
+  <Group align="center" noWrap>
+    <Center style={{ width: '32px', height: '32px', flexShrink: 0 }}>
+      {icon}
+    </Center>
+    <Stack spacing={0}>
+      <Text weight="bold">{title}</Text>
+      <Text>{text}</Text>
+    </Stack>
+  </Group>
+);
+
+const Card = ({ title, text, icon }: { title: string; text: string; icon: JSX.Element }) => {
+  const { classes } = useStyles();
+  return (
+    <Stack className={classes.card}>
+      {icon}
+      <Title order={3}>{title}</Title>
+      <Text>{text}</Text>
+    </Stack>
+  );
+}
 
 const Home: NextPage = () => {
   const { classes } = useStyles();
@@ -107,9 +156,10 @@ const Home: NextPage = () => {
     <>
       <Head>
         <title>Dealo</title>
-        <meta name="description" content="A platform to streamline pricing cards and checkouts" />
+        <meta name="description" content="A platform to streamline pricing and checkouts" />
       </Head>
       <BaseLayout hideNavbar>
+        <PublicNavbar />
         <div className={classes.wrapper}>
           <div className={classes.inner}>
             <div className={classes.content}>
@@ -118,7 +168,7 @@ const Home: NextPage = () => {
                 <Title order={1} mb="md" className={classes.title}>ealo</Title>
               </Group>
               <Title className={classes.subtitle}>
-                A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
+                A platform to streamline <br /> <span className={classes.highlight}>pricing</span> <br /> into your website.
               </Title>
               <Text color="dimmed" mt="md">
                 Build fully functional pricing widgets in minutes using our set of templates.
@@ -144,44 +194,45 @@ const Home: NextPage = () => {
                   <b>Easy checkout</b> – redirect your customers to our checkout API, we will generate a checkout session for you
                 </List.Item>
               </List>
-
-              {/* TODO: hid the Product Hunt badge for now, review later */}
-              {/*<a*/}
-              {/*  href="https://www.producthunt.com/posts/dealo?utm_source=badge-top-post-topic-badge&utm_medium=badge&utm_souce=badge-dealo"*/}
-              {/*  target="_blank"*/}
-              {/*  rel="noreferrer"*/}
-              {/*  style={{ margin: '60px auto 0' }}*/}
-              {/*>*/}
-              {/*  /!* eslint-disable-next-line @next/next/no-img-element *!/*/}
-              {/*  <img*/}
-              {/*    // eslint-disable-next-line max-len*/}
-              {/*    src={`https://api.producthunt.com/widgets/embed-image/v1/top-post-topic-badge.svg?post_id=393090&theme=${theme.colorScheme}&period=weekly&topic_id=237`}*/}
-              {/*    alt="Dealo - Pricing&#0032;cards&#0032;and&#0032;checkouts&#0032;for&#0032;no&#0045;code | Product Hunt"*/}
-              {/*    style={{ width: '250px', height: '54px' }}*/}
-              {/*    width="250"*/}
-              {/*    height="54"*/}
-              {/*  />*/}
-              {/*</a>*/}
             </div>
             <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className={classes.image} />
           </div>
-          {/*{youtubeEmbed}*/}
+
+          <Stack className={classes.darkerSection} mb={140}>
+            <Title order={1} align="center" mb="xl">Unleash Your Potential</Title>
+            <Group position="apart"  align="stretch" mb="lg">
+              <Card icon={<IconMathOff />} title="Goodbye to Headaches" text="No more wrangling with code to set up pricing pages and bill your customers." />
+              <Card icon={<IconPower />} title="Empowerment" text="Create and customize sleek, professional pricing cards effortlessly." />
+              <Card icon={<IconFlask />} title="Innovate" text="Use our A/B testing and Insights to find the best pricing combination." />
+            </Group>
+            <Group position="apart" align="stretch">
+              <Card icon={<IconStar />} title="Frictionless Journey" text="Provide your customers with a frictionless checkout experience while you focus on scaling your business." />
+              <Card icon={<IconUser />} title="Dynamic Experience" text="Create a dynamic and user-friendly checkout experience." />
+              <Card icon={<IconBrush />} title="Your brand is your identity" text="Maintain consistency effortlessly by embedding the generated UI directly into your website." />
+            </Group>
+          </Stack>
+
+          <Group style={{ justifyContent: 'space-around' }} mb={140}>
+            <Stack style={{ width: '40%' }}>
+              <Title order={2} mb="xl">How it works</Title>
+              <IconListItem icon={<IconSettings />} title="Setup" text="Copy and paste the provided code snippets to your website." />
+              <IconListItem icon={<IconBrush />} title="Customize" text="Pick from our choise of templates and add your colours." />
+              <IconListItem icon={<IconCheck size={28} />} title="Checkout" text="Redirect your customers to our checkout API for a smooth transaction process." />
+            </Stack>
+            <Stack style={{ width: '40%' }}>
+              <Title order={2} mb="xl">Why Choose Us?</Title>
+              <IconListItem icon={<IconTrendingUp />} title="No-Code, No Limits" text="Craft widgets in under 15 minutes and integrate seamlessly with any website." />
+              <IconListItem icon={<IconClock />} title="Time-Saving" text="Set up your pricing structure in minutes, not hours." />
+              <IconListItem icon={<IconHelp />} title="Comprehensive Support" text="We're more than a tool, we're your dedicated partner." />
+            </Stack>
+          </Group>
+
           <Stack mt="xl" align="center" justify="center">
             <Title order={1} mb="xl">Get started now.</Title>
             {/* @ts-ignore */}
             <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
             <Text color="dimmed" mt="lg">This is a working example of a pricing widget.</Text>
           </Stack>
-          {/*<Group align="flex-start" mt={86} grow className={classes.bottom}>*/}
-          {/*  <Stack>*/}
-          {/*    /!*<SignInForm />*!/*/}
-          {/*    /!* @ts-ignore *!/*/}
-          {/*    <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />*/}
-          {/*  </Stack>*/}
-          {/*  <Stack>*/}
-          {/*    {youtubeEmbed}*/}
-          {/*  </Stack>*/}
-          {/*</Group>*/}
         </div>
       </BaseLayout>
     </>

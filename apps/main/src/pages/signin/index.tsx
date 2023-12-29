@@ -10,6 +10,7 @@ import { IconAlertCircle } from '@tabler/icons';
 import { generateQueryString } from 'helpers';
 
 import BaseLayout from 'components/BaseLayout';
+import PublicNavbar from 'components/PublicNavbar';
 import SignInForm from 'components/SignInForm';
 import RenderWithDelay from 'components/RenderWithDelay';
 
@@ -137,8 +138,9 @@ export default function SigninPage() {
       <Head>
         <title>Dealo | Signin</title>
       </Head>
-      <BaseLayout hideUserControls>
-        <Stack spacing={32} align="center" mx="auto">
+      <BaseLayout hideNavbar>
+        <PublicNavbar showBackButton backRoute="/" />
+        <Stack spacing={32} align="center" mx="auto" mt={86}>
           <div className={classes.inner}>
             <div className={classes.content}>
               <Group spacing={0}>
@@ -146,7 +148,7 @@ export default function SigninPage() {
                 <Title order={1} mb="md" className={classes.title}>ealo</Title>
               </Group>
               <Title className={classes.subtitle}>
-                A platform to streamline <br /> <span className={classes.highlight}>pricing cards</span> <br /> into your website.
+                A platform to streamline <br /> <span className={classes.highlight}>pricing</span> <br /> into your website.
               </Title>
               <Text color="dimmed" mt="md">
                 Build fully functional pricing widgets in minutes using our set of templates.

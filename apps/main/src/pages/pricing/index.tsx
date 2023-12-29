@@ -6,6 +6,7 @@ import { useColorScheme } from '@mantine/hooks';
 import { Button, Stack, Text, Title } from '@mantine/core';
 
 import BaseLayout from 'components/BaseLayout';
+import PublicNavbar from 'components/PublicNavbar';
 
 const PricingPage = () => {
   const { data, status } = useSession();
@@ -18,6 +19,23 @@ const PricingPage = () => {
   }, []);
 
   if (status === 'loading') return null;
+
+  if (status === 'unauthenticated') {
+    return (
+      <>
+        <Head>
+          <title>Dealo | Pricing</title>
+        </Head>
+        <BaseLayout hideNavbar>
+          <PublicNavbar showLogo showBackButton backRoute="/" />
+          <Stack justify="center" align="center" style={{ margin: '0 auto', height: 'calc(100vh - 88px)' }}>
+            {/* @ts-ignore */}
+            <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
+          </Stack>
+        </BaseLayout>
+      </>
+    );
+  }
 
   if (user && user.hasSubscription) {
     return (
