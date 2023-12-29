@@ -1,63 +1,120 @@
-/* eslint-disable max-len */
+import { Stack, Text, Title } from '@mantine/core';
+
 import BaseLayout from 'components/BaseLayout';
 
 const PrivacyPolicyPage = () => {
   return (
-    <BaseLayout>
-      Privacy Policy for [Your SaaS Platform Name]
+    <BaseLayout showBackButton hideUserControls>
+      <Stack style={{ maxWidth: '700px', margin: '0 auto' }}>
+        <Stack spacing={0}>
+          <Title order={1}>Privacy Policy for Dealo</Title>
+          <Text>Last Updated: Friday, 29 Dec, 2023</Text>
+        </Stack>
+        <Text>
+          This Privacy Policy describes how Dealo {`"we", "us", or "our"`} collects, uses, a
+          nd shares information when you use our SaaS platform and related services.
+          By accessing or using Dealo, you agree to the terms outlined in this Privacy Policy.
+        </Text>
 
-      Last Updated: [Date]
+        <Title order={3} mt="lg">Information We Collect</Title>
+        <Text>
+          <strong>1. Account Information</strong>
+          <br/>
+          When you sign up for Dealo, we collect information such as your name, email address,
+          and other relevant contact details to create
+          and manage your account.
 
-      This Privacy Policy describes how [Your SaaS Platform Name] ("we," "us," or "our") collects, uses, and shares information when you use our SaaS platform and related services. By accessing or using [Your SaaS Platform Name], you agree to the terms outlined in this Privacy Policy.
+          <br/>
+          <br/>
+          <strong>2. Payment Information</strong>
+          <br/>
+          To facilitate transactions through our platform, we integrate with Stripe to process payments.
+          We do not store or process any credit card information on our servers.
+          Stripe's privacy policy is applicable to the collection and processing of payment information.
 
-      Information We Collect
-      1. Account Information
-      When you sign up for [Your SaaS Platform Name], we collect information such as your name, email address, and other relevant contact details to create and manage your account.
+          <br/>
+          <br/>
+          <strong>3. Usage Information</strong>
+          <br/>
+          We may collect information about how you interact with Dealo, including your usage patterns,
+          preferences, and the features you access.
 
-      2. Payment Information
-      To facilitate transactions through our platform, we integrate with Stripe to process payments. We do not store or process any credit card information on our servers. Stripe's privacy policy is applicable to the collection and processing of payment information.
+          <br/>
+          <br/>
+          <strong>4. Log Data</strong>
+          <br/>
+          When you use Dealo, our servers automatically record information that your browser or device sends.
+          This may include your IP address, browser type, device type, and the pages you visit.
 
-      3. Usage Information
-      We may collect information about how you interact with [Your SaaS Platform Name], including your usage patterns, preferences, and the features you access.
+          <br/>
+          <br/>
+          <strong>5. Cookies and Similar Technologies</strong>
+          <br/>
+          We use cookies and similar technologies to collect and store information when you access Dealo.
+          This helps us enhance your experience, analyze trends, and improve our services.
+        </Text>
 
-      4. Log Data
-      When you use [Your SaaS Platform Name], our servers automatically record information that your browser or device sends. This may include your IP address, browser type, device type, and the pages you visit.
+        <Title order={3} mt="lg">How We Use Your Information</Title>
+        <Text>
+          <strong>1. Provide and Improve Services</strong>
+          <br/>
+          We use your information to operate and maintain Dealo, including processing transactions, improving features,
+          and personalizing your experience.
 
-      5. Cookies and Similar Technologies
-      We use cookies and similar technologies to collect and store information when you access [Your SaaS Platform Name]. This helps us enhance your experience, analyze trends, and improve our services.
+          <br/>
+          <br/>
+          <strong>2. Communications</strong>
+          <br/>
+          We may use your email address to send important updates, announcements, and marketing communications.
+          You can opt out of promotional emails at any time.
 
-      How We Use Your Information
-      1. Provide and Improve Services
-      We use your information to operate and maintain [Your SaaS Platform Name], including processing transactions, improving features, and personalizing your experience.
+          <br/>
+          <br/>
+          <strong>3. Analytics</strong>
+          <br/>
+          We analyze usage patterns to understand how users interact with our platform.
+          This helps us make informed decisions to improve and optimize Dealo.
+        </Text>
 
-      2. Communication
-      We may use your email address to send important updates, announcements, and marketing communications. You can opt out of promotional emails at any time.
+        <Title order={3} mt="lg">How We Share Your Information</Title>
+        <Text>
+          We do not sell, trade, or rent your personal information to third parties.
+          We may share your information with third-party service providers, such as Stripe,
+          to facilitate payments and other essential services.
+        </Text>
 
-      3. Analytics
-      We analyze usage patterns to understand how users interact with our platform. This helps us make informed decisions to improve and optimize [Your SaaS Platform Name].
+        <Title order={3} mt="lg">Data Retention</Title>
+        <Text>
+          We retain your information for as long as necessary to provide our services and
+          fulfill the purposes outlined in this Privacy Policy.
+          When you delete your account, we will delete your information within 30 days.
+        </Text>
 
-      Information Sharing
-      We do not sell, trade, or rent your personal information to third parties. We may share your information with third-party service providers, such as Stripe, to facilitate payments and other essential services.
+        <Title order={3} mt="lg">Security</Title>
+        <Text>
+          We take reasonable measures to protect your information from unauthorized access, disclosure, or destruction.
+          However, no method of transmission over the Internet or electronic storage is 100% secure.
+          Therefore, we cannot guarantee its absolute security.
+        </Text>
 
-      Security
-      We take reasonable measures to protect your information from unauthorized access, disclosure, alteration, and destruction. However, no method of transmission over the internet or electronic storage is 100% secure.
+        <Title order={3} mt="lg">Changes to this Privacy Policy</Title>
+        <Text>
+          We may update this Privacy Policy to reflect changes in our practices or for other
+          operational, legal, or regulatory reasons.
+          We will notify you of any material changes by posting the updated Privacy Policy on Dealo.
+        </Text>
 
-      Your Choices
-      You can access, update, or delete your account information by logging into [Your SaaS Platform Name]. You may also contact us at [contact@yoursaasplatform.com] for assistance.
+        <Title order={3} mt="lg">Contact Us</Title>
+        <Text>
+          If you have any questions or concerns about this Privacy Policy, please contact us at
+          <a href="mailto:support@dealo.app">support@dealo.app</a>.
+        </Text>
 
-      Changes to this Privacy Policy
-      We may update this Privacy Policy to reflect changes in our practices or for other operational, legal, or regulatory reasons. We will notify you of any material changes by posting the updated Privacy Policy on [Your SaaS Platform Name].
-
-      Contact Us
-      If you have any questions or concerns about this Privacy Policy, please contact us at [contact@yoursaasplatform.com].
-
-      [Your SaaS Platform Name]
-      [Your Company Address]
-      [City, State, Zip Code]
-      [Contact Email]
-      [Contact Phone]
-
-      [End of Privacy Policy]
+        <Stack spacing={0}>
+          <Text weight="bold" mt="xl">Dealo</Text>
+          <a href="mailto:support@dealo.app">support@dealo.app</a>
+        </Stack>
+      </Stack>
     </BaseLayout>
   );
 }
