@@ -25,7 +25,6 @@ const PricingCards = (props: Props) => {
     if (window) {
       const currentUrl = new URL(window.location.href);
       const fetchUrl = internal
-        // ? `http://localhost:3000/api/client/widget/${widget}`
         ? `${currentUrl.origin}/api/client/widget/${widget}`
         : `https://www.dealo.app/api/client/widget/${widget}`;
 

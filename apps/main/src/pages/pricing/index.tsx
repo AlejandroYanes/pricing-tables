@@ -3,11 +3,11 @@ import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { useColorScheme } from '@mantine/hooks';
 import { Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
 
 import BaseLayout from 'components/BaseLayout';
 import PublicNavbar from 'components/PublicNavbar';
+import PricingWidget from 'components/PricingWidget';
 
 const useStyles = createStyles((theme) => ({
   title: {
@@ -27,7 +27,6 @@ const PricingPage = () => {
   const user = data?.user;
 
   const { classes } = useStyles();
-  const colorScheme = useColorScheme();
 
   useEffect(() => {
     import('pricing-cards');
@@ -53,8 +52,7 @@ const PricingPage = () => {
             <Text align="center" size="xl" mb={64}>
               Pick a plan to start using Dealo, you can cancel at any time.
             </Text>
-            {/* @ts-ignore */}
-            <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
+            <PricingWidget />
           </Stack>
         </BaseLayout>
       </>
@@ -87,8 +85,7 @@ const PricingPage = () => {
       </Head>
       <BaseLayout hideUserControls showBackButton={!!user} backRoute="/dashboard" title="Pick a plan">
         <Stack justify="center" align="center" style={{ margin: '0 auto', height: 'calc(100vh - 88px)' }}>
-          {/* @ts-ignore */}
-          <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme={colorScheme} internal="true" />
+          <PricingWidget />
         </Stack>
       </BaseLayout>
     </>
