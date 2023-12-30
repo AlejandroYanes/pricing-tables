@@ -1,6 +1,6 @@
 'use client';
 
-import { templatesMap } from '@dealo/templates';
+import { mockTemplate, templatesMap } from '@dealo/templates';
 
 import { type ReducedWidgetInfo } from './get-widget-info';
 
@@ -11,7 +11,7 @@ interface Props {
 
 export function TemplateWrapper(props: Props) {
   const { id, widget } = props;
-  const Template = widget.template ? templatesMap[widget.template]! : () => null;
+  const { render: Template } = widget.template ? templatesMap[widget.template]! : mockTemplate;
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widget;
 
   return (

@@ -1,2 +1,2 @@
-import { AccountDeletedEmail } from 'email-templates';
+import { AccountDeletedEmail } from '@dealo/email-templates';
 export default AccountDeletedEmail;

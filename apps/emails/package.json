@@ -9,6 +9,6 @@
   "dependencies": {
     "@react-email/components": "0.0.12",
     "react-email": "1.10.0",
-    "email-templates": "*"
+    "@dealo/email-templates": "*"
   }
 }

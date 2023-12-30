@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { CSVLink } from 'react-csv';
-import { IconAdjustments } from '@tabler/icons-react';
+import { IconAdjustments, IconDatabaseExport } from '@tabler/icons-react';
 import {
   RenderIf,
   Popover,
@@ -30,12 +30,11 @@ import UserAvatar from 'components/UserAvatar';
 const UsersTable = () => {
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [isSetup, setIsSetup] = useState<string>('all');
+  const [isSetup, setIsSetup] = useState<string | undefined>();
+  const [hasLegacy, setHasLegacy] = useState<string | undefined>();
   const [query, setQuery] = useState('');
 
   const { debounceCall } = useDebounce(250);
-  const [isSetup, setIsSetup] = useState<string | undefined>();
-  const [hasLegacy, setHasLegacy] = useState<string | undefined>();
 
   const {
     data: { results, count } = { results: [], count: 0 },
@@ -90,82 +89,53 @@ const UsersTable = () => {
           className="w-[280px]"
           onChange={(e) => handleSearch(e.target.value)}
         />
-        <Popover>
-          <PopoverTrigger asChild>
+        <div className="flex flex-row ml-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost">
+                <IconAdjustments />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[200px]">
+              <div className="flex flex-col gap-4">
+                <span className="text text-sm font-semibold">Is Setup</span>
+                <RadioGroup
+                  name="has-setup"
+                  value={resolveStatusFilter()}
+                  onValueChange={(value: string) => handleFilterChange(value)}
+                >
+                  <div className="flex flex-col gap-2">
+                    <span>Is Setup</span>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="setup-yes" id="r2"/>
+                      <Label htmlFor="r2">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="setup-no" id="r3"/>
+                      <Label htmlFor="r3">No</Label>
+                    </div>
+                    <span>Has legacy setup</span>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="legacy-yes" id="r2"/>
+                      <Label htmlFor="r2">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="legacy-no" id="r3"/>
+                      <Label htmlFor="r3">No</Label>
+                    </div>
+                  </div>
+                </RadioGroup>
+                <Button variant="default" size="sm" onClick={clearFilters}>Clear</Button>
+              </div>
+            </PopoverContent>
+          </Popover>
+          <CSVLink data={csvData} filename="dealo_users.csv" target="_blank">
             <Button variant="ghost">
-              <IconAdjustments />
+              <IconDatabaseExport stroke={1} />
             </Button>
-          </PopoverTrigger>
-          <PopoverContent align="end" className="w-[200px]">
-            <div className="flex flex-col gap-4">
-              <span className="text text-sm font-semibold">Is Setup</span>
-              <RadioGroup
-                name="status"
-                value={isSetup}
-                onValueChange={(value: string) => handleFilterChange(value)}
-              >
-                <div className="flex flex-col gap-2">
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="all" id="r1" />
-                    <Label htmlFor="r1">All</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="yes" id="r2" />
-                    <Label htmlFor="r2">Yes</Label>
-                  </div>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="no" id="r3" />
-                    <Label htmlFor="r3">No</Label>
-                  </div>
-                </div>
-              </RadioGroup>
-            </div>
-          </PopoverContent>
-        </Popover>
+          </CSVLink>
+        </div>
       </div>
-      <Group spacing="xs">
-        <Popover width={200} position="bottom-end">
-          <Popover.Target>
-            <Indicator
-              withBorder
-              position="bottom-center"
-              size={12}
-              disabled={resolveStatusFilter() === undefined}
-            >
-              <ActionIcon variant="filled" size="lg">
-                <IconAdjustmentsAlt stroke={1} />
-              </ActionIcon>
-            </Indicator>
-          </Popover.Target>
-          <Popover.Dropdown>
-            <Stack>
-              <Radio.Group
-                name="has-setup"
-                value={resolveStatusFilter()}
-                onChange={(value: string) => handleFilterChange(value)}
-              >
-                <Stack spacing="xs">
-                  <Text size="sm" weight={500}>Is Setup</Text>
-                  <Radio value="setup-yes" label="Yes" />
-                  <Radio value="setup-no" label="No" />
-                  <Text size="sm" weight={500}>Has legacy setup</Text>
-                  <Radio value="legacy-yes" label="Yes" />
-                  <Radio value="legacy-no" label="No" />
-                </Stack>
-              </Radio.Group>
-            </Stack>
-            <Group position="right" mt="sm">
-              <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
-            </Group>
-          </Popover.Dropdown>
-        </Popover>
-        <CSVLink data={csvData} filename="dealo_users.csv" target="_blank">
-          <ActionIcon variant="filled" size="lg">
-            <IconDatabaseExport stroke={1} />
-          </ActionIcon>
-        </CSVLink>
-      </Group>
-    </Group>
       <Table>
         <TableHeader>
           <TableRow>

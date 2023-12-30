@@ -1,5 +1,5 @@
 {
-  "name": "pricing-cards",
+  "name": "@dealo/pricing-cards",
   "version": "0.0.0",
   "license": "MIT",
   "type": "module",
@@ -9,10 +9,10 @@
     "lint": "eslint \"**/*.ts*\""
   },
   "dependencies": {
-    "models": "*",
-    "helpers": "*",
-    "templates": "*",
-    "ui": "*",
+    "@dealo/models": "*",
+    "@dealo/helpers": "*",
+    "@dealo/templates": "*",
+    "@dealo/ui": "*",
     "radash": "10.8.1"
   },
   "devDependencies": {

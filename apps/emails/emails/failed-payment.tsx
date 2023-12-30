@@ -1,2 +1,2 @@
-import { FailedPaymentEmail } from 'email-templates';
+import { FailedPaymentEmail } from '@dealo/email-templates';
 export default FailedPaymentEmail;

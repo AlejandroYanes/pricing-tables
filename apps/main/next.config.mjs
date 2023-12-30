@@ -14,7 +14,7 @@ const withBundleAnalyzer = initAnalyzer({
 })
 
 /** @type {import("next").NextConfig} */
-const config = withAxiom({
+const config = {
   reactStrictMode: true,
   /* If trying out the experimental appDir, comment the i18n config out
    * @see https://github.com/vercel/next.js/issues/41980 */
@@ -24,4 +24,4 @@ const config = withAxiom({
   // },
   transpilePackages: ["@dealo/ui", "@dealo/templates", "@dealo/helpers", "@dealo/models"],
 };
-export default withBundleAnalyzer(config);
+export default withBundleAnalyzer(withAxiom(config));
