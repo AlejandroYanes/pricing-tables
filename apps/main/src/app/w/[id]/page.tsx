@@ -3,6 +3,7 @@ import { z } from 'zod';
 
 import { getWidgetInfo } from './get-widget-info';
 import { TemplateWrapper } from './TemplateWrapper';
+import WidthProvider from './WidthProvider';
 
 interface Props {
   params: {
@@ -35,7 +36,11 @@ const WidgetPage = async (props: Props) => {
 
   const widgetInfo = await resolveWidgetInfo(id);
 
-  return <TemplateWrapper id={id} widget={widgetInfo} />;
+  return (
+    <WidthProvider>
+      <TemplateWrapper id={id} widget={widgetInfo} />
+    </WidthProvider>
+  );
 };
 
 export default WidgetPage;

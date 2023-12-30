@@ -129,7 +129,7 @@ const UsersTable = () => {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between py-6 sticky bottom-0 bg-white">
+      <div className="flex items-center justify-between py-6 sticky bottom-0">
         <span className="text-sm font-medium">{`Total: ${count}`}</span>
         <Pagination
           page={page}
