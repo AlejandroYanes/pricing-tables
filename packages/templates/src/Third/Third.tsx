@@ -165,7 +165,7 @@ const resolveCTA = (options: CTAParams) => {
   if (hasFreeTrial) {
     return (
       <>
-        <a href={resolveBtnUrl()} className="w-full px-8">
+        <a href={resolveBtnUrl()} className="w-full px-8" target="_top">
           <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel()}</Button>
         </a>
         <span className="text text-center text-slate-500 mt-2">With a {freeTrialDays} days free trial</span>
@@ -226,7 +226,7 @@ export function ThirdTemplate(props: TemplateProps) {
   const productToHighlight = !!visibleProducts[selectedProduct] ? selectedProduct : 0;
 
   return (
-    <div className="flex flex-col items-center">
+    <div data-el="template__root" className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
         <Tabs
           value={currentInterval}
@@ -240,7 +240,7 @@ export function ThirdTemplate(props: TemplateProps) {
           </TabsList>
         </Tabs>
       </RenderIf>
-      <div className="flex gap-8">
+      <div data-el="template__content" className="flex gap-8 p-1 pb-9">
         <ul className="flex flex-col gap-4">
           {visibleProducts.map((prod, index) => {
             const { isCustom } = prod;
@@ -262,7 +262,7 @@ export function ThirdTemplate(props: TemplateProps) {
                   </RenderIf>
                   <div className="flex flex-col ml-4 mr-16 gap-0.5">
                     <span className="text text-left text-[18px]">{prod.name}</span>
-                    <span className="max-w-[360px]">{prod.description}</span>
+                    <span className="text text-left max-w-[360px]">{prod.description}</span>
                   </div>
                   {
                     !isCustom

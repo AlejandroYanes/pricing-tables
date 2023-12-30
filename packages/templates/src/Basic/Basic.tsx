@@ -52,7 +52,7 @@ export function BasicTemplate(props: TemplateProps) {
   if (visibleProducts.length === 0) return null;
 
   return (
-    <div className="flex flex-col items-center">
+    <div data-el="template__root" className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
         <Tabs
           value={currentInterval}
@@ -66,7 +66,7 @@ export function BasicTemplate(props: TemplateProps) {
           </TabsList>
         </Tabs>
       </RenderIf>
-      <div className="grid justify-items-center box-border gap-4" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
+      <div data-el="template__content" className="grid justify-items-center box-border gap-4 p-1 pl-9" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
         {visibleProducts.map((prod, index) => {
           const isFirst = index === 0;
 

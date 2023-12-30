@@ -242,7 +242,7 @@ export function SecondTemplate(props: TemplateProps) {
   });
 
   return (
-    <div className="flex flex-col items-center gap-4">
+    <div data-el="template__root" className="flex flex-col items-center gap-4">
       <RenderIf condition={billingIntervals.length > 1}>
         <Tabs
           value={currentInterval}
@@ -256,7 +256,7 @@ export function SecondTemplate(props: TemplateProps) {
           </TabsList>
         </Tabs>
       </RenderIf>
-      <div className="relative mt-2 ml-9">
+      <div data-el="template__content" className="relative m-1 ml-9">
         <table
           className="table-fixed border-collapse border border-slate-200 dark:border-slate-700"
           style={{ width: `${visibleProducts.length * 300}px` }}

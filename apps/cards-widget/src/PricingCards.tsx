@@ -12,6 +12,7 @@ interface Props {
 const rootStyles = `
   .pricing-cards__root {
     position: relative;
+    width: 100%;
     overflow: hidden;
   }
   .pricing-cards__iframe {
@@ -45,6 +46,9 @@ const PricingCards = (props: Props) => {
     }, false);
   }, []);
 
+  const windowWidth = window.innerWidth;
+  const src = `http://localhost:3000/w/${widget}?env=${env}&theme=${colorScheme}&currency=${currency}&width=${windowWidth}`;
+
   return (
     <>
       <style>{rootStyles}</style>
@@ -52,7 +56,7 @@ const PricingCards = (props: Props) => {
         <iframe
           title="Pricing Card"
           className="pricing-cards__iframe"
-          src={`http://localhost:3000/w/clqs1ljxm0001jdfekgdizoxs?env=${env}&theme=${colorScheme}&currency=${currency}`}
+          src={src}
         />
       </div>
     </>
