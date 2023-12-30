@@ -6,7 +6,7 @@ import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
-import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 const inputSchema = z.object({
   widget: z.string().cuid(),
@@ -18,12 +18,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const { widget } = req.query;
-  const widgetData: WidgetInfo = await getWidgetData(widget as string);
+  const widgetId = req.query.widget as string;
 
-  const seconds = 60;
-  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
-  res.status(200).json(widgetData);
+  try {
+    const widgetData = await getWidgetData(widgetId);
+    res.status(200).json(widgetData);
+  } catch (e: any) {
+    console.error(`❌ Error fetching data for widget: ${widgetId}`, e.message);
+    res.status(400).json({ error: `❌ Error fetching data for widget: ${widgetId}` });
+  }
 }
 
 export default corsMiddleware(handler);
@@ -32,42 +35,45 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   const db = initDb();
 
   const widgetFields = [
-    '`pricing-tables`.`PriceWidget`.`id`',
-    '`pricing-tables`.`PriceWidget`.`template`',
-    '`pricing-tables`.`PriceWidget`.`recommended`',
-    '`pricing-tables`.`PriceWidget`.`color`',
-    '`pricing-tables`.`PriceWidget`.`unitLabel`',
-    '`pricing-tables`.`PriceWidget`.`subscribeLabel`',
-    '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
-    '`pricing-tables`.`PriceWidget`.`userId`',
+    'PriceWidget.id',
+    'PriceWidget.template',
+    'PriceWidget.recommended',
+    'PriceWidget.color',
+    'PriceWidget.unitLabel',
+    'PriceWidget.subscribeLabel',
+    'PriceWidget.freeTrialLabel',
+    'PriceWidget.userId',
   ];
   const widget = (
-    await db.execute(`SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`, [widgetId])
-  ).rows[0] as Widget;
+    await db.execute(`SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`, [widgetId])
+  ).rows[0] as Widget | undefined;
+
+  if (!widget) {
+    throw new Error('Widget not found');
+  }
 
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute('SELECT Callback.env, Callback.url FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt', [widgetId])
   ).rows as Callback[];
 
   const features = (
-    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.`Feature`.`order`, `pricing-tables`.`Feature`.`createdAt`', [widgetId])
+    await db.execute('SELECT Feature.id, Feature.name, Feature.type, Feature.value, Feature.productId FROM Feature WHERE Feature.widgetId = ? ORDER BY Feature.order, Feature.createdAt', [widgetId])
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order`, `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT Product.id, Product.isCustom, Product.name, Product.description, Product.ctaLabel, Product.ctaUrl, Product.mask FROM Product WHERE Product.widgetId = ? ORDER BY Product.order, Product.createdAt', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
   const prices = (
-    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order`, `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
+    await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
   ).rows as Price[];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
-  ).rows[0] as { stripeKey: string; role: string };
+    await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
+  ).rows[0] as { stripeAccount: string; role: string };
 
-  const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
-  const stripe = initStripe(stripeKey);
+  const stripe = initStripe();
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
   return {
@@ -78,17 +84,17 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
-    products: await normaliseProducts(stripe, products, prices),
+    products: await normaliseProducts(stripe, widgetUser.stripeAccount, products, prices),
     features: normaliseFeatures(features, products),
   };
 }
 
-async function normaliseProducts(stripe: Stripe, products: Product[], prices: Price[]) {
+async function normaliseProducts(stripe: Stripe, stripeAccount: string, products: Product[], prices: Price[]) {
   if (products!.length > 0) {
     const stripeProducts: FormProduct[] = (
       await stripe.products.list({
         ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
@@ -97,7 +103,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
         query: `${pricesQuery}`,
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripePrice);
 
     const finalProducts: FormProduct[] = [];
@@ -143,6 +149,7 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
               id: widgetPrice.mask,
               productId: widgetProd.id,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
+              isSelected: true,
               mask: '',
               isSelected: true,
               product: undefined as any,

@@ -4,13 +4,43 @@ import type { FormPrice } from '@dealo/models';
 import { RenderIf, PoweredBy, Tabs, TabsList, TabsTrigger, Button } from '@dealo/ui';
 import { type Colors, generateQueryString } from '@dealo/helpers';
 
-import type { TemplateProps, Interval } from '../constants/types';
+import type { Interval, TemplateProps } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
 import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
 import { resolvePricing } from './utils/resolve-pricing';
 import { resolveFeaturesForProduct } from './utils/resolve-features-for-product';
 import { BORDER_STYLES, BUTTON_STYLES, OUTLINE_BUTTON_STYLES, TEXT_STYLES } from './template-colors';
+
+// eslint-disable-next-line max-len
+const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
+
+  if (type === 'one_time') return 'Buy Now';
+  if (isCustom) return prod.ctaLabel;
+  return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+};
+
+// eslint-disable-next-line max-len
+const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+
+  if (isCustom) return prod.ctaUrl || '';
+
+  const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+  const hasQueryParams = callbackUrl.includes('?');
+
+  const queryParams: Record<string, string> = {
+    widget_id: widgetId,
+    product_id: dev ? prod.mask! : prod.id,
+    price_id: dev ? priceToShow.mask! : priceToShow.id,
+    currency: currency || priceToShow.currency,
+    payment_type: type,
+  };
+
+  const queryString = generateQueryString(queryParams);
+  return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
+};
 
 export function BasicTemplate(props: TemplateProps) {
   const {
@@ -26,6 +56,7 @@ export function BasicTemplate(props: TemplateProps) {
     callbacks,
     currency,
     environment = 'production',
+    isMobile = false,
   } = props;
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -51,6 +82,92 @@ export function BasicTemplate(props: TemplateProps) {
 
   if (visibleProducts.length === 0) return null;
 
+  if (isMobile) {
+    return (
+      <Stack align="center">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        </RenderIf>
+        {visibleProducts.map((prod, index) => {
+          const isFirst = index === 0;
+
+          const { isCustom } = prod;
+          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
+          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
+
+          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
+          const featureList = resolveFeaturesForProduct(features, prod.id);
+
+          return (
+            <Stack key={prod.id} align="center" mb="lg">
+              <Stack
+                align="center"
+                className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
+              >
+                <Text
+                  style={{ fontSize: '18px' }}
+                  weight="bold"
+                  color={isRecommended ? color : undefined}
+                >
+                  {prod.name}
+                </Text>
+                <RenderIf condition={!isCustom}>
+                  <Text
+                    weight="bold"
+                    align="center"
+                    style={{ fontSize: '32px' }}
+                    color={isRecommended ? color : undefined}
+                  >
+                    {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
+                  </Text>
+                </RenderIf>
+                <Text align="center">{prod.description}</Text>
+                <Stack mt="auto" align="center">
+                  <RenderIf condition={hasFreeTrial}>
+                    <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
+                  </RenderIf>
+                  <Button
+                    component="a"
+                    href={resolveBtnUrl({
+                      isCustom: !!isCustom,
+                      prod,
+                      priceToShow,
+                      type: priceToShow.type,
+                      dev: !!dev,
+                      widgetId: widget,
+                      callbacks,
+                      environment,
+                      currency,
+                    })}
+                    color={color}
+                    variant={isRecommended ? 'filled' : 'outline'}
+                  >
+                    {resolveBtnLabel({
+                      type: priceToShow.type,
+                      prod,
+                      isCustom: !!isCustom,
+                      hasFreeTrial: priceToShow.hasFreeTrial,
+                      freeTrialLabel,
+                      subscribeLabel,
+                    })}
+                  </Button>
+                </Stack>
+                <RenderIf condition={isFirst}>
+                  <PoweredBy top={170} left={-27} color={color} position="left"/>
+                </RenderIf>
+              </Stack>
+              <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
+                {featureList.map((feat, index) => (
+                  <li key={index}><Text align="left">{feat}</Text></li>
+                ))}
+              </ul>
+            </Stack>
+          )
+        })}
+      </Stack>
+    );
+  }
+
   return (
     <div data-el="template__root" className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
@@ -72,30 +189,17 @@ export function BasicTemplate(props: TemplateProps) {
 
           const { isCustom } = prod;
           const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
-          const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
+          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
 
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
+          const featureList = resolveFeaturesForProduct(features, prod.id);
 
-          const resolveBtnLabel = () => {
-            if (type === 'one_time') return 'Buy Now';
-            if (isCustom) return prod.ctaLabel;
-            return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-          };
 
-          const resolveBtnUrl = () => {
-            if (isCustom) return prod.ctaUrl || '';
+          const { isCustom } = prod;
+          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
+          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
 
-            const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-            const queryParams: Record<string, string> = {
-              widget_id: widget,
-              product_id: dev ? prod.mask! : prod.id,
-              price_id: dev ? priceToShow.mask! : priceToShow.id,
-              currency: currency || priceToShow.currency,
-              payment_type: type,
-            };
-            const queryString = generateQueryString(queryParams);
-            return `${callbackUrl}?${queryString}`;
-          };
+          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
           return (
             <div
@@ -123,9 +227,26 @@ export function BasicTemplate(props: TemplateProps) {
                 <RenderIf condition={hasFreeTrial}>
                   <span className="text text-slate-500 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
-                <a href={resolveBtnUrl()}>
+                <a href={resolveBtnUrl({
+                  isCustom: !!isCustom,
+                  prod,
+                  priceToShow,
+                  type: priceToShow.type,
+                  dev: !!dev,
+                  widgetId: widget,
+                  callbacks,
+                  environment,
+                  currency,
+                })}>
                   <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>
-                    {resolveBtnLabel()}
+                    {resolveBtnLabel({
+                      type: priceToShow.type,
+                      prod,
+                      isCustom: !!isCustom,
+                      hasFreeTrial: priceToShow.hasFreeTrial,
+                      freeTrialLabel,
+                      subscribeLabel,
+                    })}
                   </Button>
                 </a>
               </div>

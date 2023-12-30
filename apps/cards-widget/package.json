@@ -1,6 +1,5 @@
 {
   "name": "cards-widget",
-  "private": true,
   "version": "0.0.1",
   "type": "module",
   "scripts": {
@@ -13,6 +12,7 @@
     "@dealo/models": "*",
     "@dealo/templates": "*",
     "@dealo/ui": "*",
+    "pricing-cards": "*",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "tailwind-merge": "1.13.2"

@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react';
+import { CSVLink } from 'react-csv';
 import { IconAdjustments } from '@tabler/icons-react';
 import {
   RenderIf,
@@ -23,8 +24,8 @@ import {
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
+import { useDebounce } from 'utils/hooks/useDebounce';
 import UserAvatar from 'components/UserAvatar';
-import { useDebounce } from '../../utils/hooks/useDebounce';
 
 const UsersTable = () => {
   const [page, setPage] = useState(1);
@@ -33,18 +34,52 @@ const UsersTable = () => {
   const [query, setQuery] = useState('');
 
   const { debounceCall } = useDebounce(250);
+  const [isSetup, setIsSetup] = useState<string | undefined>();
+  const [hasLegacy, setHasLegacy] = useState<string | undefined>();
 
   const {
     data: { results, count } = { results: [], count: 0 },
-  } = trpc.user.listUsers.useQuery({ query, page, pageSize, isSetup: isSetup as any }, { keepPreviousData: true });
+  } = trpc.user.listUsers.useQuery(
+    { query, page, pageSize, isSetup: isSetup as any, hasLegacy: hasLegacy as any },
+    { keepPreviousData: true },
+  );
+
+  const csvData: string[][] = [['name', 'email']].concat(results.map((user) => ([user.name || '-', user.email || '-'])));
 
   const handleSearch = (value: string) => {
     debounceCall(() => setQuery(value));
   }
 
   const handleFilterChange = (value: string) => {
-    setIsSetup(value);
+    const [filter, filterValue] = value.split('-');
+
+    if (filter === 'setup') {
+      setIsSetup(filterValue);
+      setHasLegacy(undefined);
+    } else {
+      setHasLegacy(filterValue);
+      setIsSetup(undefined);
+    }
+
     setPage(1);
+  };
+
+  const clearFilters = () => {
+    setIsSetup(undefined);
+    setHasLegacy(undefined);
+    setPage(1);
+  };
+
+  const resolveStatusFilter = () => {
+    if (isSetup) {
+      return isSetup === 'yes' ? 'setup-yes' : 'setup-no';
+    }
+
+    if (hasLegacy) {
+      return hasLegacy === 'yes' ? 'legacy-yes' : 'legacy-no';
+    }
+
+    return undefined;
   };
 
   return (
@@ -88,11 +123,55 @@ const UsersTable = () => {
           </PopoverContent>
         </Popover>
       </div>
+      <Group spacing="xs">
+        <Popover width={200} position="bottom-end">
+          <Popover.Target>
+            <Indicator
+              withBorder
+              position="bottom-center"
+              size={12}
+              disabled={resolveStatusFilter() === undefined}
+            >
+              <ActionIcon variant="filled" size="lg">
+                <IconAdjustmentsAlt stroke={1} />
+              </ActionIcon>
+            </Indicator>
+          </Popover.Target>
+          <Popover.Dropdown>
+            <Stack>
+              <Radio.Group
+                name="has-setup"
+                value={resolveStatusFilter()}
+                onChange={(value: string) => handleFilterChange(value)}
+              >
+                <Stack spacing="xs">
+                  <Text size="sm" weight={500}>Is Setup</Text>
+                  <Radio value="setup-yes" label="Yes" />
+                  <Radio value="setup-no" label="No" />
+                  <Text size="sm" weight={500}>Has legacy setup</Text>
+                  <Radio value="legacy-yes" label="Yes" />
+                  <Radio value="legacy-no" label="No" />
+                </Stack>
+              </Radio.Group>
+            </Stack>
+            <Group position="right" mt="sm">
+              <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
+            </Group>
+          </Popover.Dropdown>
+        </Popover>
+        <CSVLink data={csvData} filename="dealo_users.csv" target="_blank">
+          <ActionIcon variant="filled" size="lg">
+            <IconDatabaseExport stroke={1} />
+          </ActionIcon>
+        </CSVLink>
+      </Group>
+    </Group>
       <Table>
         <TableHeader>
           <TableRow>
             <TableHead>User</TableHead>
             <TableHead style={{ width: '100px' }}>Is Setup</TableHead>
+            <TableHead style={{ width: '100px' }}>LEgacy</TableHead>
             <TableHead style={{ width: '130px' }}>Widgets</TableHead>
           </TableRow>
         </TableHeader>
@@ -121,6 +200,17 @@ const UsersTable = () => {
                   }
                 >
                   <Badge variant="success">Yes</Badge>
+                </RenderIf>
+              </TableCell>
+
+              <TableCell>
+                <RenderIf
+                  condition={user.hasLegacy}
+                  fallback={
+                    <Badge color="secondary">No</Badge>
+                  }
+                >
+                  <Badge color="success">Yes</Badge>
                 </RenderIf>
               </TableCell>
 

@@ -1,6 +1,0 @@
-{
-  "crons": [{
-    "path": "/api/crons/clear-guest-data",
-    "schedule": "0 0 */5 * *"
-  }]
-}

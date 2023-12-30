@@ -1,39 +1,41 @@
 import { z } from 'zod';
+import { TRPCError } from '@trpc/server';
 
-import { notifyOfDeletedAccount, notifyOfNewSetup } from 'utils/slack';
-import { adminProcedure, createTRPCRouter, protectedProcedure } from '../trpc';
+import initDb from 'utils/planet-scale';
+import { notifyOfDeletedAccount } from 'utils/slack';
+import { sendAccountDeletedEmail } from 'utils/resend';
+import { adminProcedure, createTRPCRouter, stripeProcedure } from '../trpc';
 
 export const userRouter = createTRPCRouter({
-  setup: protectedProcedure.input(z.string()).mutation(async ({ input: apiKey, ctx }) => {
-    await ctx.prisma.user.update({
-      where: {
-        id: ctx.session.user.id,
-      },
-      data: {
-        stripeKey: apiKey,
-      },
-    });
-    notifyOfNewSetup({ name: ctx.session.user.name! });
-  }),
-
   listUsers: adminProcedure
     .input(z.object({
       page: z.number().min(1),
       pageSize: z.number(),
       query: z.string().nullish(),
-      isSetup: z.enum(['all', 'yes', 'no']),
+      isSetup: z.enum(['yes', 'no']).nullish(),
+      hasLegacy: z.enum(['yes', 'no']).nullish(),
     }))
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, query, isSetup } = input;
+      const { page, pageSize, query, isSetup, hasLegacy } = input;
 
       let setupQuery = {};
       let searchQuery = {};
 
       if (isSetup === 'yes') {
         setupQuery = {
-          stripeKey: { not: null },
+          stripeConnected: true,
         };
       } else if (isSetup === 'no') {
+        setupQuery = {
+          stripeConnected: false,
+        };
+      }
+
+      if (hasLegacy === 'yes') {
+        setupQuery = {
+          stripeKey: { not: null },
+        };
+      } else if (hasLegacy === 'no') {
         setupQuery = {
           stripeKey: null,
         };
@@ -58,6 +60,7 @@ export const userRouter = createTRPCRouter({
         email: true,
         image: true,
         stripeKey: true,
+        stripeConnected: true,
         _count: {
           select: {
             widgets: true,
@@ -73,7 +76,8 @@ export const userRouter = createTRPCRouter({
       })).map((res) => ({
         ...res,
         stripeKey: undefined,
-        isSetup: !!res.stripeKey,
+        isSetup: !!res.stripeConnected,
+        hasLegacy: !!res.stripeKey,
       }));
       const count = await ctx.prisma.user.count({
         where: whereQuery,
@@ -81,14 +85,49 @@ export const userRouter = createTRPCRouter({
       return { results, count };
     }),
 
-  deleteAccount: protectedProcedure
+  deleteAccount: stripeProcedure
     .mutation(async ({ ctx }) => {
       const { session: { user } } = ctx;
-      await ctx.prisma.user.delete({
-        where: {
-          id: user.id,
-        },
+      const db = initDb();
+
+      const checkoutRecord = (
+        await db.execute(`
+          SELECT CR.subscriptionId, US1.stripeCustomerId, US.email, US2.stripeAccount
+          FROM CheckoutRecord CR
+              JOIN User US1 ON CR.userId = US1.id
+              JOIN PriceWidget PW ON CR.widgetId = PW.id
+              JOIN User US2 ON PW.userId = US2.id
+          WHERE CR.isActive = true AND US1.id = ?
+        `, [user.id])
+      ).rows[0] as { email: string; stripeCustomerId?: string; stripeAccount?: string; subscriptionId?: string } | undefined;
+
+      if (!checkoutRecord) {
+        throw new TRPCError({
+          code: 'BAD_REQUEST',
+          message: 'No checkout record found',
+        });
+      }
+
+      const { email, stripeCustomerId, subscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
+
+      if (subscriptionId) {
+        await ctx.stripe.subscriptions.cancel(subscriptionId, { stripeAccount: checkoutAccount! });
+      }
+
+      if (stripeCustomerId) {
+        await ctx.stripe.customers.del(stripeCustomerId, { stripeAccount: checkoutAccount! });
+      }
+
+      await ctx.stripe.accounts.del(checkoutAccount!);
+
+      await db.transaction(async (tx) => {
+        await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [user.id]);
+        await tx.execute('DELETE FROM User WHERE id = ?', [user.id]);
       });
-      notifyOfDeletedAccount({ name: user.name! });
+
+      // noinspection ES6MissingAwait
+      notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!subscriptionId });
+      // noinspection ES6MissingAwait
+      sendAccountDeletedEmail({ to: email, name: user.name! })
     }),
 });

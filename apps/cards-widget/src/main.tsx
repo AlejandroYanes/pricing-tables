@@ -1,13 +1,15 @@
 import React from 'react'
 import ReactDOM from 'react-dom/client'
-import './PricingCards';
+import 'pricing-cards';
 import './globals.css';
 
 ReactDOM.createRoot(document.getElementById('pricing-cards') as HTMLElement).render(
   <React.StrictMode>
     <div className="wrapper">
-      {/* @ts-ignore */}
-      <pricing-cards widget="clqs1ljxm0001jdfekgdizoxs" theme="light" currency="gbp" />
+      {/*DEV widget*/}
+      <pricing-cards widget="clpy5czwo0001hin5sqyyfhz4" theme="light" internal />
+      {/*PROD widget*/}
+      {/*<pricing-cards widget="clqfkamjv0001121ffzdylrd3" theme="light" />*/}
       {/*<App/>*/}
       <span style={{ marginTop: '48px' }}>Text to track heights</span>
     </div>

@@ -51,7 +51,9 @@ export default function Template(props: Props) {
     freeTrialLabel,
     color,
   } = useTemplateStates();
-  const WidgetTemplate = templateId ? templatesMap[templateId]! : () => null;
+  const { render: WidgetTemplate } = templateId ? templatesMap[templateId]! : mockTemplate;
+
+  const [view, setView] = useState<'desktop' | 'mobile'>('desktop');
 
   const hasSeveralPricesWithSameInterval = useMemo(() => {
     const productsWithMultipleIntervalsPerPrice = selectedProducts.filter((prod) => {
@@ -95,6 +97,27 @@ export default function Template(props: Props) {
           </RenderIf>
         </Button>
         <div className="flex items-end gap-6 mb-6">
+          <Stack spacing={0}>
+            <Text size="sm" weight="bold">View</Text>
+            <SegmentedControl
+              size="xs"
+              styles={{ label: { padding: '2px 4px' } }}
+              value={view}
+              data={[
+                { label: (
+                    <Center>
+                      <IconDeviceDesktop />
+                    </Center>
+                  ), value: 'desktop' },
+                { label: (
+                    <Center>
+                      <IconDeviceMobile />
+                    </Center>
+                  ), value: 'mobile' },
+              ]}
+              onChange={setView as any}
+            />
+          </Stack>
           <RenderIf condition={currencies.length > 1}>
             <div className="flex flex-col gap-4">
               <TooltipProvider>
@@ -180,6 +203,7 @@ export default function Template(props: Props) {
         callbacks={callbacks}
         environment={env}
         currency={currency}
+        isMobile={view === 'mobile'}
       />
     </>
   );

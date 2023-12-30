@@ -9,7 +9,25 @@ declare module 'next-auth' {
     user?: {
       id: string;
       role: string | null;
+      customerId: string | null;
       isSetup: boolean;
+      hasLegacySetup: boolean;
+      hasSubscription: boolean;
+      subscriptionEndsAt: number | null;
+      subscriptionCancelAt: number | null;
+    } & DefaultSession['user'];
+  }
+
+  interface AuthenticatedSession extends Session {
+    user: {
+      id: string;
+      role: string | null;
+      customerId: string | null;
+      isSetup: boolean;
+      hasLegacySetup: boolean;
+      hasSubscription: boolean;
+      subscriptionEndsAt: number | null;
+      subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
 }

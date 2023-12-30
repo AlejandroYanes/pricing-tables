@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
 import Link from 'next/link';
 import {
@@ -13,6 +14,8 @@ import {
   IconUser,
   IconUsers,
   IconUserQuestion,
+  IconReceipt,
+  IconX,
   type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import {
@@ -48,6 +51,26 @@ interface NavbarLinkProps {
   className?: string;
 }
 
+// TODO: add a banner for the ending subscription
+// banner: {
+//   marginBottom: '86px',
+//     position: 'relative',
+//     display: 'flex',
+//     alignItems: 'center',
+//     justifyContent: 'center',
+//     height: 32,
+//     padding: `4px ${theme.spacing.md}`,
+//     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.orange[9] : theme.colors.orange[4],
+// },
+// bannerCloseBtn: {
+//   position: 'absolute',
+//     right: 0,
+//     top: 'auto',
+//     bottom: 'auto',
+//     borderRadius: 0,
+//     height: 32,
+// },
+
 const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps) => {
   if (asSpan) {
     return (
@@ -76,11 +99,12 @@ const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps)
 interface Props {
   title?: string;
   showBackButton?: boolean;
+  hideUserControls?: boolean;
   backRoute?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton = false, title, backRoute } = props;
+  const { showBackButton = false, hideUserControls, title, backRoute } = props;
   const { status, data } = useSession();
   const router = useRouter();
 
@@ -100,8 +124,11 @@ export function CustomNavbar(props: Props) {
 
   if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
   if (!data) return <div style={{ height: '88px' }} />;
+  if (!data.user) return <div style={{ height: '88px' }} />;
 
-  const { user } = data;
+  const { user } = data as AuthenticatedSession;
+
+  const isSubscriptionSetToCancel = user.hasSubscription && !!user.subscriptionCancelAt;
 
   return (
     <>
@@ -121,7 +148,7 @@ export function CustomNavbar(props: Props) {
                 please let me know at
                 {' '}
                 <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
-                  alejandro@dealo.app
+                  support@dealo.app
                 </a>
                 !
               </p>
@@ -148,29 +175,53 @@ export function CustomNavbar(props: Props) {
                   <DropdownMenuSeparator />
                 </Link>
               </RenderIf>
-              <DropdownMenuLabel>{user?.role !== ROLES.GUEST ?  user?.name : 'Guest'}</DropdownMenuLabel>
-              <RenderIf condition={user?.role !== ROLES.GUEST}>
-                <DropdownMenuItem>
-                  <IconSettings size={16} className="mr-2" />
-                  Settings
-                </DropdownMenuItem>
+              <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+              <DropdownMenuItem>
+                <IconSettings size={16} className="mr-2" />
+                Settings
+              </DropdownMenuItem>
+              <RenderIf
+                condition={!!user?.hasSubscription}
+                fallback={
+                  <Link href="/pricing">
+                    <DropdownMenuItem
+                      icon={<IconReceipt size={14} />}
+                    >
+                      Pricing
+                    </DropdownMenuItem>
+                  </Link>
+                }
+              >
+                <Link href="/api/stripe/customer/portal">
+                  <DropdownMenuItem
+                    icon={<IconReceipt size={14} />}
+                  >
+                    Billing
+                  </DropdownMenuItem>
+                </Link>
               </RenderIf>
               <DropdownMenuItem onClick={handleLogout}>
                 <IconLogout size={16} className="mr-2" />
                 Logout
               </DropdownMenuItem>
-              <RenderIf condition={user?.role !== ROLES.GUEST}>
-                <DropdownMenuSeparator />
-                <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-                <DropdownMenuItem destructive onClick={handleDeleteAccount}>
-                  <IconTrash size={16} className="mr-2" />
-                  Delete my account
-                </DropdownMenuItem>
-              </RenderIf>
+              <DropdownMenuSeparator />
+              <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
+              <DropdownMenuItem destructive onClick={handleDeleteAccount}>
+                <IconTrash size={16} className="mr-2" />
+                Delete my account
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
       </header>
+      <RenderIf condition={isSubscriptionSetToCancel}>
+        <div className={classes.banner}>
+          <Text size="sm" color="white">Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt!))}</Text>
+          <ActionIcon className={classes.bannerCloseBtn}>
+            <IconX size={14}/>
+          </ActionIcon>
+        </div>
+      </RenderIf>
       <RenderIf condition={showDeleteAccountModal}>
         <AlertDialog open>
           <AlertDialogContent>
@@ -193,7 +244,6 @@ export function CustomNavbar(props: Props) {
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
-
       </RenderIf>
     </>
   );

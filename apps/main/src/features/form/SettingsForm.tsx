@@ -27,7 +27,7 @@ import { templatesList } from '@dealo/templates';
 
 import { trpc } from 'utils/trpc';
 import TwoColumnsLayout from './TwoColumnsLayout';
-import { toggleUnitLabel, changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
+import { changeUnitLabel, addNewCallback, deleteCallback, changeCallbackEnv, changeCallbackUrl } from './state/actions';
 import { useSettingsPanelStates } from './state';
 
 interface Props {
@@ -39,14 +39,23 @@ interface Props {
 const callbackHelp = `
 Callbacks are used to construct the URL that the CTA (Call To Action) button will redirect to.
 We add params like widget_id, product_id, price_id and currency to the URL
-so that you and we can identify the elements. This can be useful if you want to insert your sign up flow before collecting the payment.
+so that you and we can identify the elements.
+This can be useful as you will most likely want to insert your sign up flow before collecting the payment.
+These URLs can be relative (eg: /api/product) or absolute (eg: https://your.server.com/api/product).
 `;
 
-const checkoutHelp = `
-These URLs are used to redirect the user after the payment is completed or canceled.
-If you leave them empty, we will use the referer URL from the request and add a payment_status query (eg: ?payment_status=success).
-As a last resource, we will use our own fallback pages.
-`;
+const checkoutHelp = (
+  <>
+    {`
+      These URLs are used to redirect the user after the payment is completed or canceled.
+      If you leave them empty, we will use the referer URL from the request and add a payment_status query (eg: ?payment_status=success).
+      As a last resource, we will use our own fallback pages.
+    `}
+    <br />
+    <br />
+    {`IMPORTANT: These URLs MUST be absolute (eg: https://your.server.com/success) as they are used by Stripe and will fail otherwise.`}
+  </>
+);
 
 export default function SettingsForm(props: Props) {
   const {
@@ -106,15 +115,15 @@ export default function SettingsForm(props: Props) {
         <SelectWithOptions label="Recommended Product" options={productOptions} value={recommended || ''} onValueChange={setRecommended} />
         <InputWithLabel label="CTA button label" value={subscribeLabel} onChange={(e) => setSubscribeLabel(e.target.value)} />
         <InputWithLabel label="Free trial button label" value={freeTrialLabel} onChange={(e) => setFreeTrialLabel(e.target.value)} />
-        <div className="flex items-center gap-4 mt-3">
-          <Checkbox
-            id="use-unit-label"
-            checked={usesUnitLabel}
-            onChange={() => undefined}
-            onClick={toggleUnitLabel}
-          />
-          <Label htmlFor="use-unit-label" className="cursor-pointer">Use unit labels</Label>
-        </div>
+        {/*<div className="flex items-center gap-4 mt-3">*/}
+        {/*  <Checkbox*/}
+        {/*    id="use-unit-label"*/}
+        {/*    checked={usesUnitLabel}*/}
+        {/*    onChange={() => undefined}*/}
+        {/*    onClick={toggleUnitLabel}*/}
+        {/*  />*/}
+        {/*  <Label htmlFor="use-unit-label" className="cursor-pointer">Use unit labels</Label>*/}
+        {/*</div>*/}
         <RenderIf condition={usesUnitLabel}>
           <InputWithLabel
             className="mt-[-12px]"

@@ -1,5 +1,5 @@
 /* eslint-disable max-len */
-import type { ReactNode} from 'react';
+import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { PoweredBy, RenderIf, Button, TabsList, TabsTrigger, Tabs } from '@dealo/ui';
 import type { FormPrice } from '@dealo/models';
@@ -93,6 +93,34 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
+const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
+
+  if (type === 'one_time') return 'Buy Now';
+  if (isCustom) return prod.ctaLabel;
+  return hasFreeTrial ? freeTrialLabel : subscribeLabel;
+};
+
+const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+
+  if (isCustom) return prod.ctaUrl || '';
+
+  const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
+  const hasQueryParams = callbackUrl.includes('?');
+
+  const queryParams: Record<string, string> = {
+    widget_id: widgetId,
+    product_id: dev ? prod.mask! : prod.id,
+    price_id: dev ? priceToShow.mask! : priceToShow.id,
+    currency: currency || priceToShow.currency,
+    payment_type: type,
+  };
+
+  const queryString = generateQueryString(queryParams);
+  return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
+};
+
 export function SecondTemplate(props: TemplateProps) {
   const {
     dev,
@@ -107,6 +135,7 @@ export function SecondTemplate(props: TemplateProps) {
     callbacks,
     environment = 'production',
     currency,
+    isMobile = false,
   } = props;
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
@@ -132,33 +161,126 @@ export function SecondTemplate(props: TemplateProps) {
 
   if (visibleProducts.length === 0) return null;
 
+  if (isMobile) {
+    const items = visibleProducts.map((product) => {
+      const { isCustom } = product;
+      const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
+      const isRecommended = product.id === recommended;
+      const recommendedColor = theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6];
+
+      return (
+        <Accordion.Item value={product.id} key={product.id}>
+          <Accordion.Control>
+            <Group align="center" position="apart" style={{ color: isRecommended ? recommendedColor : undefined }}>
+              <Stack ml="md" mr="3rem" spacing={2}>
+                <Text size={18} weight="bold">{product.name}</Text>
+                <Text style={{ maxWidth: '360px' }}>{product.description}</Text>
+              </Stack>
+              {
+                !isCustom
+                  ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
+                  : null
+              }
+            </Group>
+          </Accordion.Control>
+          <Accordion.Panel>
+            <ul className={classes.itemsList}>
+              {features.map((feature) => {
+                const prodValue = feature.products.find((prod) => prod.id === product.id)!;
+                const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
+                if (feature.type !== 'boolean' && !prodValue.value) return null;
+
+                let label = '';
+
+                switch (feature.type) {
+                  case 'boolean':
+                    label = feature.name;
+                    break;
+                  case 'compose':
+                    label = `${prodValue.value} ${feature.name}`;
+                    break;
+                  case 'string':
+                    label = prodValue.value;
+                    break;
+                  default:
+                    break;
+                }
+
+                return (
+                  <li key={feature.id} className={classes.featureBlock}>
+                    <Group align="center" position="apart">
+                      <Text size="sm">
+                        {label}
+                      </Text>
+                      <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
+                        <IconCircleCheck
+                          fill={theme.colors[color]![8]}
+                          color={theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8]}
+                        />
+                      </RenderIf>
+                    </Group>
+                  </li>
+                );
+              })}
+            </ul>
+            <Stack mt="xl">
+              <Button
+                uppercase
+                component="a"
+                href={resolveBtnUrl({
+                  isCustom: !!isCustom,
+                  prod: product,
+                  priceToShow,
+                  type: priceToShow.type,
+                  dev: !!dev,
+                  widgetId: widget,
+                  callbacks,
+                  environment,
+                  currency,
+                })}
+                mt="xl"
+                mb={priceToShow.hasFreeTrial ? 'sm' : 'xl'}
+                color={color}
+                variant={isRecommended ? 'filled' : 'outline'}
+              >
+                {resolveBtnLabel({
+                  type: priceToShow.type,
+                  prod: product,
+                  isCustom: !!isCustom,
+                  hasFreeTrial: priceToShow.hasFreeTrial,
+                  freeTrialLabel,
+                  subscribeLabel,
+                })}
+              </Button>
+              <RenderIf condition={priceToShow.hasFreeTrial}>
+                <Text size="sm" mb="lg">{priceToShow.freeTrialDays} days</Text>
+              </RenderIf>
+            </Stack>
+          </Accordion.Panel>
+        </Accordion.Item>
+      )
+    });
+
+    const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
+
+    return (
+      <Stack align="center">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        </RenderIf>
+        <Accordion chevronPosition="left" variant="contained" defaultValue={recommendedProduct?.id}>
+          {items}
+        </Accordion>
+      </Stack>
+    );
+  }
+
   const rows = new Array(features.length + 2).fill(1).map((_, index) => {
     const columns = visibleProducts.map((prod) => {
       const { isCustom } = prod;
       const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
       const { hasFreeTrial, freeTrialDays, type } = priceToShow as FormPrice;
       const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
-
-      const resolveBtnLabel = () => {
-        if (type === 'one_time') return 'Buy Now';
-        if (isCustom) return prod.ctaLabel;
-        return hasFreeTrial ? freeTrialLabel : subscribeLabel;
-      };
-
-      const resolveBtnUrl = () => {
-        if (isCustom) return prod.ctaUrl || '';
-
-        const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
-        const queryParams: Record<string, string> = {
-          widget_id: widget,
-          product_id: dev ? prod.mask! : prod.id,
-          price_id: dev ? priceToShow.mask! : priceToShow.id,
-          currency: currency || priceToShow.currency,
-          payment_type: type,
-        };
-        const queryString = generateQueryString(queryParams);
-        return `${callbackUrl}?${queryString}`;
-      };
 
       switch (index) {
         // pricing
@@ -184,13 +306,23 @@ export function SecondTemplate(props: TemplateProps) {
         case features.length + 1: {
           return (
             <td key={prod.id} data-active={isRecommended} className={`text-center py-2 px-4 ${CELL_STYLES[color]}`}>
-              <a href={resolveBtnUrl()} className="block">
+              <a href={resolveBtnUrl({
+                isCustom: !!isCustom,
+                prod,
+                priceToShow,
+                type: priceToShow.type,
+                dev: !!dev,
+                widgetId: widget,
+                callbacks,
+                environment,
+                currency,
+              })} className="block">
                 <Button
                   data-spaced={hasFreeTrial}
                   className={`mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
                   variant="undecorated"
                 >
-                  {resolveBtnLabel()}
+                  {resolveBtnLabel({ type, prod, isCustom: !!isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel })}
                 </Button>
               </a>
               <RenderIf condition={hasFreeTrial}>

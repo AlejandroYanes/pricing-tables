@@ -3,7 +3,7 @@
 
 generator client {
     provider = "prisma-client-js"
-    previewFeatures = ["jsonProtocol"]
+    previewFeatures = []
 }
 
 datasource db {
@@ -27,7 +27,8 @@ model PriceWidget {
     createdAt           DateTime      @default(now())
     products            Product[]
     callbacks           Callback[]
-    userId              String?
+    checkoutRecords     CheckoutRecord[]
+    userId              String
     user                User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
@@ -87,6 +88,25 @@ model Callback {
     @@unique([env, widgetId])
 }
 
+model CheckoutRecord {
+    id                    String          @id @default(cuid())
+    sessionId             String
+    userId                String
+    widgetId              String
+    productId             String
+    priceId               String
+    subscriptionId        String
+    currrentPeriodStart   Int
+    currentPeriodEnd      Int
+    cancelAt              Int?
+    cancelledAt           Int?
+    cancellationDetails   String?
+    createdAt             DateTime        @default(now())
+    isActive              Boolean         @default(true)
+    widget                PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
+    user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
 // Necessary for Next auth
 model Account {
     id                String  @id @default(cuid())
@@ -115,16 +135,20 @@ model Session {
 }
 
 model User {
-    id              String    @id @default(cuid())
-    name            String?
-    email           String?   @unique
-    emailVerified   DateTime?
-    image           String?
-    stripeKey       String?
-    role            String?    @default("USER")
-    accounts        Account[]
-    sessions        Session[]
-    widgets         PriceWidget[]
+    id                    String    @id @default(cuid())
+    name                  String?
+    email                 String?   @unique
+    emailVerified         DateTime?
+    image                 String?
+    stripeKey             String?
+    stripeAccount         String?
+    stripeConnected       Boolean   @default(false)
+    stripeCustomerId      String?
+    role                  String?    @default("USER")
+    accounts              Account[]
+    sessions              Session[]
+    widgets               PriceWidget[]
+    checkoutRecords       CheckoutRecord[]
 }
 
 model VerificationToken {

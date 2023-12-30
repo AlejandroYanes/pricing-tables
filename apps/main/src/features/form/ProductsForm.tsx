@@ -23,26 +23,26 @@ import {
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
+import { useDebounce } from 'utils/hooks/useDebounce';
 import BaseLayout from 'components/BaseLayout';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
 import CustomProductBlock from './CustomProductBlock';
 import { useWidgetFormStore } from './state';
 import {
-  addProduct,
   addCustomProduct,
-  removeProduct,
-  reorderProducts,
+  addProduct,
+  changeCustomCTADescription,
+  changeCustomCtaLabel,
+  changeCustomCtaName,
+  changeCustomCTAUrl,
+  changeFreeTrialDays,
   handleAddPrice,
   removePrice,
+  removeProduct,
+  reorderProducts,
   toggleFreeTrial,
-  changeFreeTrialDays,
-  changeCustomCtaName,
-  changeCustomCtaLabel,
-  changeCustomCTAUrl,
-  changeCustomCTADescription,
 } from './state/actions';
-import { useDebounce } from '../../utils/hooks/useDebounce';
 
 interface Props {
   showPanel: boolean;
@@ -165,6 +165,7 @@ export default function ProductsForm(props: Props) {
     interactionTimer.current = setTimeout(() => {
       setShowProducts(false);
       setQuery(undefined);
+      setApiQuery(undefined);
     }, 5000);
   }
 
@@ -345,6 +346,7 @@ export default function ProductsForm(props: Props) {
           <Button
             onClick={() => {
               setQuery(undefined);
+              setApiQuery(undefined);
               setShowProducts(false);
               clearInteractionTimer();
             }}

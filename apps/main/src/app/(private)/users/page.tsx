@@ -10,7 +10,7 @@ const UsersPage: NextPage = () => {
       <Head>
         <title>Dealo | Users</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/dashboard" title="Users">
+      <BaseLayout hideFooter showBackButton backRoute="/dashboard" title="Users">
         <div className="flex flex-col mx-auto w-full max-w-[980px]">
           <UsersTable />
         </div>
@@ -19,4 +19,4 @@ const UsersPage: NextPage = () => {
   );
 };
 
-export default UsersPage;
+export default authGuard(UsersPage);

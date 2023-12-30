@@ -3,6 +3,7 @@
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { Button, Separator } from '@dealo/ui';
+import { generateQueryString } from '@dealo/helpers';
 
 import GithubButton from './GitHubButton';
 import DiscordButton from './DiscordButton';
@@ -10,20 +11,30 @@ import GoogleButton from './GoogleButton';
 
 const SignInForm = () => {
   const { status } = useSession();
-  const router = useRouter();
+  const { query, ...router } = useRouter();
+
+  const buildCheckoutUrl = () => {
+    const checkoutPageRoute = '/stripe/checkout/start';
+    const searchParams = generateQueryString(query);
+    return `${checkoutPageRoute}?${searchParams}`;
+  }
 
   const handleSignIn = (provider: string) => {
     if (status === 'authenticated') {
-      router.push('/dashboard');
+      if (query.internal_flow === 'true') {
+        router.push(buildCheckoutUrl());
+      } else {
+        router.push('/dashboard');
+      }
       return;
     }
 
-    if (provider === 'credentials') {
-      signIn('credentials', { callbackUrl: '/dashboard' }, { userName: 'guest' });
-      return;
+    if (query.internal_flow === 'true') {
+      const checkoutUrl = buildCheckoutUrl();
+      signIn(provider, { callbackUrl: checkoutUrl });
+    } else {
+      signIn(provider, { callbackUrl: '/dashboard' });
     }
-
-    signIn(provider, { callbackUrl: '/dashboard' });
   }
 
   return (
@@ -32,18 +43,6 @@ const SignInForm = () => {
       <GithubButton onClick={() => handleSignIn('github')} />
       <DiscordButton onClick={() => handleSignIn('discord')} />
       <GoogleButton onClick={() => handleSignIn('google')} />
-      <div className="flex items-center gap-2">
-        <Separator />
-        <span className="text-sm">OR</span>
-        <Separator />
-      </div>
-      <Button variant="outline" onClick={() => handleSignIn('credentials')}>
-        Try as a Guest
-      </Button>
-      <span className="text-gray-500 text-sm">
-        When trying as a <strong>Guest</strong> anything you create will be deleted in 5 days.
-        This is done to prevent abuse of the service. Also, when signing out you will lose access to all you may have created.
-      </span>
     </div>
   );
 };

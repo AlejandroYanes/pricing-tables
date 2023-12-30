@@ -15,10 +15,12 @@ export interface TemplateProps {
   callbacks: FormCallback[];
   environment?: string;
   currency?: string | null;
+  isMobile?: boolean;
 }
 
 export interface SkeletonProps {
   scale?: number;
+  color?: string;
 }
 
 export type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval | `month_${number}`;
