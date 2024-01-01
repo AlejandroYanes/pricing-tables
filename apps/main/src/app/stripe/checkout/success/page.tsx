@@ -1,9 +1,9 @@
+'use client';
 import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
-import { Button, Group, Stack, Title } from '@mantine/core';
-import { IconConfetti } from '@tabler/icons';
-import { RenderIf } from 'ui';
+import { IconConfetti } from '@tabler/icons-react';
+import { Button, RenderIf } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 
@@ -18,17 +18,17 @@ export default function CheckoutSuccess() {
         <title>Dealo | Stripe Checkout success</title>
       </Head>
       <BaseLayout hideNavbar>
-        <Stack align="center" justify="center" style={{ height: '100vh' }}>
-          <Group>
+        <div className="flex flex-col items-center justify-center h-[100vh]">
+          <div className="flex flex-row items-center">
             <IconConfetti size={88} />
-            <Title order={3} size={36} w={360}>Payment received successfully</Title>
-          </Group>
+            <h3 className="text text-2xl w-[360px]">Payment received successfully</h3>
+          </div>
           <RenderIf condition={isInternalFlow}>
             <Link href="/dashboard">
               <Button>Go to Dashboard</Button>
             </Link>
           </RenderIf>
-        </Stack>
+        </div>
       </BaseLayout>
     </>
   );

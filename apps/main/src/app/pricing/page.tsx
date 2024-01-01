@@ -1,35 +1,21 @@
+'use client';
 import { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { Button, createStyles, Group, rem, Stack, Text, Title } from '@mantine/core';
+import { Button } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 import PublicNavbar from 'components/PublicNavbar';
 import PricingWidget from 'components/PricingWidget';
 
-const useStyles = createStyles((theme) => ({
-  title: {
-    color: theme.colors.teal[6],
-    fontSize: rem(64),
-    lineHeight: 1.2,
-    fontWeight: 900,
-
-    [theme.fn.smallerThan('xs')]: {
-      fontSize: rem(28),
-    },
-  },
-}));
-
 const PricingPage = () => {
   const { data, status } = useSession();
   const user = data?.user;
 
-  const { classes } = useStyles();
-
   useEffect(() => {
-    import('pricing-cards');
+    import('@dealo/pricing-cards');
   }, []);
 
   if (status === 'loading') return null;
@@ -42,18 +28,18 @@ const PricingPage = () => {
         </Head>
         <BaseLayout hideNavbar>
           <PublicNavbar showBackButton backRoute="/" />
-          <Stack justify="center" align="center" style={{ margin: '0 auto', height: 'calc(100vh - 88px)' }}>
-            <Group position="center">
-              <Group spacing={0}>
-                <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
-                <Title order={1} mb="md" className={classes.title}>ealo</Title>
-              </Group>
-            </Group>
-            <Text align="center" size="xl" mb={64}>
+          <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
+            <div className="flex flex-row items-center justify-center">
+              <div className="flex flex-row">
+                <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
+                <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+              </div>
+            </div>
+            <span className="text text-xl text-center mb-16">
               Pick a plan to start using Dealo, you can cancel at any time.
-            </Text>
+            </span>
             <PricingWidget />
-          </Stack>
+          </div>
         </BaseLayout>
       </>
     );
@@ -66,13 +52,13 @@ const PricingPage = () => {
           <title>Dealo | Pricing</title>
         </Head>
         <BaseLayout hideUserControls showBackButton={!!user} backRoute="/dashboard" title="Pricing">
-          <Stack justify="flex-start" align="center" style={{ margin: '48px auto 0', height: 'calc(100vh - 88px)' }}>
-            <Title order={1}>Hi {user.name}</Title>
-            <Text>You already have a subscription with us, if you want to check:</Text>
+          <div className="flex flex-col items-center justify-center mt-[48px] mx-auto h-[calc(100vh - 88px)]">
+            <h1 className="text text-2xl">Hi {user.name}</h1>
+            <span className="text">You already have a subscription with us, if you want to check:</span>
             <Link href="/api/stripe/customer/portal">
               <Button>Got to the Customer Portal</Button>
             </Link>
-          </Stack>
+          </div>
         </BaseLayout>
       </>
     );
@@ -84,9 +70,9 @@ const PricingPage = () => {
         <title>Dealo | Pricing</title>
       </Head>
       <BaseLayout hideUserControls showBackButton={!!user} backRoute="/dashboard" title="Pick a plan">
-        <Stack justify="center" align="center" style={{ margin: '0 auto', height: 'calc(100vh - 88px)' }}>
+        <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
           <PricingWidget />
-        </Stack>
+        </div>
       </BaseLayout>
     </>
   );

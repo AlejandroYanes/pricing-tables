@@ -1,6 +1,6 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons-react';
-import { templatesMap } from '@dealo/templates';
+import { mockTemplate, templatesMap } from '@dealo/templates';
 import {
   RenderIf,
   Button,
@@ -15,7 +15,7 @@ import {
   SelectContent,
   SelectTrigger,
   SelectValue,
-  SelectItem,
+  SelectItem, TabsList, TabsTrigger, Tabs,
 } from '@dealo/ui';
 
 import { useTemplateStates } from './state';
@@ -97,27 +97,20 @@ export default function Template(props: Props) {
           </RenderIf>
         </Button>
         <div className="flex items-end gap-6 mb-6">
-          <Stack spacing={0}>
-            <Text size="sm" weight="bold">View</Text>
-            <SegmentedControl
-              size="xs"
-              styles={{ label: { padding: '2px 4px' } }}
+          <div className="flex flex-col gap-4">
+            <span className="">View</span>
+            <Tabs
               value={view}
-              data={[
-                { label: (
-                    <Center>
-                      <IconDeviceDesktop />
-                    </Center>
-                  ), value: 'desktop' },
-                { label: (
-                    <Center>
-                      <IconDeviceMobile />
-                    </Center>
-                  ), value: 'mobile' },
-              ]}
-              onChange={setView as any}
-            />
-          </Stack>
+              onValueChange={setView as any}
+              className="mx-auto rounded-md border border-neutral-200 dark:border-slate-800 h-[40px]"
+            >
+              <TabsList className="h-[38px]">
+                {[{label: 'Desktop', value: 'desktop'}, { label: 'Mobile', value: 'mobile' }].map((interval) => (
+                  <TabsTrigger className="py-1" key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
           <RenderIf condition={currencies.length > 1}>
             <div className="flex flex-col gap-4">
               <TooltipProvider>

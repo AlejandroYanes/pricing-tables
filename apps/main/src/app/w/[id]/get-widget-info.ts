@@ -3,49 +3,56 @@ import type Stripe from 'stripe';
 import type { FormFeature, FormProduct } from '@dealo/models';
 
 import initDb from 'utils/planet-scale';
-import initStripe, { guestStripeKey, reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
+import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
 export async function getWidgetInfo(widgetId: string): Promise<ReducedWidgetInfo> {
   const db = initDb();
 
   const widgetFields = [
-    '`pricing-tables`.`PriceWidget`.`id`',
-    '`pricing-tables`.`PriceWidget`.`template`',
-    '`pricing-tables`.`PriceWidget`.`recommended`',
-    '`pricing-tables`.`PriceWidget`.`color`',
-    '`pricing-tables`.`PriceWidget`.`unitLabel`',
-    '`pricing-tables`.`PriceWidget`.`subscribeLabel`',
-    '`pricing-tables`.`PriceWidget`.`freeTrialLabel`',
-    '`pricing-tables`.`PriceWidget`.`userId`',
+    'PriceWidget.id',
+    'PriceWidget.template',
+    'PriceWidget.name',
+    'PriceWidget.recommended',
+    'PriceWidget.color',
+    'PriceWidget.unitLabel',
+    'PriceWidget.subscribeLabel',
+    'PriceWidget.freeTrialLabel',
+    'PriceWidget.userId',
+    'PriceWidget.checkoutSuccessUrl',
+    'PriceWidget.checkoutCancelUrl',
   ];
+  const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`;
 
   const widget = (
-    await db.execute(`SELECT ${widgetFields.join(', ')} FROM \`pricing-tables\`.\`PriceWidget\` WHERE \`id\` = ?`, [widgetId])
+    await db.execute(widgetQuery, [widgetId])
   ).rows[0] as Widget;
 
+  const callbacksQuery = 'SELECT Callback.id, Callback.env, Callback.url, Callback.order FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt';
+
   const callbacks = (
-    await db.execute('SELECT `pricing-tables`.`Callback`.`env`, `pricing-tables`.`Callback`.`url` FROM `pricing-tables`.`Callback` WHERE `pricing-tables`.`Callback`.`widgetId` = ? ORDER BY `pricing-tables`.`Callback`.`order`, `pricing-tables`.`Callback`.`createdAt`', [widgetId])
+    await db.execute(callbacksQuery, [widgetId])
   ).rows as Callback[];
 
   const features = (
-    await db.execute('SELECT `pricing-tables`.`Feature`.`id`, `pricing-tables`.`Feature`.`name`, `pricing-tables`.`Feature`.`type`, `pricing-tables`.`Feature`.`value`, `pricing-tables`.`Feature`.`productId` FROM `pricing-tables`.`Feature` WHERE `pricing-tables`.`Feature`.`widgetId` = ? ORDER BY `pricing-tables`.`Feature`.`order`, `pricing-tables`.`Feature`.`createdAt`', [widgetId])
+    await db.execute('SELECT Feature.id, Feature.name, Feature.type, Feature.value, Feature.productId, Feature.order FROM Feature WHERE Feature.widgetId = ? ORDER BY Feature.order, Feature.createdAt', [widgetId])
   ).rows as Feature[];
 
   const products = (
-    await db.execute('SELECT `pricing-tables`.`Product`.`id`, `pricing-tables`.`Product`.`isCustom`, `pricing-tables`.`Product`.`name`, `pricing-tables`.`Product`.`description`, `pricing-tables`.`Product`.`ctaLabel`, `pricing-tables`.`Product`.`ctaUrl`, `pricing-tables`.`Product`.`mask` FROM `pricing-tables`.`Product` WHERE `pricing-tables`.`Product`.`widgetId` = ? ORDER BY `pricing-tables`.`Product`.`order`, `pricing-tables`.`Product`.`createdAt`', [widgetId])
+    await db.execute('SELECT Product.id, Product.isCustom, Product.name, Product.description, Product.ctaLabel, Product.ctaUrl, Product.mask, Product.order FROM Product WHERE Product.widgetId = ? ORDER BY Product.order, Product.createdAt', [widgetId])
   ).rows as Product[];
 
   const prodIds = products.map((p) => p.id);
-  const prices = (
-    await db.execute('SELECT `pricing-tables`.`Price`.`id`, `pricing-tables`.`Price`.`hasFreeTrial`, `pricing-tables`.`Price`.`freeTrialDays`, `pricing-tables`.`Price`.`productId`, `pricing-tables`.`Price`.`mask` FROM `pricing-tables`.`Price` WHERE `pricing-tables`.`Price`.`widgetId` = ? AND `pricing-tables`.`Price`.`productId` IN (?) ORDER BY `pricing-tables`.`Price`.`order`, `pricing-tables`.`Price`.`createdAt`', [widgetId, prodIds])
-  ).rows as Price[];
+  const prices = prodIds.length > 0
+    ? (
+      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
+    ).rows as Price[]
+    : [];
 
   const widgetUser = (
-    await db.execute('SELECT `pricing-tables`.`User`.`stripeKey` FROM `pricing-tables`.`User` WHERE `pricing-tables`.`User`.`id` = ?', [widget.userId])
-  ).rows[0] as { stripeKey: string; role: string };
+    await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
+  ).rows[0] as { stripeAccount: string };
 
-  const stripeKey = !widgetUser ? guestStripeKey : widgetUser.stripeKey;
-  const stripe = initStripe(stripeKey);
+  const stripe = initStripe();
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;
 
   return {
@@ -56,17 +63,17 @@ export async function getWidgetInfo(widgetId: string): Promise<ReducedWidgetInfo
     subscribeLabel: widget.subscribeLabel,
     freeTrialLabel: widget.freeTrialLabel,
     unitLabel: widget.unitLabel,
-    products: await normaliseProducts(stripe, products, prices),
+    products: await normaliseProducts(stripe, widgetUser.stripeAccount, products, prices),
     features: normaliseFeatures(features, products),
   };
 }
 
-async function normaliseProducts(stripe: Stripe, products: Product[], prices: Price[]) {
+async function normaliseProducts(stripe: Stripe, stripeAccount: string, products: Product[], prices: Price[]) {
   if (products!.length > 0) {
     const stripeProducts: FormProduct[] = (
       await stripe.products.list({
         ids: products!.filter((prod) => !prod.isCustom).map((prod) => prod.id),
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripeProduct);
 
     const pricesQuery = products.map((prod) => `product: "${prod.id}"`).join(' OR ');
@@ -75,21 +82,19 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
         query: `${pricesQuery}`,
         expand: ['data.tiers', 'data.currency_options'],
         limit: 50,
-      })
+      }, { stripeAccount })
     ).data.map(reduceStripePrice);
 
     const finalProducts: FormProduct[] = [];
 
     for (let pIndex = 0; pIndex < products.length; pIndex++) {
       const widgetProd = products[pIndex]!;
-      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id)!;
+      const stripeProd = stripeProducts.find((p) => p.id === widgetProd.id);
 
       if (stripeProd && !stripeProd.active) continue;
 
       let finalProduct: FormProduct = {
         ...widgetProd,
-        id: widgetProd.mask,
-        mask: '',
         isCustom: !!widgetProd.isCustom,
         active: true,
         prices: [],
@@ -101,34 +106,45 @@ async function normaliseProducts(stripe: Stripe, products: Product[], prices: Pr
           ...finalProduct,
           ...stripeProd,
           ...({
-            id: widgetProd.mask,
-            mask: '',
             prices: [],
             default_price: undefined,
           }),
         };
 
-        for (let priceIndex = 0; priceIndex < widgetPrices.length; priceIndex++) {
-          const widgetPrice = widgetPrices[priceIndex]!;
-          const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id)!;
+        stripePrices
+          // TODO: remove the tier filter once we support tiers (DEV-14)
+          .filter((stripePrice) => stripePrice.product === widgetProd.id && stripePrice.billing_scheme !== 'tiered')
+          .forEach(stripePrice => {
+            if (!stripePrice.active) return;
 
-          if (!stripePrice.active) continue;
+            const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
+            const widgetPrice = widgetCurrentPrice
+              ? {
+                ...widgetCurrentPrice,
+                isSelected: true,
+              }
+              : {
+                hasFreeTrial: 0,
+                freeTrialDays: 0,
+                productId: '',
+                mask: '',
+                order: Number.MAX_VALUE,
+                isSelected: false,
+              };
 
-          finalProduct.prices.push({
-            ...widgetPrice,
-            ...stripePrice,
-            ...({
-              id: widgetPrice.mask,
-              productId: widgetProd.id,
+            finalProduct.prices.push({
+              ...widgetPrice,
+              ...stripePrice,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
-              isSelected: true,
-              mask: '',
-              product: undefined as any,
-            }),
+              ...({
+                productId: widgetProd.id,
+                product: undefined as any,
+              }),
+            });
           });
-        }
       }
 
+      finalProduct.prices.sort((a, b) => a.order - b.order);
       finalProducts.push(finalProduct);
     }
 

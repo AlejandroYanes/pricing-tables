@@ -13,7 +13,6 @@ const WidthProvider = ({ children }: Props) => {
     const parentWindow = window.top;
     if (!wrapper || !parentWindow) return;
     const { width, height } = wrapper.getBoundingClientRect();
-    console.log('sending size', wrapper.getBoundingClientRect());
     parentWindow.postMessage({ source: 'pricing-widget__size', width, height }, '*');
   }, []);
 

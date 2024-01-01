@@ -2,8 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useSession } from 'next-auth/react';
-import { Button, Loader, Stack, Text } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { RenderIf, Loader, Button } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 
@@ -56,9 +55,9 @@ const ReturnPage = () => {
           <title>Dealo | Stripe Connect results</title>
         </Head>
         <BaseLayout>
-          <Stack align="center" justify="center" style={{ width: '100%', padding: '86px' }}>
+          <div className="flex flex-col items-center justify-center w-full p-[86px]">
             <Loader />
-          </Stack>
+          </div>
         </BaseLayout>
       </>
     );
@@ -71,14 +70,14 @@ const ReturnPage = () => {
           <title>Dealo | Stripe Connect results</title>
         </Head>
         <BaseLayout>
-          <Stack align="center" justify="center" spacing="md" style={{ width: '100%', padding: '86px' }}>
-            <Text align="center">
+          <div className="flex flex-col items-center justify-center w-full p-[86px]">
+            <span className="text text-center">
               Something is wrong with your session, please go back and make sure you are signed in.
-            </Text>
-            <Link href="/">
+            </span>
+            <Link href="/apps/main/public">
               <Button>Go back</Button>
             </Link>
-          </Stack>
+          </div>
         </BaseLayout>
       </>
     );
@@ -90,38 +89,38 @@ const ReturnPage = () => {
         <title>Dealo | Stripe Connect results</title>
       </Head>
       <BaseLayout>
-        <Stack align="center" justify="center" spacing="md" style={{ width: '100%', padding: '86px' }}>
+        <div className="flex flex-col items-center justify-center w-full p-[86px]">
           <RenderIf condition={status === 'pending'}>
             <Loader />
-            <Text align="center">
+            <span className="text text-center">
               We are verifying the status of your account, please wait a moment.
-            </Text>
+            </span>
           </RenderIf>
 
           <RenderIf condition={status === 'incomplete'}>
-            <Text align="center">
+            <span className="text text-center">
               Your account is not fully setup, do you want to continue now?
-            </Text>
+            </span>
             <Link href="/api/stripe/connect/start">
               <Button>Continue</Button>
             </Link>
           </RenderIf>
 
           <RenderIf condition={status === 'failed'}>
-            <Text align="center">
+            <span className="text text-center">
               Something went wrong, please try again later.
-            </Text>
+            </span>
             <Link href="/dashboard">
               <Button>Go back</Button>
             </Link>
           </RenderIf>
 
           <RenderIf condition={status === 'success'}>
-            <Text align="center">
+            <span className="text text-center">
               Congrats, your Stripe account is now connected to our platform.
-            </Text>
+            </span>
           </RenderIf>
-        </Stack>
+        </div>
       </BaseLayout>
     </>
   );

@@ -80,3 +80,43 @@ export const OUTLINE_BUTTON_STYLES: Record<Colors, string> = {
   'pink': 'border text-pink-600 border-pink-600 hover:border-pink-600/90 hover:bg-pink-600/5 dark:text-pink-400 dark:border-pink-400 dark:hover:border-pink-400/90 dark:hover:text-pink-400 dark:hover:bg-pink-400/5',
   'rose': 'border text-rose-600 border-rose-600 hover:border-rose-600/90 hover:bg-rose-600/5 dark:text-rose-400 dark:border-rose-400 dark:hover:border-rose-400/90 dark:hover:text-rose-400 dark:hover:bg-rose-400/5',
 }
+
+export const MOBILE_FILLED_BUTTON_STYLES: Record<string, string> = {
+  'red': 'bg-red-600 hover:bg-red-700 dark:hover:bg-red-500 text-white',
+  'orange': 'bg-orange-600 hover:bg-orange-700 dark:hover:bg-orange-500 text-white',
+  'amber': 'bg-amber-600 hover:bg-amber-700 dark:hover:bg-amber-500 text-white',
+  'yellow': 'bg-yellow-600 hover:bg-yellow-700 dark:hover:bg-yellow-500 text-white',
+  'lime': 'bg-lime-600 hover:bg-lime-700 dark:hover:bg-lime-500 text-white',
+  'green': 'bg-green-600 hover:bg-green-700 dark:hover:bg-green-500 text-white',
+  'emerald': 'bg-emerald-600 hover:bg-emerald-700 dark:hover:bg-emerald-500 text-white',
+  'teal': 'bg-teal-600 hover:bg-teal-700 dark:hover:bg-teal-500 text-white',
+  'cyan': 'bg-cyan-600 hover:bg-cyan-700 dark:hover:bg-cyan-500 text-white',
+  'sky': 'bg-sky-600 hover:bg-sky-700 dark:hover:bg-sky-500 text-white',
+  'blue': 'bg-blue-600 hover:bg-blue-700 dark:hover:bg-blue-500 text-white',
+  'indigo': 'bg-indigo-600 hover:bg-indigo-700 dark:hover:bg-indigo-500 text-white',
+  'violet': 'bg-violet-600 hover:bg-violet-700 dark:hover:bg-violet-500 text-white',
+  'purple': 'bg-purple-600 hover:bg-purple-700 dark:hover:bg-purple-500 text-white',
+  'fuchsia': 'bg-fuchsia-600 hover:bg-fuchsia-700 dark:hover:bg-fuchsia-500 text-white',
+  'pink': 'bg-pink-600 hover:bg-pink-700 dark:hover:bg-pink-500 text-white',
+  'rose': 'bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500 text-white',
+}
+
+export const ACCORDION_HEADER_STYLES: Record<string, string> = {
+  'red': 'data-[recommended=true]:text-red-500',
+  'orange': 'data-[recommended=true]:text-orange-500',
+  'amber': 'data-[recommended=true]:text-amber-500',
+  'yellow': 'data-[recommended=true]:text-yellow-500',
+  'lime': 'data-[recommended=true]:text-lime-500',
+  'green': 'data-[recommended=true]:text-green-500',
+  'emerald': 'data-[recommended=true]:text-emerald-500',
+  'teal': 'data-[recommended=true]:text-teal-500',
+  'cyan': 'data-[recommended=true]:text-cyan-500',
+  'sky': 'data-[recommended=true]:text-sky-500',
+  'blue': 'data-[recommended=true]:text-blue-500',
+  'indigo': 'data-[recommended=true]:text-indigo-500',
+  'violet': 'data-[recommended=true]:text-violet-500',
+  'purple': 'data-[recommended=true]:text-purple-500',
+  'fuchsia': 'data-[recommended=true]:text-fuchsia-500',
+  'pink': 'data-[recommended=true]:text-pink-500',
+  'rose': 'data-[recommended=true]:text-rose-600',
+}

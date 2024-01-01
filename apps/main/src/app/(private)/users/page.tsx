@@ -19,4 +19,4 @@ const UsersPage: NextPage = () => {
   );
 };
 
-export default authGuard(UsersPage);
+export default UsersPage;

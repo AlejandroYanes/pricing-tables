@@ -1,8 +1,20 @@
 /* eslint-disable max-len */
 import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
-import { PoweredBy, RenderIf, Button, TabsList, TabsTrigger, Tabs } from '@dealo/ui';
-import type { FormPrice } from '@dealo/models';
+import { IconCircleCheck, IconCircleX } from '@tabler/icons-react';
+import {
+  PoweredBy,
+  RenderIf,
+  Button,
+  TabsList,
+  TabsTrigger,
+  Tabs,
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from '@dealo/ui';
+import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
 import { formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
 
 import type { TemplateProps, Interval } from '../constants/types';
@@ -10,7 +22,14 @@ import { intervalsMap } from '../constants/intervals';
 import { resolveBillingIntervals } from '../Basic/utils/resolve-billing-intervals';
 import { filterProductsByInterval } from '../Basic/utils/filter-produts-by-interval';
 import { resolvePriceToShow } from '../Basic/utils/resolve-price-to-show';
-import { ACTIVE_CELL_STYLES, BUTTON_STYLES, CELL_STYLES, OUTLINE_BUTTON_STYLES } from './template-colors';
+import {
+  ACCORDION_HEADER_STYLES,
+  ACTIVE_CELL_STYLES,
+  FILLED_BUTTON_STYLES,
+  CELL_STYLES,
+  OUTLINE_BUTTON_STYLES,
+  MOBILE_FILLED_BUTTON_STYLES
+} from './template-colors';
 
 type PricingProps = {
   price: FormPrice;
@@ -93,6 +112,100 @@ const resolvePricing = (options: PricingProps) => {
   return 'Unable to resolve pricing';
 };
 
+const resolveMobilePricing = (options: PricingProps) => {
+  const { price, unitLabel, currency: selectedCurrency } = options;
+  const {
+    type,
+    currency: baseCurrency,
+    currency_options,
+    billing_scheme,
+    transform_quantity,
+    recurring,
+    unit_amount: baseAmount,
+  } = price;
+
+  const { currency, unit_amount } = selectedCurrency && currency_options![selectedCurrency]
+    ? {
+      currency: selectedCurrency,
+      unit_amount: currency_options![selectedCurrency]!.unit_amount,
+    } : {
+      currency: baseCurrency,
+      unit_amount: baseAmount,
+    };
+
+  if (type === 'one_time') {
+    if (transform_quantity) {
+      return (
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <sup className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+              {getCurrencySymbol(currency)}
+            </sup>
+            <span className="text text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+          </div>
+          <sub className="text text-white leading-none">
+            {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
+          </sub>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex ga-1 ml-auto shrink-0">
+        <span className="text text-[48px] leading-none">
+          {getCurrencySymbol(currency)}
+        </span>
+        <span className="text text-white text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+        <RenderIf condition={!!unitLabel}>
+          <sub className="text text-white leading-none">{` per ${unitLabel}`}</sub>
+        </RenderIf>
+      </div>
+    );
+  }
+
+  const recurringLabel = intervalsMap[recurring!.interval].short;
+  const intervalCount = recurring!.interval_count;
+
+  if (billing_scheme === 'per_unit') {
+    if (transform_quantity) {
+      return (
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <span className="text text-[48px] leading-none">
+              {getCurrencySymbol(currency)}
+            </span>
+            <span className="text text-white text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <sub
+              className="text text-white text-[18px] mb-[-8px] leading-none"
+            >
+              {`/ ${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`}
+            </sub>
+          </div>
+          <sub className="text text-white text-[18px] leading-none">
+            {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
+          </sub>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1 ml-auto flex-nowrap shrink-0">
+        <span className="text text-[48px] leading-none">
+          {getCurrencySymbol(currency)}
+        </span>
+        <span className="text text-[48px] leading-none">
+          {formatCurrencyWithoutSymbol(unit_amount! / 100)}
+        </span>
+        <sub className="text text-[18px] mb-[-8px]">
+          {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
+        </sub>
+      </div>
+    );
+  }
+
+  return 'Unable to resolve pricing';
+};
+
 const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
   const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
 
@@ -166,25 +279,24 @@ export function SecondTemplate(props: TemplateProps) {
       const { isCustom } = product;
       const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
       const isRecommended = product.id === recommended;
-      const recommendedColor = theme.colorScheme === 'light' ? theme.colors[color]![8] : theme.colors[color]![6];
 
       return (
-        <Accordion.Item value={product.id} key={product.id}>
-          <Accordion.Control>
-            <Group align="center" position="apart" style={{ color: isRecommended ? recommendedColor : undefined }}>
-              <Stack ml="md" mr="3rem" spacing={2}>
-                <Text size={18} weight="bold">{product.name}</Text>
-                <Text style={{ maxWidth: '360px' }}>{product.description}</Text>
-              </Stack>
+        <AccordionItem value={product.id} key={product.id}>
+          <AccordionTrigger>
+            <div data-recommended={isRecommended} className={`flex flex-row items-center justify-between ${ACCORDION_HEADER_STYLES[color]}`}>
+              <div className="flex flex-col items-start ml-4 mr-16 gap-0.5">
+                <span className="text text-[18px] font-bold">{product.name}</span>
+                <span className="text m-w-[360px]">{product.description}</span>
+              </div>
               {
                 !isCustom
-                  ? resolvePricing({ price: priceToShow, unitLabel, currency, isRecommended })
+                  ? resolveMobilePricing({ price: priceToShow, unitLabel, currency, isRecommended })
                   : null
               }
-            </Group>
-          </Accordion.Control>
-          <Accordion.Panel>
-            <ul className={classes.itemsList}>
+            </div>
+          </AccordionTrigger>
+          <AccordionContent>
+            <ul className="flex flex-col items-stretch mt-4">
               {features.map((feature) => {
                 const prodValue = feature.products.find((prod) => prod.id === product.id)!;
                 const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
@@ -207,26 +319,21 @@ export function SecondTemplate(props: TemplateProps) {
                 }
 
                 return (
-                  <li key={feature.id} className={classes.featureBlock}>
-                    <Group align="center" position="apart">
-                      <Text size="sm">
+                  <li key={feature.id} className="px-4 py-2">
+                    <div className="flex flex-row items-center justify-between">
+                      <span className="text text-sm">
                         {label}
-                      </Text>
+                      </span>
                       <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
-                        <IconCircleCheck
-                          fill={theme.colors[color]![8]}
-                          color={theme.colorScheme === 'light' ? theme.colors.gray[0] : theme.colors.dark[8]}
-                        />
+                        <IconCircleCheck />
                       </RenderIf>
-                    </Group>
+                    </div>
                   </li>
                 );
               })}
             </ul>
-            <Stack mt="xl">
-              <Button
-                uppercase
-                component="a"
+            <div className="flex flex-col mt-8">
+              <a
                 href={resolveBtnUrl({
                   isCustom: !!isCustom,
                   prod: product,
@@ -238,40 +345,52 @@ export function SecondTemplate(props: TemplateProps) {
                   environment,
                   currency,
                 })}
-                mt="xl"
-                mb={priceToShow.hasFreeTrial ? 'sm' : 'xl'}
-                color={color}
-                variant={isRecommended ? 'filled' : 'outline'}
               >
-                {resolveBtnLabel({
-                  type: priceToShow.type,
-                  prod: product,
-                  isCustom: !!isCustom,
-                  hasFreeTrial: priceToShow.hasFreeTrial,
-                  freeTrialLabel,
-                  subscribeLabel,
-                })}
-              </Button>
+                <Button
+                  data-spaced={priceToShow.hasFreeTrial}
+                  className={`w-full mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? MOBILE_FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
+                  variant="undecorated"
+                >
+                  {resolveBtnLabel({
+                    type: priceToShow.type,
+                    prod: product,
+                    isCustom: !!isCustom,
+                    hasFreeTrial: priceToShow.hasFreeTrial,
+                    freeTrialLabel,
+                    subscribeLabel,
+                  })}
+                </Button>
+              </a>
               <RenderIf condition={priceToShow.hasFreeTrial}>
-                <Text size="sm" mb="lg">{priceToShow.freeTrialDays} days</Text>
+                <span className="text text-sm text-center">{priceToShow.freeTrialDays} days</span>
               </RenderIf>
-            </Stack>
-          </Accordion.Panel>
-        </Accordion.Item>
+            </div>
+          </AccordionContent>
+        </AccordionItem>
       )
     });
-
-    const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
-
+    //
+    // const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
+    //
     return (
-      <Stack align="center">
+      <div className="flex flex-col items-center gap-4">
         <RenderIf condition={billingIntervals.length > 1}>
-          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+          <Tabs
+            value={currentInterval}
+            onValueChange={setCurrentInterval as any}
+            className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
+          >
+            <TabsList>
+              {billingIntervals.map((interval) => (
+                <TabsTrigger key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
         </RenderIf>
-        <Accordion chevronPosition="left" variant="contained" defaultValue={recommendedProduct?.id}>
+        <Accordion type="single" collapsible>
           {items}
         </Accordion>
-      </Stack>
+      </div>
     );
   }
 
@@ -306,20 +425,23 @@ export function SecondTemplate(props: TemplateProps) {
         case features.length + 1: {
           return (
             <td key={prod.id} data-active={isRecommended} className={`text-center py-2 px-4 ${CELL_STYLES[color]}`}>
-              <a href={resolveBtnUrl({
-                isCustom: !!isCustom,
-                prod,
-                priceToShow,
-                type: priceToShow.type,
-                dev: !!dev,
-                widgetId: widget,
-                callbacks,
-                environment,
-                currency,
-              })} className="block">
+              <a
+                href={resolveBtnUrl({
+                  isCustom: !!isCustom,
+                  prod,
+                  priceToShow,
+                  type: priceToShow.type,
+                  dev: !!dev,
+                  widgetId: widget,
+                  callbacks,
+                  environment,
+                  currency,
+                })}
+                target="_top"
+              >
                 <Button
                   data-spaced={hasFreeTrial}
-                  className={`mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
+                  className={`mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
                   variant="undecorated"
                 >
                   {resolveBtnLabel({ type, prod, isCustom: !!isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel })}

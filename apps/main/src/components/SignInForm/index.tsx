@@ -2,26 +2,30 @@
 
 import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { Button, Separator } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
 import GithubButton from './GitHubButton';
 import DiscordButton from './DiscordButton';
 import GoogleButton from './GoogleButton';
 
-const SignInForm = () => {
+interface Props {
+  searchParams: Record<string, string | null>;
+}
+
+const SignInForm = (props: Props) => {
+  const { searchParams } = props;
   const { status } = useSession();
-  const { query, ...router } = useRouter();
+  const router = useRouter();
 
   const buildCheckoutUrl = () => {
     const checkoutPageRoute = '/stripe/checkout/start';
-    const searchParams = generateQueryString(query);
-    return `${checkoutPageRoute}?${searchParams}`;
+    const queryParams = generateQueryString(searchParams);
+    return `${checkoutPageRoute}?${queryParams}`;
   }
 
   const handleSignIn = (provider: string) => {
     if (status === 'authenticated') {
-      if (query.internal_flow === 'true') {
+      if (searchParams.internal_flow === 'true') {
         router.push(buildCheckoutUrl());
       } else {
         router.push('/dashboard');
@@ -29,7 +33,7 @@ const SignInForm = () => {
       return;
     }
 
-    if (query.internal_flow === 'true') {
+    if (searchParams.internal_flow === 'true') {
       const checkoutUrl = buildCheckoutUrl();
       signIn(provider, { callbackUrl: checkoutUrl });
     } else {

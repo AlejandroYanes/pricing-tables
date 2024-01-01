@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { RenderIf, cn } from '@dealo/ui';
+import { RenderIf, cn, Button } from '@dealo/ui';
 
 import { CustomNavbar } from 'components/Navbar';
 
@@ -19,15 +19,19 @@ const BaseLayout = (props: Props) => {
   const { hideNavbar = false, hideFooter, children, className, ...rest } = props;
 
   return (
-    <section className={cn('flex flex-col relative pt-0 px-12 pb-6', className)}>
+    <section className={cn('flex flex-col relative pt-0 px-12 pb-6 min-h-screen', className)}>
       <RenderIf condition={!hideNavbar}>
         <CustomNavbar {...rest} />
       </RenderIf>
       {children}
-      <div className={classes.spacer} />
+      <div className="mt-auto" />
       <RenderIf condition={!hideFooter}>
-        <footer className={classes.footer}>
-          <Link href="/privacy-policy">Privacy Policy</Link>
+        <footer className="flex flex-row items-center justify-end mt-[64px] h-[32px] bg-background">
+          <Link href="/privacy-policy">
+            <Button variant="ghost">
+              Privacy Policy
+            </Button>
+          </Link>
         </footer>
       </RenderIf>
     </section>

@@ -1,5 +1,5 @@
 import { Resend } from 'resend';
-import { AccountDeletedEmail, FailedPaymentEmail, SubscriptionCancelledEmail, WelcomeEmail } from 'email-templates';
+import { AccountDeletedEmail, FailedPaymentEmail, SubscriptionCancelledEmail, WelcomeEmail } from '@dealo/email-templates';
 
 import { notifyOfFailedEmail } from './slack';
 

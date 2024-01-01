@@ -1,9 +1,10 @@
+'use client';
 import { useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useSession } from 'next-auth/react';
 import Head from 'next/head';
-import { Loader, Stack } from '@mantine/core';
-import { generateQueryString } from 'helpers';
+import { Loader } from '@dealo/ui';
+import { generateQueryString } from '@dealo/helpers';
 
 import BaseLayout from 'components/BaseLayout';
 
@@ -34,9 +35,9 @@ const CheckoutStartPage = () => {
         <title>Dealo | Stripe Checkout start</title>
       </Head>
       <BaseLayout>
-        <Stack align="center" justify="center" style={{ width: '100%', padding: '86px' }}>
+        <div className="flex flex-col items-center justify-center w-full p-[86px]">
           <Loader />
-        </Stack>
+        </div>
       </BaseLayout>
     </>
   );

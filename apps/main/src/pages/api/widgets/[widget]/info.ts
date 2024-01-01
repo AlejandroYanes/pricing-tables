@@ -71,7 +71,7 @@ async function getWidgetData(widgetId: string) {
 
   const widgetUser = (
     await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
-  ).rows[0] as { stripeAccount: string; role: string };
+  ).rows[0] as { stripeAccount: string };
 
   const stripe = initStripe();
 

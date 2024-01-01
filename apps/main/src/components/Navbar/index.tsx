@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-import Link from 'next/link';
+import { type AuthenticatedSession } from 'next-auth';
 import {
   IconArrowLeft,
   IconInfoCircle,
@@ -40,6 +40,7 @@ import {
   AlertDialogTitle,
   cn,
 } from '@dealo/ui';
+import { formatDate } from '@dealo/helpers';
 import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
@@ -50,26 +51,6 @@ interface NavbarLinkProps {
   asSpan?: boolean;
   className?: string;
 }
-
-// TODO: add a banner for the ending subscription
-// banner: {
-//   marginBottom: '86px',
-//     position: 'relative',
-//     display: 'flex',
-//     alignItems: 'center',
-//     justifyContent: 'center',
-//     height: 32,
-//     padding: `4px ${theme.spacing.md}`,
-//     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.orange[9] : theme.colors.orange[4],
-// },
-// bannerCloseBtn: {
-//   position: 'absolute',
-//     right: 0,
-//     top: 'auto',
-//     bottom: 'auto',
-//     borderRadius: 0,
-//     height: 32,
-// },
 
 const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps) => {
   if (asSpan) {
@@ -137,89 +118,91 @@ export function CustomNavbar(props: Props) {
           <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
         <h1 className="text-4xl font-semibold">{title}</h1>
-        <div className="flex items-center gap-4 ml-auto">
-          <HoverCard>
-            <HoverCardTrigger>
-              <NavbarLink asSpan icon={IconInfoCircle} />
-            </HoverCardTrigger>
-            <HoverCardContent align="end" className="w-[280px] mt-3">
-              <p className="text text-black dark:text-white">
-                This platform is still an alpha version, so if you find any bugs or have any suggestions,
-                please let me know at
-                {' '}
-                <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
-                  support@dealo.app
-                </a>
-                !
-              </p>
-            </HoverCardContent>
-          </HoverCard>
-          <DropdownMenu>
-            <DropdownMenuTrigger>
-              <NavbarLink asSpan icon={IconUser} />
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-[200px] mt-3">
-              <RenderIf condition={user?.role === ROLES.ADMIN}>
-                <DropdownMenuLabel>Management</DropdownMenuLabel>
-                <Link href="/users">
-                  <DropdownMenuItem>
-                    <IconUsers size={16} className="mr-2" />
-                    Manage Users
-                  </DropdownMenuItem>
-                </Link>
-                <Link href="/guests">
-                  <DropdownMenuItem>
-                    <IconUserQuestion size={16} className="mr-2" />
-                    Manage Guests
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                </Link>
-              </RenderIf>
-              <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <IconSettings size={16} className="mr-2" />
-                Settings
-              </DropdownMenuItem>
-              <RenderIf
-                condition={!!user?.hasSubscription}
-                fallback={
-                  <Link href="/pricing">
-                    <DropdownMenuItem
-                      icon={<IconReceipt size={14} />}
-                    >
-                      Pricing
+        <RenderIf condition={!hideUserControls}>
+          <div className="flex items-center gap-4 ml-auto">
+            <HoverCard>
+              <HoverCardTrigger>
+                <NavbarLink asSpan icon={IconInfoCircle}/>
+              </HoverCardTrigger>
+              <HoverCardContent align="end" className="w-[280px] mt-3">
+                <p className="text text-black dark:text-white">
+                  This platform is still an alpha version, so if you find any bugs or have any suggestions,
+                  please let me know at
+                  {' '}
+                  <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
+                    support@dealo.app
+                  </a>
+                  !
+                </p>
+              </HoverCardContent>
+            </HoverCard>
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <NavbarLink asSpan icon={IconUser}/>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px] mt-3">
+                <RenderIf condition={user?.role === ROLES.ADMIN}>
+                  <DropdownMenuLabel>Management</DropdownMenuLabel>
+                  <Link href="/users">
+                    <DropdownMenuItem>
+                      <IconUsers size={16} className="mr-2"/>
+                      Manage Users
                     </DropdownMenuItem>
                   </Link>
-                }
-              >
-                <Link href="/api/stripe/customer/portal">
-                  <DropdownMenuItem
-                    icon={<IconReceipt size={14} />}
-                  >
-                    Billing
-                  </DropdownMenuItem>
-                </Link>
-              </RenderIf>
-              <DropdownMenuItem onClick={handleLogout}>
-                <IconLogout size={16} className="mr-2" />
-                Logout
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
-              <DropdownMenuItem destructive onClick={handleDeleteAccount}>
-                <IconTrash size={16} className="mr-2" />
-                Delete my account
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+                  <Link href="/guests">
+                    <DropdownMenuItem>
+                      <IconUserQuestion size={16} className="mr-2"/>
+                      Manage Guests
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator/>
+                  </Link>
+                </RenderIf>
+                <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+                <DropdownMenuItem>
+                  <IconSettings size={16} className="mr-2"/>
+                  Settings
+                </DropdownMenuItem>
+                <RenderIf
+                  condition={!!user?.hasSubscription}
+                  fallback={
+                    <Link href="/pricing">
+                      <DropdownMenuItem>
+                        <IconReceipt size={14}/>
+                        Pricing
+                      </DropdownMenuItem>
+                    </Link>
+                  }
+                >
+                  <Link href="/api/stripe/customer/portal">
+                    <DropdownMenuItem>
+                      <IconReceipt size={14}/>
+                      Billing
+                    </DropdownMenuItem>
+                  </Link>
+                </RenderIf>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <IconLogout size={16} className="mr-2"/>
+                  Logout
+                </DropdownMenuItem>
+                <DropdownMenuSeparator/>
+                <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
+                <DropdownMenuItem destructive onClick={handleDeleteAccount}>
+                  <IconTrash size={16} className="mr-2"/>
+                  Delete my account
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </RenderIf>
       </header>
       <RenderIf condition={isSubscriptionSetToCancel}>
-        <div className={classes.banner}>
-          <Text size="sm" color="white">Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt!))}</Text>
-          <ActionIcon className={classes.bannerCloseBtn}>
+        <div className="flex flex-row items-center justify-center h-[32px] mb-[86px] py-1 px-4 bg-amber-600 dark:bg-amber-500">
+          <span className="text text-sm text-white">
+            Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt!))}
+          </span>
+          <Button variant="undecorated" className="absolute top-0 right-0 bottom-0 h-[32px]">
             <IconX size={14}/>
-          </ActionIcon>
+          </Button>
         </div>
       </RenderIf>
       <RenderIf condition={showDeleteAccountModal}>

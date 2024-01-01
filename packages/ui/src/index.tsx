@@ -1,6 +1,7 @@
 export * from './Logo';
 export * from './render-if';
 export * from './powered-by';
+export * from './accordion';
 export * from './alert';
 export * from './alert-dialog';
 export * from './avatar';
