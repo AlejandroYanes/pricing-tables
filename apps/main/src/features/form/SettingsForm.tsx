@@ -6,8 +6,6 @@ import {
   RenderIf,
   InputWithLabel,
   SelectWithOptions,
-  Checkbox,
-  Label,
   Tooltip,
   TooltipContent,
   TooltipProvider,
@@ -21,7 +19,8 @@ import {
   AlertDialogDescription,
   AlertDialogFooter,
   AlertDialogCancel,
-  AlertDialogAction, AlertDialog,
+  AlertDialogAction,
+  AlertDialog,
 } from '@dealo/ui';
 import { templatesList } from '@dealo/templates';
 

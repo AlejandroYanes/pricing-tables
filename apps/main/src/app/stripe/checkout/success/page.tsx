@@ -1,5 +1,4 @@
 'use client';
-import { useRouter } from 'next/router';
 import Head from 'next/head';
 import Link from 'next/link';
 import { IconConfetti } from '@tabler/icons-react';
@@ -7,8 +6,12 @@ import { Button, RenderIf } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 
-export default function CheckoutSuccess() {
-  const { query } = useRouter();
+interface Props {
+  searchParams: Record<string, string | string[]>;
+}
+
+export default function CheckoutSuccess(props: Props) {
+  const { searchParams: query } = props;
 
   const isInternalFlow = query.internal_flow === 'true';
 

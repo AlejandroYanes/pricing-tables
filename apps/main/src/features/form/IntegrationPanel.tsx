@@ -163,22 +163,21 @@ export default function IntegrationPanel(props: Props) {
       <CodeBlock>{curlCommand(data!.user!.id)}</CodeBlock>
       <p className="mt-6 mb-4">{`Here's`} a JavaScript version:</p>
       <CodeBlock>{jsCommand(data!.user!.id)}</CodeBlock>
-<Title order={3}>Generating a Stripe Customer Portal</Title>
-      <Text component="p" m={0}>
+      <h3 className="text text-xl font-bold">Generating a Stripe Customer Portal</h3>
+      <p className="text m-0">
         To generate a Stripe Customer Portal you need redirect the user to our API route.
         For this one we only need the Stripe <Code>customer_id</Code> associated with the user.
-      </Text>
-      <Prism language="javascript">
+      </p>
+      <CodeBlock>
         {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}
-      </Prism>
-      <Text component="p">
+      </CodeBlock>
+      <p className="text">
         This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
         After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
         or we will redirect them to the same page they were before (the one that initiated the checkout).
-      </Text>
-      <Text>This request also needs the API Key header:</Text>
-      <Prism language="markup">{`X-Api-Key=${data?.user?.id}`}</Prism>
-
-      </div>
+      </p>
+      <span className="text">This request also needs the API Key header:</span>
+      <CodeBlock>{`X-Api-Key=${data?.user?.id}`}</CodeBlock>
+    </div>
   );
 }

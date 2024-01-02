@@ -13,7 +13,6 @@ import {
   IconTrash,
   IconUser,
   IconUsers,
-  IconUserQuestion,
   IconReceipt,
   IconX,
   type Icon as TablerIcon,
@@ -149,25 +148,15 @@ export function CustomNavbar(props: Props) {
                       Manage Users
                     </DropdownMenuItem>
                   </Link>
-                  <Link href="/guests">
-                    <DropdownMenuItem>
-                      <IconUserQuestion size={16} className="mr-2"/>
-                      Manage Guests
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator/>
-                  </Link>
+                  <DropdownMenuSeparator />
                 </RenderIf>
                 <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
-                <DropdownMenuItem>
-                  <IconSettings size={16} className="mr-2"/>
-                  Settings
-                </DropdownMenuItem>
                 <RenderIf
                   condition={!!user?.hasSubscription}
                   fallback={
                     <Link href="/pricing">
                       <DropdownMenuItem>
-                        <IconReceipt size={14}/>
+                        <IconReceipt size={14} className="mr-2" />
                         Pricing
                       </DropdownMenuItem>
                     </Link>
@@ -175,13 +164,17 @@ export function CustomNavbar(props: Props) {
                 >
                   <Link href="/api/stripe/customer/portal">
                     <DropdownMenuItem>
-                      <IconReceipt size={14}/>
+                      <IconReceipt size={14} className="mr-2" />
                       Billing
                     </DropdownMenuItem>
                   </Link>
                 </RenderIf>
+                <DropdownMenuItem>
+                  <IconSettings size={16} className="mr-2"/>
+                  Settings
+                </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleLogout}>
-                  <IconLogout size={16} className="mr-2"/>
+                  <IconLogout size={16} className="mr-2" />
                   Logout
                 </DropdownMenuItem>
                 <DropdownMenuSeparator/>

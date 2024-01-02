@@ -20,7 +20,7 @@ import { fetchWidget } from 'features/form/state/actions';
 import SaveButton from 'features/form/SaveButton';
 
 const errorScreen = (
-  <BaseLayout showBackButton>
+  <BaseLayout showBackButton backRoute="/dashboard">
     <div className="flex flex-col justify-center items-center mt-16">
       <Alert>
         <IconAlertCircle size="1rem" />
@@ -40,7 +40,7 @@ const errorScreen = (
 
 const LoadingScreen = () => {
   return (
-    <BaseLayout showBackButton>
+    <BaseLayout showBackButton backRoute="/dashboard">
       <div className="flex flex-col" style={{ height: 'calc(100vh - 170px)', width: 'calc(100vw - 96px)' }}>
         <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-gray-200 dark:border-gray-800">
           <Tabs value="products">
@@ -117,7 +117,7 @@ const FormPage = (props: Props) => {
       <Head>
         <title>Dealo | Form</title>
       </Head>
-      <BaseLayout showBackButton title={name}>
+      <BaseLayout showBackButton backRoute="/dashboard" title={name}>
         <div className="flex items-center justify-between h-[49px] mb-6 pb-2 border-b border-neutral-200 dark:border-gray-800">
           <Tabs
             value={currentTab}

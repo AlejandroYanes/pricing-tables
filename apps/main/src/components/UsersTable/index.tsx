@@ -78,8 +78,10 @@ const UsersTable = () => {
       return hasLegacy === 'yes' ? 'legacy-yes' : 'legacy-no';
     }
 
-    return undefined;
+    return 'none';
   };
+
+  console.log(resolveStatusFilter());
 
   return (
     <>
@@ -116,16 +118,16 @@ const UsersTable = () => {
                     </div>
                     <span>Has legacy setup</span>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="legacy-yes" id="r2"/>
-                      <Label htmlFor="r2">Yes</Label>
+                      <RadioGroupItem value="legacy-yes" id="r4"/>
+                      <Label htmlFor="r4">Yes</Label>
                     </div>
                     <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="legacy-no" id="r3"/>
-                      <Label htmlFor="r3">No</Label>
+                      <RadioGroupItem value="legacy-no" id="r5"/>
+                      <Label htmlFor="r5">No</Label>
                     </div>
                   </div>
                 </RadioGroup>
-                <Button variant="default" size="sm" onClick={clearFilters}>Clear</Button>
+                <Button variant="outline" size="sm" onClick={clearFilters}>Clear</Button>
               </div>
             </PopoverContent>
           </Popover>

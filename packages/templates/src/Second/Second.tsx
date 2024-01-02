@@ -424,7 +424,7 @@ export function SecondTemplate(props: TemplateProps) {
         // CTA
         case features.length + 1: {
           return (
-            <td key={prod.id} data-active={isRecommended} className={`text-center py-2 px-4 ${CELL_STYLES[color]}`}>
+            <td key={prod.id} data-active={isRecommended} className={`text-center align-top py-2 px-4 ${CELL_STYLES[color]}`}>
               <a
                 href={resolveBtnUrl({
                   isCustom: !!isCustom,
