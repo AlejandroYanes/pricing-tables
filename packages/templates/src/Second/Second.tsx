@@ -63,7 +63,7 @@ const resolvePricing = (options: PricingProps) => {
     return (
       <div className="flex">
         <sup className="text">{getCurrencySymbol(currency)}</sup>
-        <span className="text text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+        <span className="text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
         <RenderIf condition={!!unitLabel}>
           <sub className="text">{` per ${unitLabel}`}</sub>
         </RenderIf>
@@ -79,15 +79,15 @@ const resolvePricing = (options: PricingProps) => {
       return (
         <div className="flex flex-col">
           <div className="flex ga-1">
-            <sup className="text text-[18px] mt-[-18px] leading-tight" color={isRecommended ? undefined : 'dimmed'}>
+            <sup className="text-[18px] mt-[-18px] leading-tight" color={isRecommended ? undefined : 'dimmed'}>
               {getCurrencySymbol(currency)}
             </sup>
-            <span className="text text-[48px]" style={{ lineHeight: 1 }}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
-            <sub className="text text-[18px] mb-[-8px]" color={isRecommended ? undefined : 'dimmed'}>
+            <span className="text-[48px]" style={{ lineHeight: 1 }}>{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <sub className="text-[18px] mb-[-8px]" color={isRecommended ? undefined : 'dimmed'}>
               {`/ ${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`}
             </sub>
           </div>
-          <sub className="text leading-tight" color={isRecommended ? undefined : 'dimmed'}>
+          <sub className="leading-tight" color={isRecommended ? undefined : 'dimmed'}>
             {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
           </sub>
         </div>
@@ -96,13 +96,13 @@ const resolvePricing = (options: PricingProps) => {
 
     return (
       <div className="flex items-center gap-1">
-        <sup data-active={isRecommended} className="text text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+        <sup data-active={isRecommended} className="text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
           {getCurrencySymbol(currency)}
         </sup>
-        <span className="text text-[48px] leading-none" style={{ lineHeight: 1 }}>
+        <span className="text-[48px] leading-none" style={{ lineHeight: 1 }}>
           {formatCurrencyWithoutSymbol(unit_amount! / 100)}
         </span>
-        <sub data-active={isRecommended} className="text text-[18px] mb-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+        <sub data-active={isRecommended} className="text-[18px] mb-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
           {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
         </sub>
       </div>
@@ -138,12 +138,12 @@ const resolveMobilePricing = (options: PricingProps) => {
       return (
         <div className="flex flex-col ml-auto shrink-0">
           <div className="flex items-center gap-1">
-            <sup className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+            <sup className="text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
               {getCurrencySymbol(currency)}
             </sup>
-            <span className="text text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <span className="text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
           </div>
-          <sub className="text text-white leading-none">
+          <sub className="text-white leading-none">
             {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
           </sub>
         </div>
@@ -152,12 +152,12 @@ const resolveMobilePricing = (options: PricingProps) => {
 
     return (
       <div className="flex ga-1 ml-auto shrink-0">
-        <span className="text text-[48px] leading-none">
+        <span className="text-[48px] leading-none">
           {getCurrencySymbol(currency)}
         </span>
-        <span className="text text-white text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+        <span className="text-white text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
         <RenderIf condition={!!unitLabel}>
-          <sub className="text text-white leading-none">{` per ${unitLabel}`}</sub>
+          <sub className="text-white leading-none">{` per ${unitLabel}`}</sub>
         </RenderIf>
       </div>
     );
@@ -171,17 +171,17 @@ const resolveMobilePricing = (options: PricingProps) => {
       return (
         <div className="flex flex-col ml-auto shrink-0">
           <div className="flex items-center gap-1">
-            <span className="text text-[48px] leading-none">
+            <span className="text-[48px] leading-none">
               {getCurrencySymbol(currency)}
             </span>
-            <span className="text text-white text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <span className="text-white text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
             <sub
-              className="text text-white text-[18px] mb-[-8px] leading-none"
+              className="text-white text-[18px] mb-[-8px] leading-none"
             >
               {`/ ${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`}
             </sub>
           </div>
-          <sub className="text text-white text-[18px] leading-none">
+          <sub className="text-white text-[18px] leading-none">
             {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
           </sub>
         </div>
@@ -190,13 +190,13 @@ const resolveMobilePricing = (options: PricingProps) => {
 
     return (
       <div className="flex items-center gap-1 ml-auto flex-nowrap shrink-0">
-        <span className="text text-[48px] leading-none">
+        <span className="text-[48px] leading-none">
           {getCurrencySymbol(currency)}
         </span>
-        <span className="text text-[48px] leading-none">
+        <span className="text-[48px] leading-none">
           {formatCurrencyWithoutSymbol(unit_amount! / 100)}
         </span>
-        <sub className="text text-[18px] mb-[-8px]">
+        <sub className="text-[18px] mb-[-8px]">
           {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
         </sub>
       </div>
@@ -283,16 +283,19 @@ export function SecondTemplate(props: TemplateProps) {
       return (
         <AccordionItem value={product.id} key={product.id}>
           <AccordionTrigger>
-            <div data-recommended={isRecommended} className={`flex flex-row items-center justify-between ${ACCORDION_HEADER_STYLES[color]}`}>
-              <div className="flex flex-col items-start ml-4 mr-16 gap-0.5">
-                <span className="text text-[18px] font-bold">{product.name}</span>
-                <span className="text m-w-[360px]">{product.description}</span>
+            <div data-recommended={isRecommended} className={`w-full flex flex-row items-center justify-between ${ACCORDION_HEADER_STYLES[color]}`}>
+              <div className="flex flex-col items-start gap-0.5">
+                <div className="flex flex-row items-center w-full justify-between">
+                  <span className="text-[18px] font-bold">{product.name}</span>
+                  {
+                    !isCustom
+                      ? resolveMobilePricing({ price: priceToShow, unitLabel, currency, isRecommended })
+                      : null
+                  }
+                </div>
+                <span className="text-left max-w-[360px]">{product.description}</span>
               </div>
-              {
-                !isCustom
-                  ? resolveMobilePricing({ price: priceToShow, unitLabel, currency, isRecommended })
-                  : null
-              }
+
             </div>
           </AccordionTrigger>
           <AccordionContent>
@@ -321,7 +324,7 @@ export function SecondTemplate(props: TemplateProps) {
                 return (
                   <li key={feature.id} className="px-4 py-2">
                     <div className="flex flex-row items-center justify-between">
-                      <span className="text text-sm">
+                      <span className="text-sm">
                         {label}
                       </span>
                       <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
@@ -362,7 +365,7 @@ export function SecondTemplate(props: TemplateProps) {
                 </Button>
               </a>
               <RenderIf condition={priceToShow.hasFreeTrial}>
-                <span className="text text-sm text-center">{priceToShow.freeTrialDays} days</span>
+                <span className="text-sm text-center">{priceToShow.freeTrialDays} days</span>
               </RenderIf>
             </div>
           </AccordionContent>
@@ -407,10 +410,10 @@ export function SecondTemplate(props: TemplateProps) {
           return (
             <td key={prod.id} data-active={isRecommended} className={`align-top py-2 px-4 ${CELL_STYLES[color]}`}>
               <div className="flex flex-col items-center gap-4 py-4 h-full">
-                <span className="text text-[32px]">{prod.name}</span>
+                <span className="text-[32px]">{prod.name}</span>
                 {
                   isCustom
-                    ? <span className="text text-center mt-auto whitespace-break-spaces">{prod.description}</span>
+                    ? <span className="text-center mt-auto whitespace-break-spaces">{prod.description}</span>
                     : null
                 }
                 {
@@ -449,7 +452,7 @@ export function SecondTemplate(props: TemplateProps) {
               </a>
               <RenderIf condition={hasFreeTrial}>
                 <div className="mb-6">
-                  <span data-active={isRecommended} className="text text-sm text-slate-500 data-[active=true]:text-white">With a {freeTrialDays} days free trial</span>
+                  <span data-active={isRecommended} className="text-sm text-slate-500 data-[active=true]:text-white">With a {freeTrialDays} days free trial</span>
                 </div>
               </RenderIf>
             </td>
@@ -470,7 +473,7 @@ export function SecondTemplate(props: TemplateProps) {
                 label = value;
                 break;
               case 'compose':
-                label = <span className="text"><span className="text font-bold">{value}</span>{` ${feature.name}`}</span>;
+                label = <span className="text"><span className="font-bold">{value}</span>{` ${feature.name}`}</span>;
                 break;
               default:
                 break;

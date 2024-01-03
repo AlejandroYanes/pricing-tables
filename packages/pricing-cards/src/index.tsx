@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client';
 import { useEffect, useRef } from 'react';
+import { generateQueryString } from '@dealo/helpers';
 
 interface Props {
   widget?: string;
@@ -8,6 +9,7 @@ interface Props {
   theme?: string;
   currency?: string;
   internal?: boolean;
+  width: number;
 }
 
 const rootStyles = `
@@ -29,7 +31,7 @@ const rootStyles = `
 `;
 
 const PricingCards = (props: Props) => {
-  const { widget, currency, env, theme: colorScheme = 'light', internal } = props;
+  const { widget, currency, env, theme: colorScheme = 'light', internal, width } = props;
   const rootElRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -41,15 +43,17 @@ const PricingCards = (props: Props) => {
       const { width, height } = data;
       const rootEl = rootElRef.current;
       if (!rootEl) return;
+      console.log('received size', width, height);
       rootEl.style.height = `${height}px`;
       rootEl.style.width = `${width}px`;
     }, false);
   }, []);
 
-  const windowWidth = window.innerWidth;
+  // const windowWidth = window.innerWidth;
   const currentUrl = new URL(window.location.href);
   const fetchUrl = internal ? currentUrl.origin : `https://www.dealo.app`;
-  const src = `${fetchUrl}/w/${widget}?env=${env}&theme=${colorScheme}&currency=${currency}&width=${windowWidth}`;
+  const queryString = generateQueryString({ env, theme: colorScheme, currency, width });
+  const src = `${fetchUrl}/w/${widget}?${queryString}`;
 
   return (
     <>
@@ -74,6 +78,7 @@ class Wrapper extends HTMLElement {
     theme: undefined,
     currency: undefined,
     internal: false,
+    width: 0,
   };
 
   constructor() {
@@ -86,11 +91,15 @@ class Wrapper extends HTMLElement {
       theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
+      width: 0,
     };
+    this.style.width = '100%';
+    this.style.display = 'flex';
+    this.style.justifyContent = 'center';
   }
 
   render() {
-    this.domRoot.render(<PricingCards {...this.props} />);
+    this.domRoot.render(<PricingCards {...this.props} width={this.getBoundingClientRect().width} />);
   }
 
   static get observedAttributes() {

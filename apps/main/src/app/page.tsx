@@ -158,7 +158,7 @@ const HomePage = () => {
           <IconListItem className="order-8" icon={<IconHelp/>} title="Comprehensive Support" text="We're more than a tool, we're your dedicated partner."/>
         </div>
 
-        <div className="flex flex-col items-center justify-center mt-6">
+        <div className="flex flex-col items-center justify-center mt-6 w-full">
           <h1 className="text text-xl mb-4">Get started now.</h1>
           <PricingWidget />
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>

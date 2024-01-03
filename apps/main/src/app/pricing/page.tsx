@@ -49,8 +49,8 @@ const PricingPage = () => {
         <Head>
           <title>Dealo | Pricing</title>
         </Head>
-        <BaseLayout hideUserControls showBackButton={!!user}>
-          <div className="flex flex-col items-center justify-center mt-[48px] mx-auto h-[calc(100vh - 88px)]">
+        <BaseLayout hideUserControls showBackButton>
+          <div className="flex flex-col items-center justify-center gap-6 mt-[48px] mx-auto h-[calc(100vh - 88px)]">
             <h1 className="text text-2xl">Hi {user.name}</h1>
             <span className="text">You already have a subscription with us, if you want to check:</span>
             <Link href="/api/stripe/customer/portal">

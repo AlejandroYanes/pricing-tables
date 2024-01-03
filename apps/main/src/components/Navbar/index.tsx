@@ -119,7 +119,7 @@ export function CustomNavbar(props: Props) {
           <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
         <h1 className="text-4xl font-semibold">{title}</h1>
-        <RenderIf condition={!hideUserControls}>
+        <RenderIf condition={!hideUserControls && status === 'authenticated'}>
           <div className="flex items-center gap-4 ml-auto">
             <HoverCard>
               <HoverCardTrigger>
@@ -189,7 +189,7 @@ export function CustomNavbar(props: Props) {
             </DropdownMenu>
           </div>
         </RenderIf>
-        <RenderIf condition={!hideLinks}>
+        <RenderIf condition={!hideLinks && status === 'unauthenticated'}>
           <div className="flex items-center gap-4 ml-auto">
             <Link href="/pricing">
               <NavbarLink label="Pricing"/>

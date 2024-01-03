@@ -43,9 +43,7 @@ const WidgetPage = async (props: Props) => {
   const widgetInfo = await resolveWidgetInfo(id);
 
   return (
-    <WidthProvider>
-      <TemplateWrapper id={id} widget={widgetInfo} config={searchParams} />
-    </WidthProvider>
+    <TemplateWrapper id={id} widget={widgetInfo} config={searchParams} />
   );
 };
 
