@@ -9,6 +9,12 @@ interface Props {
   params: {
     id: string;
   };
+  searchParams: {
+    theme?: string;
+    env?: string;
+    currency?: string;
+    width?: string;
+  };
 }
 
 const inputSchema = z.object({
@@ -20,7 +26,7 @@ const resolveWidgetInfo = cache(async (id: string) => {
 });
 
 const WidgetPage = async (props: Props) => {
-  const { id } = props.params;
+  const { params: { id }, searchParams } = props;
 
   if (!inputSchema.safeParse(props.params).success) {
     return (
@@ -38,7 +44,7 @@ const WidgetPage = async (props: Props) => {
 
   return (
     <WidthProvider>
-      <TemplateWrapper id={id} widget={widgetInfo} />
+      <TemplateWrapper id={id} widget={widgetInfo} config={searchParams} />
     </WidthProvider>
   );
 };
