@@ -45,22 +45,24 @@ import { ROLES } from '@dealo/models';
 import { trpc } from 'utils/trpc';
 
 interface NavbarLinkProps {
-	icon: TablerIcon;
-	onClick?(): void;
+  icon?: TablerIcon;
+  label?: string;
+  onClick?(): void;
   asSpan?: boolean;
   className?: string;
 }
 
-const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps) => {
+const NavbarLink = ({ icon: Icon, label, onClick, asSpan, className }: NavbarLinkProps) => {
   if (asSpan) {
     return (
       <Button
         onClick={onClick}
         component="span"
         variant="ghost"
-        className={cn('h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg', className)}
+        className={cn('flex justify-center items-center rounded-lg', className)}
       >
-        <Icon size={24} stroke={1.5} />
+        {Icon ? <Icon size={24} stroke={1.5} /> : null}
+        {label}
       </Button>
     );
   }
@@ -69,9 +71,10 @@ const NavbarLink = ({ icon: Icon, onClick, asSpan, className }: NavbarLinkProps)
     <Button
       onClick={onClick}
       variant="ghost"
-      className={cn('h-[50px] w-[50px] p-0 flex justify-center items-center rounded-lg', className)}
+      className={cn('flex justify-center items-center rounded-lg', className)}
     >
-      <Icon size={24} stroke={1.5} />
+      {Icon ? <Icon size={24} stroke={1.5} /> : null}
+      {label}
     </Button>
   );
 };
@@ -80,11 +83,13 @@ interface Props {
   title?: string;
   showBackButton?: boolean;
   hideUserControls?: boolean;
+  hideLinks?: boolean;
   backRoute?: string;
+  className?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton = false, hideUserControls, title, backRoute } = props;
+  const { showBackButton = false, hideUserControls, hideLinks, title, backRoute, className } = props;
   const { status, data } = useSession();
   const router = useRouter();
 
@@ -102,17 +107,13 @@ export function CustomNavbar(props: Props) {
     setShowModal(true);
   };
 
-  if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
-  if (!data) return <div style={{ height: '88px' }} />;
-  if (!data.user) return <div style={{ height: '88px' }} />;
-
   const { user } = data as AuthenticatedSession;
 
   const isSubscriptionSetToCancel = user.hasSubscription && !!user.subscriptionCancelAt;
 
   return (
     <>
-      <header className="h-16 flex justify-between items-center mb-6 z-10">
+      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', className)}>
         <RenderIf condition={showBackButton}>
           <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
@@ -185,6 +186,16 @@ export function CustomNavbar(props: Props) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+          </div>
+        </RenderIf>
+        <RenderIf condition={!hideLinks}>
+          <div className="flex items-center gap-4 ml-auto">
+            <Link href="/pricing">
+              <NavbarLink label="Pricing"/>
+            </Link>
+            <Link href="/signin">
+              <NavbarLink label="Sign in"/>
+            </Link>
           </div>
         </RenderIf>
       </header>

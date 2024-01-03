@@ -1,10 +1,8 @@
 import BaseLayout from 'components/BaseLayout';
-import PublicNavbar from 'components/PublicNavbar';
 
 const PrivacyPolicyPage = () => {
   return (
-    <BaseLayout hideNavbar>
-      <PublicNavbar showBackButton />
+    <BaseLayout showBackButton hideUserControls>
 
       <div className="flex flex-col max-w-[700px] mx-auto">
         <div className="flex flex-col mb-12">

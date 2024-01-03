@@ -12,16 +12,17 @@ interface Props {
   backRoute?: string;
   title?: string;
   className?: string;
+  navBarClassName?: string;
   children: ReactNode;
 }
 
 const BaseLayout = (props: Props) => {
-  const { hideNavbar = false, hideFooter, children, className, ...rest } = props;
+  const { hideNavbar = false, hideFooter, children, className, navBarClassName, ...rest } = props;
 
   return (
-    <section className={cn('flex flex-col relative pt-0 px-12 pb-6 min-h-screen', className)}>
+    <section className={cn('flex flex-col relative pt-0 px-4 md:px-12 pb-6 min-h-screen', className)}>
       <RenderIf condition={!hideNavbar}>
-        <CustomNavbar {...rest} />
+        <CustomNavbar className={navBarClassName} {...rest} />
       </RenderIf>
       {children}
       <div className="mt-auto" />

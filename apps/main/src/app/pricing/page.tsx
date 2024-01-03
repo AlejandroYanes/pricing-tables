@@ -7,7 +7,6 @@ import { useSession } from 'next-auth/react';
 import { Button } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
-import PublicNavbar from 'components/PublicNavbar';
 import PricingWidget from 'components/PricingWidget';
 
 const PricingPage = () => {
@@ -26,8 +25,7 @@ const PricingPage = () => {
         <Head>
           <title>Dealo | Pricing</title>
         </Head>
-        <BaseLayout hideNavbar>
-          <PublicNavbar showBackButton backRoute="/" />
+        <BaseLayout hideUserControls showBackButton backRoute="/">
           <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
             <div className="flex flex-row items-center justify-center">
               <div className="flex flex-row">
@@ -51,7 +49,7 @@ const PricingPage = () => {
         <Head>
           <title>Dealo | Pricing</title>
         </Head>
-        <BaseLayout hideUserControls showBackButton={!!user} backRoute="/dashboard" title="Pricing">
+        <BaseLayout hideUserControls showBackButton={!!user}>
           <div className="flex flex-col items-center justify-center mt-[48px] mx-auto h-[calc(100vh - 88px)]">
             <h1 className="text text-2xl">Hi {user.name}</h1>
             <span className="text">You already have a subscription with us, if you want to check:</span>
@@ -69,7 +67,7 @@ const PricingPage = () => {
       <Head>
         <title>Dealo | Pricing</title>
       </Head>
-      <BaseLayout hideUserControls showBackButton={!!user} backRoute="/dashboard" title="Pick a plan">
+      <BaseLayout hideUserControls showBackButton={!!user} title="Pick a plan">
         <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
           <PricingWidget />
         </div>

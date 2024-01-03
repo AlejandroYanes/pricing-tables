@@ -13,9 +13,9 @@ import {
   IconHelp,
   IconTrendingUp,
 } from '@tabler/icons-react';
+import { cn } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
-import PublicNavbar from 'components/PublicNavbar';
 import PricingWidget from 'components/PricingWidget';
 
 export const metadata = {
@@ -23,8 +23,15 @@ export const metadata = {
   description: 'A platform to streamline pricing cards and checkouts',
 }
 
-const IconListItem = ({ title, text, icon }: { title: string; text: string; icon: JSX.Element }) => (
-  <div className="flex items-center flex-nowrap gap-4">
+interface IconListItemProps {
+  icon: JSX.Element;
+  title: string;
+  text: string;
+  className?: string;
+}
+
+const IconListItem = ({ title, text, icon, className }: IconListItemProps) => (
+  <div className={cn('flex items-center flex-nowrap gap-4', className)}>
     <div className="flex flex-row justify-center items-center flex-shrink-0 w-[32px] h-[32px]">
       {icon}
     </div>
@@ -35,9 +42,16 @@ const IconListItem = ({ title, text, icon }: { title: string; text: string; icon
   </div>
 );
 
-const Card = ({ title, text, icon }: { title: string; text: string; icon: JSX.Element }) => {
+interface CardProps {
+  title: string;
+  text: string;
+  icon: JSX.Element;
+  className?: string;
+}
+
+const Card = ({ title, text, icon, className }: CardProps) => {
   return (
-    <div className="flex flex-col gap-4 p-6 w-[30%] rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-950">
+    <div className={cn('flex flex-col gap-4 p-6 md:w-[30%] rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-950', className)}>
       {icon}
       <h3 className="text text-lg font-bold">{title}</h3>
       <span className="text">{text}</span>
@@ -47,10 +61,9 @@ const Card = ({ title, text, icon }: { title: string; text: string; icon: JSX.El
 
 const HomePage = () => {
   return (
-    <BaseLayout hideNavbar>
-      <PublicNavbar />
+    <BaseLayout hideUserControls className="px-0" navBarClassName="px-4 md:px-0">
       <div className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
-        <div className="flex justify-center items-center py-24 px-0 gap-[72px]">
+        <div data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} />
@@ -102,44 +115,47 @@ const HomePage = () => {
           <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className="flex-1 hidden lg:block" />
         </div>
 
-        <div className="flex flex-col gap-8 bg-gray-100 dark:bg-gray-900 p-6 rounded mb-[140px]">
+        <div data-el="benefits-section" className="flex flex-col gap-8 bg-gray-100 dark:bg-gray-900 p-6 rounded mb-12 md:mb-[140px]">
           <h1 className="text text-center text-3xl font-bold text-black dark:text-white mb-6">Unleash Your Potential</h1>
-          <div className="flex flex-row items-stretch justify-between">
+          <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-8 md:gap-0">
             <Card icon={<IconMathOff />} title="Goodbye to Headaches" text="No more wrangling with code to set up pricing pages and bill your customers."/>
             <Card icon={<IconPower />} title="Empowerment" text="Create and customize sleek, professional pricing cards effortlessly."/>
             <Card icon={<IconFlask />} title="Innovate" text="Use our A/B testing and Insights to find the best pricing combination."/>
           </div>
-          <div className="flex flex-row items-stretch justify-between">
+          <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-8 md:gap-0">
             <Card icon={<IconStar />} title="Frictionless Journey" text="Provide your customers with a frictionless checkout experience while you focus on scaling your business." />
             <Card icon={<IconUser />} title="Dynamic Experience" text="Create a dynamic and user-friendly checkout experience." />
             <Card icon={<IconBrush />} title="Your brand is your identity" text="Maintain consistency effortlessly by embedding the generated UI directly into your website." />
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-6 mb-[140px]">
-          <h2 className="text text-2xl font-bold ml-12">How it works</h2>
-          <h2 className="text text-2xl font-bold ml-12">Why Choose Us?</h2>
+        <div data-el="description-section" className="flex flex-col md:grid md:grid-cols-2 px-4 md:px-0 md:gap-6 mb-[140px]">
+          <h2 className="text text-2xl font-bold mt-8 md:mt-0 mb-6 md:mb-0 md:ml-12 order-1">How it works</h2>
+          <h2 className="text text-2xl font-bold mt-8 md:mt-0 mb-6 md:mb-0 md:ml-12 order-5">Why Choose Us?</h2>
 
           <IconListItem
             icon={<IconBrush/>}
+            className="order-2 mb-4 md:mb-0"
             title="Customize"
             text="Pick from our choise of templates, add your products and splash your colours."
           />
           <IconListItem
+            className="order-3 mb-4 md:mb-0"
             icon={<IconTrendingUp/>}
             title="No-Code, No Limits"
             text="Craft widgets in under 15 minutes and integrate seamlessly with any website."
           />
 
-          <IconListItem icon={<IconCopy/>} title="Embed" text="Copy and paste the provided code snippets to your website."/>
-          <IconListItem icon={<IconClock/>} title="Time-Saving" text="Set up your pricing structure in minutes, not hours."/>
+          <IconListItem className="order-4 mb-4 md:mb-0" icon={<IconCopy/>} title="Embed" text="Copy and paste the provided code snippets to your website."/>
+          <IconListItem className="order-6 mb-4 md:mb-0" icon={<IconClock/>} title="Time-Saving" text="Set up your pricing structure in minutes, not hours."/>
 
           <IconListItem
+            className="order-7 mb-4 md:mb-0"
             icon={<IconCheck size={28}/>}
             title="Checkout"
             text="Redirect your customers to our checkout API for a smooth transaction process."
           />
-          <IconListItem icon={<IconHelp/>} title="Comprehensive Support" text="We're more than a tool, we're your dedicated partner."/>
+          <IconListItem className="order-8" icon={<IconHelp/>} title="Comprehensive Support" text="We're more than a tool, we're your dedicated partner."/>
         </div>
 
         <div className="flex flex-col items-center justify-center mt-6">

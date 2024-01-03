@@ -11,7 +11,6 @@ import { Alert, AlertDescription, AlertTitle, Button, Loader } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
 import BaseLayout from 'components/BaseLayout';
-import PublicNavbar from 'components/PublicNavbar';
 import SignInForm from 'components/SignInForm';
 import RenderWithDelay from 'components/RenderWithDelay';
 
@@ -93,8 +92,7 @@ export default function SigninPage(props: Props) {
       <Head>
         <title>Dealo | Signin</title>
       </Head>
-      <BaseLayout hideNavbar>
-        <PublicNavbar showBackButton backRoute="/"/>
+      <BaseLayout showBackButton backRoute="/" >
         <div className="flex flex-col gap-8 mx-auto items-center">
           <div className="flex items-center gap-0">
             <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
