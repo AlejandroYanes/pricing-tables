@@ -41,7 +41,6 @@ const PricingCards = (props: Props) => {
       const { width, height } = data;
       const rootEl = rootElRef.current;
       if (!rootEl) return;
-      console.log(rootEl, width, height);
       rootEl.style.height = `${height}px`;
       rootEl.style.width = `${width}px`;
     }, false);

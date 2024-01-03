@@ -95,6 +95,8 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
 
       let finalProduct: FormProduct = {
         ...widgetProd,
+        id: widgetProd.mask,
+        mask: '',
         isCustom: !!widgetProd.isCustom,
         active: true,
         prices: [],
@@ -106,42 +108,32 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
           ...finalProduct,
           ...stripeProd,
           ...({
+            id: widgetProd.mask,
+            mask: '',
             prices: [],
             default_price: undefined,
           }),
         };
 
-        stripePrices
-          // TODO: remove the tier filter once we support tiers (DEV-14)
-          .filter((stripePrice) => stripePrice.product === widgetProd.id && stripePrice.billing_scheme !== 'tiered')
-          .forEach(stripePrice => {
-            if (!stripePrice.active) return;
+        for (let priceIndex = 0; priceIndex < widgetPrices.length; priceIndex++) {
+          const widgetPrice = widgetPrices[priceIndex]!;
+          const stripePrice = stripePrices.find((p) => p.id === widgetPrice.id)!;
 
-            const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
-            const widgetPrice = widgetCurrentPrice
-              ? {
-                ...widgetCurrentPrice,
-                isSelected: true,
-              }
-              : {
-                hasFreeTrial: 0,
-                freeTrialDays: 0,
-                productId: '',
-                mask: '',
-                order: Number.MAX_VALUE,
-                isSelected: false,
-              };
+          if (!stripePrice.active) continue;
 
-            finalProduct.prices.push({
-              ...widgetPrice,
-              ...stripePrice,
+          finalProduct.prices.push({
+            ...widgetPrice,
+            ...stripePrice,
+            ...({
+              id: widgetPrice.mask,
+              productId: widgetProd.id,
               hasFreeTrial: !!widgetPrice.hasFreeTrial,
-              ...({
-                productId: widgetProd.id,
-                product: undefined as any,
-              }),
-            });
+              isSelected: true,
+              mask: '',
+              product: undefined as any,
+            }),
           });
+        }
       }
 
       finalProduct.prices.sort((a, b) => a.order - b.order);

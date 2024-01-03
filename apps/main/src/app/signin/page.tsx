@@ -25,7 +25,6 @@ interface Props {
 }
 
 export default function SigninPage(props: Props) {
-  console.log('sing-in page props', props);
   const { searchParams } = props;
   const { status } = useSession();
   const router = useRouter();

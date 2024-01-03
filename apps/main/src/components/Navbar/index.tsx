@@ -188,16 +188,16 @@ export function CustomNavbar(props: Props) {
           </div>
         </RenderIf>
       </header>
-      <RenderIf condition={isSubscriptionSetToCancel}>
+      {isSubscriptionSetToCancel && user.subscriptionCancelAt ? (
         <div className="flex flex-row items-center justify-center h-[32px] mb-[86px] py-1 px-4 bg-amber-600 dark:bg-amber-500">
           <span className="text text-sm text-white">
-            Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt!))}
+            Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt))}
           </span>
           <Button variant="undecorated" className="absolute top-0 right-0 bottom-0 h-[32px]">
             <IconX size={14}/>
           </Button>
         </div>
-      </RenderIf>
+      ) : null}
       <RenderIf condition={showDeleteAccountModal}>
         <AlertDialog open>
           <AlertDialogContent>
