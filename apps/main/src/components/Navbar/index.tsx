@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-import { type AuthenticatedSession } from 'next-auth';
 import {
   IconArrowLeft,
   IconInfoCircle,
@@ -107,9 +106,11 @@ export function CustomNavbar(props: Props) {
     setShowModal(true);
   };
 
-  const { user } = data as AuthenticatedSession;
+  if (status === 'loading') {
+    return null;
+  }
 
-  const isSubscriptionSetToCancel = user.hasSubscription && !!user.subscriptionCancelAt;
+  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
 
   return (
     <>
@@ -141,7 +142,7 @@ export function CustomNavbar(props: Props) {
                 <NavbarLink asSpan icon={IconUser}/>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px] mt-3">
-                <RenderIf condition={user?.role === ROLES.ADMIN}>
+                <RenderIf condition={data?.user?.role === ROLES.ADMIN}>
                   <DropdownMenuLabel>Management</DropdownMenuLabel>
                   <Link href="/users">
                     <DropdownMenuItem>
@@ -151,9 +152,9 @@ export function CustomNavbar(props: Props) {
                   </Link>
                   <DropdownMenuSeparator />
                 </RenderIf>
-                <DropdownMenuLabel>{user?.name}</DropdownMenuLabel>
+                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
                 <RenderIf
-                  condition={!!user?.hasSubscription}
+                  condition={!!data?.user?.hasSubscription}
                   fallback={
                     <Link href="/pricing">
                       <DropdownMenuItem>
@@ -199,10 +200,10 @@ export function CustomNavbar(props: Props) {
           </div>
         </RenderIf>
       </header>
-      {isSubscriptionSetToCancel && user.subscriptionCancelAt ? (
+      {isSubscriptionSetToCancel && data?.user?.subscriptionCancelAt ? (
         <div className="flex flex-row items-center justify-center h-[32px] mb-[86px] py-1 px-4 bg-amber-600 dark:bg-amber-500">
           <span className="text text-sm text-white">
-            Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt))}
+            Your subscription is set to cancel on {formatDate(new Date(data?.user?.subscriptionCancelAt))}
           </span>
           <Button variant="undecorated" className="absolute top-0 right-0 bottom-0 h-[32px]">
             <IconX size={14}/>
