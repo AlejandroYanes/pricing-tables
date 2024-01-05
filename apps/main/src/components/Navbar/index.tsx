@@ -90,10 +90,11 @@ interface Props {
   showBackButton?: boolean;
   hideUserControls?: boolean;
   backRoute?: string;
+  className?: string;
 }
 
 export function CustomNavbar(props: Props) {
-  const { showBackButton = false, hideUserControls, title, backRoute } = props;
+  const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
   const { classes, cx } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
@@ -132,7 +133,12 @@ export function CustomNavbar(props: Props) {
 
   return (
     <>
-      <Header height={64} className={cx(classes.header, { [classes.noSpacing]: isSubscriptionSetToCancel })} mb="xl" zIndex={1}>
+      <Header
+        mb="xl"
+        zIndex={1}
+        height={64}
+        className={cx(classes.header, { [classes.noSpacing]: isSubscriptionSetToCancel }, className)}
+      >
         <RenderIf condition={showBackButton}>
           <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>

@@ -68,15 +68,16 @@ function NavbarLink({ label, link }: NavbarLinkProps) {
 interface Props {
   showBackButton?: boolean;
   backRoute?: string;
+  className?: string;
 }
 
 export default function PublicNavbar(props: Props) {
-  const { showBackButton = false, backRoute } = props;
-  const { classes } = useStyles();
+  const { showBackButton = false, backRoute, className } = props;
+  const { classes, cx } = useStyles();
   const router = useRouter();
 
   return (
-    <Header height={64} className={classes.header} mb="xl" zIndex={1}>
+    <Header height={64} className={cx(classes.header, className)} mb="xl" zIndex={1}>
       <RenderIf condition={showBackButton}>
         <UnstyledButton onClick={() => backRoute ? router.push(backRoute) : router.back()} className={classes.link}>
           <IconArrowLeft stroke={1.5} />

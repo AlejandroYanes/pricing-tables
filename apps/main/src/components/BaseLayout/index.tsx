@@ -27,7 +27,7 @@ const useStyles = createStyles((theme) => ({
     display: 'flex',
     justifyContent: 'flex-end',
     alignItems: 'center',
-    height: '32px',
+    height: '64px',
     padding: '0 48px',
     backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
   },
@@ -41,16 +41,18 @@ interface Props {
   backRoute?: string;
   title?: string;
   children: ReactNode;
+  className?: string;
+  navbarClassName?: string;
 }
 
 const BaseLayout = (props: Props) => {
-  const { hideNavbar = false, hideFooter, children, ...rest } = props;
-  const { classes } = useStyles();
+  const { hideNavbar = false, hideFooter, children, className, navbarClassName, ...rest } = props;
+  const { classes, cx } = useStyles();
 
   return (
-    <section className={classes.wrapper}>
+    <section className={cx(classes.wrapper, className)}>
       <RenderIf condition={!hideNavbar}>
-        <CustomNavbar {...rest} />
+        <CustomNavbar {...rest} className={navbarClassName} />
       </RenderIf>
       {children}
       <div className={classes.spacer} />
