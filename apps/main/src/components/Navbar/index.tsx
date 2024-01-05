@@ -123,9 +123,23 @@ export function CustomNavbar(props: Props) {
     });
   };
 
-  if (status === 'unauthenticated') return <div style={{ height: '88px' }} />;
-  if (!data) return <div style={{ height: '88px' }} />;
-  if (!data.user) return <div style={{ height: '88px' }} />;
+  if (status === 'unauthenticated' || !data || !data.user) {
+    return (
+      <>
+        <Header
+          mb="xl"
+          zIndex={1}
+          height={64}
+          className={cx(classes.header, className)}
+        >
+          <RenderIf condition={showBackButton}>
+            <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+          </RenderIf>
+          <Title ml="md">{title}</Title>
+        </Header>
+      </>
+    );
+  }
 
   const { user } = data as AuthenticatedSession;
 
