@@ -3,7 +3,6 @@ import { z } from 'zod';
 
 import { getWidgetInfo } from './get-widget-info';
 import { TemplateWrapper } from './TemplateWrapper';
-import WidthProvider from './WidthProvider';
 
 interface Props {
   params: {

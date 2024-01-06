@@ -1,7 +1,7 @@
 import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
 
-import { authOptions } from '../app/api/auth/[...nextauth]/route';
+import { authOptions } from './auth';
 
 type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
