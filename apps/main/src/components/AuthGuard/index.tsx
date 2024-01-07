@@ -3,15 +3,17 @@
 import type { ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
+import { ROLES } from '@dealo/models';
 
 import SetupModal from '../SetupModal';
 
 interface Props {
+  isAdmin?: boolean;
   children: ReactNode;
 }
 
 const AuthGuard = (props: Props) => {
-  const { children } = props;
+  const { isAdmin, children } = props;
   const { status, data: session } = useSession();
   const router = useRouter();
 
@@ -19,7 +21,7 @@ const AuthGuard = (props: Props) => {
     return null;
   }
 
-  if (!session?.user) {
+  if (!session?.user || (isAdmin && session.user?.role !== ROLES.ADMIN)) {
     router.push('/');
     return null;
   }
