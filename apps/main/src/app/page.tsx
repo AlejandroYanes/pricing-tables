@@ -80,7 +80,7 @@ const HomePage = () => {
         <div data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
-              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
+              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]" />
               <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
             </div>
             <h2 className="text-[40px] leading-[1.2] font-bold">
@@ -126,7 +126,14 @@ const HomePage = () => {
               </li>
             </ul>
           </div>
-          <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className="flex-1 hidden lg:block"/>
+          <Image
+            width={380}
+            height={400}
+            alt="hero"
+            src="/illustrations/fitting_piece.svg"
+            className="flex-1 hidden lg:block w-[380px] h-[400px]"
+            priority
+          />
         </div>
 
         <div
