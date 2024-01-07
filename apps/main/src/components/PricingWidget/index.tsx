@@ -18,7 +18,7 @@ const PricingWidget = () => {
   return (
     <>
       {/* @ts-ignore */}
-      <pricing-cards widget={widget} theme="light" internal="true" />
+      <pricing-cards widget={widget} internal="true" />
     </>
   );
 }
