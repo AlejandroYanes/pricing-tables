@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { IconAlertCircle } from '@tabler/icons-react';
+import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
 import { Alert, AlertDescription, AlertTitle, Button, Loader } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
@@ -93,20 +93,22 @@ export default function SigninPage(props: Props) {
         <title>Dealo | Signin</title>
       </Head>
       <BaseLayout showBackButton backRoute="/" hideUserControls hideLinks>
-        <div className="flex flex-col gap-8 mx-auto items-center">
-          <div className="flex items-center gap-0">
-            <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
-            <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+        <div data-el="hero-section" className="flex flex-col justify-center items-center py-24 px-4 gap-[72px]">
+          <div className="flex flex-col items-stretch max-w-[30rem]">
+            <div className="flex items-center gap-0">
+              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
+              <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+            </div>
+            <h2 className="text-[40px] leading-[1.2] font-bold">
+              A platform to streamline <br/>
+              <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing</span>
+              <br/>
+              into your website.
+            </h2>
+            <span className="mt-4 text-gray-500">
+              Build fully functional pricing widgets in minutes using our set of templates.
+            </span>
           </div>
-          <h2 className="text-[40px] leading-[1.2] font-bold">
-            A platform to streamline <br/>
-            <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing</span>
-            <br/>
-            into your website.
-          </h2>
-          <span className="mt-4 text-gray-500">
-            Build fully functional pricing widgets in minutes using our set of templates.
-          </span>
           <SignInForm searchParams={searchParams} />
         </div>
       </BaseLayout>
