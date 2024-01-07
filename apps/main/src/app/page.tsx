@@ -235,7 +235,7 @@ const HomePage = () => {
 
         <div data-el="bottom-section" className="flex flex-col items-center justify-center mt-6 w-full">
           <h1 className="text text-xl mb-4">Get started now.</h1>
-          <PricingWidget/>
+          <PricingWidget />
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
         </div>
       </div>

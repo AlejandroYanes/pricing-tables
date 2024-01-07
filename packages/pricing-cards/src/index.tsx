@@ -95,6 +95,11 @@ class Wrapper extends HTMLElement {
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
     };
+    window.addEventListener('resize', this.handleResize);
+  }
+
+  handleResize = () => {
+    this.render();
   }
 
   render() {
