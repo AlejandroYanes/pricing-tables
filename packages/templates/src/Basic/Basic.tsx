@@ -1,8 +1,20 @@
+/* eslint-disable max-len */
 import { useEffect, useMemo, useState } from 'react';
-import { Button, createStyles, SegmentedControl, SimpleGrid, Stack, Text } from '@mantine/core';
-import type { FormCallback, FormPrice, FormProduct } from 'models';
-import { PoweredBy, RenderIf } from 'ui';
-import { generateQueryString } from 'helpers';
+import { IconCircleCheck, IconCircleX } from '@tabler/icons-react';
+import type { FormCallback, FormPrice, FormProduct } from '@dealo/models';
+import {
+  RenderIf,
+  PoweredBy,
+  Tabs,
+  TabsList,
+  TabsTrigger,
+  Button,
+  AccordionItem,
+  AccordionTrigger,
+  AccordionContent,
+  Accordion
+} from '@dealo/ui';
+import { type Colors, formatCurrencyWithoutSymbol, generateQueryString, getCurrencySymbol } from '@dealo/helpers';
 
 import type { Interval, TemplateProps } from '../constants/types';
 import { resolveBillingIntervals } from './utils/resolve-billing-intervals';
@@ -10,27 +22,117 @@ import { filterProductsByInterval } from './utils/filter-produts-by-interval';
 import { resolvePriceToShow } from './utils/resolve-price-to-show';
 import { resolvePricing } from './utils/resolve-pricing';
 import { resolveFeaturesForProduct } from './utils/resolve-features-for-product';
+import {
+  BORDER_STYLES,
+  BUTTON_STYLES,
+  OUTLINE_BUTTON_STYLES,
+  TEXT_STYLES,
+  MOBILE_FILLED_BUTTON_STYLES,
+  ACCORDION_HEADER_STYLES,
+} from './template-colors';
+import { intervalsMap } from '../constants/intervals';
 
-const useStyles = createStyles((theme, color: string) => ({
-  productCard: {
-    position: 'relative',
-    boxSizing: 'border-box',
-    border: `1px solid ${theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[4]}`,
-    padding: '48px 32px 24px',
-    borderRadius: '4px',
-    width: '300px',
-  },
-  activeProductCard: {
-    border: `1px solid ${theme.colors![color]![5]}`,
-    width: '300px',
-  },
-  wideCard: {
-    width: 'auto',
-  },
-}));
+type PricingProps = {
+  price: FormPrice;
+  unitLabel: string | null;
+  currency?: string | null;
+}
+const resolveMobilePricing = (options: PricingProps) => {
+  const { price, unitLabel, currency: selectedCurrency } = options;
+  const {
+    type,
+    currency: baseCurrency,
+    currency_options,
+    billing_scheme,
+    transform_quantity,
+    recurring,
+    unit_amount: baseAmount,
+  } = price;
 
-// eslint-disable-next-line max-len
-const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+  const { currency, unit_amount } = selectedCurrency && currency_options![selectedCurrency]
+    ? {
+      currency: selectedCurrency,
+      unit_amount: currency_options![selectedCurrency]!.unit_amount,
+    } : {
+      currency: baseCurrency,
+      unit_amount: baseAmount,
+    };
+
+  if (type === 'one_time') {
+    if (transform_quantity) {
+      return (
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <sup className="text text-white text-[18px] mt-[-8px] leading-none data-[active=false]:text-neutral-400 dark:data-[active=false]:text-neutral-400">
+              {getCurrencySymbol(currency)}
+            </sup>
+            <span className="text text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+          </div>
+          <sub className="text text-white leading-none">
+            {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
+          </sub>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex ga-1 ml-auto shrink-0">
+        <span className="text text-[48px] leading-none">
+          {getCurrencySymbol(currency)}
+        </span>
+        <span className="text text-white text-[48px]">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+        <RenderIf condition={!!unitLabel}>
+          <sub className="text text-white leading-none">{` per ${unitLabel}`}</sub>
+        </RenderIf>
+      </div>
+    );
+  }
+
+  const recurringLabel = intervalsMap[recurring!.interval].short;
+  const intervalCount = recurring!.interval_count;
+
+  if (billing_scheme === 'per_unit') {
+    if (transform_quantity) {
+      return (
+        <div className="flex flex-col ml-auto shrink-0">
+          <div className="flex items-center gap-1">
+            <span className="text text-[48px] leading-none">
+              {getCurrencySymbol(currency)}
+            </span>
+            <span className="text text-white text-[48px] leading-none">{formatCurrencyWithoutSymbol(unit_amount! / 100)}</span>
+            <sub
+              className="text text-white text-[18px] mb-[-8px] leading-none"
+            >
+              {`/ ${intervalCount > 1 ? intervalCount : ''}${recurringLabel}`}
+            </sub>
+          </div>
+          <sub className="text text-white text-[18px] leading-none">
+            {`per every ${transform_quantity.divide_by} ${!!unitLabel ? unitLabel : 'units'}`}
+          </sub>
+        </div>
+      );
+    }
+
+    return (
+      <div className="flex items-center gap-1 ml-auto flex-nowrap shrink-0">
+        <span className="text text-[48px] leading-none">
+          {getCurrencySymbol(currency)}
+        </span>
+        <span className="text text-[48px] leading-none">
+          {formatCurrencyWithoutSymbol(unit_amount! / 100)}
+        </span>
+        <sub className="text text-[18px] mb-[-8px]">
+          {`/ ${intervalCount > 1 ? `${intervalCount} ` : ''}${recurringLabel}`}
+        </sub>
+      </div>
+    );
+  }
+
+  return 'Unable to resolve pricing';
+};
+
+interface ButtonLabelParams { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }
+const resolveBtnLabel = (param: ButtonLabelParams) => {
   const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
 
   if (type === 'one_time') return 'Buy Now';
@@ -38,8 +140,8 @@ const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boo
   return hasFreeTrial ? freeTrialLabel : subscribeLabel;
 };
 
-// eslint-disable-next-line max-len
-const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
+interface BtnUrlParams { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }
+const resolveBtnUrl = (params: BtnUrlParams) => {
   const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
 
   if (isCustom) return prod.ctaUrl || '';
@@ -59,7 +161,7 @@ const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: Form
   return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
 };
 
-export function BasicTemplate(props: TemplateProps) {
+export default function BasicTemplate(props: TemplateProps) {
   const {
     dev,
     widget,
@@ -75,7 +177,6 @@ export function BasicTemplate(props: TemplateProps) {
     environment = 'production',
     isMobile = false,
   } = props;
-  const { classes, cx } = useStyles(color);
 
   const [currentInterval, setCurrentInterval] = useState<Interval>(undefined);
 
@@ -101,97 +202,139 @@ export function BasicTemplate(props: TemplateProps) {
   if (visibleProducts.length === 0) return null;
 
   if (isMobile) {
-    return (
-      <Stack align="center">
-        <RenderIf condition={billingIntervals.length > 1}>
-          <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
-        </RenderIf>
-        {visibleProducts.map((prod, index) => {
-          const isFirst = index === 0;
+    const items = visibleProducts.map((product) => {
+      const { isCustom } = product;
+      const priceToShow = !isCustom ? resolvePriceToShow(product, currentInterval) : {} as FormPrice;
+      const isRecommended = product.id === recommended;
 
-          const { isCustom } = prod;
-          const priceToShow = !isCustom ? resolvePriceToShow(prod, currentInterval) : {} as FormPrice;
-          const { hasFreeTrial, freeTrialDays } = priceToShow as FormPrice;
+      return (
+        <AccordionItem value={product.id} key={product.id}>
+          <AccordionTrigger>
+            <div data-recommended={isRecommended} className={`flex flex-row items-center justify-between ${ACCORDION_HEADER_STYLES[color]}`}>
+              <div className="flex flex-col items-start ml-4 mr-16 gap-0.5">
+                <span className="text text-[18px] font-bold">{product.name}</span>
+                <span className="text m-w-[360px]">{product.description}</span>
+              </div>
+              {
+                !isCustom
+                  ? resolveMobilePricing({ price: priceToShow, unitLabel, currency })
+                  : null
+              }
+            </div>
+          </AccordionTrigger>
+          <AccordionContent className="flex flex-col">
+            <ul className="flex flex-col items-stretch mt-4 mb-8">
+              {features.map((feature) => {
+                const prodValue = feature.products.find((prod) => prod.id === product.id)!;
+                const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
+                if (feature.type !== 'boolean' && !prodValue.value) return null;
 
-          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
-          const featureList = resolveFeaturesForProduct(features, prod.id);
+                let label = '';
 
-          return (
-            <Stack key={prod.id} align="center" mb="lg">
-              <Stack
-                align="center"
-                className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
+                switch (feature.type) {
+                  case 'boolean':
+                    label = feature.name;
+                    break;
+                  case 'compose':
+                    label = `${prodValue.value} ${feature.name}`;
+                    break;
+                  case 'string':
+                    label = prodValue.value;
+                    break;
+                  default:
+                    break;
+                }
+
+                return (
+                  <li key={feature.id} className="px-4 py-2">
+                    <div className="flex flex-row items-center justify-between">
+                      <span className="text text-sm">
+                        {label}
+                      </span>
+                      <RenderIf condition={checked} fallback={<IconCircleX color="gray"/>}>
+                        <IconCircleCheck/>
+                      </RenderIf>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+            <a
+              href={resolveBtnUrl({
+                isCustom: !!isCustom,
+                prod: product,
+                priceToShow,
+                type: priceToShow.type,
+                dev: !!dev,
+                widgetId: widget,
+                callbacks,
+                environment,
+                currency,
+              })}
+            >
+              <Button
+                data-spaced={priceToShow.hasFreeTrial}
+                className={`w-full data-[spaced=true]:mb-4 uppercase ${isRecommended ? MOBILE_FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
+                variant="undecorated"
               >
-                <Text
-                  style={{ fontSize: '18px' }}
-                  weight="bold"
-                  color={isRecommended ? color : undefined}
-                >
-                  {prod.name}
-                </Text>
-                <RenderIf condition={!isCustom}>
-                  <Text
-                    weight="bold"
-                    align="center"
-                    style={{ fontSize: '32px' }}
-                    color={isRecommended ? color : undefined}
-                  >
-                    {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
-                  </Text>
-                </RenderIf>
-                <Text align="center">{prod.description}</Text>
-                <Stack mt="auto" align="center">
-                  <RenderIf condition={hasFreeTrial}>
-                    <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
-                  </RenderIf>
-                  <Button
-                    component="a"
-                    href={resolveBtnUrl({
-                      isCustom: !!isCustom,
-                      prod,
-                      priceToShow,
-                      type: priceToShow.type,
-                      dev: !!dev,
-                      widgetId: widget,
-                      callbacks,
-                      environment,
-                      currency,
-                    })}
-                    color={color}
-                    variant={isRecommended ? 'filled' : 'outline'}
-                  >
-                    {resolveBtnLabel({
-                      type: priceToShow.type,
-                      prod,
-                      isCustom: !!isCustom,
-                      hasFreeTrial: priceToShow.hasFreeTrial,
-                      freeTrialLabel,
-                      subscribeLabel,
-                    })}
-                  </Button>
-                </Stack>
-                <RenderIf condition={isFirst}>
-                  <PoweredBy top={170} left={-27} color={color} position="left"/>
-                </RenderIf>
-              </Stack>
-              <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
-                {featureList.map((feat, index) => (
-                  <li key={index}><Text align="left">{feat}</Text></li>
-                ))}
-              </ul>
-            </Stack>
-          )
-        })}
-      </Stack>
+                {resolveBtnLabel({
+                  type: priceToShow.type,
+                  prod: product,
+                  isCustom: !!isCustom,
+                  hasFreeTrial: priceToShow.hasFreeTrial,
+                  freeTrialLabel,
+                  subscribeLabel,
+                })}
+              </Button>
+            </a>
+            <RenderIf condition={priceToShow.hasFreeTrial}>
+              <span className="text-sm text-center">{priceToShow.freeTrialDays} days</span>
+            </RenderIf>
+          </AccordionContent>
+        </AccordionItem>
+      )
+    });
+
+    const recommendedProduct = visibleProducts.find((prod) => prod.id === recommended);
+
+    return (
+      <div className="flex flex-col items-center gap-4">
+        <RenderIf condition={billingIntervals.length > 1}>
+          <Tabs
+            value={currentInterval}
+            onValueChange={setCurrentInterval as any}
+            className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
+          >
+            <TabsList>
+              {billingIntervals.map((interval) => (
+                <TabsTrigger key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+              ))}
+            </TabsList>
+          </Tabs>
+        </RenderIf>
+        <Accordion type="single" collapsible defaultValue={recommendedProduct?.id}>
+          {items}
+        </Accordion>
+      </div>
     );
   }
 
   return (
-    <Stack align="center">
+    <div data-el="template__root" className="flex flex-col items-center">
       <RenderIf condition={billingIntervals.length > 1}>
-        <SegmentedControl data={billingIntervals} value={currentInterval} onChange={setCurrentInterval as any} mx="auto" mb="xl" />
+        <Tabs
+          value={currentInterval}
+          onValueChange={setCurrentInterval as any}
+          className="mx-auto mb-8 rounded-md border border-neutral-200 dark:border-slate-800"
+        >
+          <TabsList>
+            {billingIntervals.map((interval) => (
+              <TabsTrigger key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+            ))}
+          </TabsList>
+        </Tabs>
       </RenderIf>
-      <SimpleGrid style={{ justifyItems: 'center', boxSizing: 'border-box' }} cols={isMobile ? 1 : visibleProducts.length} spacing="sm">
+      <div data-el="template__content" className="grid justify-items-center box-border gap-4 p-1 pl-9" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
         {visibleProducts.map((prod, index) => {
           const isFirst = index === 0;
 
@@ -202,35 +345,32 @@ export function BasicTemplate(props: TemplateProps) {
           const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
 
           return (
-            <Stack
+            <div
+              data-active={isRecommended}
+              data-wide={!!unitLabel}
+              className={`flex flex-col items-center relative box-border border border-slate-200 dark:border-slate-800 pt-16 px-8 pb-8 rounded-md w-[300px] data-[wide=true]:w-auto ${BORDER_STYLES[color]}`}
               key={prod.id}
-              align="center"
-              className={cx(classes.productCard, { [classes.activeProductCard]: isRecommended, [classes.wideCard]: !!unitLabel })}
             >
-              <Text
-                style={{ fontSize: '18px' }}
-                weight="bold"
-                color={isRecommended ? color : undefined}
+              <span
+                data-active={isRecommended}
+                className={`mb-4 text text-xl slate-900 dark:text-slate-100 font-bold ${TEXT_STYLES[color]}`}
               >
                 {prod.name}
-              </Text>
+              </span>
               <RenderIf condition={!isCustom}>
-                <Text
-                  weight="bold"
-                  align="center"
-                  style={{ fontSize: '32px' }}
-                  color={isRecommended ? color : undefined}
+                <span
+                  data-active={isRecommended}
+                  className={`mb-4 text text-center slate-900 dark:text-slate-100 font-bold text-3xl ${TEXT_STYLES[color]}`}
                 >
                   {!isCustom ? resolvePricing({ price: priceToShow, unitLabel, currency }) : null}
-                </Text>
+                </span>
               </RenderIf>
-              <Text align="center">{prod.description}</Text>
-              <Stack mt="auto" align="center">
+              <span className="text text-center mb-4">{prod.description}</span>
+              <div className="flex flex-col items-center mt-auto">
                 <RenderIf condition={hasFreeTrial}>
-                  <Text color="dimmed">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</Text>
+                  <span className="text text-slate-500 mb-4">With a {freeTrialDays} {freeTrialDays! > 1 ? 'days' : 'day'} free trial</span>
                 </RenderIf>
-                <Button
-                  component="a"
+                <a
                   href={resolveBtnUrl({
                     isCustom: !!isCustom,
                     prod,
@@ -242,37 +382,37 @@ export function BasicTemplate(props: TemplateProps) {
                     environment,
                     currency,
                   })}
-                  color={color}
-                  variant={isRecommended ? 'filled' : 'outline'}
                 >
-                  {resolveBtnLabel({
-                    type: priceToShow.type,
-                    prod,
-                    isCustom: !!isCustom,
-                    hasFreeTrial: priceToShow.hasFreeTrial,
-                    freeTrialLabel,
-                    subscribeLabel,
-                  })}
-                </Button>
-              </Stack>
+                  <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>
+                    {resolveBtnLabel({
+                      type: priceToShow.type,
+                      prod,
+                      isCustom: !!isCustom,
+                      hasFreeTrial: priceToShow.hasFreeTrial,
+                      freeTrialLabel,
+                      subscribeLabel,
+                    })}
+                  </Button>
+                </a>
+              </div>
               <RenderIf condition={isFirst}>
-                <PoweredBy top={170} left={-27} color={color} position="left" />
+                <PoweredBy color={color as Colors} position="left" style={{ top: 170, left: -32 }} />
               </RenderIf>
-            </Stack>
+            </div>
           )
         })}
         {visibleProducts.map((prod) => {
           const featureList = resolveFeaturesForProduct(features, prod.id);
 
           return (
-            <ul key={`prod-${prod.id}-features`} style={{ marginRight: 'auto' }}>
+            <ul key={`prod-${prod.id}-features`} className="list-disc ml-8 mr-auto">
               {featureList.map((feat, index) => (
-                <li key={index}><Text align="left">{feat}</Text></li>
+                <li key={index}><span className="text text-left">{feat}</span></li>
               ))}
             </ul>
           );
         })}
-      </SimpleGrid>
-    </Stack>
+      </div>
+    </div>
   );
 }

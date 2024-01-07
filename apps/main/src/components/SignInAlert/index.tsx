@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Link from 'next/link';
-import { IconAlertCircle } from '@tabler/icons';
-import { Alert, Button, Group, Stack } from '@mantine/core';
+import { IconAlertCircle } from '@tabler/icons-react';
+import { Alert, AlertTitle, AlertDescription, Button } from '@dealo/ui';
 
 import BaseLayout from '../BaseLayout';
 
@@ -19,33 +19,33 @@ export default function SignInAlert(props: Props) {
           <title>Dealo | Oops...</title>
         </Head>
         <BaseLayout hideNavbar>
-          <Stack mt={120} mx="auto" style={{ maxWidth: '700px' }}>
-            <Alert
-              icon={<IconAlertCircle size={16} />}
-              title="Hmm..."
-              variant="outline"
-            >
-              {`Seems we're not sure who you are, do you mind signing in?`}
-              <Group position="right" mt="md">
-                <Link href="/"><Button>Sign in</Button></Link>
-              </Group>
+          <div className="flex flex-col mx-auto mt-[120px] max-w-[700px]">
+            <Alert>
+              <IconAlertCircle size={16} />
+              <AlertTitle>Hmm....</AlertTitle>
+              <AlertDescription>
+                {`Seems we're not sure who you are, do you mind signing in?`}
+                <div className="flex justify-end mt-4">
+                  <Link href="/"><Button>Sign in</Button></Link>
+                </div>
+              </AlertDescription>
             </Alert>
-          </Stack>
+          </div>
         </BaseLayout>
       </>
     );
   }
 
   return (
-    <Alert
-      icon={<IconAlertCircle size={16} />}
-      title="Hmm..."
-      variant="outline"
-    >
-      {`Seems we're not sure who you are, do you mind signing in?`}
-      <Group position="right" mt="md">
-        <Link href="/"><Button>Sign in</Button></Link>
-      </Group>
+    <Alert>
+      <IconAlertCircle size={16} />
+      <AlertTitle>Hmm...</AlertTitle>
+      <AlertDescription>
+        {`Seems we're not sure who you are, do you mind signing in?`}
+        <div className="flex justify-end mt-4">
+          <Link href="/"><Button>Sign in</Button></Link>
+        </div>
+      </AlertDescription>
     </Alert>
   );
 }

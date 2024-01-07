@@ -58,6 +58,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     await db.transaction(async (tx) => {
       await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE WHERE isActive = TRUE AND userId = ?', [userId]);
     });
+    // noinspection ES6MissingAwait
     notifyOfSubscriptionCancellation({ name });
   }
 

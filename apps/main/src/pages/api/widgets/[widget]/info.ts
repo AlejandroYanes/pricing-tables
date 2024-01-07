@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { z } from 'zod';
-import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
+import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from '@dealo/models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
@@ -71,7 +71,7 @@ async function getWidgetData(widgetId: string) {
 
   const widgetUser = (
     await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
-  ).rows[0] as { stripeAccount: string; role: string };
+  ).rows[0] as { stripeAccount: string };
 
   const stripe = initStripe();
 
@@ -136,8 +136,11 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
         };
 
         stripePrices
-          .filter((stripePrice) => stripePrice.product === widgetProd.id)
+          // TODO: remove the tier filter once we support tiers (DEV-14)
+          .filter((stripePrice) => stripePrice.product === widgetProd.id && stripePrice.billing_scheme !== 'tiered')
           .forEach(stripePrice => {
+            if (!stripePrice.active) return;
+
             const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
             const widgetPrice = widgetCurrentPrice
               ? {
@@ -153,17 +156,15 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
                 isSelected: false,
               };
 
-            if (stripePrice.active) {
-              finalProduct.prices.push({
-                ...widgetPrice,
-                ...stripePrice,
-                hasFreeTrial: !!widgetPrice.hasFreeTrial,
-                ...({
-                  productId: widgetProd.id,
-                  product: undefined as any,
-                }),
-              });
-            }
+            finalProduct.prices.push({
+              ...widgetPrice,
+              ...stripePrice,
+              hasFreeTrial: !!widgetPrice.hasFreeTrial,
+              ...({
+                productId: widgetProd.id,
+                product: undefined as any,
+              }),
+            });
           });
       }
 

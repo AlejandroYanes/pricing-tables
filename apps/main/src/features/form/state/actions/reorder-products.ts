@@ -1,5 +1,5 @@
 import type { DropResult } from 'react-beautiful-dnd';
-import { reorder } from 'helpers';
+import { reorder } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 

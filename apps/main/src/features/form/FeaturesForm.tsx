@@ -1,7 +1,21 @@
-import { ActionIcon, Button, createStyles, rem, ScrollArea, Select, Stack, Table, Text, TextInput } from '@mantine/core';
 import { DragDropContext, Draggable } from 'react-beautiful-dnd';
-import { IconGripVertical, IconTrash } from '@tabler/icons';
-import type { FeatureType, FormFeature } from 'models';
+import { IconGripVertical, IconTrash } from '@tabler/icons-react';
+import type { FeatureType, FormFeature } from '@dealo/models';
+import {
+  Button,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@dealo/ui';
 
 import FeatureInput from './FeatureInput';
 import CustomDroppable from './CustomDroppable';
@@ -14,21 +28,6 @@ import {
   removeFeature,
   reorderFeatures,
 } from './state/actions';
-
-const useStyles = createStyles((theme) => ({
-  draggingRow: {
-    display: 'table',
-  },
-  dragHandle: {
-    ...theme.fn.focusStyles(),
-    width: rem(40),
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: '100%',
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[1] : theme.colors.gray[6],
-  },
-}));
 
 const resolveFeatureValue = (feature: FormFeature, prodId: string) => {
   const prod = feature.products.find((prod) => prod.id === prodId)!;
@@ -44,104 +43,105 @@ const featureTypeOptions: { label: string; value: FeatureType }[] = [
 export default function FeaturesForm() {
   const { products: selectedProducts, features } = useWidgetFormStore();
 
-  const { classes, cx } = useStyles();
-
   if (selectedProducts.length === 0) {
     return (
-      <Stack mx="auto" pt="xl" style={{ minWidth: '90%' }}>
-        <Text>Features</Text>
-        <Text mb="xl">Please add products first</Text>
-      </Stack>
+      <div className="flex flex-col mx-auto mt-6 min-w-[90%]">
+        <span className="text">Features</span>
+        <span className="mb-4">Please add products first</span>
+      </div>
     );
   }
 
   if (features.length === 0) {
     return (
-      <Stack mx="auto" pt="xl" style={{ minWidth: '90%' }}>
-        <Text>Features</Text>
-        <Text color="dimmed" mb="xl">No features added yet</Text>
-        <Button mr="auto" onClick={addNewFeature}>Add new feature</Button>
-      </Stack>
+      <div className="flex flex-col mx-auto pt-6 min-w-[90%]">
+        <span className="text">Features</span>
+        <span className="text text-muted-foreground mb-6">No features added yet</span>
+        <Button className="mr-auto" onClick={addNewFeature}>Add new feature</Button>
+      </div>
     );
   }
-
-  const ths = selectedProducts.map((prod) => (
-    <th key={prod.id} style={{ width: rem(200) }}>{prod.name}</th>
-  ));
 
   const rows = features.map((feat, index) => {
     const productsCheck = selectedProducts.map((prod) => {
       const value = resolveFeatureValue(feat, prod.id);
       return (
-        <td key={prod.id} style={{ width: rem(200) }}>
+        <TableCell key={prod.id} className="w-[220px]">
           <FeatureInput type={feat.type} value={value} onChange={(value) => changeFeatureValue(index, prod.id, value)} />
-        </td>
+        </TableCell>
       )
     });
     return (
       <Draggable key={feat.id} index={index} draggableId={feat.id}>
         {(provided, snapshot) => (
-          <tr
+          <TableRow
             key={feat.id}
-            className={cx({ [classes.draggingRow]: snapshot.isDragging })}
             ref={provided.innerRef}
             {...provided.draggableProps}
+            className={snapshot.isDragging ? 'table' : ''}
           >
-            <td style={{ width: rem(40) }}>
-              <div className={classes.dragHandle} {...provided.dragHandleProps}>
+            <TableCell className="w-[80px]">
+              <div className="flex items-center justify-center h-full w-[80px]" {...provided.dragHandleProps}>
                 <IconGripVertical size="1.05rem" stroke={1.5} />
               </div>
-            </td>
-            <td style={{ width: rem(360) }}>
-              <TextInput value={feat.name} onChange={(e) => changeFeatureName(index, e.target.value)} />
-            </td>
-            <td style={{ width: rem(200) }}>
-              <Select
-                data={featureTypeOptions}
-                value={feat.type}
-                onChange={(value: string) => changeFeatureType(index, value as FeatureType)}
-              />
-            </td>
+            </TableCell>
+            <TableCell className="w-[380px]">
+              <Input value={feat.name} onChange={(e) => changeFeatureName(index, e.target.value)} />
+            </TableCell>
+            <TableCell className="w-[120px]">
+              <Select value={feat.type} onValueChange={(value: string) => changeFeatureType(index, value as FeatureType)}>
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {featureTypeOptions.map((option) => (
+                    <SelectItem value={option.value} key={option.value}>
+                      {option.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </TableCell>
             {productsCheck}
-            <td style={{ width: rem(60) }}>
-              <ActionIcon style={{ float: 'right' }} onClick={() => removeFeature(index)}>
+            <TableCell className="w-[120px]">
+              <Button variant="ghost" style={{ float: 'right' }} onClick={() => removeFeature(index)}>
                 <IconTrash size={18} />
-              </ActionIcon>
-            </td>
-          </tr>
+              </Button>
+            </TableCell>
+          </TableRow>
         )}
       </Draggable>
     )
   });
   return (
-    <Stack mx="auto" pt="xl" style={{ width: '100%' }}>
-      <Text mb="xl">Features</Text>
-      <ScrollArea type="scroll" scrollbarSize={6} style={{ width: '100%', paddingBottom: '160px' }}>
-        <DragDropContext onDragEnd={reorderFeatures}>
-          <Table style={{ tableLayout: 'fixed' }}>
-            <thead>
-              <tr>
-                <th style={{ width: rem(40) }} />
-                <th style={{ width: rem(360) }}>Feature</th>
-                <th style={{ width: rem(200) }}>Type</th>
-                {ths}
-                <th style={{ width: rem(60) }} />
-              </tr>
-            </thead>
-            <CustomDroppable droppableId="dnd-list" direction="vertical">
-              {(provided) => (
-                <tbody {...provided.droppableProps} ref={provided.innerRef}>
-                  {rows}
-                  {provided.placeholder}
-                </tbody>
-              )}
-            </CustomDroppable>
-          </Table>
-        </DragDropContext>
-      </ScrollArea>
-      <Button variant="filled" mr="auto" onClick={addNewFeature}>
+    <div className="flex flex-col mx-auto px-6 w-full">
+      <span className="text mb-6">Features</span>
+      <DragDropContext onDragEnd={reorderFeatures}>
+        <Table style={{ tableLayout: 'fixed' }}>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[80px]" />
+              <TableHead className="w-[380px]">Feature</TableHead>
+              <TableHead className="w-[220px]">Type</TableHead>
+              {selectedProducts.map((prod) => (
+                <TableHead key={prod.id} className="w-[220px]">{prod.name}</TableHead>
+              ))}
+              <TableHeader className="w-[120px]" />
+            </TableRow>
+          </TableHeader>
+          <CustomDroppable droppableId="dnd-list" direction="vertical">
+            {(provided) => (
+              <TableBody {...provided.droppableProps} ref={provided.innerRef}>
+                {rows}
+                {provided.placeholder}
+              </TableBody>
+            )}
+          </CustomDroppable>
+        </Table>
+      </DragDropContext>
+      <Button className="mr-auto mt-24" onClick={addNewFeature}>
         Add new feature
       </Button>
-    </Stack>
+    </div>
   );
 }

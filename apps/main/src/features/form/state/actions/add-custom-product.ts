@@ -1,7 +1,6 @@
-import { showNotification } from '@mantine/notifications';
 import { createId } from '@paralleldrive/cuid2';
-import type { FormProduct } from 'models';
-import { apply } from 'helpers';
+import type { FormProduct } from '@dealo/models';
+import { apply } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 
@@ -10,11 +9,7 @@ export function addCustomProduct() {
   const hasCustomProductLimit = products.filter((prod) => prod.isCustom).length === 2;
 
   if (hasCustomProductLimit) {
-    showNotification({
-      color: 'orange',
-      message: 'You can only have 2 custom products',
-    });
-    return;
+    return false;
   }
 
   const id = `custom_${createId()}`;
@@ -39,4 +34,5 @@ export function addCustomProduct() {
       return { ...feature, products: feature.products.concat({ id, value }) };
     })
   });
+  return true;
 }

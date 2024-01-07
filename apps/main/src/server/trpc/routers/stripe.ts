@@ -24,6 +24,7 @@ export const stripeRouter = createTRPCRouter({
 
       for (const price of prices) {
         if (!price.active) continue;
+        // TODO: remove the tier filter once we support tiers (DEV-14)
         if (price.billing_scheme === 'tiered') continue;
 
         const prod = products.find((p) => p.id === price.product);

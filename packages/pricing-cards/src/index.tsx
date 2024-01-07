@@ -1,24 +1,22 @@
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
-import ReactDOM from 'react-dom/client'
-import createCache from '@emotion/cache'
-import type { EmotionCache } from '@emotion/react';
-import { PricingThemeProvider } from 'ui';
-import { mockTemplate, templatesMap } from 'templates';
-import { callAPI } from 'helpers';
-import type { WidgetInfo } from 'models';
+import ReactDOM from 'react-dom/client';
+import { mockTemplate, templatesMap } from '@dealo/templates';
+import { callAPI } from '@dealo/helpers';
+import type { WidgetInfo } from '@dealo/models';
+
+import { fixedStyles } from './fixed-styles';
 
 interface Props {
-  cache?: EmotionCache;
   widget?: string;
   env?: string;
-  theme?: string;
+  useDarkTheme?: boolean;
   currency?: string;
   internal?: boolean;
 }
 
 const PricingCards = (props: Props) => {
-  const { cache, widget, currency, env, theme: colorScheme = 'light', internal } = props;
+  const { widget, currency, env, useDarkTheme, internal } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
@@ -53,13 +51,10 @@ const PricingCards = (props: Props) => {
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <PricingThemeProvider
-      cache={cache}
-      color={color}
-      colorScheme={colorScheme as any}
-      withGlobalStyles={false}
-      withNormalizeCSS={false}
-    >
+    <div id="dealo-root" className={useDarkTheme ? 'dark' : undefined}>
+      <style>
+        {fixedStyles}
+      </style>
       <Template
         widget={widget}
         features={features}
@@ -72,21 +67,22 @@ const PricingCards = (props: Props) => {
         freeTrialLabel={freeTrialLabel}
         callbacks={callbacks}
         environment={selectedEnv}
+        internal={internal}
         isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
       />
-    </PricingThemeProvider>
+    </div>
   );
 };
 
+const DARK_THEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
-  // resizeObserver: ResizeObserver;
+  mediaQuery: MediaQueryList;
 
   props: Props = {
-    cache: undefined,
     widget: undefined,
     env: undefined,
-    theme: undefined,
+    useDarkTheme: false,
     currency: undefined,
     internal: false,
   };
@@ -95,25 +91,54 @@ class Wrapper extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.domRoot = ReactDOM.createRoot(this.shadowRoot || this);
+    this.mediaQuery = window.matchMedia(DARK_THEME_MEDIA_QUERY);
     this.props = {
-      cache: createCache({
-        key: 'pricing-cards',
-        container: this.shadowRoot || this,
-      }),
       env: this.getAttribute('env') || undefined,
       widget: this.getAttribute('widget') || undefined,
-      theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
+      useDarkTheme: false,
     };
-  }
-
-  render() {
-    this.domRoot.render(<PricingCards {...this.props} />);
   }
 
   static get observedAttributes() {
     return ['theme', 'currency', 'widget', 'env', 'internal'];
+  }
+
+  resolveTheme() {
+    const theme = this.getAttribute('theme');
+
+    if (theme === 'dark' || theme === 'light') return theme;
+
+    if (this.mediaQuery.matches) {
+      return 'dark';
+    }
+
+    return 'light';
+  }
+
+  render() {
+    this.props.useDarkTheme = this.resolveTheme() === 'dark';
+    this.domRoot.render(<PricingCards {...this.props} />);
+  }
+
+  handleResize = () => {
+    this.render();
+  }
+
+  handleThemeChange = () => {
+    this.render();
+  }
+
+  connectedCallback() {
+    window.addEventListener('resize', this.handleResize);
+    this.mediaQuery.addEventListener('change', this.handleThemeChange);
+    this.render();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('resize', this.handleResize);
+    this.mediaQuery.removeEventListener('change', this.handleThemeChange);
   }
 
   attributeChangedCallback(name: string, oldValue: any, newValue: any) {
@@ -121,10 +146,6 @@ class Wrapper extends HTMLElement {
     if (newValue === (this.props as any)[name]) return;
 
     (this.props as any)[name] = newValue as any;
-    this.render();
-  }
-
-  connectedCallback() {
     this.render();
   }
 }

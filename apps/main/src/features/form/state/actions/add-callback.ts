@@ -1,5 +1,5 @@
 import { createId } from '@paralleldrive/cuid2';
-import type { FormCallback } from 'models';
+import type { FormCallback } from '@dealo/models';
 
 import { useWidgetFormStore } from '../widget-state';
 

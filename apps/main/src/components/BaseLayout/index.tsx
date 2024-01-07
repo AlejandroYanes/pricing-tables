@@ -1,37 +1,8 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
-import { createStyles } from '@mantine/core';
-import { RenderIf } from 'ui';
+import { RenderIf, cn, Button } from '@dealo/ui';
 
-import { CustomNavbar } from 'components/Navbar';
-
-const useStyles = createStyles((theme) => ({
-  wrapper: {
-    display: 'flex',
-    flexDirection: 'column',
-    padding: '0 48px 24px',
-    position: 'relative',
-    minHeight: '100vh',
-    [theme.fn.smallerThan('md')]: {
-      padding: '0 20px 48px',
-    },
-    [theme.fn.smallerThan('xs')]: {
-      padding: '0 20px 24px',
-    },
-  },
-  spacer: {
-    marginTop: 'auto',
-  },
-  footer: {
-    marginTop: '64px',
-    display: 'flex',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    height: '64px',
-    padding: '0 48px',
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.colors.gray[0],
-  },
-}));
+import Navbar from 'components/Navbar';
 
 interface Props {
   hideNavbar?: boolean;
@@ -40,25 +11,29 @@ interface Props {
   showBackButton?: boolean;
   backRoute?: string;
   title?: string;
-  children: ReactNode;
   className?: string;
-  navbarClassName?: string;
+  navBarClassName?: string;
+  footerClassName?: string;
+  children: ReactNode;
 }
 
 const BaseLayout = (props: Props) => {
-  const { hideNavbar = false, hideFooter, children, className, navbarClassName, ...rest } = props;
-  const { classes, cx } = useStyles();
+  const { hideNavbar = false, hideFooter, children, className, navBarClassName, footerClassName, ...rest } = props;
 
   return (
-    <section className={cx(classes.wrapper, className)}>
+    <section className={cn('flex flex-col relative pt-0 px-4 pb-6 min-h-screen', className)}>
       <RenderIf condition={!hideNavbar}>
-        <CustomNavbar {...rest} className={navbarClassName} />
+        <Navbar className={navBarClassName} {...rest} />
       </RenderIf>
       {children}
-      <div className={classes.spacer} />
+      <div className="mt-auto" />
       <RenderIf condition={!hideFooter}>
-        <footer className={classes.footer}>
-          <Link href="/privacy-policy">Privacy Policy</Link>
+        <footer className={cn('flex flex-row items-center justify-end mt-[64px] h-[32px] bg-background', footerClassName)}>
+          <Link href="/privacy-policy">
+            <Button variant="ghost">
+              Privacy Policy
+            </Button>
+          </Link>
         </footer>
       </RenderIf>
     </section>

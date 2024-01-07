@@ -1,4 +1,4 @@
-import type { FormFeature } from 'models';
+import type { FormFeature } from '@dealo/models';
 
 export const resolveFeaturesForProduct = (features: FormFeature[], productId: string) => {
   return features.reduce((acc, feat) => {

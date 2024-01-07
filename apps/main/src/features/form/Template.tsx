@@ -1,8 +1,22 @@
 import { useMemo, useState } from 'react';
-import { ActionIcon, Alert, Center, Group, SegmentedControl, Select, Stack, Text, Tooltip } from '@mantine/core';
-import { IconArrowBarToLeft, IconArrowBarToRight, IconDeviceDesktop, IconDeviceMobile, IconInfoCircle } from '@tabler/icons';
-import { templatesMap, mockTemplate } from 'templates';
-import { RenderIf } from 'ui';
+import { IconArrowBarToLeft, IconArrowBarToRight, IconInfoCircle } from '@tabler/icons-react';
+import { mockTemplate, templatesMap } from '@dealo/templates';
+import {
+  RenderIf,
+  Button,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+  Select,
+  SelectContent,
+  SelectTrigger,
+  SelectValue,
+  SelectItem, TabsList, TabsTrigger, Tabs,
+} from '@dealo/ui';
 
 import { useTemplateStates } from './state';
 
@@ -76,84 +90,97 @@ export default function Template(props: Props) {
 
   return (
     <>
-      <Group align="center" position="apart" mb="xl">
-        <ActionIcon mb={4} onClick={() => setShowPanel(!showPanel)}>
+      <div className="flex items-center justify-between mb-6">
+        <Button variant="ghost" size="sm" className="h-8 px-1" onClick={() => setShowPanel(!showPanel)}>
           <RenderIf condition={showPanel} fallback={<IconArrowBarToRight />}>
             <IconArrowBarToLeft />
           </RenderIf>
-        </ActionIcon>
-        <Group align="flex-end" mb="xl">
-          <Stack spacing={0}>
-            <Text size="sm" weight="bold">View</Text>
-            <SegmentedControl
-              size="xs"
-              styles={{ label: { padding: '2px 4px' } }}
+        </Button>
+        <div className="flex items-end gap-6 mb-6">
+          <div className="flex flex-col gap-4">
+            <span className="">View</span>
+            <Tabs
               value={view}
-              data={[
-                { label: (
-                  <Center>
-                    <IconDeviceDesktop />
-                  </Center>
-                ), value: 'desktop' },
-                { label: (
-                  <Center>
-                    <IconDeviceMobile />
-                  </Center>
-                ), value: 'mobile' },
-              ]}
-              onChange={setView as any}
-            />
-          </Stack>
+              onValueChange={setView as any}
+              className="mx-auto rounded-md border border-neutral-200 dark:border-slate-800 h-[40px]"
+            >
+              <TabsList className="h-[38px]">
+                {[{label: 'Desktop', value: 'desktop'}, { label: 'Mobile', value: 'mobile' }].map((interval) => (
+                  <TabsTrigger className="py-1" key={interval.value} value={interval.value}>{interval.label}</TabsTrigger>
+                ))}
+              </TabsList>
+            </Tabs>
+          </div>
           <RenderIf condition={currencies.length > 1}>
-            <Select
-              clearable
-              label={
-                <Tooltip
-                  transitionProps={{ duration: 200 }}
-                  label={currencyTooltip}
-                  width={280}
-                  position="right"
-                  multiline
-                  withArrow
-                >
-                  <div style={{ display: 'flex', alignItems: 'center' }}>
-                    <span>Currency</span>
+            <div className="flex flex-col gap-4">
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger>
+                    <div className="flex items-center">
+                      <span>Currency</span>
+                      <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
+                    </div>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" align="start" className="w-[280px]">{currencyTooltip}</TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+              <Select
+                value={currency || undefined}
+                onValueChange={setCurrency}
+              >
+                <SelectTrigger className="w-[200px]">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  {currencies.map((currency) => (
+                    <SelectItem key={currency.value} value={currency.value}>
+                      {currency.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          </RenderIf>
+          <div className="flex flex-col gap-4">
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <div className="flex items-center">
+                    <span>Environment</span>
                     <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
                   </div>
-                </Tooltip>
-              }
-              data={currencies}
-              value={currency}
-              onChange={setCurrency}
-            />
-          </RenderIf>
-          <Select
-            label={
-              <Tooltip
-                transitionProps={{ duration: 200 }}
-                label="Select an environment to preview the callback URLs."
-                width={280}
-                position="right"
-                multiline
-                withArrow
-              >
-                <div style={{ display: 'flex', alignItems: 'center' }}>
-                  <span>Callback env</span>
-                  <IconInfoCircle size={14} style={{ marginLeft: '4px' }} />
-                </div>
+                </TooltipTrigger>
+                <TooltipContent side="right" align="start" className="w-[280px]">
+                  Select an environment to preview the callback URLs.
+                </TooltipContent>
               </Tooltip>
-            }
-            disabled={selectedProducts.length === 0}
-            data={callbacks.map((cb) => cb.env)}
-            value={env}
-            onChange={(value) => setEnv(value!)}
-          />
-        </Group>
-      </Group>
+            </TooltipProvider>
+            <Select
+              disabled={selectedProducts.length === 0}
+              value={env}
+              onValueChange={setEnv}
+            >
+              <SelectTrigger className="w-[200px]">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                {callbacks.map((cb) => (
+                  <SelectItem key={cb.env} value={cb.env}>
+                    {cb.env}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
       <RenderIf condition={hasSeveralPricesWithSameInterval}>
-        <Alert title="Regarding prices and intervals" variant="outline" color="orange" mb="xl">
-          We currently only show one price per interval, taking the first one from the list.
-          This is a limitation of the current API and we plan to address it in the future.
+        <Alert className="mb-24 mx-auto max-w-2xl">
+          <AlertTitle>Regarding prices and intervals</AlertTitle>
+          <AlertDescription>
+            We currently only show one price per interval, taking the first one from the list.
+            This is a limitation of the current API and we plan to address it in the future.
+          </AlertDescription>
         </Alert>
       </RenderIf>
       <WidgetTemplate

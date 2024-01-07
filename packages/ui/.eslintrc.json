@@ -90,5 +90,9 @@
         "project": "./"
       }
     }
-  }
+  },
+  "ignorePatterns": [
+    "tailwind.config.js",
+    "postcss.config.js"
+  ]
 }

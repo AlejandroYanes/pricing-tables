@@ -1,2 +1,2 @@
-import { WelcomeEmail } from 'email-templates';
+import { WelcomeEmail } from '@dealo/email-templates';
 export default WelcomeEmail;

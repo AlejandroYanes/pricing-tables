@@ -1,32 +1,18 @@
-import { createStyles, Group, Skeleton, Stack } from '@mantine/core';
-
 import type { SkeletonProps } from '../constants/types';
 
 const items = 4;
 const arr = new Array(items).fill(0);
 
-const useStyles = createStyles((theme, { color }: { color: string }) => ({
-  stack: {
-    justifyItems: 'center',
-    boxSizing: 'border-box',
-    '& div[data-el="skeleton"]:after': {
-      backgroundColor: theme.colors[color]![7],
-    }
-  },
-}));
-
 export function ThirdSkeleton(props: SkeletonProps) {
-  const { scale = 1, color = 'teal' } = props;
-  const { classes } = useStyles({ color });
-
+  const { scale = 1 } = props;
   return (
-    <Group spacing={12} align="flex-start" className={classes.stack}>
-      <Stack spacing={8}>
+    <div className="flex items-start gap-3">
+      <div className="flex flex-col gap-2">
         {arr.map((_, index) => (
-          <Skeleton key={index} animate={false} height={80 * scale} width={380 * scale} data-el="skeleton" />
+          <div key={index} className="rounded-sm bg-emerald-500" style={{ height: 80 * scale, width: 300 * scale }}  />
         ))}
-      </Stack>
-      <Skeleton animate={false} height={600 * scale} width={380 * scale} data-el="skeleton" />
-    </Group>
+      </div>
+      <div className="rounded-sm bg-emerald-500" style={{ height: 600 * scale, width: 380 * scale }} />
+    </div>
   );
 }

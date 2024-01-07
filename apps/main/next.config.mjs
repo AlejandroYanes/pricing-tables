@@ -1,4 +1,6 @@
 // @ts-check
+import initAnalyzer from '@next/bundle-analyzer';
+
 /**
  * Run `build` or `dev` with `SKIP_ENV_VALIDATION` to skip env validation.
  * This is especially useful for Docker builds.
@@ -7,15 +9,19 @@
 import { withAxiom } from 'next-axiom';
 
 
+const withBundleAnalyzer = initAnalyzer({
+  enabled: process.env.ANALYZE === 'true',
+})
+
 /** @type {import("next").NextConfig} */
-const config = withAxiom({
+const config = {
   reactStrictMode: true,
   /* If trying out the experimental appDir, comment the i18n config out
    * @see https://github.com/vercel/next.js/issues/41980 */
-  i18n: {
-    locales: ["en"],
-    defaultLocale: "en",
-  },
-  transpilePackages: ["ui", "templates", "helpers", "models"],
-});
-export default config;
+  // i18n: {
+  //   locales: ["en"],
+  //   defaultLocale: "en",
+  // },
+  transpilePackages: ["@dealo/ui", "@dealo/templates", "@dealo/helpers", "@dealo/models"],
+};
+export default withBundleAnalyzer(withAxiom(config));

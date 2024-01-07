@@ -1,89 +1,49 @@
-import { useRouter } from 'next/router';
+'use client'
+
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
-import type { AuthenticatedSession } from 'next-auth';
-import { ActionIcon, Anchor, createStyles, Group, Header, HoverCard, Menu, Text, Title, UnstyledButton } from '@mantine/core';
-import { openConfirmModal } from '@mantine/modals';
 import {
-  type TablerIcon,
   IconArrowLeft,
   IconInfoCircle,
   IconLogout,
-  IconReceipt,
+  IconSettings,
   IconTrash,
   IconUser,
   IconUsers,
-  IconX
-} from '@tabler/icons';
-import { RenderIf } from 'ui';
-import { formatDate } from 'helpers';
-import { ROLES } from 'models';
+  IconReceipt,
+  IconX,
+} from '@tabler/icons-react';
+import {
+  RenderIf,
+  Button,
+  HoverCard,
+  HoverCardTrigger,
+  HoverCardContent,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
+  DropdownMenuLabel,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogAction,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  cn,
+} from '@dealo/ui';
+import { formatDate } from '@dealo/helpers';
+import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
+import NavbarLink from './NavbarLink';
 
-const useStyles = createStyles((theme) => ({
-  header: {
-    display: 'flex',
-    flexDirection: 'row',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    border: 'none',
-  },
-  noSpacing: {
-    margin: '0 !important',
-  },
-  link: {
-    width: 50,
-    height: 50,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: theme.radius.md,
-    color: theme.colorScheme === 'dark' ? theme.colors.dark[0] : theme.colors.gray[7],
-
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[5] : theme.colors.gray[0],
-    },
-  },
-  active: {
-    '&, &:hover': {
-      backgroundColor: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).background,
-      color: theme.fn.variant({ variant: 'light', color: theme.primaryColor }).color,
-    },
-  },
-  banner: {
-    marginBottom: '86px',
-    position: 'relative',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    height: 32,
-    padding: `4px ${theme.spacing.md}`,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.orange[9] : theme.colors.orange[4],
-  },
-  bannerCloseBtn: {
-    position: 'absolute',
-    right: 0,
-    top: 'auto',
-    bottom: 'auto',
-    borderRadius: 0,
-    height: 32,
-  },
-}));
-
-interface NavbarLinkProps {
-	icon: TablerIcon;
-	onClick?(): void;
-}
-
-function NavbarLink({ icon: Icon, onClick }: NavbarLinkProps) {
-  const { classes } = useStyles();
-  return (
-    <UnstyledButton onClick={onClick} className={classes.link}>
-      <Icon stroke={1.5} />
-    </UnstyledButton>
-  );
-}
+export { NavbarLink };
 
 interface Props {
   title?: string;
@@ -93,11 +53,12 @@ interface Props {
   className?: string;
 }
 
-export function CustomNavbar(props: Props) {
+export default function Navbar(props: Props) {
   const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
-  const { classes, cx } = useStyles();
   const { status, data } = useSession();
   const router = useRouter();
+
+  const [showDeleteAccountModal, setShowModal] = useState(false);
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
     onSuccess: () => handleLogout(),
@@ -108,126 +69,125 @@ export function CustomNavbar(props: Props) {
   };
 
   const handleDeleteAccount = async () => {
-    openConfirmModal({
-      title: 'Delete account',
-      children: (
-        <Text>
-          Are you sure you want to delete your account?
-          We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
-          and this action is irreversible.
-        </Text>
-      ),
-      labels: { confirm: 'Delete it', cancel: "No don't delete it" },
-      confirmProps: { color: 'red' },
-      onConfirm: () => deleteAccount(),
-    });
+    setShowModal(true);
   };
 
-  if (status === 'unauthenticated' || !data || !data.user) {
-    return (
-      <>
-        <Header
-          mb="xl"
-          zIndex={1}
-          height={64}
-          className={cx(classes.header, className)}
-        >
-          <RenderIf condition={showBackButton}>
-            <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
-          </RenderIf>
-          <Title ml="md">{title}</Title>
-        </Header>
-      </>
-    );
+  if (status === 'loading') {
+    return null;
   }
 
-  const { user } = data as AuthenticatedSession;
-
-  const isSubscriptionSetToCancel = user.hasSubscription && !!user.subscriptionCancelAt;
+  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
 
   return (
     <>
-      <Header
-        mb="xl"
-        zIndex={1}
-        height={64}
-        className={cx(classes.header, { [classes.noSpacing]: isSubscriptionSetToCancel }, className)}
-      >
+      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', className)}>
         <RenderIf condition={showBackButton}>
-          <NavbarLink icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+          <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
-        <Title ml="md">{title}</Title>
-        <RenderIf condition={!hideUserControls}>
-          <Group ml="auto">
-            <HoverCard width={280} shadow="md" position="bottom-end">
-              <HoverCard.Target>
-                <div>
-                  <NavbarLink icon={IconInfoCircle} />
-                </div>
-              </HoverCard.Target>
-              <HoverCard.Dropdown>
-                <Text size="sm">
+        <h1 className="text-4xl font-semibold">{title}</h1>
+        <RenderIf condition={!hideUserControls && status === 'authenticated'}>
+          <div className="flex items-center gap-4 ml-auto">
+            <HoverCard>
+              <HoverCardTrigger>
+                <NavbarLink asSpan icon={IconInfoCircle}/>
+              </HoverCardTrigger>
+              <HoverCardContent align="end" className="w-[280px] mt-3">
+                <p className="text text-black dark:text-white">
                   This platform is still an alpha version, so if you find any bugs or have any suggestions,
-                  please let me know at <Anchor href="mailto:support@dealo.app">support@dealo.app</Anchor>!
-                </Text>
-              </HoverCard.Dropdown>
+                  please let me know at
+                  {' '}
+                  <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
+                    support@dealo.app
+                  </a>
+                  !
+                </p>
+              </HoverCardContent>
             </HoverCard>
-            <Menu shadow="md" width={200} offset={18} position="bottom-end">
-              <Menu.Target>
-                <div>
-                  <NavbarLink icon={IconUser} />
-                </div>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <RenderIf condition={user?.role === ROLES.ADMIN}>
-                  <Menu.Label>Management</Menu.Label>
-                  <Menu.Item
-                    onClick={() => router.push('/users')}
-                    icon={<IconUsers size={14} />}
-                  >
-                    Manage Users
-                  </Menu.Item>
-                  <Menu.Divider />
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <NavbarLink asSpan icon={IconUser}/>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-[200px] mt-3">
+                <RenderIf condition={data?.user?.role === ROLES.ADMIN}>
+                  <DropdownMenuLabel>Management</DropdownMenuLabel>
+                  <Link href="/users">
+                    <DropdownMenuItem>
+                      <IconUsers size={16} className="mr-2"/>
+                      Manage Users
+                    </DropdownMenuItem>
+                  </Link>
+                  <DropdownMenuSeparator />
                 </RenderIf>
-                <Menu.Label>{user?.name}</Menu.Label>
+                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
                 <RenderIf
-                  condition={!!user?.hasSubscription}
+                  condition={!!data?.user?.hasSubscription}
                   fallback={
-                    <Menu.Item
-                      component={Link}
-                      href="/pricing"
-                      icon={<IconReceipt size={14} />}
-                    >
-                      Pricing
-                    </Menu.Item>
+                    <Link href="/pricing">
+                      <DropdownMenuItem>
+                        <IconReceipt size={14} className="mr-2" />
+                        Pricing
+                      </DropdownMenuItem>
+                    </Link>
                   }
                 >
-                  <Menu.Item
-                    component={Link}
-                    href="/api/stripe/customer/portal"
-                    icon={<IconReceipt size={14} />}
-                  >
-                    Billing
-                  </Menu.Item>
+                  <Link href="/api/stripe/customer/portal">
+                    <DropdownMenuItem>
+                      <IconReceipt size={14} className="mr-2" />
+                      Billing
+                    </DropdownMenuItem>
+                  </Link>
                 </RenderIf>
-                <Menu.Item icon={<IconLogout size={14} />} onClick={handleLogout}>Logout</Menu.Item>
-                <Menu.Divider />
-                <Menu.Label>Danger zone</Menu.Label>
-                <Menu.Item color="red" icon={<IconTrash size={14} />} onClick={handleDeleteAccount}>
+                <DropdownMenuItem>
+                  <IconSettings size={16} className="mr-2"/>
+                  Settings
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleLogout}>
+                  <IconLogout size={16} className="mr-2" />
+                  Logout
+                </DropdownMenuItem>
+                <DropdownMenuSeparator/>
+                <DropdownMenuLabel>Danger zone</DropdownMenuLabel>
+                <DropdownMenuItem destructive onClick={handleDeleteAccount}>
+                  <IconTrash size={16} className="mr-2"/>
                   Delete my account
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         </RenderIf>
-      </Header>
-      <RenderIf condition={isSubscriptionSetToCancel}>
-        <div className={classes.banner}>
-          <Text size="sm" color="white">Your subscription is set to cancel on {formatDate(new Date(user.subscriptionCancelAt!))}</Text>
-          <ActionIcon className={classes.bannerCloseBtn}>
+      </header>
+      {isSubscriptionSetToCancel && data?.user?.subscriptionCancelAt ? (
+        <div className="flex flex-row items-center justify-center h-[32px] mb-[86px] py-1 px-4 bg-amber-600 dark:bg-amber-500">
+          <span className="text text-sm text-white">
+            Your subscription is set to cancel on {formatDate(new Date(data?.user?.subscriptionCancelAt))}
+          </span>
+          <Button variant="undecorated" className="absolute top-0 right-0 bottom-0 h-[32px]">
             <IconX size={14}/>
-          </ActionIcon>
+          </Button>
         </div>
+      ) : null}
+      <RenderIf condition={showDeleteAccountModal}>
+        <AlertDialog open>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+              <AlertDialogDescription className="pb-4">
+                Are you sure you want to delete your account?
+                We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
+                and this action is irreversible.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => setShowModal(false)}>Cancel</AlertDialogCancel>
+              <AlertDialogAction
+                className="bg-red-600 text-white hover:bg-red-700"
+                onClick={() => deleteAccount()}
+              >
+                Yes, delete my account
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </RenderIf>
     </>
   );
