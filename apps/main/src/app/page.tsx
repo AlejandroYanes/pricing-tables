@@ -36,8 +36,8 @@ const IconListItem = ({ title, text, icon, className }: IconListItemProps) => (
       {icon}
     </div>
     <div className="flex flex-col">
-      <span className="text font-bold">{title}</span>
-      <span className="text">{text}</span>
+      <span className="font-bold">{title}</span>
+      <span>{text}</span>
     </div>
   </div>
 );
@@ -53,8 +53,8 @@ const Card = ({ title, text, icon, className }: CardProps) => {
   return (
     <div className={cn('flex flex-col gap-4 p-6 md:w-[30%] rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-950', className)}>
       {icon}
-      <h3 className="text text-lg font-bold">{title}</h3>
-      <span className="text">{text}</span>
+      <h3 className="text-lg font-bold">{title}</h3>
+      <span>{text}</span>
     </div>
   );
 }

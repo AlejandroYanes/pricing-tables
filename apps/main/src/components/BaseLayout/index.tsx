@@ -7,6 +7,7 @@ import { CustomNavbar } from 'components/Navbar';
 interface Props {
   hideNavbar?: boolean;
   hideFooter?: boolean;
+  hideLinks?: boolean;
   hideUserControls?: boolean;
   showBackButton?: boolean;
   backRoute?: string;

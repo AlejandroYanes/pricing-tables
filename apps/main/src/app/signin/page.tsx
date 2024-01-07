@@ -92,7 +92,7 @@ export default function SigninPage(props: Props) {
       <Head>
         <title>Dealo | Signin</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/" >
+      <BaseLayout showBackButton backRoute="/" hideUserControls hideLinks>
         <div className="flex flex-col gap-8 mx-auto items-center">
           <div className="flex items-center gap-0">
             <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>

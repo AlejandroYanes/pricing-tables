@@ -1,7 +1,11 @@
+import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client';
-import { useEffect, useRef } from 'react';
-import { generateQueryString } from '@dealo/helpers';
+import { mockTemplate, templatesMap } from '@dealo/templates';
+import { callAPI } from '@dealo/helpers';
+import type { WidgetInfo } from '@dealo/models';
+
+import { fixedStyles } from './fixed-styles';
 
 interface Props {
   widget?: string;
@@ -9,62 +13,62 @@ interface Props {
   theme?: string;
   currency?: string;
   internal?: boolean;
-  width: number;
 }
 
-const rootStyles = `
-  .pricing-cards__root {
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-  }
-  .pricing-cards__iframe {
-    position: absolute;
-    top: 0;
-    left: 0;
-    bottom: 0;
-    right: 0;
-    width: 100%;
-    height: 100%;
-    border: none;
-  }
-`;
-
 const PricingCards = (props: Props) => {
-  const { widget, currency, env, theme: colorScheme = 'light', internal, width } = props;
-  const rootElRef = useRef<HTMLDivElement>(null);
+  const { widget, currency, env, theme: colorScheme = 'light', internal } = props;
+  const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
-    if (!window) return;
+    if (window) {
+      const currentUrl = new URL(window.location.href);
+      const fetchUrl = internal
+        ? `${currentUrl.origin}/api/client/widget/${widget}`
+        : `https://www.dealo.app/api/client/widget/${widget}`;
 
-    window.addEventListener('message', (event) => {
-      const { data } = event;
-      if (data.source !== 'pricing-widget__size') return;
-      const { width, height } = data;
-      const rootEl = rootElRef.current;
-      if (!rootEl) return;
-      console.log('received size', width, height);
-      rootEl.style.height = `${height}px`;
-      rootEl.style.width = `${width}px`;
-    }, false);
-  }, []);
+      if (widget) {
+        callAPI({
+          url: fetchUrl,
+          method: 'GET',
+        })
+          .then((res) => {
+            setWidgetInfo(res as any);
+          })
+          .catch((err) => {
+            console.log(err);
+          });
+      }
+    }
+  }, [widget]);
 
-  // const windowWidth = window.innerWidth;
-  const currentUrl = new URL(window.location.href);
-  const fetchUrl = internal ? currentUrl.origin : `https://www.dealo.app`;
-  const queryString = generateQueryString({ env, theme: colorScheme, currency, width });
-  const src = `${fetchUrl}/w/${widget}?${queryString}`;
+  if (!widgetInfo) return null;
+
+  const { render: Template, calculateIsMobile } = widgetInfo.template
+    ? templatesMap[widgetInfo.template]!
+    : mockTemplate;
+
+  const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
+  const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
     <>
-      <style>{rootStyles}</style>
-      <div ref={rootElRef} className="pricing-cards__root">
-        <iframe
-          title="Pricing Card"
-          className="pricing-cards__iframe"
-          src={src}
-        />
-      </div>
+      <style>
+        {fixedStyles}
+      </style>
+      <Template
+        widget={widget}
+        features={features}
+        products={products}
+        recommended={recommended}
+        color={color}
+        currency={currency}
+        unitLabel={unitLabel}
+        subscribeLabel={subscribeLabel}
+        freeTrialLabel={freeTrialLabel}
+        callbacks={callbacks}
+        environment={selectedEnv}
+        isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
+      />
     </>
   );
 };
@@ -78,7 +82,6 @@ class Wrapper extends HTMLElement {
     theme: undefined,
     currency: undefined,
     internal: false,
-    width: 0,
   };
 
   constructor() {
@@ -91,15 +94,11 @@ class Wrapper extends HTMLElement {
       theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
-      width: 0,
     };
-    this.style.width = '100%';
-    this.style.display = 'flex';
-    this.style.justifyContent = 'center';
   }
 
   render() {
-    this.domRoot.render(<PricingCards {...this.props} width={this.getBoundingClientRect().width} />);
+    this.domRoot.render(<PricingCards {...this.props} />);
   }
 
   static get observedAttributes() {
@@ -121,3 +120,4 @@ class Wrapper extends HTMLElement {
 
 customElements.define('pricing-cards', Wrapper);
 
+export default PricingCards;

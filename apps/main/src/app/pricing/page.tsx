@@ -25,7 +25,7 @@ const PricingPage = () => {
         <Head>
           <title>Dealo | Pricing</title>
         </Head>
-        <BaseLayout hideUserControls showBackButton backRoute="/">
+        <BaseLayout hideLinks showBackButton backRoute="/">
           <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
             <div className="flex flex-row items-center justify-center">
               <div className="flex flex-row">
