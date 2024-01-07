@@ -24,7 +24,7 @@ import { filterProductsByInterval } from '../Basic/utils/filter-produts-by-inter
 import { resolvePriceToShow } from '../Basic/utils/resolve-price-to-show';
 import {
   ACCORDION_HEADER_STYLES,
-  ACTIVE_CELL_STYLES,
+  HOVER_CELL_STYLES,
   FILLED_BUTTON_STYLES,
   CELL_STYLES,
   OUTLINE_BUTTON_STYLES,
@@ -426,31 +426,38 @@ export default function SecondTemplate(props: TemplateProps) {
         case features.length + 1: {
           return (
             <td key={prod.id} data-active={isRecommended} className={`text-center align-top py-2 px-4 ${CELL_STYLES[color]}`}>
-              <a
-                href={resolveBtnUrl({
-                  isCustom: !!isCustom,
-                  prod,
-                  priceToShow,
-                  type: priceToShow.type,
-                  dev: !!dev,
-                  widgetId: widget,
-                  callbacks,
-                  environment,
-                  currency,
-                })}
-                target="_top"
-              >
-                <Button
+              <div className="flex flex-col items-center justify-center">
+                <a
+                  href={resolveBtnUrl({
+                    isCustom: !!isCustom,
+                    prod,
+                    priceToShow,
+                    type: priceToShow.type,
+                    dev: !!dev,
+                    widgetId: widget,
+                    callbacks,
+                    environment,
+                    currency,
+                  })}
                   data-spaced={hasFreeTrial}
-                  className={`mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
-                  variant="undecorated"
+                  className="h-10 mt-8 mb-8 cursor-pointer data-[spaced=true]:mb-4"
                 >
-                  {resolveBtnLabel({ type, prod, isCustom: !!isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel })}
-                </Button>
-              </a>
+                  <Button
+                    className={`uppercase ${isRecommended ? FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
+                    variant="undecorated"
+                  >
+                    {resolveBtnLabel({ type, prod, isCustom: !!isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel })}
+                  </Button>
+                </a>
+              </div>
               <RenderIf condition={hasFreeTrial}>
                 <div className="mb-6">
-                  <span data-active={isRecommended} className="text-sm text-slate-500 data-[active=true]:text-white">With a {freeTrialDays} days free trial</span>
+                  <span
+                    data-active={isRecommended}
+                    className="text-sm text-slate-500 data-[active=true]:text-white"
+                  >
+                    With a {freeTrialDays} days free trial
+                  </span>
                 </div>
               </RenderIf>
             </td>
@@ -482,7 +489,7 @@ export default function SecondTemplate(props: TemplateProps) {
             <td
               key={`prod-${prod.id}-feature-${4}`}
               data-active={isRecommended}
-              className={`py-2 px-4 text-center ${ACTIVE_CELL_STYLES[color]}`}
+              className={`py-2 px-4 text-center group-hover:bg-slate-500/10 dark:group-hover:bg-slate-300/10 ${CELL_STYLES[color]} ${HOVER_CELL_STYLES[color]}`}
             >
               {label}
             </td>

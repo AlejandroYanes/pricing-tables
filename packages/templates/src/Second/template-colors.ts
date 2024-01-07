@@ -21,24 +21,24 @@ export const CELL_STYLES: Record<Colors, string> = {
   'rose': 'data-[active=true]:text-white data-[active=true]:bg-rose-600 dark:data-[active=true]:bg-rose-600',
 };
 
-export const ACTIVE_CELL_STYLES: Record<string, string> = {
-  'red': 'group-hover:bg-red-200/10 data-[active=true]:text-white data-[active=true]:bg-red-600 group-hover:data-[active=true]:bg-red-500',
-  'orange': 'group-hover:bg-orange-200/10 data-[active=true]:text-white data-[active=true]:bg-orange-600 group-hover:data-[active=true]:bg-orange-500',
-  'amber': 'group-hover:bg-amber-200/10 data-[active=true]:text-white data-[active=true]:bg-amber-600 group-hover:data-[active=true]:bg-amber-500',
-  'yellow': 'group-hover:bg-yellow-200/10 data-[active=true]:text-white data-[active=true]:bg-yellow-600 group-hover:data-[active=true]:bg-yellow-500',
-  'lime': 'group-hover:bg-lime-200/10 data-[active=true]:text-white data-[active=true]:bg-lime-600 group-hover:data-[active=true]:bg-lime-500',
-  'green': 'group-hover:bg-green-200/10 data-[active=true]:text-white data-[active=true]:bg-green-600 group-hover:data-[active=true]:bg-green-500',
-  'emerald': 'group-hover:bg-slate-200/10 data-[active=true]:text-white data-[active=true]:bg-emerald-600 group-hover:data-[active=true]:bg-emerald-500',
-  'teal': 'group-hover:bg-teal-200/10 data-[active=true]:text-white data-[active=true]:bg-teal-600 group-hover:data-[active=true]:bg-teal-500',
-  'cyan': 'group-hover:bg-cyan-200/10 data-[active=true]:text-white data-[active=true]:bg-cyan-600 group-hover:data-[active=true]:bg-cyan-500',
-  'sky': 'group-hover:bg-sky-200/10 data-[active=true]:text-white data-[active=true]:bg-sky-600 group-hover:data-[active=true]:bg-sky-500',
-  'blue': 'group-hover:bg-blue-200/10 data-[active=true]:text-white data-[active=true]:bg-blue-600 group-hover:data-[active=true]:bg-blue-500',
-  'indigo': 'group-hover:bg-indigo-200/10 data-[active=true]:text-white data-[active=true]:bg-indigo-600 group-hover:data-[active=true]:bg-indigo-500',
-  'violet': 'group-hover:bg-violet-200/10 data-[active=true]:text-white data-[active=true]:bg-violet-600 group-hover:data-[active=true]:bg-violet-500',
-  'purple': 'group-hover:bg-purple-200/10 data-[active=true]:text-white data-[active=true]:bg-purple-600 group-hover:data-[active=true]:bg-purple-500',
-  'fuchsia': 'group-hover:bg-fuchsia-200/10 data-[active=true]:text-white data-[active=true]:bg-fuchsia-600 group-hover:data-[active=true]:bg-fuchsia-500',
-  'pink': 'group-hover:bg-pink-200/10 data-[active=true]:text-white data-[active=true]:bg-pink-600 group-hover:data-[active=true]:bg-pink-500',
-  'rose': 'group-hover:bg-rose-200/10 data-[active=true]:text-white data-[active=true]:bg-rose-600 group-hover:data-[active=true]:bg-rose-500',
+export const HOVER_CELL_STYLES: Record<string, string> = {
+  'red': 'group-hover:data-[active=true]:bg-red-500 dark:group-hover:data-[active=true]:bg-red-500',
+  'orange': 'group-hover:data-[active=true]:bg-orange-500 dark:group-hover:data-[active=true]:bg-orange-500',
+  'amber': 'group-hover:data-[active=true]:bg-amber-500 dark:group-hover:data-[active=true]:bg-amber-500',
+  'yellow': 'group-hover:data-[active=true]:bg-yellow-500 dark:group-hover:data-[active=true]:bg-yellow-500',
+  'lime': 'group-hover:data-[active=true]:bg-lime-500 dark:group-hover:data-[active=true]:bg-lime-500',
+  'green': 'group-hover:data-[active=true]:bg-green-500 dark:group-hover:data-[active=true]:bg-green-500',
+  'emerald': 'group-hover:data-[active=true]:bg-emerald-500 dark:group-hover:data-[active=true]:bg-emerald-500',
+  'teal': 'group-hover:data-[active=true]:bg-teal-500 dark:group-hover:data-[active=true]:bg-teal-500',
+  'cyan': 'group-hover:data-[active=true]:bg-cyan-500 dark:group-hover:data-[active=true]:bg-cyan-500',
+  'sky': 'group-hover:data-[active=true]:bg-sky-500 dark:group-hover:data-[active=true]:bg-sky-500',
+  'blue': 'group-hover:data-[active=true]:bg-blue-500 dark:group-hover:data-[active=true]:bg-blue-500',
+  'indigo': 'group-hover:data-[active=true]:bg-indigo-500 dark:group-hover:data-[active=true]:bg-indigo-500',
+  'violet': 'group-hover:data-[active=true]:bg-violet-500 dark:group-hover:data-[active=true]:bg-violet-500',
+  'purple': 'group-hover:data-[active=true]:bg-purple-500 dark:group-hover:data-[active=true]:bg-purple-500',
+  'fuchsia': 'group-hover:data-[active=true]:bg-fuchsia-500 dark:group-hover:data-[active=true]:bg-fuchsia-500',
+  'pink': 'group-hover:data-[active=true]:bg-pink-500 dark:group-hover:data-[active=true]:bg-pink-500',
+  'rose': 'group-hover:data-[active=true]:bg-rose-500 dark:group-hover:data-[active=true]:bg-rose-500',
 };
 
 export const FILLED_BUTTON_STYLES: Record<string, string> = {
