@@ -2,7 +2,7 @@ import BaseLayout from 'components/BaseLayout';
 
 const PrivacyPolicyPage = () => {
   return (
-    <BaseLayout showBackButton hideUserControls hideLinks>
+    <BaseLayout showBackButton hideUserControls>
 
       <div className="flex flex-col max-w-[700px] mx-auto">
         <div className="flex flex-col mb-12">

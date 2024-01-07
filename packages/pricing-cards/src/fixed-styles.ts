@@ -382,7 +382,7 @@ video {
 [hidden] {
   display: none;
 }
-  :root {
+  #dealo-root {
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -415,7 +415,7 @@ video {
     --radius: 0.5rem;
   }
 
-  .dark {
+  #dealo-root.dark {
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -1795,6 +1795,10 @@ video {
 .bg-destructive {
   background-color: hsl(var(--destructive));
 }
+.bg-emerald-200 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(167 243 208 / var(--tw-bg-opacity));
+}
 .bg-emerald-400 {
   --tw-bg-opacity: 1;
   background-color: rgb(52 211 153 / var(--tw-bg-opacity));
@@ -2002,9 +2006,17 @@ video {
   --tw-bg-opacity: 1;
   background-color: rgb(226 232 240 / var(--tw-bg-opacity));
 }
+.bg-slate-300 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(203 213 225 / var(--tw-bg-opacity));
+}
 .bg-slate-50 {
   --tw-bg-opacity: 1;
   background-color: rgb(248 250 252 / var(--tw-bg-opacity));
+}
+.bg-slate-500 {
+  --tw-bg-opacity: 1;
+  background-color: rgb(100 116 139 / var(--tw-bg-opacity));
 }
 .bg-teal-200 {
   --tw-bg-opacity: 1;
@@ -3136,69 +3148,8 @@ video {
 .group:hover .group-hover\\:visible {
   visibility: visible;
 }
-.group:hover .group-hover\\:bg-amber-200\\/10 {
-  background-color: rgb(253 230 138 / 0.1);
-}
-.group:hover .group-hover\\:bg-blue-200\\/10 {
-  background-color: rgb(191 219 254 / 0.1);
-}
-.group:hover .group-hover\\:bg-cyan-200\\/10 {
-  background-color: rgb(165 243 252 / 0.1);
-}
-.group:hover .group-hover\\:bg-fuchsia-200\\/10 {
-  background-color: rgb(245 208 254 / 0.1);
-}
-.group:hover .group-hover\\:bg-green-200\\/10 {
-  background-color: rgb(187 247 208 / 0.1);
-}
-.group:hover .group-hover\\:bg-indigo-200\\/10 {
-  background-color: rgb(199 210 254 / 0.1);
-}
-.group:hover .group-hover\\:bg-lime-200\\/10 {
-  background-color: rgb(217 249 157 / 0.1);
-}
-.group:hover .group-hover\\:bg-orange-200\\/10 {
-  background-color: rgb(254 215 170 / 0.1);
-}
-.group:hover .group-hover\\:bg-pink-200\\/10 {
-  background-color: rgb(251 207 232 / 0.1);
-}
-.group:hover .group-hover\\:bg-purple-200\\/10 {
-  background-color: rgb(233 213 255 / 0.1);
-}
-.group:hover .group-hover\\:bg-red-200\\/10 {
-  background-color: rgb(254 202 202 / 0.1);
-}
-.group:hover .group-hover\\:bg-rose-200\\/10 {
-  background-color: rgb(254 205 211 / 0.1);
-}
-.group:hover .group-hover\\:bg-sky-200\\/10 {
-  background-color: rgb(186 230 253 / 0.1);
-}
 .group:hover .group-hover\\:bg-slate-500\\/10 {
   background-color: rgb(100 116 139 / 0.1);
-}
-.group:hover .group-hover\\:bg-teal-200\\/10 {
-  background-color: rgb(153 246 228 / 0.1);
-}
-.group:hover .group-hover\\:bg-violet-200\\/10 {
-  background-color: rgb(221 214 254 / 0.1);
-}
-.group:hover .group-hover\\:bg-yellow-200\\/10 {
-  background-color: rgb(254 240 138 / 0.1);
-}
-.group:hover .group-hover\\:bg-emerald-200\\/10 {
-  background-color: rgb(167 243 208 / 0.1);
-}
-.group:hover .group-hover\\:bg-emerald-500\\/10 {
-  background-color: rgb(16 185 129 / 0.1);
-}
-.group:hover .group-hover\\:bg-emerald-500 {
-  --tw-bg-opacity: 1;
-  background-color: rgb(16 185 129 / var(--tw-bg-opacity));
-}
-.group:hover .group-hover\\:bg-slate-200\\/10 {
-  background-color: rgb(226 232 240 / 0.1);
 }
 .group:hover .group-hover\\:opacity-100 {
   opacity: 1;

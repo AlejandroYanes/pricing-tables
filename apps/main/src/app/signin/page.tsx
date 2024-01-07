@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Head from 'next/head';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { IconAlertCircle, IconCheck } from '@tabler/icons-react';
+import { IconAlertCircle } from '@tabler/icons-react';
 import { Alert, AlertDescription, AlertTitle, Button, Loader } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
@@ -92,7 +92,7 @@ export default function SigninPage(props: Props) {
       <Head>
         <title>Dealo | Signin</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/" hideUserControls hideLinks>
+      <BaseLayout showBackButton backRoute="/" hideUserControls>
         <div data-el="hero-section" className="flex flex-col justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">

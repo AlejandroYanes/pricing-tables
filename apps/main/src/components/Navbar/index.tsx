@@ -14,7 +14,6 @@ import {
   IconUsers,
   IconReceipt,
   IconX,
-  type Icon as TablerIcon,
 } from '@tabler/icons-react';
 import {
   RenderIf,
@@ -42,53 +41,20 @@ import { formatDate } from '@dealo/helpers';
 import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
+import NavbarLink from './NavbarLink';
 
-interface NavbarLinkProps {
-  icon?: TablerIcon;
-  label?: string;
-  onClick?(): void;
-  asSpan?: boolean;
-  className?: string;
-}
-
-const NavbarLink = ({ icon: Icon, label, onClick, asSpan, className }: NavbarLinkProps) => {
-  if (asSpan) {
-    return (
-      <Button
-        onClick={onClick}
-        component="span"
-        variant="ghost"
-        className={cn('flex justify-center items-center rounded-lg', className)}
-      >
-        {Icon ? <Icon size={24} stroke={1.5} /> : null}
-        {label}
-      </Button>
-    );
-  }
-
-  return (
-    <Button
-      onClick={onClick}
-      variant="ghost"
-      className={cn('flex justify-center items-center rounded-lg', className)}
-    >
-      {Icon ? <Icon size={24} stroke={1.5} /> : null}
-      {label}
-    </Button>
-  );
-};
+export { NavbarLink };
 
 interface Props {
   title?: string;
   showBackButton?: boolean;
   hideUserControls?: boolean;
-  hideLinks?: boolean;
   backRoute?: string;
   className?: string;
 }
 
-export function CustomNavbar(props: Props) {
-  const { showBackButton = false, hideUserControls, hideLinks, title, backRoute, className } = props;
+export default function Navbar(props: Props) {
+  const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
   const { status, data } = useSession();
   const router = useRouter();
 
@@ -187,16 +153,6 @@ export function CustomNavbar(props: Props) {
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
-          </div>
-        </RenderIf>
-        <RenderIf condition={!hideLinks && status === 'unauthenticated'}>
-          <div className="flex items-center gap-4 ml-auto">
-            <Link href="/pricing">
-              <NavbarLink label="Pricing"/>
-            </Link>
-            <Link href="/signin">
-              <NavbarLink label="Sign in"/>
-            </Link>
           </div>
         </RenderIf>
       </header>

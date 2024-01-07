@@ -1,22 +1,24 @@
 /* eslint-disable max-len */
 import Image from 'next/image';
+import Link from 'next/link';
 import {
-  IconCheck,
   IconBrush,
+  IconCheck,
+  IconClock,
+  IconCopy,
   IconFlask,
+  IconHelp,
   IconMathOff,
   IconPower,
   IconStar,
-  IconUser,
-  IconClock,
-  IconCopy,
-  IconHelp,
   IconTrendingUp,
+  IconUser,
 } from '@tabler/icons-react';
 import { cn } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 import PricingWidget from 'components/PricingWidget';
+import { NavbarLink } from 'components/Navbar';
 
 export const metadata = {
   title: 'Dealo',
@@ -62,11 +64,18 @@ const Card = ({ title, text, icon, className }: CardProps) => {
 const HomePage = () => {
   return (
     <BaseLayout
-      hideUserControls
+      hideNavbar
       className="px-0"
-      navBarClassName="px-4 md:px-0 w-full max-w-[1200px] mx-auto"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
+      <header className="h-16 flex justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+        <Link href="/pricing">
+          <NavbarLink label="Pricing"/>
+        </Link>
+        <Link href="/signin">
+          <NavbarLink label="Sign in"/>
+        </Link>
+      </header>
       <div className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
         <div data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
@@ -120,7 +129,10 @@ const HomePage = () => {
           <Image src="/illustrations/fitting_piece.svg" width={380} height={400} alt="hero" className="flex-1 hidden lg:block"/>
         </div>
 
-        <div data-el="benefits-section" className="flex flex-col gap-8 rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]">
+        <div
+          data-el="benefits-section"
+          className="flex flex-col gap-8 rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
+        >
           <h1 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h1>
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">
             <Card
@@ -235,7 +247,7 @@ const HomePage = () => {
 
         <div data-el="bottom-section" className="flex flex-col items-center justify-center mt-6 w-full">
           <h1 className="text text-xl mb-4">Get started now.</h1>
-          <PricingWidget />
+          <PricingWidget/>
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
         </div>
       </div>

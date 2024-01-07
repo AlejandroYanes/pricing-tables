@@ -10,21 +10,22 @@ import { fixedStyles } from './fixed-styles';
 interface Props {
   widget?: string;
   env?: string;
-  theme?: string;
+  useDarkTheme?: boolean;
   currency?: string;
   internal?: boolean;
 }
 
 const PricingCards = (props: Props) => {
-  const { widget, currency, env, theme: colorScheme = 'light', internal } = props;
+  const { widget, currency, env, useDarkTheme, internal } = props;
   const [widgetInfo, setWidgetInfo] = useState<WidgetInfo | undefined>(undefined);
 
   useEffect(() => {
     if (window) {
-      const currentUrl = new URL(window.location.href);
-      const fetchUrl = internal
-        ? `${currentUrl.origin}/api/client/widget/${widget}`
-        : `https://www.dealo.app/api/client/widget/${widget}`;
+      // const currentUrl = new URL(window.location.href);
+      // const fetchUrl = internal
+      //   ? `${currentUrl.origin}/api/client/widget/${widget}`
+      //   : `https://www.dealo.app/api/client/widget/${widget}`;
+      const fetchUrl = `http://localhost:3000/api/client/widget/${widget}`;
 
       if (widget) {
         callAPI({
@@ -51,7 +52,7 @@ const PricingCards = (props: Props) => {
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <>
+    <div id="dealo-root" className={useDarkTheme ? 'dark' : undefined}>
       <style>
         {fixedStyles}
       </style>
@@ -67,19 +68,22 @@ const PricingCards = (props: Props) => {
         freeTrialLabel={freeTrialLabel}
         callbacks={callbacks}
         environment={selectedEnv}
+        internal={internal}
         isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
       />
-    </>
+    </div>
   );
 };
 
+const DARK_THEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
+  mediaQuery: MediaQueryList;
 
   props: Props = {
     widget: undefined,
     env: undefined,
-    theme: undefined,
+    useDarkTheme: false,
     currency: undefined,
     internal: false,
   };
@@ -88,25 +92,54 @@ class Wrapper extends HTMLElement {
     super();
     this.attachShadow({ mode: 'open' });
     this.domRoot = ReactDOM.createRoot(this.shadowRoot || this);
+    this.mediaQuery = window.matchMedia(DARK_THEME_MEDIA_QUERY);
     this.props = {
       env: this.getAttribute('env') || undefined,
       widget: this.getAttribute('widget') || undefined,
-      theme: this.getAttribute('theme') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
+      useDarkTheme: false,
     };
+  }
+
+  static get observedAttributes() {
+    return ['theme', 'currency', 'widget', 'env', 'internal'];
+  }
+
+  resolveTheme() {
+    const theme = this.getAttribute('theme');
+
+    if (theme === 'dark' || theme === 'light') return theme;
+
+    if (this.mediaQuery.matches) {
+      return 'dark';
+    }
+
+    return 'light';
+  }
+
+  render() {
+    this.props.useDarkTheme = this.resolveTheme() === 'dark';
+    this.domRoot.render(<PricingCards {...this.props} />);
   }
 
   handleResize = () => {
     this.render();
   }
 
-  render() {
-    this.domRoot.render(<PricingCards {...this.props} />);
+  handleThemeChange = () => {
+    this.render();
   }
 
-  static get observedAttributes() {
-    return ['theme', 'currency', 'widget', 'env', 'internal'];
+  connectedCallback() {
+    window.addEventListener('resize', this.handleResize);
+    this.mediaQuery.addEventListener('change', this.handleThemeChange);
+    this.render();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('resize', this.handleResize);
+    this.mediaQuery.removeEventListener('change', this.handleThemeChange);
   }
 
   attributeChangedCallback(name: string, oldValue: any, newValue: any) {
@@ -115,15 +148,6 @@ class Wrapper extends HTMLElement {
 
     (this.props as any)[name] = newValue as any;
     this.render();
-  }
-
-  connectedCallback() {
-    window.addEventListener('resize', this.handleResize);
-    this.render();
-  }
-
-  disconnectedCallback() {
-    window.removeEventListener('resize', this.handleResize);
   }
 }
 

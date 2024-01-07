@@ -22,7 +22,7 @@ const getBaseUrl = () => {
   return `http://localhost:${process.env.PORT ?? 3000}`; // dev SSR should use localhost
 };
 
-const ClientProvider = (props: Props) => {
+const ClientProviders = (props: Props) => {
   const { session, children } = props;
 
   const [queryClient] = useState(() => new QueryClient());
@@ -65,4 +65,4 @@ const ClientProvider = (props: Props) => {
   );
 };
 
-export default ClientProvider;
+export default ClientProviders;

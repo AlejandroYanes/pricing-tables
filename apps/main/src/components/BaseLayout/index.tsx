@@ -2,12 +2,11 @@ import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { RenderIf, cn, Button } from '@dealo/ui';
 
-import { CustomNavbar } from 'components/Navbar';
+import Navbar from 'components/Navbar';
 
 interface Props {
   hideNavbar?: boolean;
   hideFooter?: boolean;
-  hideLinks?: boolean;
   hideUserControls?: boolean;
   showBackButton?: boolean;
   backRoute?: string;
@@ -24,7 +23,7 @@ const BaseLayout = (props: Props) => {
   return (
     <section className={cn('flex flex-col relative pt-0 px-4 pb-6 min-h-screen', className)}>
       <RenderIf condition={!hideNavbar}>
-        <CustomNavbar className={navBarClassName} {...rest} />
+        <Navbar className={navBarClassName} {...rest} />
       </RenderIf>
       {children}
       <div className="mt-auto" />
