@@ -21,11 +21,10 @@ const PricingCards = (props: Props) => {
 
   useEffect(() => {
     if (window) {
-      // const currentUrl = new URL(window.location.href);
-      // const fetchUrl = internal
-      //   ? `${currentUrl.origin}/api/client/widget/${widget}`
-      //   : `https://www.dealo.app/api/client/widget/${widget}`;
-      const fetchUrl = `http://localhost:3000/api/client/widget/${widget}`;
+      const currentUrl = new URL(window.location.href);
+      const fetchUrl = internal
+        ? `${currentUrl.origin}/api/client/widget/${widget}`
+        : `https://www.dealo.app/api/client/widget/${widget}`;
 
       if (widget) {
         callAPI({
