@@ -408,8 +408,8 @@ export default function ThirdTemplate(props: TemplateProps) {
               }
             </div>
           </AccordionTrigger>
-          <AccordionContent>
-            <ul className="flex flex-col items-stretch mt-4">
+          <AccordionContent className="flex flex-col">
+            <ul className="flex flex-col items-stretch mt-4 mb-8">
               {features.map((feature) => {
                 const prodValue = feature.products.find((prod) => prod.id === product.id)!;
                 const checked = feature.type === 'boolean' ? prodValue.value === 'true' : true;
@@ -445,39 +445,37 @@ export default function ThirdTemplate(props: TemplateProps) {
                 );
               })}
             </ul>
-            <div className="flex flex-col mt-8">
-              <a
-                href={resolveBtnUrl({
-                  isCustom: !!isCustom,
-                  prod: product,
-                  priceToShow,
-                  type: priceToShow.type,
-                  dev: !!dev,
-                  widgetId: widget,
-                  callbacks,
-                  environment,
-                  currency,
-                })}
+            <a
+              href={resolveBtnUrl({
+                isCustom: !!isCustom,
+                prod: product,
+                priceToShow,
+                type: priceToShow.type,
+                dev: !!dev,
+                widgetId: widget,
+                callbacks,
+                environment,
+                currency,
+              })}
+            >
+              <Button
+                data-spaced={priceToShow.hasFreeTrial}
+                className={`w-full data-[spaced=true]:mb-4 uppercase ${isRecommended ? MOBILE_FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
+                variant="undecorated"
               >
-                <Button
-                  data-spaced={priceToShow.hasFreeTrial}
-                  className={`w-full mt-8 mb-8 data-[spaced=true]:mb-4 uppercase ${isRecommended ? MOBILE_FILLED_BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}`}
-                  variant="undecorated"
-                >
-                  {resolveBtnLabel({
-                    type: priceToShow.type,
-                    prod: product,
-                    isCustom: !!isCustom,
-                    hasFreeTrial: priceToShow.hasFreeTrial,
-                    freeTrialLabel,
-                    subscribeLabel,
-                  })}
-                </Button>
-              </a>
-              <RenderIf condition={priceToShow.hasFreeTrial}>
-                <span className="text text-sm text-center">{priceToShow.freeTrialDays} days</span>
-              </RenderIf>
-            </div>
+                {resolveBtnLabel({
+                  type: priceToShow.type,
+                  prod: product,
+                  isCustom: !!isCustom,
+                  hasFreeTrial: priceToShow.hasFreeTrial,
+                  freeTrialLabel,
+                  subscribeLabel,
+                })}
+              </Button>
+            </a>
+            <RenderIf condition={priceToShow.hasFreeTrial}>
+              <span className="text-sm text-center">{priceToShow.freeTrialDays} days</span>
+            </RenderIf>
           </AccordionContent>
         </AccordionItem>
       )

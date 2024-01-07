@@ -95,7 +95,6 @@ class Wrapper extends HTMLElement {
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
     };
-    window.addEventListener('resize', this.handleResize);
   }
 
   handleResize = () => {
@@ -119,7 +118,12 @@ class Wrapper extends HTMLElement {
   }
 
   connectedCallback() {
+    window.addEventListener('resize', this.handleResize);
     this.render();
+  }
+
+  disconnectedCallback() {
+    window.removeEventListener('resize', this.handleResize);
   }
 }
 
