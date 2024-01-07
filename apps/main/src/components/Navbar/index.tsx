@@ -1,6 +1,7 @@
+/* eslint-disable max-len */
 'use client'
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { signOut, useSession } from 'next-auth/react';
@@ -56,9 +57,12 @@ interface Props {
 export default function Navbar(props: Props) {
   const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
   const { status, data } = useSession();
+  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
+
   const router = useRouter();
 
   const [showDeleteAccountModal, setShowModal] = useState(false);
+  const [showSubscriptionCancelAlert, setShowSubscriptionCancelAlert] = useState(isSubscriptionSetToCancel);
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
     onSuccess: () => handleLogout(),
@@ -72,15 +76,17 @@ export default function Navbar(props: Props) {
     setShowModal(true);
   };
 
+  useEffect(() => {
+    setShowSubscriptionCancelAlert(isSubscriptionSetToCancel);
+  }, [isSubscriptionSetToCancel]);
+
   if (status === 'loading') {
     return null;
   }
 
-  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
-
   return (
     <>
-      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', className)}>
+      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', { 'mt-[32px]': isSubscriptionSetToCancel && showSubscriptionCancelAlert }, className)}>
         <RenderIf condition={showBackButton}>
           <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
@@ -156,13 +162,17 @@ export default function Navbar(props: Props) {
           </div>
         </RenderIf>
       </header>
-      {isSubscriptionSetToCancel && data?.user?.subscriptionCancelAt ? (
-        <div className="flex flex-row items-center justify-center h-[32px] mb-[86px] py-1 px-4 bg-amber-600 dark:bg-amber-500">
-          <span className="text text-sm text-white">
-            Your subscription is set to cancel on {formatDate(new Date(data?.user?.subscriptionCancelAt))}
+      {isSubscriptionSetToCancel && showSubscriptionCancelAlert ? (
+        <div className="fixed top-0 left-0 right-0 z-20 flex flex-row items-center justify-center h-[32px] py-1 px-4 bg-amber-500 dark:bg-amber-600">
+          <span className="text text-sm">
+            Your subscription is set to cancel on {formatDate(new Date(data!.user!.subscriptionCancelAt!), 'en')}
           </span>
-          <Button variant="undecorated" className="absolute top-0 right-0 bottom-0 h-[32px]">
-            <IconX size={14}/>
+          <Button
+            variant="undecorated"
+            className="absolute top-0 right-0 bottom-0 h-[32px] rounded-none hover:bg-amber-500"
+            onClick={() => setShowSubscriptionCancelAlert(false)}
+          >
+            <IconX size={14} />
           </Button>
         </div>
       ) : null}

@@ -52,6 +52,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const hasMissingParams = !session.subscription || !session.customer;
     if (hasMissingParams) {
       console.log(`❌ Webhook Error: missing params`);
+      // noinspection ES6MissingAwait
       notifyOfSubscriptionMissingParams({
         name: (session.customer as Stripe.Customer).name!,
         missingCustomer: !session.customer,
