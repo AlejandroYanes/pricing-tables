@@ -4674,6 +4674,4 @@ video {
 .\\[\\&_tr\\]\\:border-b tr {
   border-bottom-width: 1px;
 }
-
-
 `;

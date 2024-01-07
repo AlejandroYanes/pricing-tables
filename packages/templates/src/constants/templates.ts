@@ -1,8 +1,15 @@
 import type { Templates, WidgetInfo } from '@dealo/models';
 
-import { BasicTemplate, BasicSkeleton } from '../Basic';
-import { SecondTemplate, SecondSkeleton } from '../Second';
-import { ThirdTemplate, ThirdSkeleton } from '../Third';
+import BasicTemplate, { BasicSkeleton } from '../Basic';
+import SecondTemplate, { SecondSkeleton } from '../Second';
+import ThirdTemplate, { ThirdSkeleton } from '../Third';
+
+// import { BasicSkeleton } from '../Basic';
+// import { SecondSkeleton } from '../Second';
+// import { ThirdSkeleton } from '../Third';
+// const BasicTemplate = lazy(() => import('../Basic'));
+// const SecondTemplate = lazy(() => import('../Second'));
+// const ThirdTemplate = lazy(() => import('../Third'));
 
 export enum TEMPLATE_IDS {
   BASIC = '1',

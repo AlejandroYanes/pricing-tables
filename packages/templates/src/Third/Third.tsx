@@ -341,7 +341,7 @@ const resolveCTA = (options: CTAProps) => {
   );
 };
 
-export function ThirdTemplate(props: TemplateProps) {
+export default function ThirdTemplate(props: TemplateProps) {
   const {
     dev,
     widget,

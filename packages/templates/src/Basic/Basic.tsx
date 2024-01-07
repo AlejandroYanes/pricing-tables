@@ -161,7 +161,7 @@ const resolveBtnUrl = (params: BtnUrlParams) => {
   return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
 };
 
-export function BasicTemplate(props: TemplateProps) {
+export default function BasicTemplate(props: TemplateProps) {
   const {
     dev,
     widget,

@@ -234,7 +234,7 @@ const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: Form
   return `${callbackUrl}${hasQueryParams ? '&' : '?'}${queryString}`;
 };
 
-export function SecondTemplate(props: TemplateProps) {
+export default function SecondTemplate(props: TemplateProps) {
   const {
     dev,
     widget,
