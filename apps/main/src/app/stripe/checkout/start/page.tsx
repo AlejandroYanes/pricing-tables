@@ -39,7 +39,7 @@ const CheckoutStartPage = (props: Props) => {
       <Head>
         <title>Dealo | Stripe Checkout start</title>
       </Head>
-      <BaseLayout>
+      <BaseLayout hideUserControls>
         <div className="flex flex-col items-center justify-center w-full p-[86px]">
           <Loader />
         </div>

@@ -97,6 +97,9 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
+      payment_intent_data: {
+        receipt_email: email,
+      },
       customer_email: customer_id ? undefined : email,
       customer: customer_id,
       currency: currency || 'gbp',
