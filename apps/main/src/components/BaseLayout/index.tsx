@@ -21,7 +21,7 @@ const BaseLayout = (props: Props) => {
   const { hideNavbar = false, hideFooter, children, className, navBarClassName, footerClassName, ...rest } = props;
 
   return (
-    <section className={cn('flex flex-col relative pt-0 px-4 pb-6 min-h-screen', className)}>
+    <section className={cn('flex flex-col relative pt-0 px-6 pb-6 min-h-screen', className)}>
       <RenderIf condition={!hideNavbar}>
         <Navbar className={navBarClassName} {...rest} />
       </RenderIf>
