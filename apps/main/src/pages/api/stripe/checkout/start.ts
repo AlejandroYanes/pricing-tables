@@ -96,10 +96,6 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
           quantity: 1,
         },
       ],
-      // TODO: this check is to avoid possible errors when payment_type=one_time
-      //       for more info see
-      //       https://stripe.com/docs/receipts?payment-ui=checkout#paid-invoices (note on one-time payments)
-      ...(payment_type === 'recurring' ? { invoice_creation: { enabled: true } } : {}),
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
       customer_email: customer_id ? undefined : email,
       customer: customer_id,
