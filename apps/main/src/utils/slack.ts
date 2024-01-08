@@ -75,7 +75,7 @@ export function notifyOfSubscriptionCancellation(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `The *${data.name}*'s subscription has been cancelled.`,
+      text: `User *${data.name}* just cancelled his subscription.`,
     },
   );
 }
