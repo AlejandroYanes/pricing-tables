@@ -2,8 +2,8 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { createId } from '@paralleldrive/cuid2';
 
-// import { env } from 'env/server.mjs';
-import { corsMiddleware } from 'utils/api';
+import { env } from 'env/server.mjs';
+import { corsMiddleware, buffer } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import {
@@ -12,27 +12,26 @@ import {
   notifyOfSubscriptionPaymentFailed,
 } from 'utils/slack';
 import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
-// import { buffer } from 'utils/api';
 
-// export const config = {
-//   api: {
-//     bodyParser: false,
-//   },
-// };
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
-  // const signature = req.headers['stripe-signature']!;
+  const signature = req.headers['stripe-signature']!;
 
   const stripe = initStripe();
-  const event: Stripe.Event = req.body as Stripe.Event;
+  let event: Stripe.Event;
 
-  // try {
-  //   const payload = await buffer(req);
-  //   event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_CHECKOUT_WEBHOOK_SECRET);
-  // } catch (err: any) {
-  //   console.log(`❌ Webhook Error: ${err.message}`);
-  //   return res.status(400).send(`Webhook Error: ${err.message}`);
-  // }
+  try {
+    const payload = await buffer(req);
+    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_CHECKOUT_WEBHOOK_SECRET);
+  } catch (err: any) {
+    console.log(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
 
   if (event.type === 'checkout.session.completed') {
     const { account, data } = event as Stripe.Event;
