@@ -21,7 +21,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const payload = await buffer(req);
-    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET);
+    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_INVOICE_WEBHOOK_SECRET);
   } catch (err: any) {
     console.log(`❌ Webhook Error: ${err.message}`);
     return res.status(400).send(`Webhook Error: ${err.message}`);
