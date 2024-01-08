@@ -11,7 +11,7 @@ import {
   notifyOfSubscriptionMissingParams,
   notifyOfSubscriptionPaymentFailed,
 } from 'utils/slack';
-import { sendFailedPaymentEmail } from 'utils/resend';
+import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
 // import { buffer } from 'utils/api';
 
 // export const config = {
@@ -96,6 +96,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
     // noinspection ES6MissingAwait
     notifyOfNewSubscription({ name });
+    // noinspection ES6MissingAwait
+    sendSubscriptionCreatedEmail({ name, to: email });
   }
 
   res.status(200).json({ received: true });

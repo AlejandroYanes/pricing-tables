@@ -38,6 +38,8 @@ export const serverSchema = z.object({
   STRIPE_INVOICE_WEBHOOK_SECRET: z.string(),
   // Platform URL
   PLATFORM_URL: z.string().url().nullish(),
+  // Resend
+  RESEND_API_KEY: z.string(),
 });
 
 /**
@@ -66,6 +68,7 @@ export const serverEnv = {
   STRIPE_SUBSCRIPTION_WEBHOOK_SECRET: process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET,
   STRIPE_INVOICE_WEBHOOK_SECRET: process.env.STRIPE_INVOICE_WEBHOOK_SECRET,
   PLATFORM_URL: process.env.PLATFORM_URL,
+  RESEND_API_KEY: process.env.RESEND_API_KEY,
 };
 
 /**
