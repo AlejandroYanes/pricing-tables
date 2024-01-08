@@ -28,7 +28,7 @@ const PrivacyPolicyPage = () => {
           <strong>2. Payment Information</strong>
           <br/>
           To facilitate transactions through our platform, we integrate with Stripe to process payments.
-          We do not store or process any credit card information on our servers.
+          We do not store or process any credit card information on our servers. {' '}
           {`Stripe's`} privacy policy is applicable to the collection and processing of payment information.
 
           <br/>
