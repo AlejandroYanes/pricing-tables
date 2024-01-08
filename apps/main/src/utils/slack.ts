@@ -36,6 +36,7 @@ export function notifyOfDeletedAccount(data: DeletedPayload) {
 }
 
 export function notifyOfNewSubscription(data: Payload) {
+  console.log('---------------notifyOfNewSubscription-----------------');
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
