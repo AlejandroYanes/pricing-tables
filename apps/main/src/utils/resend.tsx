@@ -70,7 +70,6 @@ export function sendFailedPaymentEmail(payload: EmailPayload) {
 }
 
 export function sendSubscriptionCreatedEmail(payload: EmailPayload) {
-  console.log('------------sendSubscriptionCreatedEmail------------');
   return sendEmail({
     to: 'support@dealo.app',
     subject: 'New Subscription!!!',
