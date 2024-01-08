@@ -84,6 +84,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       return;
     }
 
+    console.log('---------------checkout.session.completed-----------------');
+
     await db.transaction(async (tx) => {
       await tx.execute('UPDATE User SET stripeCustomerId = ? WHERE id = ?', [customer.id, userId]);
       await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
@@ -94,8 +96,11 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       );
     });
 
+    console.log('---------------notifyOfNewSubscription-----------------', name);
+
     // noinspection ES6MissingAwait
     notifyOfNewSubscription({ name });
+    console.log('-------------done-----------------');
   }
 
   res.status(200).json({ received: true });

@@ -87,8 +87,6 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     const finalSuccessUrl = successUrl || refererSuccessUrl || fallbackSuccessUrl;
     const finalCancelUrl = cancelUrl || refererCancelUrl || fallbackCancelUrl;
 
-    console.log('---------------checkout start URLS', { platformUrl, refererSuccessUrl, fallbackSuccessUrl, finalSuccessUrl });
-
     const stripe = initStripe();
 
     const checkoutSession = await stripe.checkout.sessions.create({
