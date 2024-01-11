@@ -163,21 +163,17 @@ export default function IntegrationPanel(props: Props) {
       <CodeBlock>{curlCommand(data!.user!.id)}</CodeBlock>
       <p className="mt-6 mb-4">{`Here's`} a JavaScript version:</p>
       <CodeBlock>{jsCommand(data!.user!.id)}</CodeBlock>
-      <h3 className="text text-xl font-bold">Generating a Stripe Customer Portal</h3>
-      <p className="text m-0">
-        To generate a Stripe Customer Portal you need redirect the user to our API route.
-        For this one we only need the Stripe <Code>customer_id</Code> associated with the user.
-      </p>
-      <CodeBlock>
-        {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}
-      </CodeBlock>
-      <p className="text">
-        This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
-        After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
-        or we will redirect them to the same page they were before (the one that initiated the checkout).
-      </p>
-      <span className="text">This request also needs the API Key header:</span>
-      <CodeBlock>{`X-Api-Key=${data?.user?.id}`}</CodeBlock>
+      {/* TOTO: need to figure out an easier way for customers */}
+      {/*<h3 className="text text-xl font-bold">Generating a Stripe Customer Portal</h3>*/}
+      {/*<p className="text m-0">*/}
+      {/*  To generate a Stripe Customer Portal you need redirect the user to our API route.*/}
+      {/*  For this one we only need the Stripe <Code>customer_id</Code> associated with the user.*/}
+      {/*</p>*/}
+      {/*<CodeBlock>*/}
+      {/*  {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}*/}
+      {/*</CodeBlock>*/}
+      {/*<span className="text">This request also needs the API Key header:</span>*/}
+      {/*<CodeBlock>{`X-Api-Key=${data?.user?.id}`}</CodeBlock>*/}
     </div>
   );
 }

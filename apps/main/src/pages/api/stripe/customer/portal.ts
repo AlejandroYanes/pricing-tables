@@ -1,11 +1,12 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { type AuthenticatedSession } from 'next-auth';
 
 import { env } from 'env/server.mjs';
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
+import { authMiddleware } from 'utils/api';
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const { customer_id } = req.query as { customer_id?: string };
+async function handler(req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) {
   const stripe = initStripe();
   const db = initDb();
 
@@ -16,8 +17,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           JOIN User US1 ON CR.userId = US1.id
           JOIN PriceWidget PW ON CR.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE CR.isActive = true AND US1.stripeCustomerId = ?
-    `, [customer_id])
+      WHERE CR.isActive = true AND US1.id = ?
+    `, [session.user.id])
   ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string };
 
   if (!checkoutRecord) {
@@ -49,4 +50,4 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   res.redirect(303, customerPortal.url);
 }
 
-export default handler;
+export default authMiddleware(handler);
