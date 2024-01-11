@@ -230,28 +230,30 @@ export default function ProductBlock(props: Props) {
                   </TooltipProvider>
                 </RenderIf>
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`free-trial-checkbox-${price.id}`}
-                  checked={price.hasFreeTrial}
-                  onChange={() => undefined}
-                  onClick={() => onToggleFreeTrial(product.id, price.id)}
-                />
-                <Label htmlFor={`free-trial-checkbox-${price.id}`} className="cursor-pointer">
-                  Include free trial
-                </Label>
-              </div>
-              <RenderIf condition={price.hasFreeTrial}>
-                <div className="flex flex-col gap-2 mb-2">
-                  <Label htmlFor="free-trial-days">Days</Label>
-                  <Input
-                    id="free-trial-days"
-                    type="number"
-                    min={1}
-                    value={price.freeTrialDays}
-                    onChange={(event) => onFreeTrialDaysChange(product.id, price.id, Number(event.target.value))}
+              <RenderIf condition={price.type === 'recurring'}>
+                <div className="flex items-center gap-2 mb-2">
+                  <Checkbox
+                    id={`free-trial-checkbox-${price.id}`}
+                    checked={price.hasFreeTrial}
+                    onChange={() => undefined}
+                    onClick={() => onToggleFreeTrial(product.id, price.id)}
                   />
+                  <Label htmlFor={`free-trial-checkbox-${price.id}`} className="cursor-pointer">
+                    Include free trial
+                  </Label>
                 </div>
+                <RenderIf condition={price.hasFreeTrial}>
+                  <div className="flex flex-col gap-2 mb-2">
+                    <Label htmlFor="free-trial-days">Days</Label>
+                    <Input
+                      id="free-trial-days"
+                      type="number"
+                      min={3}
+                      value={price.freeTrialDays}
+                      onChange={(event) => onFreeTrialDaysChange(product.id, price.id, Number(event.target.value))}
+                    />
+                  </div>
+                </RenderIf>
               </RenderIf>
             </div>
           </Fragment>

@@ -9,7 +9,7 @@ export type FormPrice = {
   id: string;
   mask: string;
   order: number;
-  type: string;
+  type: Stripe.Price.Type;
   active: boolean;
   product: string;
   hasFreeTrial: boolean;
