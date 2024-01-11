@@ -86,7 +86,13 @@ export default function Navbar(props: Props) {
 
   return (
     <>
-      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', { 'mt-[32px]': isSubscriptionSetToCancel && showSubscriptionCancelAlert }, className)}>
+      <header
+        className={cn(
+          'h-16 flex justify-start items-center mb-6 z-10',
+          { 'mt-[32px]': isSubscriptionSetToCancel && showSubscriptionCancelAlert },
+          className,
+        )}
+      >
         <RenderIf condition={showBackButton}>
           <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
         </RenderIf>
@@ -136,7 +142,7 @@ export default function Navbar(props: Props) {
                     </Link>
                   }
                 >
-                  <Link href="/api/stripe/customer/portal">
+                  <Link href={`/api/stripe/customer/portal?${data?.user?.customerId}`}>
                     <DropdownMenuItem>
                       <IconReceipt size={14} className="mr-2" />
                       Billing

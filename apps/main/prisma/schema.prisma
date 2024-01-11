@@ -103,6 +103,7 @@ model CheckoutRecord {
     cancellationDetails   String?
     createdAt             DateTime        @default(now())
     isActive              Boolean         @default(true)
+    isPaying              Boolean         @default(false)
     widget                PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
     user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
