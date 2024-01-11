@@ -61,7 +61,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     const customer = session.customer as Stripe.Customer;
-    const { id: subscriptionId, current_period_start, current_period_end } = session.subscription as Stripe.Subscription;
+    const { id: subscriptionId, current_period_start, current_period_end, status } = session.subscription as Stripe.Subscription;
     const { widgetId, productId, priceId } = session.metadata!;
     const db = initDb();
 
@@ -88,8 +88,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
       await tx.execute(
         // eslint-disable-next-line max-len
-        'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end],
+        'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd, isPaying) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        // eslint-disable-next-line max-len
+        [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end, status === 'active'],
       );
     });
 
