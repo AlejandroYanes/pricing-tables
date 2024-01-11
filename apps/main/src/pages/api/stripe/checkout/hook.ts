@@ -1,16 +1,13 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { createId } from '@paralleldrive/cuid2';
+import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
-import { corsMiddleware, buffer } from 'utils/api';
+import { buffer, corsMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
-import {
-  notifyOfNewSubscription,
-  notifyOfSubscriptionMissingParams,
-  notifyOfSubscriptionPaymentFailed,
-} from 'utils/slack';
+import { notifyOfNewSubscription, notifyOfSubscriptionMissingParams, notifyOfSubscriptionPaymentFailed, } from 'utils/slack';
 import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
 
 export const config = {
@@ -84,7 +81,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     }
 
     await db.transaction(async (tx) => {
-      await tx.execute('UPDATE User SET stripeCustomerId = ? WHERE id = ?', [customer.id, userId]);
+      await tx.execute(
+        'UPDATE User SET stripeCustomerId = ?, role = ? WHERE id = ?',
+        [customer.id, status === 'active' ? ROLES.PAID : ROLES.USER, userId],
+      );
       await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
       await tx.execute(
         // eslint-disable-next-line max-len
