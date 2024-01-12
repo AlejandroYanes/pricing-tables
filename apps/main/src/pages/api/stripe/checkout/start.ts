@@ -23,7 +23,7 @@ const inputSchema = z.object({
   customer_id: z.string().optional(),
   internal_flow: z.enum(['true', 'false']).optional(),
   free_trial_days: z.number().int().positive().min(3).optional(),
-  free_trial_end_behavior: z.literal('pause').or(z.literal('cancel')).optional(),
+  free_trial_end_action: z.literal('pause').or(z.literal('cancel')).optional(),
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {
@@ -45,7 +45,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     customer_id,
     internal_flow,
     free_trial_days,
-    free_trial_end_behavior,
+    free_trial_end_action,
   } = parsedParams.data;
   const db = initDb();
 
@@ -105,7 +105,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         subscription_data: {
           trial_settings: {
             end_behavior: {
-              missing_payment_method: free_trial_end_behavior ?? 'pause',
+              missing_payment_method: free_trial_end_action ?? 'pause',
             },
           },
           trial_period_days: free_trial_days,

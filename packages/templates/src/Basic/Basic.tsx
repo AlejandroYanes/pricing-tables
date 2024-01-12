@@ -140,21 +140,47 @@ const resolveBtnLabel = (param: ButtonLabelParams) => {
   return hasFreeTrial ? freeTrialLabel : subscribeLabel;
 };
 
-interface BtnUrlParams { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }
+interface BtnUrlParams {
+  dev: boolean;
+  widgetId: string;
+  callbacks: FormCallback[];
+  environment: string;
+  isCustom: boolean;
+  prod: FormProduct;
+  priceToShow: FormPrice;
+  type: string;
+  currency?: string | null;
+  freTrialDays?: number;
+  freeTrialEndAction?: string;
+}
 const resolveBtnUrl = (params: BtnUrlParams) => {
-  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+  const {
+    widgetId,
+    isCustom,
+    prod,
+    priceToShow,
+    type,
+    dev,
+    environment,
+    callbacks,
+    currency,
+    freTrialDays,
+    freeTrialEndAction,
+  } = params;
 
   if (isCustom) return prod.ctaUrl || '';
 
   const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
   const hasQueryParams = callbackUrl.includes('?');
 
-  const queryParams: Record<string, string> = {
+  const queryParams: Record<string, string | number | undefined> = {
     widget_id: widgetId,
     product_id: dev ? prod.mask! : prod.id,
     price_id: dev ? priceToShow.mask! : priceToShow.id,
     currency: currency || priceToShow.currency,
     payment_type: type,
+    free_trial_days: freTrialDays,
+    free_trial_end_action: freeTrialEndAction,
   };
 
   const queryString = generateQueryString(queryParams);
@@ -270,6 +296,8 @@ export default function BasicTemplate(props: TemplateProps) {
                 callbacks,
                 environment,
                 currency,
+                freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+                freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
             >
               <Button
@@ -381,6 +409,8 @@ export default function BasicTemplate(props: TemplateProps) {
                     callbacks,
                     environment,
                     currency,
+                    freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+                    freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
                   })}
                 >
                   <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>

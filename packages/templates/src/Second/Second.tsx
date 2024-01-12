@@ -214,20 +214,47 @@ const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boo
   return hasFreeTrial ? freeTrialLabel : subscribeLabel;
 };
 
-const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
-  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+interface ResolveBtnUrlParams {
+  dev: boolean;
+  widgetId: string;
+  callbacks: FormCallback[];
+  environment: string;
+  isCustom: boolean;
+  prod: FormProduct;
+  priceToShow: FormPrice;
+  type: string;
+  currency?: string | null;
+  freTrialDays?: number;
+  freeTrialEndAction?: string;
+}
+const resolveBtnUrl = (params: ResolveBtnUrlParams) => {
+  const {
+    widgetId,
+    isCustom,
+    prod,
+    priceToShow,
+    type,
+    dev,
+    environment,
+    callbacks,
+    currency,
+    freTrialDays,
+    freeTrialEndAction,
+  } = params;
 
   if (isCustom) return prod.ctaUrl || '';
 
   const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
   const hasQueryParams = callbackUrl.includes('?');
 
-  const queryParams: Record<string, string> = {
+  const queryParams: Record<string, string | number | undefined> = {
     widget_id: widgetId,
     product_id: dev ? prod.mask! : prod.id,
     price_id: dev ? priceToShow.mask! : priceToShow.id,
     currency: currency || priceToShow.currency,
     payment_type: type,
+    free_trial_days: freTrialDays,
+    free_trial_end_action: freeTrialEndAction,
   };
 
   const queryString = generateQueryString(queryParams);
@@ -346,6 +373,8 @@ export default function SecondTemplate(props: TemplateProps) {
                 callbacks,
                 environment,
                 currency,
+                freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+                freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
             >
               <Button
@@ -438,6 +467,8 @@ export default function SecondTemplate(props: TemplateProps) {
                     callbacks,
                     environment,
                     currency,
+                    freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+                    freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
                   })}
                   data-spaced={hasFreeTrial}
                   className="h-10 mt-8 mb-8 cursor-pointer data-[spaced=true]:mb-4"
