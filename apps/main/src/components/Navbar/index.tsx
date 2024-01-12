@@ -145,7 +145,7 @@ export default function Navbar(props: Props) {
                   <Link href="/api/stripe/customer/portal">
                     <DropdownMenuItem>
                       <IconReceipt size={14} className="mr-2" />
-                      Billing
+                      Customer Portal
                     </DropdownMenuItem>
                   </Link>
                 </RenderIf>

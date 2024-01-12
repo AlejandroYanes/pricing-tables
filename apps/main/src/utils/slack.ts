@@ -12,12 +12,13 @@ function sendNotification(channel: string, body: any) {
 
 interface Payload {
   name: string;
+  email: string;
 }
 
 export function notifyOfNewSetup(data: Payload) {
   return sendNotification(
     env.SLACK_USERS_CHANNEL,
-    { text: `A user just setup his account:\n*${data.name}*\n (With New Setup)` }
+    { text: `A user just setup his account:\n*${data.name}(${data.email})*\n (With New Setup)` }
   );
 }
 
@@ -30,7 +31,7 @@ export function notifyOfDeletedAccount(data: DeletedPayload) {
   return sendNotification(
     env.SLACK_USERS_CHANNEL,
     {
-      text: `A user just deleted his account:\n*${name}*\n ${hadSubscription ? '(With Subscription)' : ''}`,
+      text: `A user just deleted his account:\n*${name}(${data.email})*\n ${hadSubscription ? '(With Subscription)' : ''}`,
     },
   );
 }
@@ -39,7 +40,34 @@ export function notifyOfNewSubscription(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `A user just subscribed to the Paid Plan:\n*${data.name}*\n`,
+      text: `A user just subscribed to the Paid Plan:\n*${data.name}(${data.email})*\n`,
+    },
+  );
+}
+
+export function notifyOfSubscriptionMissingPaymentMethod(data: Payload) {
+  return sendNotification(
+    env.SLACK_SUBSCRIPTIONS_CHANNEL,
+    {
+      text: `The subscription for user *${data.name}(${data.email})* is missing a payment method.`,
+    },
+  );
+}
+
+export function notifyOfSubscriptionPaused(data: Payload) {
+  return sendNotification(
+    env.SLACK_SUBSCRIPTIONS_CHANNEL,
+    {
+      text: `The subscription for user *${data.name}(${data.email})* is paused.`,
+    },
+  );
+}
+
+export function notifyOfSubscriptionResumed(data: Payload) {
+  return sendNotification(
+    env.SLACK_SUBSCRIPTIONS_CHANNEL,
+    {
+      text: `The subscription for user *${data.name}(${data.email})* is resumed.`,
     },
   );
 }

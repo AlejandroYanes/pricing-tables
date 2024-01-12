@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
+import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
 import { corsMiddleware, buffer } from 'utils/api';
@@ -8,6 +9,9 @@ import initStripe from 'utils/stripe';
 import {
   notifyOfRenewedSubscription,
   notifyOfSubscriptionCancellation,
+  notifyOfSubscriptionMissingPaymentMethod,
+  notifyOfSubscriptionPaused,
+  notifyOfSubscriptionResumed,
   notifyOfSubscriptionSoftCancellation
 } from 'utils/slack';
 import { sendSubscriptionCancelledEmail } from 'utils/resend';
@@ -51,13 +55,38 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  if (event.type === 'customer.subscription.deleted') {
-    const { id: userId, name } = dbInfo;
+  if (event.type === 'customer.subscription.trial_will_end') {
+    const { default_payment_method } = subscription;
+
+    if (!default_payment_method) {
+      console.log(`⚠️ Subscriptions: User's subscription trial is ending but they have no payment method set up.`);
+      // noinspection ES6MissingAwait
+      notifyOfSubscriptionMissingPaymentMethod({ email: dbInfo.email, name: dbInfo.name });
+    }
+  }
+
+  if (event.type === 'customer.subscription.paused') {
     await db.transaction(async (tx) => {
-      await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE WHERE isActive = TRUE AND userId = ?', [userId]);
+      await tx.execute(
+        'UPDATE CheckoutRecord SET isPaying = FALSE WHERE isActive = TRUE AND userId = ?',
+        [dbInfo.id],
+      );
+      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
     // noinspection ES6MissingAwait
-    notifyOfSubscriptionCancellation({ name });
+    notifyOfSubscriptionPaused({ name: dbInfo.name, email: dbInfo.email });
+  }
+
+  if (event.type === 'customer.subscription.resumed') {
+    await db.transaction(async (tx) => {
+      await tx.execute(
+        'UPDATE CheckoutRecord SET isPaying = TRUE WHERE isActive = TRUE AND userId = ?',
+        [dbInfo.id],
+      );
+      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.PAID, dbInfo.id]);
+    });
+    // noinspection ES6MissingAwait
+    notifyOfSubscriptionResumed({ name: dbInfo.name, email: dbInfo.email });
   }
 
   if (event.type === 'customer.subscription.updated') {
@@ -75,22 +104,30 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         );
       });
       // noinspection ES6MissingAwait
-      notifyOfSubscriptionSoftCancellation({ name, cancelAt: cancel_at! });
+      notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
       // noinspection ES6MissingAwait
       sendSubscriptionCancelledEmail({ name, to: email });
     }
 
     if (isRenewing) {
-      const { id: userId, name } = dbInfo;
       await db.transaction(async (tx) => {
         await tx.execute(
           'UPDATE CheckoutRecord SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE isActive = TRUE AND userId = ?',
-          [userId],
+          [dbInfo.id],
         );
       });
       // noinspection ES6MissingAwait
-      notifyOfRenewedSubscription({ name });
+      notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
     }
+  }
+
+  if (event.type === 'customer.subscription.deleted') {
+    await db.transaction(async (tx) => {
+      await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE, isPaying = FALSE WHERE isActive = TRUE AND userId = ?', [dbInfo.id]);
+      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
+    });
+    // noinspection ES6MissingAwait
+    notifyOfSubscriptionCancellation({ name: dbInfo.name, email: dbInfo.email });
   }
 
   res.status(200).json({ received: true });
