@@ -65,7 +65,7 @@ async function getWidgetData(widgetId: string) {
   const prodIds = products.map((p) => p.id);
   const prices = prodIds.length > 0
     ? (
-      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
+      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.freeTrialEndAction, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
     ).rows as Price[]
     : [];
 
@@ -213,4 +213,4 @@ type Widget = {
 type Callback = { id: string; env: string; url: string; order: number };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number; isSelected: boolean };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; freeTrialEndAction: string; productId: string; mask: string; order: number; isSelected: boolean };

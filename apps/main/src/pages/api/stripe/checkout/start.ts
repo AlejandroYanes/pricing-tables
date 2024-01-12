@@ -23,7 +23,7 @@ const inputSchema = z.object({
   customer_id: z.string().optional(),
   internal_flow: z.enum(['true', 'false']).optional(),
   free_trial_days: z.number().int().positive().min(3).optional(),
-  free_trial_end_behavior: z.enum(['pause', 'cancel']).optional(),
+  free_trial_end_behavior: z.literal('pause').or(z.literal('cancel')).optional(),
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {

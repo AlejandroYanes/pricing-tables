@@ -7,6 +7,7 @@ export * from './add-price';
 export * from './remove-price';
 export * from './toggle-free-trial';
 export * from './change-free-trial-days';
+export * from './change-free-trial-end-action';
 export * from './change-custom-cta-name';
 export * from './change-custom-cta-label';
 export * from './change-custom-cta-url';

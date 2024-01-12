@@ -51,15 +51,16 @@ model Product {
 }
 
 model Price {
-    id              String
-    hasFreeTrial    Boolean       @default(false)
-    freeTrialDays   Int           @default(0)
-    order           Int           @default(0)
-    createdAt       DateTime      @default(now())
-    mask            String
-    widgetId        String
-    productId       String
-    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
+    id                  String
+    hasFreeTrial        Boolean       @default(false)
+    freeTrialDays       Int           @default(0)
+    freeTrialEndAction  String?       @default("pause")
+    order               Int           @default(0)
+    createdAt           DateTime      @default(now())
+    mask                String
+    widgetId            String
+    productId           String
+    product             Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
 
     @@id([id, widgetId])
 }

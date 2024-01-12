@@ -14,6 +14,7 @@ export type FormPrice = {
   product: string;
   hasFreeTrial: boolean;
   freeTrialDays: number;
+  freeTrialEndAction: 'pause' | 'cancel';
   unit_amount: number;
   currency: string;
   isSelected: boolean;

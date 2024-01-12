@@ -36,12 +36,13 @@ import {
   changeCustomCtaLabel,
   changeCustomCtaName,
   changeCustomCTAUrl,
+  toggleFreeTrial,
   changeFreeTrialDays,
+  changeFreeTrialEndAction,
   handleAddPrice,
   removePrice,
   removeProduct,
   reorderProducts,
-  toggleFreeTrial,
 } from './state/actions';
 
 interface Props {
@@ -247,6 +248,7 @@ export default function ProductsForm(props: Props) {
             onRemovePrice={removePrice}
             onToggleFreeTrial={toggleFreeTrial}
             onFreeTrialDaysChange={changeFreeTrialDays}
+            onFreeTrialEndActionChange={changeFreeTrialEndAction}
             onMoveToTop={onMoveToTop}
             onMoveUp={onMoveUp}
             onMoveDown={onMoveDown}
