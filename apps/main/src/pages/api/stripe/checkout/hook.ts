@@ -83,7 +83,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     await db.transaction(async (tx) => {
       await tx.execute(
         'UPDATE User SET stripeCustomerId = ?, role = ? WHERE id = ?',
-        [customer.id, status === 'active' ? ROLES.PAID : ROLES.USER, userId],
+        [customer.id, ROLES.PAID, userId],
       );
       await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
       await tx.execute(
