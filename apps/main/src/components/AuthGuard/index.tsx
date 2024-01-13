@@ -21,8 +21,13 @@ const AuthGuard = (props: Props) => {
     return null;
   }
 
-  if (!session?.user || (isAdmin && session.user?.role !== ROLES.ADMIN)) {
+  if (!session?.user) {
     router.push('/');
+    return null;
+  }
+
+  if (isAdmin && session.user.role !== ROLES.ADMIN) {
+    router.push('/dashboard');
     return null;
   }
 

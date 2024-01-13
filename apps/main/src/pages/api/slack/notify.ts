@@ -18,16 +18,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     case 'invoices':
       await notifyOfInvoiceFailedToFinalize({
         name: 'Test',
+        email: 'test@gmail.com',
         invoiceId: 'invoice-123',
         subscriptionId: 'subs-123',
-        customerEmail: 'test@email.com',
       });
       break;
     case 'subs':
-      await notifyOfSubscriptionCancellation({ name: 'Test' });
+      await notifyOfSubscriptionCancellation({ name: 'Test', email: 'test@gmail.com' });
       break;
     case 'users':
-      await notifyOfDeletedAccount({ name: 'Test', hadSubscription: false });
+      await notifyOfDeletedAccount({ name: 'Test', email: 'test@gmail.com', hadSubscription: false });
       break;
   }
 

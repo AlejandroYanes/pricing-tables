@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession } from 'next-auth/adapters';
 import { createId } from '@paralleldrive/cuid2';
+import type Stripe from 'stripe';
 
 import initDb from './planet-scale';
 
@@ -102,7 +103,7 @@ export default function PlanetScaleAdapter(): Adapter {
         emailVerified: string | null;
         image: string | null;
         role: string;
-        stripeConnected: boolean;
+        stripeConnected: number;
         stripeKey: string | null;
         stripeCustomerId: string | null;
         userId: string;
@@ -112,19 +113,31 @@ export default function PlanetScaleAdapter(): Adapter {
 
       if (!userAndSession) return null;
 
-      const checkoutRecord = (
+      const subscription = (
         await db.execute(
-          'SELECT subscriptionId, isActive, currentPeriodEnd, cancelAt FROM CheckoutRecord WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
+          'SELECT id, status, trialEnd, cancelAt FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
           [userAndSession.userId],
         )
       ).rows[0] as {
-        subscriptionId: string;
-        isActive: boolean;
-        currentPeriodEnd: number;
+        id: string;
+        status: Stripe.Subscription.Status;
+        trialEnd: number;
         cancelAt: number;
       } | undefined;
 
-      const { id, name, email, emailVerified, image, role, stripeConnected, stripeKey, stripeCustomerId, userId, expires } = userAndSession;
+      const {
+        id,
+        name,
+        email,
+        emailVerified,
+        image,
+        role,
+        stripeConnected,
+        stripeKey,
+        stripeCustomerId,
+        userId,
+        expires,
+      } = userAndSession;
       return {
         user: {
           id,
@@ -134,11 +147,11 @@ export default function PlanetScaleAdapter(): Adapter {
           role,
           emailVerified,
           stripeCustomerId,
-          isSetup: stripeConnected,
+          isSetup: !!stripeConnected,
           hasLegacySetup: !!stripeKey,
-          hasSubscription: !!checkoutRecord?.subscriptionId && checkoutRecord.isActive,
-          subscriptionEndsAt: checkoutRecord?.currentPeriodEnd,
-          subscriptionCancelAt: checkoutRecord?.cancelAt,
+          subscriptionStatus: subscription?.status ?? null,
+          trialEnd: subscription?.trialEnd ?? null,
+          subscriptionCancelAt: subscription?.cancelAt ?? null,
         } as AdapterUser,
         session: { sessionToken, userId, expires: new Date(expires) } as AdapterSession,
       };

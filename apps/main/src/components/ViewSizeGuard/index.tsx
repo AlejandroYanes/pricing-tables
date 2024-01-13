@@ -22,7 +22,7 @@ const ViewSizeGuard = (props: Props) => {
     return (
       <BaseLayout hideNavbar>
         <div className="flex flex-col items-center justify-center mx-auto mt-16 max-w-[600px]">
-          <Image src="/illustrations/mobile_devices.svg" width={320} height={280} alt="no mobile support" />
+          <Image src="/illustrations/undraw_mobile_devices.svg" width={320} height={280} alt="no mobile support" />
           <h2 className="text text-4xl font-semibold align-center my-6">
             No small screen support.
           </h2>

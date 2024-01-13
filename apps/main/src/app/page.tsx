@@ -130,7 +130,7 @@ const HomePage = () => {
             width={380}
             height={400}
             alt="hero"
-            src="/illustrations/fitting_piece.svg"
+            src="/illustrations/undraw_fitting_piece.svg"
             className="flex-1 hidden lg:block w-[380px] h-[400px]"
             priority
           />

@@ -1,9 +1,12 @@
-import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { type AuthenticatedSession, getServerSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 import { authOptions } from './auth';
+import { isLocalServer } from './environments';
+import initStripe from './stripe';
 
-type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
+export type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
 export const authMiddleware = (next: AuthenticatedHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, authOptions);
@@ -34,6 +37,26 @@ export const corsMiddleware = (next: CorsHandler) => async (req: NextApiRequest,
 
   return next(req, res);
 }
+
+export type StripeEventHandler = (req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) => Promise<void>;
+
+export const stripeEventMiddleware = (next: StripeEventHandler, secret: string) => async (req: NextApiRequest, res: NextApiResponse) => {
+  if (isLocalServer()) {
+    return next(req, res, req.body as Stripe.Event);
+  }
+
+  const signature = req.headers['stripe-signature']!;
+  const stripe = initStripe();
+
+  try {
+    const payload = await buffer(req);
+    const event = stripe.webhooks.constructEvent(payload, signature, secret);
+    return next(req, res, event);
+  } catch (err: any) {
+    console.log(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+};
 
 export const buffer = (req: NextApiRequest) => {
   return new Promise<Buffer>((resolve, reject) => {

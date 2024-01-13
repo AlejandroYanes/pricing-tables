@@ -223,7 +223,15 @@ const resolveMobilePricing = (options: Omit<PricingProps, 'isSelected'>) => {
   return 'Unable to resolve pricing';
 };
 
-const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boolean; hasFreeTrial: boolean; freeTrialLabel: string; subscribeLabel: string }) => {
+interface ButtonLabelProps {
+  type: string;
+  prod: FormProduct;
+  isCustom: boolean;
+  hasFreeTrial: boolean;
+  freeTrialLabel: string;
+  subscribeLabel: string;
+}
+const resolveBtnLabel = (param: ButtonLabelProps) => {
   const { type, prod, isCustom, hasFreeTrial, freeTrialLabel, subscribeLabel } = param;
 
   if (type === 'one_time') return 'Buy Now';
@@ -231,20 +239,47 @@ const resolveBtnLabel = (param: { type: string; prod: FormProduct; isCustom: boo
   return hasFreeTrial ? freeTrialLabel : subscribeLabel;
 };
 
-const resolveBtnUrl = (params: { dev: boolean; widgetId: string; callbacks: FormCallback[]; environment: string; isCustom: boolean; prod: FormProduct; priceToShow: FormPrice; type: string; currency?: string | null }) => {
-  const { widgetId, isCustom, prod, priceToShow, type, dev, environment, callbacks, currency } = params;
+interface ButtonUrlProps {
+  dev: boolean;
+  widgetId: string;
+  callbacks: FormCallback[];
+  environment: string;
+  isCustom: boolean;
+  prod: FormProduct;
+  priceToShow: FormPrice;
+  type: string;
+  currency?: string | null;
+  freTrialDays?: number;
+  freeTrialEndAction?: string;
+}
+const resolveBtnUrl = (params: ButtonUrlProps) => {
+  const {
+    widgetId,
+    isCustom,
+    prod,
+    priceToShow,
+    type,
+    dev,
+    environment,
+    callbacks,
+    currency,
+    freTrialDays,
+    freeTrialEndAction,
+  } = params;
 
   if (isCustom) return prod.ctaUrl || '';
 
   const callbackUrl = callbacks.find((cb) => cb.env === environment)!.url;
   const hasQueryParams = callbackUrl.includes('?');
 
-  const queryParams: Record<string, string> = {
+  const queryParams: Record<string, string | number | undefined> = {
     widget_id: widgetId,
     product_id: dev ? prod.mask! : prod.id,
     price_id: dev ? priceToShow.mask! : priceToShow.id,
     currency: currency || priceToShow.currency,
     payment_type: type,
+    free_trial_days: freTrialDays,
+    free_trial_end_action: freeTrialEndAction,
   };
 
   const queryString = generateQueryString(queryParams);
@@ -294,6 +329,8 @@ const resolveCTA = (options: CTAProps) => {
             callbacks,
             environment: env,
             currency,
+            freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+            freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
           })}
           className="w-full px-8"
           target="_top"
@@ -325,6 +362,8 @@ const resolveCTA = (options: CTAProps) => {
         callbacks,
         environment: env,
         currency,
+        freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+        freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
       })}
       className="w-full px-8"
     >
@@ -456,6 +495,8 @@ export default function ThirdTemplate(props: TemplateProps) {
                 callbacks,
                 environment,
                 currency,
+                freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
+                freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
             >
               <Button

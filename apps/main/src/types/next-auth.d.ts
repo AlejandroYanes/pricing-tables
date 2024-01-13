@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { type DefaultSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 declare module 'next-auth' {
   /**
@@ -12,8 +13,8 @@ declare module 'next-auth' {
       customerId: string | null;
       isSetup: boolean;
       hasLegacySetup: boolean;
-      hasSubscription: boolean;
-      subscriptionEndsAt: number | null;
+      subscriptionStatus: Stripe.Subscription.Status;
+      trialEnd: number | null;
       subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
@@ -25,8 +26,8 @@ declare module 'next-auth' {
       customerId: string | null;
       isSetup: boolean;
       hasLegacySetup: boolean;
-      hasSubscription: boolean;
-      subscriptionEndsAt: number | null;
+      subscriptionStatus: Stripe.Subscription.Status;
+      trialEnd: number | null;
       subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }

@@ -12,6 +12,11 @@ import PricingWidget from 'components/PricingWidget';
 const PricingPage = () => {
   const { data, status } = useSession();
   const user = data?.user;
+  const hasSubscription = (
+    data?.user?.subscriptionStatus === 'active' ||
+    data?.user?.subscriptionStatus === 'trialing' ||
+    data?.user?.subscriptionStatus === 'paused'
+  );
 
   useEffect(() => {
     import('@dealo/pricing-cards');
@@ -43,7 +48,7 @@ const PricingPage = () => {
     );
   }
 
-  if (user && user.hasSubscription) {
+  if (user && hasSubscription) {
     return (
       <>
         <Head>

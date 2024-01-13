@@ -38,7 +38,7 @@ import {
   AlertDialogTitle,
   cn,
 } from '@dealo/ui';
-import { formatDate } from '@dealo/helpers';
+import { formatStripeDate } from '@dealo/helpers';
 import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
@@ -57,7 +57,12 @@ interface Props {
 export default function Navbar(props: Props) {
   const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
   const { status, data } = useSession();
-  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
+  const hasSubscription = (
+    data?.user?.subscriptionStatus === 'active' ||
+    data?.user?.subscriptionStatus === 'trialing' ||
+    data?.user?.subscriptionStatus === 'paused'
+  );
+  const isSubscriptionSetToCancel = hasSubscription && !!data?.user?.subscriptionCancelAt;
 
   const router = useRouter();
 
@@ -84,11 +89,34 @@ export default function Navbar(props: Props) {
     return null;
   }
 
+  const resolveStatusLabel = () => {
+    switch (data?.user?.subscriptionStatus) {
+      case 'active':
+        return 'Paid';
+      case 'trialing':
+        return `Free Trial until ${formatStripeDate(data!.user!.trialEnd!)}`;
+      case 'paused':
+        return 'Paused';
+      default:
+        return 'Free';
+    }
+  };
+
   return (
     <>
-      <header className={cn('h-16 flex justify-start items-center mb-6 z-10', { 'mt-[32px]': isSubscriptionSetToCancel && showSubscriptionCancelAlert }, className)}>
+      <header
+        className={cn(
+          'h-16 flex justify-start items-center mb-6 z-10',
+          { 'mt-[32px]': isSubscriptionSetToCancel && showSubscriptionCancelAlert },
+          className,
+        )}
+      >
         <RenderIf condition={showBackButton}>
-          <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+          <NavbarLink
+            className="mr-4"
+            icon={IconArrowLeft}
+            onClick={() => backRoute ? router.push(backRoute) : router.back()}
+          />
         </RenderIf>
         <h1 className="text-4xl font-semibold">{title}</h1>
         <RenderIf condition={!hideUserControls && status === 'authenticated'}>
@@ -114,6 +142,11 @@ export default function Navbar(props: Props) {
                 <NavbarLink asSpan icon={IconUser}/>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px] mt-3">
+                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
+                <DropdownMenuLabel className="text-xs font-light">
+                  {resolveStatusLabel()}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator/>
                 <RenderIf condition={data?.user?.role === ROLES.ADMIN}>
                   <DropdownMenuLabel>Management</DropdownMenuLabel>
                   <Link href="/users">
@@ -124,9 +157,8 @@ export default function Navbar(props: Props) {
                   </Link>
                   <DropdownMenuSeparator />
                 </RenderIf>
-                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
                 <RenderIf
-                  condition={!!data?.user?.hasSubscription}
+                  condition={hasSubscription}
                   fallback={
                     <Link href="/pricing">
                       <DropdownMenuItem>
@@ -139,7 +171,7 @@ export default function Navbar(props: Props) {
                   <Link href="/api/stripe/customer/portal">
                     <DropdownMenuItem>
                       <IconReceipt size={14} className="mr-2" />
-                      Billing
+                      Customer Portal
                     </DropdownMenuItem>
                   </Link>
                 </RenderIf>
@@ -165,7 +197,7 @@ export default function Navbar(props: Props) {
       {isSubscriptionSetToCancel && showSubscriptionCancelAlert ? (
         <div className="fixed top-0 left-0 right-0 z-20 flex flex-row items-center justify-center h-[32px] py-1 px-4 bg-amber-500 dark:bg-amber-600">
           <span className="text text-sm">
-            Your subscription is set to cancel on {formatDate(new Date(data!.user!.subscriptionCancelAt!), 'en')}
+            Your subscription is set to cancel on {formatStripeDate(data!.user!.subscriptionCancelAt!)}
           </span>
           <Button
             variant="undecorated"

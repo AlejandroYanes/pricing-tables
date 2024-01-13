@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import initStripe from 'utils/stripe';
@@ -12,28 +13,34 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: Authe
 
   const checkoutRecord = (
     await db.execute(`
-      SELECT US1.stripeCustomerId, US2.stripeAccount
-      FROM CheckoutRecord CR
-          JOIN User US1 ON CR.userId = US1.id
-          JOIN PriceWidget PW ON CR.widgetId = PW.id
+      SELECT SUB.status, US1.stripeCustomerId, US2.stripeAccount
+      FROM Subscription SUB
+          JOIN User US1 ON SUB.userId = US1.id
+          JOIN PriceWidget PW ON SUB.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE CR.isActive = true AND US1.id = ?
+      WHERE US1.id = ? ORDER BY SUB.createdAt DESC LIMIT 1
     `, [session.user.id])
-  ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string };
+  ).rows[0] as { status: Stripe.Subscription.Status; stripeCustomerId?: string; stripeAccount?: string } | undefined;
 
-  if (!checkoutRecord) {
-    res.status(400).json({ error: 'No checkout record found' });
+  const hasNoCurrentSubscription = !checkoutRecord || (
+    checkoutRecord?.status !== 'active' && checkoutRecord?.status !== 'trialing' && checkoutRecord?.status !== 'paused'
+  );
+
+  if (hasNoCurrentSubscription) {
+    res.status(400).json({ error: 'No active subscription found' });
     return;
   }
   const { stripeCustomerId, stripeAccount } = checkoutRecord;
 
   if (!stripeCustomerId) {
-    res.status(400).json({ error: 'No Stripe customer ID found' });
+    console.log('❌ No Stripe customer ID found');
+    res.status(400).json({ error: 'No information found' });
     return;
   }
 
   if (!stripeAccount) {
-    res.status(400).json({ error: 'No Stripe account ID found' });
+    console.log('❌ No Stripe account ID found');
+    res.status(400).json({ error: 'No information found' });
     return;
   }
 

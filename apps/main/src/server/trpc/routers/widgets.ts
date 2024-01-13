@@ -93,6 +93,7 @@ export const widgetsRouter = createTRPCRouter({
                   order: z.number(),
                   hasFreeTrial: z.boolean(),
                   freeTrialDays: z.number(),
+                  freeTrialEndAction: z.literal('pause').or(z.literal('cancel')).nullish(),
                 })
               ),
             ),
@@ -218,6 +219,7 @@ export const widgetsRouter = createTRPCRouter({
             mask: price.mask!,
             hasFreeTrial: price.hasFreeTrial,
             freeTrialDays: price.freeTrialDays,
+            freeTrialEndAction: price.freeTrialEndAction,
             order: price.order,
           })),
         });
@@ -231,6 +233,7 @@ export const widgetsRouter = createTRPCRouter({
             data: {
               ...(hasFlakyUpdate(price.hasFreeTrial, 'hasFreeTrial')),
               ...(hasFlakyUpdate(price.freeTrialDays, 'freeTrialDays')),
+              ...(hasFlakyUpdate(price.freeTrialEndAction, 'freeTrialEndAction')),
               ...(hasFlakyUpdate(price.order, 'order')),
             },
           });

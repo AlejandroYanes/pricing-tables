@@ -14,11 +14,14 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
+import { formatStripeDate } from '@dealo/helpers';
 
 interface Props {
   logoImage?: string;
   name?: string;
   withSubscription?: boolean;
+  withTrial?: boolean;
+  trialEndsAt?: number;
 }
 
 export const WelcomeEmail = (props: Props) => {
@@ -26,6 +29,8 @@ export const WelcomeEmail = (props: Props) => {
     logoImage = `/static/dealo-logo-block.png`,
     name = 'John Doe',
     withSubscription = true,
+    withTrial = true,
+    trialEndsAt,
   } = props;
 
   return (
@@ -66,6 +71,14 @@ export const WelcomeEmail = (props: Props) => {
                     <br />
                     <br />
                     We also wish to thank you for your support, it means a lot and will help us grow faster.
+                  </>
+                ) : null}
+                {withTrial ? (
+                  <>
+                    <br />
+                    <br />
+                    You are currently on a free trial, so you can try out all of our features.
+                    Your trial will end on{' '}${formatStripeDate(trialEndsAt || Date.now() / 1000)}.
                   </>
                 ) : null}
               </Text>

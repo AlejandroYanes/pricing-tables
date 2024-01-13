@@ -18,10 +18,12 @@ const inputSchema = z.object({
   product_id: z.string().cuid2(),
   price_id: z.string().cuid2(),
   currency: z.string().length(3),
+  payment_type: z.literal('one_time').or(z.literal('recurring')),
   email: z.string().email().optional(),
   customer_id: z.string().optional(),
   internal_flow: z.enum(['true', 'false']).optional(),
-  payment_type: z.literal('one_time').or(z.literal('recurring')),
+  free_trial_days: z.preprocess((val) => Number(val), z.number().int().positive().min(3)).optional(),
+  free_trial_end_action: z.literal('pause').or(z.literal('cancel')).optional(),
 });
 
 export default async function createStripeCheckoutSession(req: NextApiRequest, res: NextApiResponse) {
@@ -42,7 +44,10 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     email,
     customer_id,
     internal_flow,
+    free_trial_days,
+    free_trial_end_action,
   } = parsedParams.data;
+
   const db = initDb();
 
   try {
@@ -77,7 +82,9 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
     if (referer) {
       const hasQueryParams = referer.includes('?');
-      refererSuccessUrl = hasQueryParams ? `${referer}&payment_status=success` : `${referer}?payment_status=success`;
+      refererSuccessUrl = hasQueryParams
+        ? `${referer}&payment_status=success${free_trial_days ? '&free-trial=true' : ''}`
+        : `${referer}?payment_status=success${free_trial_days ? '&free-trial=true' : ''}`;
       refererCancelUrl = hasQueryParams ? `${referer}&payment_status=cancelled` : `${referer}?payment_status=cancelled`;
     }
 
@@ -97,6 +104,17 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
         },
       ],
       mode: payment_type === 'one_time' ? 'payment' : 'subscription',
+      ...(free_trial_days ? ({
+        subscription_data: {
+          trial_settings: {
+            end_behavior: {
+              missing_payment_method: free_trial_end_action ?? 'pause',
+            },
+          },
+          trial_period_days: free_trial_days,
+        },
+        payment_method_collection: 'if_required',
+      }) : {}),
       customer_email: customer_id ? undefined : email,
       customer: customer_id,
       currency: currency || 'gbp',

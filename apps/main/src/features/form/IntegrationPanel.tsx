@@ -143,6 +143,8 @@ export default function IntegrationPanel(props: Props) {
         we will redirect the user to our own pages that will show a success or error message (though this should never happen).
       </p>
 
+      {/* TODO: this solution might not be the easiest for no-code users to implement */}
+      {/*       need to research other approach */}
       <h3 className="text text-xl font-semibold mt-6 mb-2">Using our API route to retrieve the information</h3>
       <p>
         The other option is to use our API route to get the real product and price <Code>ids</Code>
@@ -163,6 +165,8 @@ export default function IntegrationPanel(props: Props) {
       <CodeBlock>{curlCommand(data!.user!.id)}</CodeBlock>
       <p className="mt-6 mb-4">{`Here's`} a JavaScript version:</p>
       <CodeBlock>{jsCommand(data!.user!.id)}</CodeBlock>
+      {/* TODO: this solution might not be the easiest for no-code users to implement */}
+      {/*       need to research other approach */}
       <h3 className="text text-xl font-bold">Generating a Stripe Customer Portal</h3>
       <p className="text m-0">
         To generate a Stripe Customer Portal you need redirect the user to our API route.
@@ -171,11 +175,6 @@ export default function IntegrationPanel(props: Props) {
       <CodeBlock>
         {`https://dealo.app/api/client/stripe/portal?customer_id=<...>`}
       </CodeBlock>
-      <p className="text">
-        This will automatically create a Stripe checkout session and redirect the user to the Stripe checkout page.
-        After the payment is completed, Stripe will redirect the user to the URLs you have setup on the <Code>Settings</Code> panel,
-        or we will redirect them to the same page they were before (the one that initiated the checkout).
-      </p>
       <span className="text">This request also needs the API Key header:</span>
       <CodeBlock>{`X-Api-Key=${data?.user?.id}`}</CodeBlock>
     </div>

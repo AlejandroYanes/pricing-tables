@@ -31,6 +31,8 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
+  RadioGroup,
+  RadioGroupItem,
 } from '@dealo/ui';
 
 interface Props {
@@ -42,6 +44,7 @@ interface Props {
   onRemovePrice: (productId: string, priceId: string) => void;
   onToggleFreeTrial: (productId: string, priceId: string) => void;
   onFreeTrialDaysChange: (productId: string, priceId: string, days: number) => void;
+  onFreeTrialEndActionChange: (productId: string, priceId: string, action: string) => void;
   onMoveToTop: () => void;
   onMoveUp: () => void;
   onMoveDown: () => void;
@@ -108,6 +111,7 @@ export default function ProductBlock(props: Props) {
     onRemovePrice,
     onToggleFreeTrial,
     onFreeTrialDaysChange,
+    onFreeTrialEndActionChange,
     onMoveToTop,
     onMoveUp,
     onMoveDown,
@@ -207,7 +211,7 @@ export default function ProductBlock(props: Props) {
         {(product.prices || []).filter((price) => price.isSelected).map((price, index, list) => (
           <Fragment key={price.id}>
             {/* eslint-disable-next-line max-len */}
-            <div className={`flex flex-col px-4 py-2 gap-2 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 dark:border-neutral-700 relative ${hasMorePrices ? 'pb-4' : ''}`}>
+            <div className={`flex flex-col px-4 py-2 gap-4 border-t ${index === list.length - 1 && hasMorePrices ? 'border-b' : ''} border-neutral-200 dark:border-neutral-700 relative ${hasMorePrices ? 'pb-4' : ''}`}>
               <RenderIf condition={list.length > 1}>
                 <div className="absolute top-1 right-1">
                   <Button className="rounded-full h-7 px-2" variant="ghost" size="sm" onClick={() => onRemovePrice(product.id, price.id)}>
@@ -230,28 +234,47 @@ export default function ProductBlock(props: Props) {
                   </TooltipProvider>
                 </RenderIf>
               </div>
-              <div className="flex items-center gap-2">
-                <Checkbox
-                  id={`free-trial-checkbox-${price.id}`}
-                  checked={price.hasFreeTrial}
-                  onChange={() => undefined}
-                  onClick={() => onToggleFreeTrial(product.id, price.id)}
-                />
-                <Label htmlFor={`free-trial-checkbox-${price.id}`} className="cursor-pointer">
-                  Include free trial
-                </Label>
-              </div>
-              <RenderIf condition={price.hasFreeTrial}>
-                <div className="flex flex-col gap-2 mb-2">
-                  <Label htmlFor="free-trial-days">Days</Label>
-                  <Input
-                    id="free-trial-days"
-                    type="number"
-                    min={1}
-                    value={price.freeTrialDays}
-                    onChange={(event) => onFreeTrialDaysChange(product.id, price.id, Number(event.target.value))}
+              <RenderIf condition={price.type === 'recurring'}>
+                <div className="flex items-center gap-4">
+                  <Checkbox
+                    id={`free-trial-checkbox-${price.id}`}
+                    checked={price.hasFreeTrial}
+                    onChange={() => undefined}
+                    onClick={() => onToggleFreeTrial(product.id, price.id)}
                   />
+                  <Label htmlFor={`free-trial-checkbox-${price.id}`} className="cursor-pointer">
+                    Include free trial
+                  </Label>
                 </div>
+                <RenderIf condition={price.hasFreeTrial}>
+                  <div className="flex flex-col gap-2 mb-2">
+                    <Label htmlFor="free-trial-days">Days</Label>
+                    <Input
+                      id="free-trial-days"
+                      type="number"
+                      min={3}
+                      value={price.freeTrialDays}
+                      onChange={(event) => onFreeTrialDaysChange(product.id, price.id, Number(event.target.value))}
+                    />
+                  </div>
+                  <span>When the trial period ends:</span>
+                  <div className="flex items-center mb-2">
+                    <RadioGroup
+                      className="flex items-center gap-4"
+                      value={price.freeTrialEndAction}
+                      onValueChange={(value) => onFreeTrialEndActionChange(product.id, price.id, value)}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="pause" id="pause-subscription"/>
+                        <Label htmlFor="pause-subscription">Pause subscription</Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="cancel" id="cancel-subscription"/>
+                        <Label htmlFor="cancel-subscription">Cancel subscription</Label>
+                      </div>
+                    </RadioGroup>
+                  </div>
+                </RenderIf>
               </RenderIf>
             </div>
           </Fragment>
