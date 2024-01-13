@@ -14,7 +14,7 @@ declare module 'next-auth' {
       isSetup: boolean;
       hasLegacySetup: boolean;
       subscriptionStatus: Stripe.Subscription.Status;
-      subscriptionEndsAt: number | null;
+      trialEnd: number | null;
       subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
@@ -27,7 +27,7 @@ declare module 'next-auth' {
       isSetup: boolean;
       hasLegacySetup: boolean;
       subscriptionStatus: Stripe.Subscription.Status;
-      subscriptionEndsAt: number | null;
+      trialEnd: number | null;
       subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }

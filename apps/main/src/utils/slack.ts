@@ -1,4 +1,5 @@
 import { env } from 'env/server.mjs';
+import { formatStripeDate } from '@dealo/helpers';
 
 function sendNotification(channel: string, body: any) {
   return fetch(channel, {
@@ -86,11 +87,7 @@ interface SoftCancellationPayload extends Payload {
 }
 
 export function notifyOfSubscriptionSoftCancellation(data: SoftCancellationPayload) {
-  const cancelDate = new Date(data.cancelAt).toLocaleDateString('en-Gb', {
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-  });
+  const cancelDate = formatStripeDate(data.cancelAt);
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {

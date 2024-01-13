@@ -38,7 +38,7 @@ import {
   AlertDialogTitle,
   cn,
 } from '@dealo/ui';
-import { formatDate } from '@dealo/helpers';
+import { formatStripeDate } from '@dealo/helpers';
 import { ROLES } from '@dealo/models';
 
 import { trpc } from 'utils/trpc';
@@ -94,7 +94,7 @@ export default function Navbar(props: Props) {
       case 'active':
         return 'Paid';
       case 'trialing':
-        return 'Free Trial';
+        return `Free Trial until ${formatStripeDate(data!.user!.trialEnd!)}`;
       case 'paused':
         return 'Paused';
       default:
@@ -143,7 +143,7 @@ export default function Navbar(props: Props) {
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px] mt-3">
                 <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
-                <DropdownMenuLabel className="uppercase text-xs font-light">
+                <DropdownMenuLabel className="text-xs font-light">
                   {resolveStatusLabel()}
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator/>
@@ -197,7 +197,7 @@ export default function Navbar(props: Props) {
       {isSubscriptionSetToCancel && showSubscriptionCancelAlert ? (
         <div className="fixed top-0 left-0 right-0 z-20 flex flex-row items-center justify-center h-[32px] py-1 px-4 bg-amber-500 dark:bg-amber-600">
           <span className="text text-sm">
-            Your subscription is set to cancel on {formatDate(new Date(data!.user!.subscriptionCancelAt!), 'en')}
+            Your subscription is set to cancel on {formatStripeDate(data!.user!.subscriptionCancelAt!)}
           </span>
           <Button
             variant="undecorated"

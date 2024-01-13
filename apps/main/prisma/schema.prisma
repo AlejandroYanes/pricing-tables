@@ -100,6 +100,8 @@ model Subscription {
     cancelAt              Int?
     cancelledAt           Int?
     cancellationDetails   String?
+    trialStart            Int?
+    trialEnd              Int?
     createdAt             DateTime        @default(now())
 }
 

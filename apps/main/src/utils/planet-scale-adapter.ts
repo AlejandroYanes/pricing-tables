@@ -115,13 +115,13 @@ export default function PlanetScaleAdapter(): Adapter {
 
       const subscription = (
         await db.execute(
-          'SELECT id, status, currentPeriodEnd, cancelAt FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
+          'SELECT id, status, trialEnd, cancelAt FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
           [userAndSession.userId],
         )
       ).rows[0] as {
         id: string;
         status: Stripe.Subscription.Status;
-        currentPeriodEnd: number;
+        trialEnd: number;
         cancelAt: number;
       } | undefined;
 
@@ -150,7 +150,7 @@ export default function PlanetScaleAdapter(): Adapter {
           isSetup: !!stripeConnected,
           hasLegacySetup: !!stripeKey,
           subscriptionStatus: subscription?.status ?? null,
-          subscriptionEndsAt: subscription?.currentPeriodEnd ?? null,
+          trialEnd: subscription?.trialEnd ?? null,
           subscriptionCancelAt: subscription?.cancelAt ?? null,
         } as AdapterUser,
         session: { sessionToken, userId, expires: new Date(expires) } as AdapterSession,
