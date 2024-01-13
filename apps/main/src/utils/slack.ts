@@ -18,7 +18,7 @@ interface Payload {
 export function notifyOfNewSetup(data: Payload) {
   return sendNotification(
     env.SLACK_USERS_CHANNEL,
-    { text: `A user just setup his account:\n*${data.name}(${data.email})*\n (With New Setup)` }
+    { text: `A user just setup his account (With New Setup):\n*${data.name}*\n*${data.email}*\n` }
   );
 }
 
@@ -31,7 +31,7 @@ export function notifyOfDeletedAccount(data: DeletedPayload) {
   return sendNotification(
     env.SLACK_USERS_CHANNEL,
     {
-      text: `A user just deleted his account:\n*${name}(${data.email})*\n ${hadSubscription ? '(With Subscription)' : ''}`,
+      text: `A user just deleted his account${hadSubscription ? '(With Subscription)' : ''}:\n*${name}*\n*${data.email}*\n`,
     },
   );
 }
@@ -40,7 +40,7 @@ export function notifyOfNewSubscription(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `A user just subscribed to the Paid Plan:\n*${data.name}(${data.email})*\n`,
+      text: `A user just subscribed to the Paid Plan:\n*${data.name}*\n*${data.email}*\n`,
     },
   );
 }
@@ -49,7 +49,7 @@ export function notifyOfSubscriptionMissingPaymentMethod(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `The subscription for user *${data.name}(${data.email})* is missing a payment method.`,
+      text: `The subscription for this user is missing a payment method.\n*${data.name}*\n*${data.email}*`,
     },
   );
 }
@@ -58,7 +58,7 @@ export function notifyOfSubscriptionPaused(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `The subscription for user *${data.name}(${data.email})* is paused.`,
+      text: `The subscription for this user is paused.\n*${data.name}*\n*${data.email}*`,
     },
   );
 }
@@ -67,7 +67,7 @@ export function notifyOfSubscriptionResumed(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `The subscription for user *${data.name}(${data.email})* is resumed.`,
+      text: `The subscription for this user is resumed.\n*${data.name}*\n*${data.email}*`,
     },
   );
 }
@@ -76,7 +76,7 @@ export function notifyOfRenewedSubscription(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `A user just renewed his subscription:\n*${data.name}(${data.email})*\n`,
+      text: `A user just renewed his subscription:\n*${data.name}${data.email}*\n`,
     },
   );
 }
@@ -94,7 +94,7 @@ export function notifyOfSubscriptionSoftCancellation(data: SoftCancellationPaylo
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `A user just set his subscription to end:\n*${data.name}(${data.email})*\n\n*${cancelDate}*\n`,
+      text: `A user just set his subscription to end:\n*${data.name}*\n*${data.email}*\n*${cancelDate}*\n`,
     },
   );
 }
@@ -103,7 +103,7 @@ export function notifyOfSubscriptionCancellation(data: Payload) {
   return sendNotification(
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
-      text: `User *${data.name}(${data.email})* just cancelled his subscription.`,
+      text: `This user just cancelled his subscription.\n*${data.name}*\n*${data.email}*`,
     },
   );
 }
@@ -118,7 +118,7 @@ export function notifyOfSubscriptionMissingParams(data: MissingParamsPayload) {
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `A subscription for user *${data.name}(${data.email})* is missing params.\n*Missing Customer:${data.missingCustomer ? 'YES' : 'NO'}*\n\n*Missing Subscription:${data.missingSubscription ? 'YES' : 'NO'}*\n`,
+      text: `A subscription for this user is missing params.\n*${data.name}*\n*${data.email}*\n*Missing Customer:${data.missingCustomer ? 'YES' : 'NO'}*\n*Missing Subscription:${data.missingSubscription ? 'YES' : 'NO'}*\n`,
     },
   );
 }
@@ -132,7 +132,7 @@ export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `A payment for user *${data.name}(${data.email})* has failed.\n*Customer email:${data.email}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `A payment for this user has failed.\n*${data.name}*\n*${data.email}*\n*Customer email:${data.email}*\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -147,7 +147,7 @@ export function notifyOfInvoiceFailedToFinalize(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* has failed to finalize.\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice for this user has failed to finalize.\n*${data.name}*\n*${data.email}*\nID: *${data.invoiceId}*\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -157,7 +157,7 @@ export function notifyOfInvoicePaymentActionRequired(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* requires payment action.\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice for this user requires payment action.\n*${data.name}*\n*${data.email}*\nID: *${data.invoiceId}*\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -170,7 +170,7 @@ export function notifyOfFailedEmail(data: EmailPayload) {
   return sendNotification(
     env.SLACK_EMAILS_CHANNEL,
     {
-      text: `An email for *${data.email}(${data.email})* has failed to send.`,
+      text: `An email for this user has failed to send.\n*${data.email}*`,
     },
   );
 }

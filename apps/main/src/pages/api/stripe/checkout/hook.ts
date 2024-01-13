@@ -79,7 +79,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
         // eslint-disable-next-line max-len
         'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currrentPeriodStart, currentPeriodEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         // eslint-disable-next-line max-len
-        [subscriptionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end, status],
+        [subscriptionId, userId, widgetId, productId, priceId, current_period_start, current_period_end, status],
       );
     });
 

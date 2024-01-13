@@ -103,7 +103,7 @@ export default function PlanetScaleAdapter(): Adapter {
         emailVerified: string | null;
         image: string | null;
         role: string;
-        stripeConnected: boolean;
+        stripeConnected: number;
         stripeKey: string | null;
         stripeCustomerId: string | null;
         userId: string;
@@ -113,10 +113,10 @@ export default function PlanetScaleAdapter(): Adapter {
 
       if (!userAndSession) return null;
 
-      const checkoutRecord = (
+      const subscription = (
         await db.execute(
-          'SELECT id, status, currentPeriodEnd, cancelAt FROM Subscription WHERE status = ? AND userId = ?',
-          ['active' as Stripe.Subscription.Status, userAndSession.userId],
+          'SELECT id, status, currentPeriodEnd, cancelAt FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
+          [userAndSession.userId],
         )
       ).rows[0] as {
         id: string;
@@ -147,11 +147,11 @@ export default function PlanetScaleAdapter(): Adapter {
           role,
           emailVerified,
           stripeCustomerId,
-          isSetup: stripeConnected,
+          isSetup: !!stripeConnected,
           hasLegacySetup: !!stripeKey,
-          subscriptionStatus: checkoutRecord?.status,
-          subscriptionEndsAt: checkoutRecord?.currentPeriodEnd,
-          subscriptionCancelAt: checkoutRecord?.cancelAt,
+          subscriptionStatus: subscription?.status ?? null,
+          subscriptionEndsAt: subscription?.currentPeriodEnd ?? null,
+          subscriptionCancelAt: subscription?.cancelAt ?? null,
         } as AdapterUser,
         session: { sessionToken, userId, expires: new Date(expires) } as AdapterSession,
       };

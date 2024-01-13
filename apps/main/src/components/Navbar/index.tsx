@@ -57,7 +57,12 @@ interface Props {
 export default function Navbar(props: Props) {
   const { showBackButton = false, hideUserControls, title, backRoute, className } = props;
   const { status, data } = useSession();
-  const isSubscriptionSetToCancel = data?.user?.hasSubscription && !!data?.user?.subscriptionCancelAt;
+  const hasSubscription = (
+    data?.user?.subscriptionStatus === 'active' ||
+    data?.user?.subscriptionStatus === 'trialing' ||
+    data?.user?.subscriptionStatus === 'paused'
+  );
+  const isSubscriptionSetToCancel = hasSubscription && !!data?.user?.subscriptionCancelAt;
 
   const router = useRouter();
 
@@ -84,6 +89,19 @@ export default function Navbar(props: Props) {
     return null;
   }
 
+  const resolveStatusLabel = () => {
+    switch (data?.user?.subscriptionStatus) {
+      case 'active':
+        return 'Paid';
+      case 'trialing':
+        return 'Free Trial';
+      case 'paused':
+        return 'Paused';
+      default:
+        return 'Free';
+    }
+  };
+
   return (
     <>
       <header
@@ -94,7 +112,11 @@ export default function Navbar(props: Props) {
         )}
       >
         <RenderIf condition={showBackButton}>
-          <NavbarLink className="mr-4" icon={IconArrowLeft} onClick={() => backRoute ? router.push(backRoute) : router.back()}  />
+          <NavbarLink
+            className="mr-4"
+            icon={IconArrowLeft}
+            onClick={() => backRoute ? router.push(backRoute) : router.back()}
+          />
         </RenderIf>
         <h1 className="text-4xl font-semibold">{title}</h1>
         <RenderIf condition={!hideUserControls && status === 'authenticated'}>
@@ -120,6 +142,11 @@ export default function Navbar(props: Props) {
                 <NavbarLink asSpan icon={IconUser}/>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-[200px] mt-3">
+                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
+                <DropdownMenuLabel className="uppercase text-xs font-light">
+                  {resolveStatusLabel()}
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator/>
                 <RenderIf condition={data?.user?.role === ROLES.ADMIN}>
                   <DropdownMenuLabel>Management</DropdownMenuLabel>
                   <Link href="/users">
@@ -130,9 +157,8 @@ export default function Navbar(props: Props) {
                   </Link>
                   <DropdownMenuSeparator />
                 </RenderIf>
-                <DropdownMenuLabel>{data?.user?.name}</DropdownMenuLabel>
                 <RenderIf
-                  condition={!!data?.user?.hasSubscription}
+                  condition={hasSubscription}
                   fallback={
                     <Link href="/pricing">
                       <DropdownMenuItem>

@@ -32,9 +32,9 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   const dbInfo = (
     await db.execute(`
         SELECT US1.id, US1.name, US1.email
-        FROM Subscription CR
-          JOIN User US1 ON CR.userId = US1.id
-        WHERE CR.isActive = true AND CR.subscriptionId = ?
+        FROM Subscription SUB
+          JOIN User US1 ON SUB.userId = US1.id
+        WHERE SUB.id = ?
       `, [subsId])
   ).rows[0] as { id: string; name: string; email: string } | undefined;
 
@@ -56,8 +56,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   if (event.type === 'customer.subscription.paused') {
     await db.transaction(async (tx) => {
       await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
-        [subscription.status, 'active' as Stripe.Subscription.Status, dbInfo.id],
+        'UPDATE Subscription SET status = ? WHERE id = ?',
+        [subscription.status, subsId],
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
@@ -68,8 +68,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   if (event.type === 'customer.subscription.resumed') {
     await db.transaction(async (tx) => {
       await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
-        [subscription.status, 'paused' as Stripe.Subscription.Status, dbInfo.id],
+        'UPDATE Subscription SET status = ? WHERE id = ?',
+        [subscription.status, subsId],
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.PAID, dbInfo.id]);
     });
@@ -78,17 +78,19 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   if (event.type === 'customer.subscription.updated') {
-    const { cancel_at, canceled_at, cancellation_details } = subscription;
+    const { cancel_at, canceled_at, cancellation_details, status } = subscription;
     const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription>;
+
+    const isResuming = status === 'active' && previousAttributes.status === 'trialing';
     const isCancelling = cancel_at && !previousAttributes.cancel_at;
     const isRenewing = !canceled_at && previousAttributes.canceled_at;
 
     if (isCancelling) {
-      const { id: userId, name, email } = dbInfo;
+      const { name, email } = dbInfo;
       await db.transaction(async (tx) => {
         await tx.execute(
-          'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE status = ? AND userId = ?',
-          [cancel_at, canceled_at, JSON.stringify(cancellation_details), 'active' as Stripe.Subscription.Status, userId],
+          'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE id = ?',
+          [cancel_at, canceled_at, JSON.stringify(cancellation_details), subsId],
         );
       });
       // noinspection ES6MissingAwait
@@ -100,20 +102,29 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
     if (isRenewing) {
       await db.transaction(async (tx) => {
         await tx.execute(
-          'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE status = ? AND userId = ?',
-          ['active' as Stripe.Subscription.Status, dbInfo.id],
+          'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE id = ?',
+          [subsId],
         );
       });
       // noinspection ES6MissingAwait
       notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
+    }
+
+    if (isResuming) {
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          'UPDATE Subscription SET status = ? WHERE id = ?',
+          [status, subsId],
+        );
+      });
     }
   }
 
   if (event.type === 'customer.subscription.deleted') {
     await db.transaction(async (tx) => {
       await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
-        [subscription.status, 'active' as Stripe.Subscription.Status, dbInfo.id],
+        'UPDATE Subscription SET status = ? WHERE id = ?',
+        [subscription.status, subsId],
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });

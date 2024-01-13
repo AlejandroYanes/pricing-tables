@@ -28,7 +28,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
           JOIN User US1 ON SUB.userId = US1.id
           JOIN PriceWidget PW ON SUB.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE SUB.status = 'active' AND SUB.id = ?
+      WHERE SUB.id = ?
       `, [subscriptionId])
   ).rows[0] as { id: string; name: string; email: string; stripeAccount: string } | undefined;
 

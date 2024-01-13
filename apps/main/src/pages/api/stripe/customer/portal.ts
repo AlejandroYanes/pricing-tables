@@ -13,17 +13,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: Authe
 
   const checkoutRecord = (
     await db.execute(`
-      SELECT US1.stripeCustomerId, US2.stripeAccount
+      SELECT SUB.status, US1.stripeCustomerId, US2.stripeAccount
       FROM Subscription SUB
           JOIN User US1 ON SUB.userId = US1.id
           JOIN PriceWidget PW ON SUB.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE SUB.status = ? AND US1.id = ?
-    `, ['active' as Stripe.Subscription.Status, session.user.id])
-  ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string };
+      WHERE US1.id = ? ORDER BY SUB.createdAt DESC LIMIT 1
+    `, [session.user.id])
+  ).rows[0] as { status: Stripe.Subscription.Status; stripeCustomerId?: string; stripeAccount?: string } | undefined;
 
-  if (!checkoutRecord) {
-    res.status(400).json({ error: 'No checkout record found' });
+  const hasNoCurrentSubscription = !checkoutRecord || (
+    checkoutRecord?.status !== 'active' && checkoutRecord?.status !== 'trialing' && checkoutRecord?.status !== 'paused'
+  );
+
+  if (hasNoCurrentSubscription) {
+    res.status(400).json({ error: 'No active subscription found' });
     return;
   }
   const { stripeCustomerId, stripeAccount } = checkoutRecord;

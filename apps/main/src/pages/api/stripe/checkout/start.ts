@@ -47,6 +47,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     free_trial_days,
     free_trial_end_action,
   } = parsedParams.data;
+
   const db = initDb();
 
   try {
