@@ -21,7 +21,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         email: 'test@gmail.com',
         invoiceId: 'invoice-123',
         subscriptionId: 'subs-123',
-        customerEmail: 'test@email.com',
       });
       break;
     case 'subs':
