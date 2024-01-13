@@ -3,7 +3,6 @@ import type Stripe from 'stripe';
 import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
-import { isLocalServer } from 'utils/environments';
 import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import { sendSubscriptionCancelledEmail } from 'utils/resend';
@@ -18,7 +17,7 @@ import {
 
 export const config = {
   api: {
-    bodyParser: isLocalServer(),
+    bodyParser: false,
   },
 };
 

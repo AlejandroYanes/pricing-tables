@@ -32,10 +32,10 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
   if (account.charges_enabled) {
     const checkoutRecord = (
       await db.execute(
-        'SELECT id FROM Subscription WHERE status = ? AND userId = ?',
-        ['active' as Stripe.Subscription.Status, session.user.id],
+        'SELECT id, status, trialEnd FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
+        [session.user.id],
       )
-    ).rows[0] as { id: string } | undefined;
+    ).rows[0] as { id: string; status: Stripe.Subscription.Status; trialEnd: number } | undefined;
 
     await db.transaction(async (tx) => {
       // eslint-disable-next-line max-len
@@ -44,12 +44,20 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
 
     res.status(200).json({ connected: true });
     // noinspection ES6MissingAwait
-    notifyOfNewSetup({ name: session.user.name!, email: session.user.email! });
+    notifyOfNewSetup({
+      name: session.user.name!,
+      email: session.user.email!,
+      hasSubscription: checkoutRecord?.status === 'active',
+      hasTrial: checkoutRecord?.status === 'trialing',
+      trialEndsAt: checkoutRecord?.trialEnd,
+    });
     // noinspection ES6MissingAwait
     sendWelcomeEmail({
       to: session.user.email!,
       name: session.user.name!,
-      withSubscription: !!checkoutRecord,
+      withSubscription: checkoutRecord?.status === 'active',
+      withTrial: checkoutRecord?.status === 'trialing',
+      trialEndsAt: checkoutRecord?.trialEnd,
     });
     return;
   }

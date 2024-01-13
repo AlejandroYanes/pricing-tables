@@ -3,14 +3,13 @@ import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
-import { isLocalServer } from 'utils/environments';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired } from 'utils/slack';
 
 export const config = {
   api: {
-    bodyParser: isLocalServer(),
+    bodyParser: false,
   },
 };
 

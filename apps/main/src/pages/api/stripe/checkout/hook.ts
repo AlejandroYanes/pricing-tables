@@ -8,11 +8,10 @@ import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfNewSubscription, notifyOfSubscriptionMissingParams, notifyOfSubscriptionPaymentFailed, } from 'utils/slack';
 import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
-import { isLocalServer } from 'utils/environments';
 
 export const config = {
   api: {
-    bodyParser: isLocalServer(),
+    bodyParser: false,
   },
 };
 

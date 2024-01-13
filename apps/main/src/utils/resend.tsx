@@ -43,6 +43,8 @@ interface EmailPayload {
 
 interface WelcomeEmailPayload extends EmailPayload {
   withSubscription: boolean;
+  withTrial: boolean;
+  trialEndsAt?: number;
 }
 
 export function sendWelcomeEmail(payload: WelcomeEmailPayload) {
@@ -52,8 +54,10 @@ export function sendWelcomeEmail(payload: WelcomeEmailPayload) {
     body: (
       <WelcomeEmail
         name={payload.name}
-        withSubscription={payload.withSubscription}
         logoImage={logoImage}
+        withSubscription={payload.withSubscription}
+        withTrial={payload.withTrial}
+        trialEndsAt={payload.trialEndsAt}
       />
     ),
   });

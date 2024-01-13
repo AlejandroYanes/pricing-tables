@@ -1,5 +1,6 @@
-import { env } from 'env/server.mjs';
 import { formatStripeDate } from '@dealo/helpers';
+
+import { env } from 'env/server.mjs';
 
 function sendNotification(channel: string, body: any) {
   return fetch(channel, {
@@ -16,10 +17,17 @@ interface Payload {
   email: string;
 }
 
-export function notifyOfNewSetup(data: Payload) {
+interface NewSetupPayload extends Payload {
+  hasSubscription: boolean;
+  hasTrial: boolean;
+  trialEndsAt?: number;
+}
+
+export function notifyOfNewSetup(data: NewSetupPayload) {
   return sendNotification(
     env.SLACK_USERS_CHANNEL,
-    { text: `A user just setup his account (With New Setup):\n*${data.name}*\n*${data.email}*\n` }
+    // eslint-disable-next-line max-len
+    { text: `A user just setup his account (With New Setup):\n*${data.name}*\n*${data.email}*${data.hasSubscription ? 'With subscription\n' : ''}${data.hasTrial && data.trialEndsAt ? `With free trial ending on ${formatStripeDate(data.trialEndsAt)}` : ''}` }
   );
 }
 
