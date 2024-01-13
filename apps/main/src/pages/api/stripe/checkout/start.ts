@@ -82,7 +82,9 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
 
     if (referer) {
       const hasQueryParams = referer.includes('?');
-      refererSuccessUrl = hasQueryParams ? `${referer}&payment_status=success` : `${referer}?payment_status=success`;
+      refererSuccessUrl = hasQueryParams
+        ? `${referer}&payment_status=success${free_trial_days ? '&free-trial=true' : ''}`
+        : `${referer}?payment_status=success${free_trial_days ? '&free-trial=true' : ''}`;
       refererCancelUrl = hasQueryParams ? `${referer}&payment_status=cancelled` : `${referer}?payment_status=cancelled`;
     }
 
