@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession } from 'next-auth/adapters';
 import { createId } from '@paralleldrive/cuid2';
+import type Stripe from 'stripe';
 
 import initDb from './planet-scale';
 
@@ -114,17 +115,29 @@ export default function PlanetScaleAdapter(): Adapter {
 
       const checkoutRecord = (
         await db.execute(
-          'SELECT subscriptionId, isActive, currentPeriodEnd, cancelAt FROM CheckoutRecord WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
-          [userAndSession.userId],
+          'SELECT id, status, currentPeriodEnd, cancelAt FROM Subscription WHERE status = ? AND userId = ?',
+          ['active' as Stripe.Subscription.Status, userAndSession.userId],
         )
       ).rows[0] as {
-        subscriptionId: string;
-        isActive: boolean;
+        id: string;
+        status: Stripe.Subscription.Status;
         currentPeriodEnd: number;
         cancelAt: number;
       } | undefined;
 
-      const { id, name, email, emailVerified, image, role, stripeConnected, stripeKey, stripeCustomerId, userId, expires } = userAndSession;
+      const {
+        id,
+        name,
+        email,
+        emailVerified,
+        image,
+        role,
+        stripeConnected,
+        stripeKey,
+        stripeCustomerId,
+        userId,
+        expires,
+      } = userAndSession;
       return {
         user: {
           id,
@@ -136,7 +149,7 @@ export default function PlanetScaleAdapter(): Adapter {
           stripeCustomerId,
           isSetup: stripeConnected,
           hasLegacySetup: !!stripeKey,
-          hasSubscription: !!checkoutRecord?.subscriptionId && checkoutRecord.isActive,
+          subscriptionStatus: checkoutRecord?.status,
           subscriptionEndsAt: checkoutRecord?.currentPeriodEnd,
           subscriptionCancelAt: checkoutRecord?.cancelAt,
         } as AdapterUser,

@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type { AuthenticatedSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 import initStripe from 'utils/stripe';
 import initDb from 'utils/planet-scale';
@@ -30,7 +31,10 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
 
   if (account.charges_enabled) {
     const checkoutRecord = (
-      await db.execute('SELECT id FROM CheckoutRecord WHERE isActive = TRUE AND userId = ?', [session.user.id])
+      await db.execute(
+        'SELECT id FROM Subscription WHERE status = ? AND userId = ?',
+        ['active' as Stripe.Subscription.Status, session.user.id],
+      )
     ).rows[0] as { id: string } | undefined;
 
     await db.transaction(async (tx) => {
@@ -39,7 +43,9 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
     });
 
     res.status(200).json({ connected: true });
-    notifyOfNewSetup({ name: session.user.name! });
+    // noinspection ES6MissingAwait
+    notifyOfNewSetup({ name: session.user.name!, email: session.user.email! });
+    // noinspection ES6MissingAwait
     sendWelcomeEmail({
       to: session.user.email!,
       name: session.user.name!,

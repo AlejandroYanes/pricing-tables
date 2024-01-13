@@ -47,6 +47,7 @@ const innerVariants = cva(
         pink: 'border-t-pink-500',
         rose: 'border-t-rose-500',
         black: 'border-t-slate-950',
+        white: 'border-t-white',
       },
     },
     defaultVariants: {
@@ -57,16 +58,17 @@ const innerVariants = cva(
 
 interface Props extends VariantProps<typeof innerVariants> {
   className?: string;
+  innerClassName?: string;
 }
 
 export function Loader(props: Props) {
-  const { className, size, color } = props;
+  const { className, innerClassName, size, color } = props;
   return (
     <div className={cn(outerVariants({ size }), 'lds-ring', className)}>
-      <div className={cn(innerVariants({ size, color }))}></div>
-      <div className={cn(innerVariants({ size, color }))}></div>
-      <div className={cn(innerVariants({ size, color }))}></div>
-      <div className={cn(innerVariants({ size, color }))}></div>
+      <div className={cn(innerVariants({ size, color }), innerClassName)}></div>
+      <div className={cn(innerVariants({ size, color }), innerClassName)}></div>
+      <div className={cn(innerVariants({ size, color }), innerClassName)}></div>
+      <div className={cn(innerVariants({ size, color }), innerClassName)}></div>
     </div>
   );
 }

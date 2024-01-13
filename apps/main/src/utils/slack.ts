@@ -125,7 +125,6 @@ export function notifyOfSubscriptionMissingParams(data: MissingParamsPayload) {
 
 interface PaymentFailedPayload extends Payload {
   subscriptionId: string;
-  customerEmail: string;
 }
 
 export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
@@ -133,7 +132,7 @@ export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
     env.SLACK_SUBSCRIPTIONS_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `A payment for user *${data.name}(${data.email})* has failed.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `A payment for user *${data.name}(${data.email})* has failed.\n*Customer email:${data.email}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -141,7 +140,6 @@ export function notifyOfSubscriptionPaymentFailed(data: PaymentFailedPayload) {
 interface InvoicePayload extends Payload {
   invoiceId: string;
   subscriptionId: string;
-  customerEmail: string;
 }
 
 export function notifyOfInvoiceFailedToFinalize(data: InvoicePayload) {
@@ -149,7 +147,7 @@ export function notifyOfInvoiceFailedToFinalize(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* has failed to finalize.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* has failed to finalize.\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }
@@ -159,7 +157,7 @@ export function notifyOfInvoicePaymentActionRequired(data: InvoicePayload) {
     env.SLACK_INVOICES_CHANNEL,
     {
       // eslint-disable-next-line max-len
-      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* requires payment action.\n*Customer email:${data.customerEmail}*\n\n*Subscription ID:${data.subscriptionId}*\n`,
+      text: `An invoice (ID: *${data.invoiceId}*) for user *${data.name}(${data.email})* requires payment action.\n*Subscription ID:${data.subscriptionId}*\n`,
     },
   );
 }

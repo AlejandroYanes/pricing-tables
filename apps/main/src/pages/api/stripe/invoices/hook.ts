@@ -2,49 +2,38 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
-import { corsMiddleware, buffer } from 'utils/api';
+import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
+import { isLocalServer } from 'utils/environments';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired } from 'utils/slack';
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: isLocalServer(),
   },
 };
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const signature = req.headers['stripe-signature']!;
-
-  const stripe = initStripe();
-  let event: Stripe.Event;
-
-  try {
-    const payload = await buffer(req);
-    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_INVOICE_WEBHOOK_SECRET);
-  } catch (err: any) {
-    console.log(`❌ Webhook Error: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
+async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) {
   const { data } = event as Stripe.Event;
   const { id: invoiceId, subscription: subscriptionId } = data.object as Stripe.Invoice;
 
+  const stripe = initStripe();
   const db = initDb();
 
   const dbInfo = (
     await db.execute(`
       SELECT US1.id, US1.name, US1.email, US2.stripeAccount
-      FROM CheckoutRecord CR
-          JOIN User US1 ON CR.userId = US1.id
-          JOIN PriceWidget PW ON CR.widgetId = PW.id
+      FROM Subscription SUB
+          JOIN User US1 ON SUB.userId = US1.id
+          JOIN PriceWidget PW ON SUB.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE CR.isActive = true AND CR.subscriptionId = ?
+      WHERE SUB.status = 'active' AND SUB.id = ?
       `, [subscriptionId])
   ).rows[0] as { id: string; name: string; email: string; stripeAccount: string } | undefined;
 
   if (!dbInfo) {
-    res.status(200).json({ received: true });
+    res.status(200).json({ source: 'Dealo', received: true });
     return;
   }
 
@@ -61,7 +50,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // noinspection ES6MissingAwait
     notifyOfInvoiceFailedToFinalize({
       name: dbInfo.name,
-      customerEmail: dbInfo.email,
+      email: dbInfo.email,
       invoiceId,
       subscriptionId: subscription.id,
     });
@@ -71,7 +60,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     // noinspection ES6MissingAwait
     notifyOfInvoicePaymentActionRequired({
       name: dbInfo.name,
-      customerEmail: dbInfo.email,
+      email: dbInfo.email,
       invoiceId,
       subscriptionId: subscription.id,
     });
@@ -79,12 +68,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (event.type === 'invoice.paid') {
     await db.execute(
-      'UPDATE CheckoutRecord SET currrentPeriodStart = ?, currentPeriodEnd = ? WHERE subscriptionId = ?',
-      [subscription.current_period_start, subscription.current_period_end, subscriptionId],
+      'UPDATE Subscription SET currrentPeriodStart = ?, currentPeriodEnd = ? WHERE status = ? AND id = ?',
+      [subscription.current_period_start, subscription.current_period_end, 'active' as Stripe.Subscription.Status, subscriptionId],
     );
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).json({ source: 'Dealo', received: true });
 }
 
-export default corsMiddleware(handler);
+export default corsMiddleware(stripeEventMiddleware(handler, env.STRIPE_INVOICE_WEBHOOK_SECRET));

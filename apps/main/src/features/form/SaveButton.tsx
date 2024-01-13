@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react';
-import { Button, useToast } from '@dealo/ui';
+import { Button, Loader, RenderIf, useToast } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import useChangeHistory from './useChangeHistory';
@@ -31,6 +31,7 @@ export default function SaveButton(props: Props) {
   });
 
   const handleSave = () => {
+    if (isLoading) return;
     if (lastSaved === history.at(-1)?.hash) return;
 
     const { id, template, ...rest } = history.at(-1)!.changes;
@@ -42,10 +43,13 @@ export default function SaveButton(props: Props) {
     mutate(changes);
   }
 
-  const disabled = isLoading || !shouldSave || lastSaved === history.at(-1)?.hash;
+  const disabled = !shouldSave || lastSaved === history.at(-1)?.hash;
 
   return (
-    <Button variant="black" disabled={disabled} onClick={handleSave}>
+    <Button variant="black" className="px-8" disabled={disabled} onClick={handleSave}>
+      <RenderIf condition={isLoading}>
+        <Loader size="xs" className="mr-2" innerClassName="dark:border-t-slate-950" color="white" />
+      </RenderIf>
       Save
     </Button>
   );

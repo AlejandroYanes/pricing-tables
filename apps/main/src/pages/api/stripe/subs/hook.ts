@@ -3,9 +3,10 @@ import type Stripe from 'stripe';
 import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
-import { corsMiddleware, buffer } from 'utils/api';
+import { isLocalServer } from 'utils/environments';
+import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
-import initStripe from 'utils/stripe';
+import { sendSubscriptionCancelledEmail } from 'utils/resend';
 import {
   notifyOfRenewedSubscription,
   notifyOfSubscriptionCancellation,
@@ -14,27 +15,14 @@ import {
   notifyOfSubscriptionResumed,
   notifyOfSubscriptionSoftCancellation
 } from 'utils/slack';
-import { sendSubscriptionCancelledEmail } from 'utils/resend';
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: isLocalServer(),
   },
 };
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const signature = req.headers['stripe-signature']!;
-  const stripe = initStripe();
-  let event: Stripe.Event;
-
-  try {
-    const payload = await buffer(req);
-    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET);
-  } catch (err: any) {
-    console.log(`❌ Webhook Error: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
-
+async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) {
   const { data } = event as Stripe.Event;
   const subscription = data.object as Stripe.Subscription;
   const { id: subsId } = subscription;
@@ -44,14 +32,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const dbInfo = (
     await db.execute(`
         SELECT US1.id, US1.name, US1.email
-        FROM CheckoutRecord CR
+        FROM Subscription CR
           JOIN User US1 ON CR.userId = US1.id
         WHERE CR.isActive = true AND CR.subscriptionId = ?
       `, [subsId])
   ).rows[0] as { id: string; name: string; email: string } | undefined;
 
   if (!dbInfo) {
-    res.status(200).json({ received: true });
+    res.status(200).json({ source: 'Dealo', received: true });
     return;
   }
 
@@ -68,8 +56,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (event.type === 'customer.subscription.paused') {
     await db.transaction(async (tx) => {
       await tx.execute(
-        'UPDATE CheckoutRecord SET isPaying = FALSE WHERE isActive = TRUE AND userId = ?',
-        [dbInfo.id],
+        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
+        [subscription.status, 'active' as Stripe.Subscription.Status, dbInfo.id],
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
@@ -80,8 +68,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (event.type === 'customer.subscription.resumed') {
     await db.transaction(async (tx) => {
       await tx.execute(
-        'UPDATE CheckoutRecord SET isPaying = TRUE WHERE isActive = TRUE AND userId = ?',
-        [dbInfo.id],
+        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
+        [subscription.status, 'paused' as Stripe.Subscription.Status, dbInfo.id],
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.PAID, dbInfo.id]);
     });
@@ -99,8 +87,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       const { id: userId, name, email } = dbInfo;
       await db.transaction(async (tx) => {
         await tx.execute(
-          'UPDATE CheckoutRecord SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE isActive = TRUE AND userId = ?',
-          [cancel_at, canceled_at, JSON.stringify(cancellation_details), userId],
+          'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE status = ? AND userId = ?',
+          [cancel_at, canceled_at, JSON.stringify(cancellation_details), 'active' as Stripe.Subscription.Status, userId],
         );
       });
       // noinspection ES6MissingAwait
@@ -112,8 +100,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (isRenewing) {
       await db.transaction(async (tx) => {
         await tx.execute(
-          'UPDATE CheckoutRecord SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE isActive = TRUE AND userId = ?',
-          [dbInfo.id],
+          'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE status = ? AND userId = ?',
+          ['active' as Stripe.Subscription.Status, dbInfo.id],
         );
       });
       // noinspection ES6MissingAwait
@@ -123,14 +111,17 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (event.type === 'customer.subscription.deleted') {
     await db.transaction(async (tx) => {
-      await tx.execute('UPDATE CheckoutRecord SET isActive = FALSE, isPaying = FALSE WHERE isActive = TRUE AND userId = ?', [dbInfo.id]);
+      await tx.execute(
+        'UPDATE Subscription SET status = ? WHERE status = ? AND userId = ?',
+        [subscription.status, 'active' as Stripe.Subscription.Status, dbInfo.id],
+      );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
     // noinspection ES6MissingAwait
     notifyOfSubscriptionCancellation({ name: dbInfo.name, email: dbInfo.email });
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).json({ source: 'Dealo', received: true });
 }
 
-export default corsMiddleware(handler);
+export default corsMiddleware(stripeEventMiddleware(handler, env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET));

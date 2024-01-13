@@ -27,7 +27,6 @@ model PriceWidget {
     createdAt           DateTime      @default(now())
     products            Product[]
     callbacks           Callback[]
-    checkoutRecords     CheckoutRecord[]
     userId              String
     user                User?          @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
@@ -89,24 +88,19 @@ model Callback {
     @@unique([env, widgetId])
 }
 
-model CheckoutRecord {
-    id                    String          @id @default(cuid())
-    sessionId             String
+model Subscription {
+    id                    String          @id
+    status                String
     userId                String
     widgetId              String
     productId             String
     priceId               String
-    subscriptionId        String
     currrentPeriodStart   Int
     currentPeriodEnd      Int
     cancelAt              Int?
     cancelledAt           Int?
     cancellationDetails   String?
     createdAt             DateTime        @default(now())
-    isActive              Boolean         @default(true)
-    isPaying              Boolean         @default(false)
-    widget                PriceWidget     @relation(fields: [widgetId], references: [id], onDelete: Cascade)
-    user                  User?           @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 // Necessary for Next auth
@@ -150,7 +144,6 @@ model User {
     accounts              Account[]
     sessions              Session[]
     widgets               PriceWidget[]
-    checkoutRecords       CheckoutRecord[]
 }
 
 model VerificationToken {

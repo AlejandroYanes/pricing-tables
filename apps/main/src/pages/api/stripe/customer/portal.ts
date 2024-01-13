@@ -1,5 +1,6 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import initStripe from 'utils/stripe';
@@ -13,12 +14,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse, session: Authe
   const checkoutRecord = (
     await db.execute(`
       SELECT US1.stripeCustomerId, US2.stripeAccount
-      FROM CheckoutRecord CR
-          JOIN User US1 ON CR.userId = US1.id
-          JOIN PriceWidget PW ON CR.widgetId = PW.id
+      FROM Subscription SUB
+          JOIN User US1 ON SUB.userId = US1.id
+          JOIN PriceWidget PW ON SUB.widgetId = PW.id
           JOIN User US2 ON PW.userId = US2.id
-      WHERE CR.isActive = true AND US1.id = ?
-    `, [session.user.id])
+      WHERE SUB.status = ? AND US1.id = ?
+    `, ['active' as Stripe.Subscription.Status, session.user.id])
   ).rows[0] as { stripeCustomerId?: string; stripeAccount?: string };
 
   if (!checkoutRecord) {

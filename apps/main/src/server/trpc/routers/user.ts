@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import type Stripe from 'stripe';
 
 import initDb from 'utils/planet-scale';
 import { notifyOfDeletedAccount } from 'utils/slack';
@@ -90,28 +91,28 @@ export const userRouter = createTRPCRouter({
       const { session: { user } } = ctx;
       const db = initDb();
 
-      const checkoutRecord = (
+      const subscription = (
         await db.execute(`
-          SELECT CR.subscriptionId, US1.stripeCustomerId, US.email, US2.stripeAccount
-          FROM CheckoutRecord CR
-              JOIN User US1 ON CR.userId = US1.id
-              JOIN PriceWidget PW ON CR.widgetId = PW.id
+          SELECT SUB.id, US1.stripeCustomerId, US1.email, US2.stripeAccount
+          FROM Subscription SUB
+              JOIN User US1 ON SUB.userId = US1.id
+              JOIN PriceWidget PW ON SUB.widgetId = PW.id
               JOIN User US2 ON PW.userId = US2.id
-          WHERE CR.isActive = true AND US1.id = ?
-        `, [user.id])
-      ).rows[0] as { email: string; stripeCustomerId?: string; stripeAccount?: string; subscriptionId?: string } | undefined;
+          WHERE SUB.status = ? AND US1.id = ?
+        `, ['active' as Stripe.Subscription.Status, user.id])
+      ).rows[0] as { id?: string; email: string; stripeCustomerId?: string; stripeAccount?: string } | undefined;
 
-      if (!checkoutRecord) {
+      if (!subscription) {
         throw new TRPCError({
           code: 'BAD_REQUEST',
-          message: 'No checkout record found',
+          message: 'No subscription found',
         });
       }
 
-      const { email, stripeCustomerId, subscriptionId, stripeAccount: checkoutAccount } = checkoutRecord;
+      const { id, email, stripeCustomerId, stripeAccount: checkoutAccount } = subscription;
 
-      if (subscriptionId) {
-        await ctx.stripe.subscriptions.cancel(subscriptionId, { stripeAccount: checkoutAccount! });
+      if (id) {
+        await ctx.stripe.subscriptions.cancel(id, { stripeAccount: checkoutAccount! });
       }
 
       if (stripeCustomerId) {
@@ -121,12 +122,18 @@ export const userRouter = createTRPCRouter({
       await ctx.stripe.accounts.del(checkoutAccount!);
 
       await db.transaction(async (tx) => {
-        await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [user.id]);
+        await tx.execute(
+          'UPDATE Subscription SET status = ?, userId = ? WHERE userId = ?',
+          ['canceled' as Stripe.Subscription.Status, 'N/A', user.id],
+        );
+        await tx.execute('UPDATE PriceWidget SET userId = ? WHERE userId = ?', ['N/A', user.id]);
         await tx.execute('DELETE FROM User WHERE id = ?', [user.id]);
+        await tx.execute('DELETE FROM Account WHERE id = ?', [user.id]);
+        await tx.execute('DELETE FROM Session WHERE id = ?', [user.id]);
       });
 
       // noinspection ES6MissingAwait
-      notifyOfDeletedAccount({ name: user.name!, hadSubscription: !!subscriptionId });
+      notifyOfDeletedAccount({ name: user.name!, email, hadSubscription: !!id });
       // noinspection ES6MissingAwait
       sendAccountDeletedEmail({ to: email, name: user.name! })
     }),

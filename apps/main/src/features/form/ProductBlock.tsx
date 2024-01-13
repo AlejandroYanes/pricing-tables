@@ -266,11 +266,11 @@ export default function ProductBlock(props: Props) {
                     >
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="pause" id="pause-subscription"/>
-                        <Label htmlFor="pause-subscription">Pause</Label>
+                        <Label htmlFor="pause-subscription">Pause subscription</Label>
                       </div>
                       <div className="flex items-center space-x-2">
                         <RadioGroupItem value="cancel" id="cancel-subscription"/>
-                        <Label htmlFor="cancel-subscription">Cancel</Label>
+                        <Label htmlFor="cancel-subscription">Cancel subscription</Label>
                       </div>
                     </RadioGroup>
                   </div>

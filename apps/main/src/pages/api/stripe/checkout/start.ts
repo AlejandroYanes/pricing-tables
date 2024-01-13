@@ -22,7 +22,7 @@ const inputSchema = z.object({
   email: z.string().email().optional(),
   customer_id: z.string().optional(),
   internal_flow: z.enum(['true', 'false']).optional(),
-  free_trial_days: z.number().int().positive().min(3).optional(),
+  free_trial_days: z.preprocess((val) => Number(val), z.number().int().positive().min(3)).optional(),
   free_trial_end_action: z.literal('pause').or(z.literal('cancel')).optional(),
 });
 
@@ -110,6 +110,7 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
           },
           trial_period_days: free_trial_days,
         },
+        payment_method_collection: 'if_required',
       }) : {}),
       customer_email: customer_id ? undefined : email,
       customer: customer_id,

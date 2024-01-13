@@ -1,34 +1,23 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import { createId } from '@paralleldrive/cuid2';
 import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
-import { buffer, corsMiddleware } from 'utils/api';
+import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
 import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfNewSubscription, notifyOfSubscriptionMissingParams, notifyOfSubscriptionPaymentFailed, } from 'utils/slack';
 import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
+import { isLocalServer } from 'utils/environments';
 
 export const config = {
   api: {
-    bodyParser: false,
+    bodyParser: isLocalServer(),
   },
 };
 
-async function handler(req: NextApiRequest, res: NextApiResponse) {
-  const signature = req.headers['stripe-signature']!;
-
+async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) {
   const stripe = initStripe();
-  let event: Stripe.Event;
-
-  try {
-    const payload = await buffer(req);
-    event = stripe.webhooks.constructEvent(payload, signature, env.STRIPE_CHECKOUT_WEBHOOK_SECRET);
-  } catch (err: any) {
-    console.log(`❌ Webhook Error: ${err.message}`);
-    return res.status(400).send(`Webhook Error: ${err.message}`);
-  }
 
   if (event.type === 'checkout.session.completed') {
     const { account, data } = event as Stripe.Event;
@@ -42,7 +31,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     const isFromPlatform = session.metadata?.source === 'dealo';
     const isInternalFlow = session.metadata?.internal_flow === 'true';
     if (!isFromPlatform || !isInternalFlow) {
-      res.status(200).json({ received: true });
+      res.status(200).json({ source: 'Dealo', received: true });
     }
 
     const hasMissingParams = !session.subscription || !session.customer;
@@ -51,6 +40,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       // noinspection ES6MissingAwait
       notifyOfSubscriptionMissingParams({
         name: (session.customer as Stripe.Customer).name!,
+        email: (session.customer as Stripe.Customer).email!,
         missingCustomer: !session.customer,
         missingSubscription: !session.subscription,
       });
@@ -71,12 +61,12 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       // noinspection ES6MissingAwait
       notifyOfSubscriptionPaymentFailed({
         name,
-        customerEmail: email,
+        email,
         subscriptionId: subscriptionId,
       });
       // noinspection ES6MissingAwait
       sendFailedPaymentEmail({ to: email, name });
-      res.status(200).json({ received: true });
+      res.status(200).json({ source: 'Dealo', received: true });
       return;
     }
 
@@ -85,22 +75,21 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
         'UPDATE User SET stripeCustomerId = ?, role = ? WHERE id = ?',
         [customer.id, ROLES.PAID, userId],
       );
-      await tx.execute('UPDATE CheckoutRecord SET isActive = false WHERE userId = ?', [userId]);
       await tx.execute(
         // eslint-disable-next-line max-len
-        'INSERT INTO CheckoutRecord(id, sessionId, userId, widgetId, productId, priceId, subscriptionId, currrentPeriodStart, currentPeriodEnd, isPaying) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currrentPeriodStart, currentPeriodEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
         // eslint-disable-next-line max-len
-        [createId(), sessionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end, status === 'active'],
+        [subscriptionId, userId, widgetId, productId, priceId, subscriptionId, current_period_start, current_period_end, status],
       );
     });
 
     // noinspection ES6MissingAwait
-    notifyOfNewSubscription({ name });
+    notifyOfNewSubscription({ name, email });
     // noinspection ES6MissingAwait
     sendSubscriptionCreatedEmail({ name, to: email });
   }
 
-  res.status(200).json({ received: true });
+  res.status(200).json({ source: 'Dealo', received: true });
 }
 
-export default corsMiddleware(handler);
+export default corsMiddleware(stripeEventMiddleware(handler, env.STRIPE_CHECKOUT_WEBHOOK_SECRET));
