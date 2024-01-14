@@ -39,7 +39,7 @@ export const WelcomeEmail = (props: Props) => {
       <Preview>Welcome to Dealo. We are excited to have you on board and looking forward to help you grow your business.</Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans">
-          <Container className="border border-solid border-[#12b886] rounded my-[40px] mx-auto p-[20px] w-[465px]">
+          <Container className="border border-solid border-[#12b886] rounded my-[40px] mx-auto p-[20px] w-[700px]">
             <Section>
               <Row>
                 <Column valign="top" className="w-[64px]">
@@ -78,7 +78,7 @@ export const WelcomeEmail = (props: Props) => {
                     <br />
                     <br />
                     You are currently on a free trial, so you can try out all of our features.
-                    Your trial will end on{' '}${formatStripeDate(trialEndsAt || Date.now() / 1000)}.
+                    Your trial will end on{' '}{formatStripeDate(trialEndsAt || Date.now() / 1000, 'en-gb')}.
                   </>
                 ) : null}
               </Text>
