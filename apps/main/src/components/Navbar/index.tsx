@@ -90,6 +90,10 @@ export default function Navbar(props: Props) {
   }
 
   const resolveStatusLabel = () => {
+    if (data?.user?.role === ROLES.ADMIN) {
+      return 'Admin';
+    }
+
     switch (data?.user?.subscriptionStatus) {
       case 'active':
         return 'Paid';
