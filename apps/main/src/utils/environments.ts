@@ -1,17 +1,26 @@
+import { env as clientEnv } from '../env/client.mjs';
+import { env as serverEnv } from '../env/server.mjs';
+
 export function isLocalhost () {
-  return process.env.NEXT_PUBLIC_VERCEL_ENV === undefined;
+  return clientEnv.NEXT_PUBLIC_PLATFORM_URL === 'http://localhost:3000';
 }
 
 export function isDevelopment() {
-  const env = process.env.NEXT_PUBLIC_VERCEL_ENV;
-  return !!env && env !== 'production';
+  return !clientEnv.NEXT_PUBLIC_PLATFORM_URL || clientEnv.NEXT_PUBLIC_PLATFORM_URL === 'https://dev.dealo.app';
+}
+
+export function isProduction() {
+  return clientEnv.NEXT_PUBLIC_PLATFORM_URL === 'https://dealo.app';
 }
 
 export function isLocalServer() {
-  return process.env.VERCEL_ENV === undefined;
+  return serverEnv.PLATFORM_URL === 'http://localhost:3000';
 }
 
 export function isDevelopmentServer() {
-  const env = process.env.VERCEL_ENV;
-  return !!env && env !== 'production';
+  return serverEnv.PLATFORM_URL === 'https://dev.dealo.app';
+}
+
+export function isproductionServer() {
+  return serverEnv.PLATFORM_URL === 'https://dealo.app';
 }
