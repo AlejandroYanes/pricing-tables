@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import {
   Body,
   Column,
@@ -14,8 +15,6 @@ import {
   Tailwind,
   Text,
 } from '@react-email/components';
-import { formatStripeDate } from '@dealo/helpers';
-import { ReactNode } from 'react';
 
 interface Props {
   logoImage?: string;
@@ -62,10 +61,7 @@ export const NewReleaseEmail = (props: Props) => {
                 Hi <span className="font-bold">{name}</span>, we hope you are doing well.
                 <br />
                 Recently, we have made some changes to our platform, added some new features, fixed some bugs
-                and we wanted to let you know about them. Our goal is to make Dealo the best platform for you to
-                grow your business.
-                <br />
-                {`Here's`} a summary of the changes we made:
+                and we wanted to let you know about them.
               </Text>
             </Section>
             <Section>
@@ -75,23 +71,23 @@ export const NewReleaseEmail = (props: Props) => {
               </NewFeature>
               <NewFeature title="Effortless Stripe Checkouts">
                 Say hello to simplicity!
-                {`We've`} implemented the Stripe Checkout flow,
+                {` We've`} implemented the Stripe Checkout flow,
                 allowing you to generate a checkout link with just one redirect. The best part?
-                {`We've`} been our own first customer, crafting a Dealo checkout page.
+                {` We've`} been our own first customer, crafting a Dealo checkout page.
                 This hands-on experience means {`we're`} even better equipped to guide you through the process.
               </NewFeature>
               <NewFeature title="Embrace Free Trials">
                 Start enticing your audience! Dealo now supports free trials,
                 giving you the power to create subscription plans with a trial period.
-                {`It's`} the perfect way to attract and convert users without breaking a sweat.
+                {` It's`} the perfect way to attract and convert users without breaking a sweat.
               </NewFeature>
             </Section>
             <Section>
               <Text className="text-[14px]">
-                Our goal is to make Dealo the ultimate platform for your business growth,
+                Our goal is to make Dealo a valuable tool for your business growth,
                 and these updates are just the beginning.
                 We believe {`they'll`} elevate your experience,
-                making it easier than ever for you to focus on what matters—scaling your business.
+                making it easier than ever for you to focus on what matters, scaling your business.
                 <br />
                 <br />
                 Ready to explore the new possibilities?{' '}
@@ -102,10 +98,13 @@ export const NewReleaseEmail = (props: Props) => {
                 <br />
                 <br />
                 As always, {`we're`} here to support your journey. If you have any questions or need assistance,
-                {`don't`} hesitate to reach out.
+                {` don't `} hesitate to reach out.
                 <br />
                 <br />
                 {`Here's`} to your continued success!
+                <br />
+                <br />
+                <span className="font-bold">The Dealo Team.</span>
               </Text>
             </Section>
             <Hr className="border border-solid border-[#eaeaea] my-[26px] mx-0 w-full" />
