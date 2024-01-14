@@ -33,7 +33,7 @@ export const AccountDeletedEmail = (props: Props) => {
       </Preview>
       <Tailwind>
         <Body className="bg-white my-auto mx-auto font-sans">
-          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[465px]">
+          <Container className="border border-solid border-[#eaeaea] rounded my-[40px] mx-auto p-[20px] w-[700px]">
             <Section>
               <Row>
                 <Column valign="top" className="w-[64px]">
