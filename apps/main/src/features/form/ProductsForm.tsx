@@ -298,7 +298,7 @@ export default function ProductsForm(props: Props) {
                 aria-expanded={showDropdown}
                 className="justify-between rounded-r-none flex-1 font-normal"
               >
-                Select framework...
+                Select a product...
                 <RenderIf
                   condition={isFetchingStripeProducts}
                   fallback={<IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />}

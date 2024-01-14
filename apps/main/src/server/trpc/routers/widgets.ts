@@ -11,7 +11,7 @@ export const widgetsRouter = createTRPCRouter({
         template: input.template,
         subscribeLabel: 'Subscribe',
         freeTrialLabel: 'Start free trial',
-        color: 'teal',
+        color: 'emerald',
       },
     });
     await ctx.prisma.callback.createMany({

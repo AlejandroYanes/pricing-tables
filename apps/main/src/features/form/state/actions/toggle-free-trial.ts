@@ -10,7 +10,10 @@ export function toggleFreeTrial(productId: string, priceId: string) {
 
   selectedPrice.hasFreeTrial = !selectedPrice.hasFreeTrial;
 
-  if (!selectedPrice.freeTrialDays) selectedPrice.freeTrialDays = 7;
+  if (!selectedPrice.freeTrialDays) {
+    selectedPrice.freeTrialDays = 7;
+    selectedPrice.freeTrialEndAction = 'pause';
+  }
 
   useWidgetFormStore.setState({ products: [...products] });
 }
