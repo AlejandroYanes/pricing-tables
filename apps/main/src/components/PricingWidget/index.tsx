@@ -13,6 +13,7 @@ const PricingWidget = () => {
     import('@dealo/pricing-cards');
   }, []);
 
+  console.log('envs', { local: isLocalhost(), dev: isDevelopment() });
   const widget = isLocalhost() || isDevelopment() ? DEVELOPMENT_WIDGET : PRODUCTION_WIDGET;
 
   return (
