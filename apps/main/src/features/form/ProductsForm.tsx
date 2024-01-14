@@ -1,12 +1,26 @@
 import type { ReactNode } from 'react';
 import { useRef, useState } from 'react';
 import type Stripe from 'stripe';
-import { Alert, Button, createStyles, Divider, Group, Menu, Popover, Stack, Text, TextInput, UnstyledButton } from '@mantine/core';
 import type { DropResult } from 'react-beautiful-dnd';
-import { IconChevronDown, IconX } from '@tabler/icons';
-import type { FormPrice } from 'models';
-import { formatCurrency } from 'helpers';
-import { RenderIf } from 'ui';
+import { IconAlertCircle, IconChevronDown, IconSearch, IconSelector, IconX } from '@tabler/icons-react';
+import type { FormPrice } from '@dealo/models';
+import { formatCurrency } from '@dealo/helpers';
+import {
+  RenderIf,
+  Button,
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+  Alert,
+  AlertTitle,
+  AlertDescription,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+  Loader,
+  Input, useToast,
+} from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import { useDebounce } from 'utils/hooks/useDebounce';
@@ -22,46 +36,19 @@ import {
   changeCustomCtaLabel,
   changeCustomCtaName,
   changeCustomCTAUrl,
+  toggleFreeTrial,
   changeFreeTrialDays,
+  changeFreeTrialEndAction,
   handleAddPrice,
   removePrice,
   removeProduct,
   reorderProducts,
-  toggleFreeTrial,
 } from './state/actions';
 
 interface Props {
   showPanel: boolean;
   template: ReactNode;
 }
-
-const useStyles = createStyles((theme) => ({
-  productList: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    listStyle: 'none',
-    padding: 0,
-    margin: 0,
-  },
-  productGroup: {
-    display: 'flex',
-    flexDirection: 'column',
-    alignItems: 'stretch',
-    marginBottom: theme.spacing.md,
-  },
-  productItem: {
-    display: 'flex',
-    alignItems: 'center',
-    padding: theme.spacing.xs,
-    borderRadius: theme.radius.sm,
-    width: '100%',
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: theme.colorScheme === 'dark' ? theme.colors.gray[8] : theme.colors.gray[0],
-    }
-  },
-}));
 
 const intervalMap: Record<Stripe.Price.Recurring.Interval, string> = {
   day: 'day',
@@ -108,28 +95,35 @@ const resolvePricing = (price: FormPrice): string => {
 
 const noStripeScreen = (
   <BaseLayout showBackButton>
-    <Stack mt={60} justify="center" align="center">
-      <Alert title="Ooops..." variant="outline" color="gray">
-        Something happened and we {`can't`} connect with Stripe, please try again later.
+    <div className="flex flex-col justify-center items-center mt-16">
+      <Alert>
+        <IconAlertCircle size="1rem" />
+        <AlertTitle>Ooops....</AlertTitle>
+        <AlertDescription>
+          Something happened and we {`can't`} connect with Stripe, please try again later.
+        </AlertDescription>
       </Alert>
-    </Stack>
+    </div>
   </BaseLayout>
 );
 
 export default function ProductsForm(props: Props) {
   const { showPanel, template } = props;
 
-  const { classes } = useStyles();
-
   const { products: selectedProducts } = useWidgetFormStore();
   const [showProducts, setShowProducts] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
   const [query, setQuery] = useState<string | undefined>(undefined);
   const [apiQuery, setApiQuery] = useState<string | undefined>(undefined);
   const { debounceCall } = useDebounce(250);
+
   const interactionTimer = useRef<any>(undefined);
+
+  const { toast } = useToast();
 
   const {
     data,
+    isFetching: isFetchingStripeProducts,
     isError: failedToFetchStripeProducts,
   } = trpc.stripe.list.useQuery(apiQuery, { refetchOnWindowFocus: false, keepPreviousData: true });
   const products = data || [];
@@ -151,6 +145,16 @@ export default function ProductsForm(props: Props) {
     if (interactionTimer.current) {
       clearTimeout(interactionTimer.current);
       interactionTimer.current = undefined;
+    }
+  };
+
+  const handleAddCustomProduct = () => {
+    const success = addCustomProduct();
+    if (!success) {
+      toast({
+        variant: 'destructive',
+        description: 'You can only have 2 custom products',
+      });
     }
   };
 
@@ -244,6 +248,7 @@ export default function ProductsForm(props: Props) {
             onRemovePrice={removePrice}
             onToggleFreeTrial={toggleFreeTrial}
             onFreeTrialDaysChange={changeFreeTrialDays}
+            onFreeTrialEndActionChange={changeFreeTrialEndAction}
             onMoveToTop={onMoveToTop}
             onMoveUp={onMoveUp}
             onMoveDown={onMoveDown}
@@ -252,102 +257,107 @@ export default function ProductsForm(props: Props) {
         );
       })}
       <RenderIf condition={!showProducts}>
-        <Group position="right" align="center">
-          <Group noWrap spacing={1}>
+        <div className="flex items-center justify-end">
+          <div className="flex items-center flex-nowrap">
             <Button
+              variant="black"
+              className="rounded-r-none mr-[1px]"
               onClick={() => {
                 setShowProducts(true);
                 startInteractionTimer();
               }}
-              style={{ borderTopRightRadius: 0, borderBottomRightRadius: 0 }}
             >
               {selectedProducts.length === 0 ? 'Add a product' : 'Add another product'}
             </Button>
-            <Menu transitionProps={{ transition: 'pop' }} position="bottom-end" withinPortal>
-              <Menu.Target>
-                <Button
-                  style={{
-                    padding: 0,
-                    width: 36,
-                    borderTopLeftRadius: 0,
-                    borderBottomLeftRadius: 0,
-                  }}
-                >
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                <Button component="span" variant="black" className="rounded-l-none">
                   <IconChevronDown size="1rem" stroke={1.5} />
                 </Button>
-              </Menu.Target>
-              <Menu.Dropdown>
-                <Menu.Item onClick={addCustomProduct}>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={handleAddCustomProduct}>
                   Add a custom product
-                </Menu.Item>
-              </Menu.Dropdown>
-            </Menu>
-          </Group>
-        </Group>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
+        </div>
       </RenderIf>
       <RenderIf condition={showProducts}>
-        <Group
-          spacing={1}
+        <div
+          className="flex items-center"
           onMouseEnter={clearInteractionTimer}
           onMouseLeave={startInteractionTimer}
         >
-          <Popover position="bottom" shadow="md" width="target">
-            <Popover.Target>
-              <Button style={{ flex: 1, borderTopRightRadius: 0, borderBottomRightRadius: 0 }}>
-                Select a product
-              </Button>
-            </Popover.Target>
-            <Popover.Dropdown style={{ padding: 0 }}>
-              <Stack p="sm" spacing={8}>
-                <TextInput placeholder="Search for products..." value={query} onChange={handleSearch} />
-                <Divider orientation="horizontal" />
-              </Stack>
-              <Stack p="sm" pt={0} pb={0} style={{ maxHeight: '380px', overflow: 'auto' }}>
-                <ul className={classes.productList}>
-                  {productOptions.map((product) => (
-                    <li key={product.id} className={classes.productGroup}>
-                      <Text color="dimmed" mb={4}>{product.name}</Text>
-                      <ul style={{ display: 'flex', flexDirection: 'column', alignItems: 'stretch', listStyle: 'none', padding: '0' }}>
-                        {product.prices.map((price) => (
-                          <li key={price.id}>
-                            <UnstyledButton
-                              className={classes.productItem}
-                              onClick={() => handleAddProduct(product.id, price.id)}
-                            >
-                              {resolvePricing(price)}
-                            </UnstyledButton>
-                          </li>
-                        ))}
-                      </ul>
-                    </li>
-                  ))}
-                </ul>
-                <RenderIf condition={productOptions.length === 0}>
-                  <Stack justify="center" align="center" p={16}>
-                    <span className="text text-slate-500">No products found</span>
-                  </Stack>
+          <Popover open={showDropdown} onOpenChange={setShowDropdown}>
+            <PopoverTrigger asChild>
+              <Button
+                variant="outline"
+                role="combobox"
+                aria-expanded={showDropdown}
+                className="justify-between rounded-r-none flex-1 font-normal"
+              >
+                Select framework...
+                <RenderIf
+                  condition={isFetchingStripeProducts}
+                  fallback={<IconSelector className="ml-2 h-4 w-4 shrink-0 opacity-50" />}
+                >
+                  <Loader size="xs" color="black" />
                 </RenderIf>
-              </Stack>
-            </Popover.Dropdown>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="p-0">
+              <div className="flex items-center justify-between px-2 mb-2 border-b border-slate-200 dark:border-slate-800">
+                <IconSearch className="h-4 w-4 stroke-slate-500" />
+                <Input
+                  value={query || ''}
+                  onChange={handleSearch}
+                  placeholder="Search products..."
+                  variant="undecorated"
+                  className="border-none outline-none pl-2 pr-0"
+                />
+              </div>
+              <ul className="flex flex-col gap-1">
+                {productOptions.map((product) => (
+                  <li key={product.id} className="flex flex-col p-1">
+                    <span className="text text-sm text-slate-500 pl-1 mb-1">{product.name}</span>
+                    <ul className="flex flex-col">
+                      {product.prices.map((price) => (
+                        <li key={price.id}>
+                          <Button
+                            variant="undecorated"
+                            className="p-1 pl-2 h-auto w-full justify-start rounded-sm hover:bg-slate-100 dark:hover:bg-slate-800"
+                            onClick={() => handleAddProduct(product.id, price.id)}
+                          >
+                            {resolvePricing(price)}
+                          </Button>
+                        </li>
+                      ))}
+                    </ul>
+                  </li>
+                ))}
+              </ul>
+              <RenderIf condition={productOptions.length === 0}>
+                <div className="flex flex-col items-center justify-center p-4">
+                  <span className="text text-slate-500">No products found</span>
+                </div>
+              </RenderIf>
+            </PopoverContent>
           </Popover>
           <Button
             onClick={() => {
-              setShowProducts(false);
               setQuery(undefined);
               setApiQuery(undefined);
+              setShowProducts(false);
               clearInteractionTimer();
             }}
-            style={{
-              padding: 0,
-              width: 36,
-              borderLeft: 'none',
-              borderTopLeftRadius: 0,
-              borderBottomLeftRadius: 0,
-            }}
+            variant="outline"
+            className="rounded-l-none border-l-0"
           >
             <IconX size="1rem" stroke={1.5} />
           </Button>
-        </Group>
+        </div>
       </RenderIf>
     </>
   );

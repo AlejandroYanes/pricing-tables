@@ -1,7 +1,7 @@
+'use client'
+
 import { useState } from 'react';
-import { Anchor, Button, Stack, Text, useMantineTheme } from '@mantine/core';
-import { modals } from '@mantine/modals';
-import { IconAlertTriangle } from '@tabler/icons';
+import { Button, Loader, RenderIf, useToast } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import useChangeHistory from './useChangeHistory';
@@ -11,21 +11,27 @@ interface Props {
 }
 
 export default function SaveButton(props: Props) {
-  const theme = useMantineTheme();
   const { enabled } = props;
   const [lastSaved, setLastSaved] = useState<number | null>(null);
   const { shouldSave, history } = useChangeHistory(enabled);
+
+  const { toast } = useToast();
 
   const { mutate, isLoading } = trpc.widgets.updateWidget.useMutation({
     onSuccess: () => {
       setLastSaved(history.at(-1)!.hash);
     },
     onError: () => {
-      handleAPIError();
-    },
+      toast({
+        variant: 'destructive',
+        title: 'Something went wrong',
+        description: 'There was an error while saving your changes, please check your network connection before making any more changes.',
+      });
+    }
   });
 
   const handleSave = () => {
+    if (isLoading) return;
     if (lastSaved === history.at(-1)?.hash) return;
 
     const { id, template, ...rest } = history.at(-1)!.changes;
@@ -37,28 +43,13 @@ export default function SaveButton(props: Props) {
     mutate(changes);
   }
 
-  const handleAPIError = () => {
-    modals.open({
-      centered: true,
-      withCloseButton: false,
-      children:(
-        <Stack>
-          <IconAlertTriangle color="orange" size={60} style={{ margin: '0 auto' }} />
-          <Text>
-            There was an error while saving your changes, please do not make any more.
-            First, try to refresh the page and check your network connection.
-            If the problem still persist, <Anchor color="orange" href="mailto: alejandro@dealo.com">contact us</Anchor>.
-          </Text>
-        </Stack>
-      ),
-    });
-  };
-
-  const variant = theme.colorScheme === 'dark' ? 'white' : 'filled';
   const disabled = !shouldSave || lastSaved === history.at(-1)?.hash;
 
   return (
-    <Button color="dark" variant={variant} loading={isLoading} disabled={disabled} onClick={handleSave}>
+    <Button variant="black" className="px-8" disabled={disabled} onClick={handleSave}>
+      <RenderIf condition={isLoading}>
+        <Loader size="xs" className="mr-2" innerClassName="dark:border-t-slate-950" color="white" />
+      </RenderIf>
       Save
     </Button>
   );

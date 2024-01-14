@@ -1,0 +1,33 @@
+{
+  "name": "@dealo/pricing-cards",
+  "version": "0.0.0",
+  "license": "MIT",
+  "type": "module",
+  "main": "src/index.tsx",
+  "types": "./src/index.tsx",
+  "scripts": {
+    "lint": "eslint \"**/*.ts*\""
+  },
+  "dependencies": {
+    "@dealo/helpers": "*",
+    "@dealo/models": "*",
+    "@dealo/templates": "*",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/react": "^18.0.22",
+    "@typescript-eslint/eslint-plugin": "5.49.0",
+    "@typescript-eslint/parser": "5.49.0",
+    "eslint": "8.32.0",
+    "eslint-config-next": "13.1.2",
+    "eslint-import-resolver-alias": "1.1.2",
+    "eslint-import-resolver-typescript": "3.5.2",
+    "eslint-plugin-eslint-comments": "3.2.0",
+    "eslint-plugin-import": "2.26.0",
+    "eslint-plugin-jest": "27.1.3",
+    "eslint-plugin-prettier": "4.2.1",
+    "eslint-plugin-react": "7.31.10",
+    "typescript": "4.9.4"
+  }
+}

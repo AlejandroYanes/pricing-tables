@@ -1,4 +1,4 @@
-import { remove } from 'helpers';
+import { remove } from '@dealo/helpers';
 
 import { useWidgetFormStore } from '../widget-state';
 

@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type { WidgetFormState } from 'models';
+import type { WidgetFormState } from '@dealo/models';
 
 import { useDebounce } from 'utils/hooks/useDebounce';
 import { useWidgetFormStore } from '../state';
@@ -10,6 +10,7 @@ const INITIAL_COUNT_BEFORE_SAVE = process.env.NODE_ENV === 'production' ? 1 : 2;
 
 export default function useChangeHistory(enabled = false) {
   const widgetStates = useWidgetFormStore((state) => state);
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const [_, setTick] = useState(Date.now());
   const initialState = useRef<WidgetFormState | undefined>(undefined);
   const history = useRef<{ hash: number; changes: WidgetFormState }[]>([]);

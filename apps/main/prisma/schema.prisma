@@ -50,15 +50,16 @@ model Product {
 }
 
 model Price {
-    id              String
-    hasFreeTrial    Boolean       @default(false)
-    freeTrialDays   Int           @default(0)
-    order           Int           @default(0)
-    createdAt       DateTime      @default(now())
-    mask            String
-    widgetId        String
-    productId       String
-    product         Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
+    id                  String
+    hasFreeTrial        Boolean       @default(false)
+    freeTrialDays       Int           @default(0)
+    freeTrialEndAction  String?       @default("pause")
+    order               Int           @default(0)
+    createdAt           DateTime      @default(now())
+    mask                String
+    widgetId            String
+    productId           String
+    product             Product       @relation(fields: [productId, widgetId], references: [id, widgetId], onDelete: Cascade)
 
     @@id([id, widgetId])
 }
@@ -85,6 +86,23 @@ model Callback {
     widgetId        String
     widget          PriceWidget   @relation(fields: [widgetId], references: [id], onDelete: Cascade)
     @@unique([env, widgetId])
+}
+
+model Subscription {
+    id                    String          @id
+    status                String
+    userId                String
+    widgetId              String
+    productId             String
+    priceId               String
+    currrentPeriodStart   Int
+    currentPeriodEnd      Int
+    cancelAt              Int?
+    cancelledAt           Int?
+    cancellationDetails   String?
+    trialStart            Int?
+    trialEnd              Int?
+    createdAt             DateTime        @default(now())
 }
 
 // Necessary for Next auth
@@ -115,18 +133,19 @@ model Session {
 }
 
 model User {
-    id              String    @id @default(cuid())
-    name            String?
-    email           String?   @unique
-    emailVerified   DateTime?
-    image           String?
-    stripeKey       String?
-    stripeAccount   String?
-    stripeConnected Boolean   @default(false)
-    role            String?    @default("USER")
-    accounts        Account[]
-    sessions        Session[]
-    widgets         PriceWidget[]
+    id                    String    @id @default(cuid())
+    name                  String?
+    email                 String?   @unique
+    emailVerified         DateTime?
+    image                 String?
+    stripeKey             String?
+    stripeAccount         String?
+    stripeConnected       Boolean   @default(false)
+    stripeCustomerId      String?
+    role                  String?    @default("USER")
+    accounts              Account[]
+    sessions              Session[]
+    widgets               PriceWidget[]
 }
 
 model VerificationToken {

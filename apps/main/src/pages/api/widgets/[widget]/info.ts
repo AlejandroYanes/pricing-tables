@@ -2,7 +2,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
 import { z } from 'zod';
-import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from 'models';
+import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from '@dealo/models';
 
 import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
@@ -65,13 +65,13 @@ async function getWidgetData(widgetId: string) {
   const prodIds = products.map((p) => p.id);
   const prices = prodIds.length > 0
     ? (
-      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
+      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.freeTrialEndAction, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
     ).rows as Price[]
     : [];
 
   const widgetUser = (
     await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
-  ).rows[0] as { stripeAccount: string; role: string };
+  ).rows[0] as { stripeAccount: string };
 
   const stripe = initStripe();
 
@@ -136,8 +136,11 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
         };
 
         stripePrices
-          .filter((stripePrice) => stripePrice.product === widgetProd.id)
+          // TODO: remove the tier filter once we support tiers (DEV-14)
+          .filter((stripePrice) => stripePrice.product === widgetProd.id && stripePrice.billing_scheme !== 'tiered')
           .forEach(stripePrice => {
+            if (!stripePrice.active) return;
+
             const widgetCurrentPrice = widgetPrices.find((p) => p.id === stripePrice.id);
             const widgetPrice = widgetCurrentPrice
               ? {
@@ -153,17 +156,15 @@ async function normaliseProducts(stripe: Stripe, stripeAccount: string, products
                 isSelected: false,
               };
 
-            if (stripePrice.active) {
-              finalProduct.prices.push({
-                ...widgetPrice,
-                ...stripePrice,
-                hasFreeTrial: !!widgetPrice.hasFreeTrial,
-                ...({
-                  productId: widgetProd.id,
-                  product: undefined as any,
-                }),
-              });
-            }
+            finalProduct.prices.push({
+              ...widgetPrice,
+              ...stripePrice,
+              hasFreeTrial: !!widgetPrice.hasFreeTrial,
+              ...({
+                productId: widgetProd.id,
+                product: undefined as any,
+              }),
+            });
           });
       }
 
@@ -212,4 +213,4 @@ type Widget = {
 type Callback = { id: string; env: string; url: string; order: number };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number; isSelected: boolean };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; freeTrialEndAction: string; productId: string; mask: string; order: number; isSelected: boolean };

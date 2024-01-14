@@ -1,10 +1,10 @@
 import { pick } from 'radash';
 import Stripe from 'stripe';
-import type { FormPrice, FormProduct } from 'models';
+import type { FormPrice, FormProduct } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
 
-export const STRIPE_API_VERSION = '2022-11-15';
+export const STRIPE_API_VERSION = '2023-10-16';
 export default function initStripe() {
   return new Stripe(env.STRIPE_SECRET_KEY, {
     apiVersion: STRIPE_API_VERSION,

@@ -1,4 +1,4 @@
-import type { FormFeature } from 'models';
+import type { FormFeature } from '@dealo/models';
 import { createId } from '@paralleldrive/cuid2';
 
 import { useWidgetFormStore } from '../widget-state';

@@ -1,5 +1,5 @@
-import type { FormPrice } from 'models';
-import { formatCurrency } from 'helpers';
+import type { FormPrice } from '@dealo/models';
+import { formatCurrency } from '@dealo/helpers';
 
 import { intervalsMap } from '../../constants/intervals';
 

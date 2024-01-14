@@ -1,45 +1,40 @@
+'use client'
+
 import { useState } from 'react';
 import { CSVLink } from 'react-csv';
+import { IconAdjustments, IconDatabaseExport } from '@tabler/icons-react';
 import {
-  Badge,
-  Group,
-  Pagination,
-  Select,
-  Table,
-  Text,
-  TextInput,
-  createStyles,
+  RenderIf,
   Popover,
-  ActionIcon,
-  Stack,
-  Radio,
+  PopoverContent,
+  PopoverTrigger,
   Button,
-  Indicator,
-} from '@mantine/core';
-import { useDebouncedState } from '@mantine/hooks';
-import { IconAdjustmentsAlt, IconDatabaseExport } from '@tabler/icons';
-import { calculateTotal } from 'helpers';
-import { RenderIf } from 'ui';
+  Label,
+  RadioGroup,
+  RadioGroupItem,
+  Pagination,
+  Input,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  Badge,
+} from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
+import { useDebounce } from 'utils/hooks/useDebounce';
 import UserAvatar from 'components/UserAvatar';
 
-const useStyles = createStyles((theme) => ({
-  footer: {
-    position: 'sticky',
-    bottom: 0,
-    backgroundColor: theme.colorScheme === 'dark' ? theme.colors.dark[7] : theme.white,
-  },
-}));
-
 const UsersTable = () => {
-  const [query, setQuery] = useDebouncedState('', 200);
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
   const [isSetup, setIsSetup] = useState<string | undefined>();
   const [hasLegacy, setHasLegacy] = useState<string | undefined>();
+  const [query, setQuery] = useState('');
 
-  const { classes } = useStyles();
+  const { debounceCall } = useDebounce(250);
 
   const {
     data: { results, count } = { results: [], count: 0 },
@@ -49,6 +44,10 @@ const UsersTable = () => {
   );
 
   const csvData: string[][] = [['name', 'email']].concat(results.map((user) => ([user.name || '-', user.email || '-'])));
+
+  const handleSearch = (value: string) => {
+    debounceCall(() => setQuery(value));
+  }
 
   const handleFilterChange = (value: string) => {
     const [filter, filterValue] = value.split('-');
@@ -79,132 +78,129 @@ const UsersTable = () => {
       return hasLegacy === 'yes' ? 'legacy-yes' : 'legacy-no';
     }
 
-    return undefined;
+    return 'none';
   };
+
+  console.log(resolveStatusFilter());
 
   return (
     <>
-      <Group position="apart">
-        <TextInput
-          my="lg"
-          mr="auto"
-          defaultValue=""
+      <div className="flex justify-between items-center mb-4">
+        <Input
           placeholder="Search users"
-          sx={{ width: '280px' }}
-          onChange={(e) => setQuery(e.target.value)}
+          className="w-[280px]"
+          onChange={(e) => handleSearch(e.target.value)}
         />
-        <Group spacing="xs">
-          <Popover width={200} position="bottom-end">
-            <Popover.Target>
-              <Indicator
-                withBorder
-                position="bottom-center"
-                size={12}
-                disabled={resolveStatusFilter() === undefined}
-              >
-                <ActionIcon variant="filled" size="lg">
-                  <IconAdjustmentsAlt stroke={1} />
-                </ActionIcon>
-              </Indicator>
-            </Popover.Target>
-            <Popover.Dropdown>
-              <Stack>
-                <Radio.Group
+        <div className="flex flex-row ml-auto">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost">
+                <IconAdjustments />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent align="end" className="w-[200px]">
+              <div className="flex flex-col gap-4">
+                <span className="text text-sm font-semibold">Is Setup</span>
+                <RadioGroup
                   name="has-setup"
                   value={resolveStatusFilter()}
-                  onChange={(value: string) => handleFilterChange(value)}
+                  onValueChange={(value: string) => handleFilterChange(value)}
                 >
-                  <Stack spacing="xs">
-                    <Text size="sm" weight={500}>Is Setup</Text>
-                    <Radio value="setup-yes" label="Yes" />
-                    <Radio value="setup-no" label="No" />
-                    <Text size="sm" weight={500}>Has legacy setup</Text>
-                    <Radio value="legacy-yes" label="Yes" />
-                    <Radio value="legacy-no" label="No" />
-                  </Stack>
-                </Radio.Group>
-              </Stack>
-              <Group position="right" mt="sm">
-                <Button variant="default" size="xs" onClick={clearFilters}>Clear</Button>
-              </Group>
-            </Popover.Dropdown>
+                  <div className="flex flex-col gap-2">
+                    <span>Is Setup</span>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="setup-yes" id="r2"/>
+                      <Label htmlFor="r2">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="setup-no" id="r3"/>
+                      <Label htmlFor="r3">No</Label>
+                    </div>
+                    <span>Has legacy setup</span>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="legacy-yes" id="r4"/>
+                      <Label htmlFor="r4">Yes</Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="legacy-no" id="r5"/>
+                      <Label htmlFor="r5">No</Label>
+                    </div>
+                  </div>
+                </RadioGroup>
+                <Button variant="outline" size="sm" onClick={clearFilters}>Clear</Button>
+              </div>
+            </PopoverContent>
           </Popover>
           <CSVLink data={csvData} filename="dealo_users.csv" target="_blank">
-            <ActionIcon variant="filled" size="lg">
+            <Button variant="ghost">
               <IconDatabaseExport stroke={1} />
-            </ActionIcon>
+            </Button>
           </CSVLink>
-        </Group>
-      </Group>
-      <Table verticalSpacing="sm" horizontalSpacing="lg">
-        <thead>
-          <tr>
-            <th>User</th>
-            <th style={{ width: '100px' }}>Is Setup</th>
-            <th style={{ width: '100px' }}>Legacy</th>
-            <th style={{ width: '130px' }}>Widgets</th>
-          </tr>
-        </thead>
-        <tbody>{results.map((user) => (
-          <tr key={user.id}>
-            <td>
-              <Group spacing="sm">
-                <UserAvatar user={user}/>
-                <div>
-                  <Text size="sm" weight={500}>
-                    {user.name ?? 'Anonymous'}
-                  </Text>
-                  <Text size="xs" color="dimmed">
-                    {user.email ?? 'no email'}
-                  </Text>
+        </div>
+      </div>
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>User</TableHead>
+            <TableHead style={{ width: '100px' }}>Is Setup</TableHead>
+            <TableHead style={{ width: '100px' }}>LEgacy</TableHead>
+            <TableHead style={{ width: '130px' }}>Widgets</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {results.map((user) => (
+            <TableRow key={user.id}>
+              <TableCell>
+                <div className="flex items-center gap-2">
+                  <UserAvatar user={user} />
+                  <div className="flex flex-col">
+                    <span className="text-lg font-semibold">
+                      {user.name ?? 'Anonymous'}
+                    </span>
+                    <span className="text-sm text-muted-foreground">
+                      {user.email ?? 'no email'}
+                    </span>
+                  </div>
                 </div>
-              </Group>
-            </td>
+              </TableCell>
 
-            <td>
-              <RenderIf
-                condition={user.isSetup}
-                fallback={
-                  <Badge color="orange">No</Badge>
-                }
-              >
-                <Badge color="green">Yes</Badge>
-              </RenderIf>
-            </td>
+              <TableCell>
+                <RenderIf
+                  condition={user.isSetup}
+                  fallback={
+                    <Badge variant="secondary">No</Badge>
+                  }
+                >
+                  <Badge variant="success">Yes</Badge>
+                </RenderIf>
+              </TableCell>
 
-            <td>
-              <RenderIf
-                condition={user.hasLegacy}
-                fallback={
-                  <Badge color="orange">No</Badge>
-                }
-              >
-                <Badge color="green">Yes</Badge>
-              </RenderIf>
-            </td>
+              <TableCell>
+                <RenderIf
+                  condition={user.hasLegacy}
+                  fallback={
+                    <Badge color="secondary">No</Badge>
+                  }
+                >
+                  <Badge color="success">Yes</Badge>
+                </RenderIf>
+              </TableCell>
 
-            <td>{user.isSetup ? user._count.widgets : 'N/A'}</td>
-          </tr>
-        ))}
-        </tbody>
+              <TableCell>{user.isSetup ? user._count.widgets : 'N/A'}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
       </Table>
-      <Group position="apart" py="lg" className={classes.footer}>
-        <Group align="center">
-          <Select
-            defaultValue="25"
-            data={['5', '10', '25', '50', '100']}
-            onChange={(value) => setPageSize(Number(value))}
-            style={{ width: 80 }}
-          />
-          <Text>{`Total: ${count}`}</Text>
-        </Group>
+      <div className="flex items-center justify-between py-6 sticky bottom-0">
+        <span className="text-sm font-medium">{`Total: ${count}`}</span>
         <Pagination
-          withEdges
-          value={page}
-          onChange={setPage}
-          total={calculateTotal(count, pageSize)}
+          page={page}
+          onPageChange={setPage}
+          pageSize={pageSize}
+          onPageSizeChange={setPageSize}
+          total={count}
         />
-      </Group>
+      </div>
     </>
   );
 }

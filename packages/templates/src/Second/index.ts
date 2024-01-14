@@ -1,2 +1,2 @@
-export * from './Second';
+export { default } from './Second';
 export * from './Skeleton';

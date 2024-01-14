@@ -1,5 +1,6 @@
 /* eslint-disable max-len */
 import { type DefaultSession } from 'next-auth';
+import type Stripe from 'stripe';
 
 declare module 'next-auth' {
   /**
@@ -9,8 +10,25 @@ declare module 'next-auth' {
     user?: {
       id: string;
       role: string | null;
+      customerId: string | null;
       isSetup: boolean;
       hasLegacySetup: boolean;
+      subscriptionStatus: Stripe.Subscription.Status;
+      trialEnd: number | null;
+      subscriptionCancelAt: number | null;
+    } & DefaultSession['user'];
+  }
+
+  interface AuthenticatedSession extends Session {
+    user: {
+      id: string;
+      role: string | null;
+      customerId: string | null;
+      isSetup: boolean;
+      hasLegacySetup: boolean;
+      subscriptionStatus: Stripe.Subscription.Status;
+      trialEnd: number | null;
+      subscriptionCancelAt: number | null;
     } & DefaultSession['user'];
   }
 }

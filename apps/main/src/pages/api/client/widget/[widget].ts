@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
-import type { FormFeature, FormProduct } from 'models';
+import type { FormFeature, FormProduct } from '@dealo/models';
 import { z } from 'zod';
 
 import initDb from 'utils/planet-scale';
@@ -18,12 +18,15 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const { widget } = req.query;
-  const widgetData: WidgetInfo = await getWidgetData(widget as string);
+  const widgetId = req.query.widget as string;
 
-  const seconds = 60;
-  res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
-  res.status(200).json(widgetData);
+  try {
+    const widgetData = await getWidgetData(widgetId);
+    res.status(200).json(widgetData);
+  } catch (e: any) {
+    console.error(`❌ Error fetching data for widget: ${widgetId}`, e.message);
+    res.status(400).json({ error: `❌ Error fetching data for widget: ${widgetId}` });
+  }
 }
 
 export default corsMiddleware(handler);
@@ -43,7 +46,11 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
   ];
   const widget = (
     await db.execute(`SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`, [widgetId])
-  ).rows[0] as Widget;
+  ).rows[0] as Widget | undefined;
+
+  if (!widget) {
+    throw new Error('Widget not found');
+  }
 
   const callbacks = (
     await db.execute('SELECT Callback.env, Callback.url FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt', [widgetId])
@@ -59,7 +66,7 @@ async function getWidgetData(widgetId: string): Promise<WidgetInfo> {
 
   const prodIds = products.map((p) => p.id);
   const prices = (
-    await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.productId, Price.mask FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
+    await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.freeTrialEndAction, Price.productId, Price.mask FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
   ).rows as Price[];
 
   const widgetUser = (
@@ -182,7 +189,7 @@ type Widget = { id: string; template: string; recommended: string | null; color:
 type Callback = { env: string; url: string };
 type Feature = { id: string; name: string; type: string; value: string; productId: string; order: number };
 type Product = { id: string; isCustom: number; name: string; description: string; ctaLabel: string; ctaUrl: string; mask: string; order: number };
-type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; productId: string; mask: string; order: number };
+type Price = { id: string; hasFreeTrial: number; freeTrialDays: number; freeTrialEndAction: string; productId: string; mask: string; order: number };
 
 type WidgetInfo = {
   template: string;

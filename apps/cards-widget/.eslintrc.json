@@ -90,5 +90,16 @@
       }
     }
   },
-  "ignorePatterns": ["vite.config.ts", "node_modules/", "dist/", "build/", "coverage/", "public/", "scripts/", "postbuild.js"]
+  "ignorePatterns": [
+    "vite.config.ts",
+    "node_modules/",
+    "dist/",
+    "build/",
+    "coverage/",
+    "public/",
+    "scripts/",
+    "postbuild.js",
+    "tailwind.config.js",
+    "postcss.config.js"
+  ]
 }

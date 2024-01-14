@@ -1,22 +1,28 @@
-import type { Session } from 'next-auth';
-import { getServerSession } from 'next-auth';
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { type AuthenticatedSession, getServerSession } from 'next-auth';
+import type Stripe from 'stripe';
 
-import { authOptions } from '../pages/api/auth/[...nextauth]';
+import { authOptions } from './auth';
+import { isLocalServer } from './environments';
+import initStripe from './stripe';
 
-type NextHandler = (req: NextApiRequest, res: NextApiResponse, session?: Session) => Promise<void>;
+export type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
-export const authMiddleware = (next: NextHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
+export const authMiddleware = (next: AuthenticatedHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
   const session = await getServerSession(req, res, authOptions);
 
-  if (!session) {
+  if (!session || !session.user) {
     return res.status(401).json({ error: 'Not authenticated' });
   }
 
-  return next(req, res, session);
+  const authenticatedSession = { ...session, user: session.user! } as AuthenticatedSession;
+
+  return next(req, res, authenticatedSession);
 }
 
-export const corsMiddleware = (next: NextHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
+type CorsHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
+
+export const corsMiddleware = (next: CorsHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
   res.setHeader('Access-Control-Allow-Credentials', 'true');
   res.setHeader('Access-Control-Allow-Origin', '*');
   res.setHeader('Access-Control-Allow-Methods', 'GET,OPTIONS,PATCH,DELETE,POST,PUT');
@@ -31,3 +37,39 @@ export const corsMiddleware = (next: NextHandler) => async (req: NextApiRequest,
 
   return next(req, res);
 }
+
+export type StripeEventHandler = (req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) => Promise<void>;
+
+export const stripeEventMiddleware = (next: StripeEventHandler, secret: string) => async (req: NextApiRequest, res: NextApiResponse) => {
+  if (isLocalServer()) {
+    return next(req, res, req.body as Stripe.Event);
+  }
+
+  const signature = req.headers['stripe-signature']!;
+  const stripe = initStripe();
+
+  try {
+    const payload = await buffer(req);
+    const event = stripe.webhooks.constructEvent(payload, signature, secret);
+    return next(req, res, event);
+  } catch (err: any) {
+    console.log(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+};
+
+export const buffer = (req: NextApiRequest) => {
+  return new Promise<Buffer>((resolve, reject) => {
+    const chunks: Buffer[] = [];
+
+    req.on('data', (chunk: Buffer) => {
+      chunks.push(chunk);
+    });
+
+    req.on('end', () => {
+      resolve(Buffer.concat(chunks));
+    });
+
+    req.on('error', reject);
+  });
+};

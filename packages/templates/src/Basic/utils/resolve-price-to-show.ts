@@ -1,4 +1,4 @@
-import type { FormProduct } from 'models';
+import type { FormProduct } from '@dealo/models';
 
 import type { Interval } from '../../constants/types';
 

@@ -9,14 +9,6 @@
       html {
         font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
       }
-      a {
-        color: #0070f3;
-        text-decoration: none;
-      }
-      a:hover {
-        color: red;
-        text-decoration: underline;
-      }
       .message-container {
         display: flex;
         flex-direction: column;
@@ -34,12 +26,12 @@
   <body>
     <div class="message-container">
       <div class="message">
-        <h1>Hi there</h1>
+        <h1 class="text text-4xl font-light mb-4">Hi there</h1>
         <p>
           There's not much to see here, this project is meant to generate the script our clients need
           in order to integrate our pricing tables into their website.
           If you're interested in how this works,
-          check out our <a href="https://dealo.app/">platform</a>
+          check out our <a class="text text-emerald-600 hover:text-emerald-400 hover:underline" href="https://dealo.app/">platform</a>
         </p>
       </div>
     </div>
