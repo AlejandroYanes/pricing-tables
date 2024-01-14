@@ -2,9 +2,13 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type Stripe from 'stripe';
 
+import { env as serverEnv } from 'env/server.mjs';
 import { authOptions } from './auth';
-import { isLocalServer } from './environments';
 import initStripe from './stripe';
+
+function isLocalServer() {
+  return serverEnv.PLATFORM_URL === 'http://localhost:3000';
+}
 
 export type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
