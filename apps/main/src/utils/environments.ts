@@ -1,5 +1,4 @@
 export function isLocalhost () {
-  console.log(process.env.NEXT_PUBLIC_VERCEL_ENV);
   return process.env.NEXT_PUBLIC_VERCEL_ENV === undefined;
 }
 
