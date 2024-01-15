@@ -2,6 +2,7 @@ import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight 
 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import { Button } from './button';
+import { cn } from './helpers';
 
 interface Props {
   total: number;
@@ -9,13 +10,14 @@ interface Props {
   onPageSizeChange: (pageSize: number) => void;
   page: number;
   onPageChange: (page: number) => void;
+  className?: string;
 }
 
 const Pagination = (props: Props) => {
-  const { total, pageSize, onPageSizeChange, page, onPageChange } = props;
+  const { total, pageSize, onPageSizeChange, page, onPageChange, className } = props;
   const totalPages = Math.ceil(total / pageSize) || 1;
   return (
-    <div className="flex items-center justify-between px-2 space-x-6 lg:space-x-8">
+    <div className={cn('flex items-center justify-between px-2 space-x-6 lg:space-x-8', className)}>
       <div className="flex items-center justify-center text-sm font-medium">
         {`Page ${page} of ${totalPages}`}
       </div>
