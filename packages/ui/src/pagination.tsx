@@ -3,6 +3,7 @@ import { IconChevronLeft, IconChevronRight, IconChevronsLeft, IconChevronsRight 
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
 import { Button } from './button';
 import { cn } from './helpers';
+import { RenderIf } from './render-if';
 
 interface Props {
   total: number;
@@ -11,16 +12,22 @@ interface Props {
   page: number;
   onPageChange: (page: number) => void;
   className?: string;
+  hidePageCount?: boolean;
+  hidePageSize?: boolean;
 }
 
+const PAGE_SIZES = [5, 10, 25, 50, 100];
+
 const Pagination = (props: Props) => {
-  const { total, pageSize, onPageSizeChange, page, onPageChange, className } = props;
+  const { total, pageSize, onPageSizeChange, page, onPageChange, hidePageCount, hidePageSize, className } = props;
   const totalPages = Math.ceil(total / pageSize) || 1;
   return (
-    <div className={cn('flex items-center justify-between px-2 space-x-6 lg:space-x-8', className)}>
-      <div className="flex items-center justify-center text-sm font-medium">
-        {`Page ${page} of ${totalPages}`}
-      </div>
+    <div className={cn('flex items-center justify-between bg-background px-2 space-x-6 lg:space-x-8', className)}>
+      <RenderIf condition={!hidePageCount}>
+        <div className="flex items-center justify-center text-sm font-medium">
+          {`Page ${page} of ${totalPages}`}
+        </div>
+      </RenderIf>
 
       <div className="flex items-center space-x-2">
         <Button
@@ -61,20 +68,22 @@ const Pagination = (props: Props) => {
         </Button>
       </div>
 
-      <div className="flex items-center space-x-2">
-        <Select defaultValue="25" onValueChange={(value) => onPageSizeChange(Number(value))}>
-          <SelectTrigger className="w-[80px]">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            {[5, 10, 25, 50, 100].map((value) => (
-              <SelectItem key={value} value={`${value}`}>
-                {value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+      <RenderIf condition={!hidePageSize}>
+        <div className="flex items-center space-x-2">
+          <Select defaultValue="25" onValueChange={(value) => onPageSizeChange(Number(value))}>
+            <SelectTrigger className="w-[80px]">
+              <SelectValue/>
+            </SelectTrigger>
+            <SelectContent>
+              {PAGE_SIZES.map((value) => (
+                <SelectItem key={value} value={`${value}`}>
+                  {value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      </RenderIf>
     </div>
   );
 };
