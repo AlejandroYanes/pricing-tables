@@ -31,14 +31,14 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     await db.execute('SELECT name, email FROM User WHERE id IN (?)', [to])
   ).rows as { name: string; email: string }[];
 
-  users.forEach((user) => {
-    sendEmail({
+  for (const user of users) {
+    await sendEmail({
       subject,
       to: user.email,
       from: 'Alejandro from Dealo<alejandro@dealo.app>',
       body: <NewReleaseEmail logoImage={logoImage} name={user.name} />,
     });
-  });
+  }
   res.status(200).json({ success: true });
 }
 
