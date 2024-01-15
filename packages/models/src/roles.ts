@@ -1,4 +1,4 @@
-export type Role = 'USER' | 'ADMIN' | 'PAID' | null;
+export type Role = 'USER' | 'ADMIN' | 'PAID';
 
 export enum ROLES {
   USER = 'USER',

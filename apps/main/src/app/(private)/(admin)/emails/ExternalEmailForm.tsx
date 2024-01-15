@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { IconX } from '@tabler/icons-react';
 import { Badge, Button, InputWithLabel } from '@dealo/ui';
 
-const EmailForm = () => {
+const ExternalEmailForm = () => {
   const [addresses, setAddresses] = useState<string[]>([]);
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -45,4 +45,4 @@ const EmailForm = () => {
   );
 };
 
-export default EmailForm;
+export default ExternalEmailForm;

@@ -1,6 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type Stripe from 'stripe';
+import { Role, ROLES } from '@dealo/models';
 
 import { env as serverEnv } from 'env/server.mjs';
 import { authOptions } from './auth';
@@ -12,17 +13,23 @@ function isLocalServer() {
 
 export type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
-export const authMiddleware = (next: AuthenticatedHandler) => async (req: NextApiRequest, res: NextApiResponse) => {
-  const session = await getServerSession(req, res, authOptions);
+export const authMiddleware = (next: AuthenticatedHandler, role?: Role) => {
+  return async (req: NextApiRequest, res: NextApiResponse) => {
+    const session = await getServerSession(req, res, authOptions);
 
-  if (!session || !session.user) {
-    return res.status(401).json({ error: 'Not authenticated' });
+    if (!session || !session.user) {
+      return res.status(401).json({ error: 'Not authenticated' });
+    }
+
+    if (!!role && session.user.role !== role) {
+      return res.status(403).json({ error: 'Forbidden' });
+    }
+
+    const authenticatedSession = { ...session, user: session.user! } as AuthenticatedSession;
+
+    return next(req, res, authenticatedSession);
   }
-
-  const authenticatedSession = { ...session, user: session.user! } as AuthenticatedSession;
-
-  return next(req, res, authenticatedSession);
-}
+};
 
 type CorsHandler = (req: NextApiRequest, res: NextApiResponse) => Promise<void>;
 

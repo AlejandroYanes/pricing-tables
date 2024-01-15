@@ -81,8 +81,6 @@ const UsersTable = () => {
     return 'none';
   };
 
-  console.log(resolveStatusFilter());
-
   return (
     <>
       <div className="flex justify-between items-center mb-4">
@@ -100,7 +98,6 @@ const UsersTable = () => {
             </PopoverTrigger>
             <PopoverContent align="end" className="w-[200px]">
               <div className="flex flex-col gap-4">
-                <span className="text text-sm font-semibold">Is Setup</span>
                 <RadioGroup
                   name="has-setup"
                   value={resolveStatusFilter()}
