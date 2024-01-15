@@ -132,7 +132,6 @@ export const userRouter = createTRPCRouter({
         await tx.execute('DELETE FROM Session WHERE id = ?', [user.id]);
       });
 
-
       await notifyOfDeletedAccount({ name: user.name!, email, hadSubscription: !!id });
       await sendAccountDeletedEmail({ to: email, name: user.name! })
     }),

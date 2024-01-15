@@ -1,7 +1,7 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession, getServerSession } from 'next-auth';
 import type Stripe from 'stripe';
-import { Role, ROLES } from '@dealo/models';
+import type { Role } from '@dealo/models';
 
 import { env as serverEnv } from 'env/server.mjs';
 import { authOptions } from './auth';
