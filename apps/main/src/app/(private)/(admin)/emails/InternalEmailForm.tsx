@@ -192,8 +192,9 @@ const InternalEmailForm = () => {
           </div>
         ))}
         <div className="mt-auto flex items-center justify-end sticky bottom-0 gap-8 bg-background">
+          <span className="text-sm font-medium">{`Total: ${count}`}</span>
           <Pagination
-            className="px-0"
+            className="px-0 ml-auto"
             page={page}
             onPageChange={setPage}
             pageSize={pageSize}
