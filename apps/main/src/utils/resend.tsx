@@ -22,6 +22,8 @@ interface Payload {
 }
 
 export async function sendEmail(payload: Payload) {
+  console.log('--------------------sendEmail');
+  console.log({ RESEND_KEY: env.RESEND_API_KEY, from: payload.from, to: payload.to, subject: payload.subject });
   const { error } = await resend.emails.send({
     from: payload.from || 'Dealo <support@dealo.app>',
     to: payload.to,
