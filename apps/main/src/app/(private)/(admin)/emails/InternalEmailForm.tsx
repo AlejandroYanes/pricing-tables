@@ -109,6 +109,7 @@ const InternalEmailForm = () => {
           subject,
         },
       });
+      setSending(false);
     } catch (e) {
       console.error(e);
       setError('Something went wrong. Please check the logs.');
@@ -203,7 +204,7 @@ const InternalEmailForm = () => {
           />
           <Button variant="default" onClick={sendEmail}>
             <RenderIf condition={sending} fallback="Send">
-              <Loader size="sm" className="mr-2"/>
+              <Loader size="sm" className="mr-2" color="white" />
               Sending...
             </RenderIf>
           </Button>
