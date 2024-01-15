@@ -46,8 +46,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   if (event.type === 'invoice.finalization_failed') {
-    // noinspection ES6MissingAwait
-    notifyOfInvoiceFailedToFinalize({
+    await notifyOfInvoiceFailedToFinalize({
       name: dbInfo.name,
       email: dbInfo.email,
       invoiceId,
@@ -56,8 +55,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   if (event.type === 'invoice.payment_action_required') {
-    // noinspection ES6MissingAwait
-    notifyOfInvoicePaymentActionRequired({
+    await notifyOfInvoicePaymentActionRequired({
       name: dbInfo.name,
       email: dbInfo.email,
       invoiceId,

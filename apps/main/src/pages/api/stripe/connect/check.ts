@@ -42,23 +42,21 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
       await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
     });
 
-    res.status(200).json({ connected: true });
-    // noinspection ES6MissingAwait
-    notifyOfNewSetup({
+    await notifyOfNewSetup({
       name: session.user.name!,
       email: session.user.email!,
       hasSubscription: checkoutRecord?.status === 'active',
       hasTrial: checkoutRecord?.status === 'trialing',
       trialEndsAt: checkoutRecord?.trialEnd,
     });
-    // noinspection ES6MissingAwait
-    sendWelcomeEmail({
+    await sendWelcomeEmail({
       to: session.user.email!,
       name: session.user.name!,
       withSubscription: checkoutRecord?.status === 'active',
       withTrial: checkoutRecord?.status === 'trialing',
       trialEndsAt: checkoutRecord?.trialEnd,
     });
+    res.status(200).json({ connected: true });
     return;
   }
 

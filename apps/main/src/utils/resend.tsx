@@ -22,21 +22,16 @@ interface Payload {
 }
 
 export async function sendEmail(payload: Payload) {
-  console.log('--------------------sendEmail');
-  console.log({ RESEND_KEY: env.RESEND_API_KEY, from: payload.from, to: payload.to, subject: payload.subject });
-  const { error, data } = await resend.emails.send({
+  const { error } = await resend.emails.send({
     from: payload.from || 'Dealo <support@dealo.app>',
     to: payload.to,
     subject: payload.subject,
     react: payload.body,
   });
 
-  console.log(data);
-
   if (error) {
     console.log(`❌ Error sending email to ${payload.to}: ${error.message}`);
-    // noinspection ES6MissingAwait
-    notifyOfFailedEmail({ email: payload.to });
+    await notifyOfFailedEmail({ email: payload.to });
     // throw new Error(error.message);
   }
 }

@@ -36,8 +36,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
     const hasMissingParams = !session.subscription || !session.customer;
     if (hasMissingParams) {
       console.log(`❌ Webhook Error: missing params`);
-      // noinspection ES6MissingAwait
-      notifyOfSubscriptionMissingParams({
+      await notifyOfSubscriptionMissingParams({
         name: (session.customer as Stripe.Customer).name!,
         email: (session.customer as Stripe.Customer).email!,
         missingCustomer: !session.customer,
@@ -57,14 +56,13 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
 
     if (session.payment_status !== 'paid') {
       console.log(`❌ Webhook Error: payment failed`);
-      // noinspection ES6MissingAwait
-      notifyOfSubscriptionPaymentFailed({
+
+      await notifyOfSubscriptionPaymentFailed({
         name,
         email,
         subscriptionId: subscriptionId,
       });
-      // noinspection ES6MissingAwait
-      sendFailedPaymentEmail({ to: email, name });
+      await sendFailedPaymentEmail({ to: email, name });
       res.status(200).json({ source: 'Dealo', received: true });
       return;
     }
@@ -84,10 +82,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
     });
 
-    // noinspection ES6MissingAwait
-    notifyOfNewSubscription({ name, email });
-    // noinspection ES6MissingAwait
-    sendSubscriptionCreatedEmail({ name, to: email });
+    await notifyOfNewSubscription({ name, email });
+    await sendSubscriptionCreatedEmail({ name, to: email });
   }
 
   res.status(200).json({ source: 'Dealo', received: true });

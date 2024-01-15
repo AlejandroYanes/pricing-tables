@@ -47,8 +47,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
 
     if (!default_payment_method) {
       console.log(`⚠️ Subscriptions: User's subscription trial is ending but they have no payment method set up.`);
-      // noinspection ES6MissingAwait
-      notifyOfSubscriptionMissingPaymentMethod({ email: dbInfo.email, name: dbInfo.name });
+      await notifyOfSubscriptionMissingPaymentMethod({ email: dbInfo.email, name: dbInfo.name });
     }
   }
 
@@ -60,8 +59,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
-    // noinspection ES6MissingAwait
-    notifyOfSubscriptionPaused({ name: dbInfo.name, email: dbInfo.email });
+
+    await notifyOfSubscriptionPaused({ name: dbInfo.name, email: dbInfo.email });
   }
 
   if (event.type === 'customer.subscription.resumed') {
@@ -72,8 +71,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.PAID, dbInfo.id]);
     });
-    // noinspection ES6MissingAwait
-    notifyOfSubscriptionResumed({ name: dbInfo.name, email: dbInfo.email });
+
+    await notifyOfSubscriptionResumed({ name: dbInfo.name, email: dbInfo.email });
   }
 
   if (event.type === 'customer.subscription.updated') {
@@ -92,10 +91,9 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
           [cancel_at, canceled_at, JSON.stringify(cancellation_details), subsId],
         );
       });
-      // noinspection ES6MissingAwait
-      notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
-      // noinspection ES6MissingAwait
-      sendSubscriptionCancelledEmail({ name, to: email });
+
+      await notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
+      await sendSubscriptionCancelledEmail({ name, to: email });
     }
 
     if (isRenewing) {
@@ -105,8 +103,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
           [subsId],
         );
       });
-      // noinspection ES6MissingAwait
-      notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
+
+      await notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
     }
 
     if (isResuming) {
@@ -127,8 +125,8 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
       await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
     });
-    // noinspection ES6MissingAwait
-    notifyOfSubscriptionCancellation({ name: dbInfo.name, email: dbInfo.email });
+
+    await notifyOfSubscriptionCancellation({ name: dbInfo.name, email: dbInfo.email });
   }
 
   res.status(200).json({ source: 'Dealo', received: true });
