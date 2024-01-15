@@ -9,7 +9,7 @@ import initDb from 'utils/planet-scale';
 import { sendEmail } from 'utils/resend';
 
 const schema = z.object({
-  from: z.string().email(),
+  from: z.string(),
   to: z.array(z.string()),
   subject: z.string(),
 });
