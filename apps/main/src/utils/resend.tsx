@@ -16,13 +16,14 @@ const logoImage = `${URL}/logo/dealo_logo_block.png`;
 
 interface Payload {
   to: string;
+  from?: string;
   subject: string;
   body: JSX.Element;
 }
 
-async function sendEmail(payload: Payload) {
+export async function sendEmail(payload: Payload) {
   const { error } = await resend.emails.send({
-    from: 'support@dealo.app',
+    from: payload.from || 'support@dealo.app',
     to: payload.to,
     subject: payload.subject,
     react: payload.body,
