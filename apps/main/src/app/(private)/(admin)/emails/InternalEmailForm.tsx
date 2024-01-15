@@ -90,12 +90,6 @@ const InternalEmailForm = () => {
       return;
     }
 
-    const emailRegex = /[\w\d\.\-\_]+@[\w\d\.\-\_]+\.[\w\d\.\-\_]+/;
-    if (!emailRegex.test(from)) {
-      setError('Please enter a valid email address for the "From" field.');
-      return;
-    }
-
     const users = isAllSelected ? results.map((user) => user.id) : selectedUsers;
 
     try {

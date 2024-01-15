@@ -23,7 +23,7 @@ interface Payload {
 
 export async function sendEmail(payload: Payload) {
   const { error } = await resend.emails.send({
-    from: payload.from || 'support@dealo.app',
+    from: payload.from || 'Dealo <support@dealo.app>',
     to: payload.to,
     subject: payload.subject,
     react: payload.body,
