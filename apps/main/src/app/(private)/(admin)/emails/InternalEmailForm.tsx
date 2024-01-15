@@ -24,6 +24,7 @@ const InternalEmailForm = () => {
   const [subject, setSubject] = useState('');
   const [from, setFrom] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
+  const [isAllSelected, setIsAllSelected] = useState(false);
 
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -80,18 +81,22 @@ const InternalEmailForm = () => {
   };
 
   const handleToggleUser = (userId: string) => {
+    if (isAllSelected) return;
     setSelectedUsers((prev) => prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]);
   }
 
   const sendEmail = async () => {
-    if (sending || !subject || !from || !selectedUsers.length) {
+    if (sending || !subject || !from || (!selectedUsers.length && !isAllSelected)) {
       return;
     }
 
     const emailRegex = /[\w\d\.\-\_]+@[\w\d\.\-\_]+\.[\w\d\.\-\_]+/;
     if (!emailRegex.test(from)) {
+      setError('Please enter a valid email address for the "From" field.');
       return;
     }
+
+    const users = isAllSelected ? results.map((user) => user.id) : selectedUsers;
 
     try {
       setSending(true);
@@ -100,7 +105,7 @@ const InternalEmailForm = () => {
         method: 'POST',
         body: {
           from,
-          to: selectedUsers,
+          to: users,
           subject,
         },
       });
@@ -111,23 +116,17 @@ const InternalEmailForm = () => {
     }
   }
 
+  // const items = new Array(100).fill(0).map((_, i) => ({ id: `${i}`, name: `User ${i}` }));
+
   return (
-    <div className="flex-1 flex flex-col gap-6">
-      <div className="grid gap-4 items-end" style={{ gridTemplateColumns: 'auto 68px' }}>
-        <InputWithLabel
-          className="flex-1"
-          label="Subject"
-          value={subject}
-          onChange={(e) => setSubject(e.target.value)}
-        />
-        <Button variant="default" onClick={sendEmail}>
-          <RenderIf condition={sending} fallback="Send">
-            <Loader size="sm" className="mr-2"/>
-            Sending...
-          </RenderIf>
-        </Button>
-        <InputWithLabel label="From" value={from} onChange={(e) => setFrom(e.target.value)} />
-        <div />
+    <div className="flex-1 flex flex-col gap-6 overflow-hidden">
+      <InputWithLabel
+        label="Subject"
+        value={subject}
+        onChange={(e) => setSubject(e.target.value)}
+      />
+      <InputWithLabel label="From" value={from} onChange={(e) => setFrom(e.target.value)} />
+      <div className="flex items-end gap-2">
         <InputWithLabel className="flex-1" label="To" onChange={(e) => handleSearch(e.target.value)} />
         <Popover>
           <PopoverTrigger asChild>
@@ -169,29 +168,44 @@ const InternalEmailForm = () => {
         </Popover>
       </div>
       <RenderIf condition={!!error}>
-        <span className="text-red-500 my-4">{error}</span>
+        <span className="text-red-500">{error}</span>
       </RenderIf>
       <div className="flex-1 flex flex-col gap-4 overflow-auto">
+        <RenderIf condition={results.length > 0}>
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id={`all-users`}
+              checked={isAllSelected}
+              onClick={() => setIsAllSelected(!isAllSelected)}
+            />
+            <Label htmlFor={`all-users`}>Select All</Label>
+          </div>
+        </RenderIf>
         {results.map((user) => (
-          <div key={user.id} className="flex items-center gap-2">
+          <div key={user.id} className="flex items-center gap-2 pl-6">
             <Checkbox
               id={`user-${user.id}`}
-              checked={selectedUsers.includes(user.id)}
+              checked={isAllSelected || selectedUsers.includes(user.id)}
               onClick={() => handleToggleUser(user.id)}
             />
             <Label htmlFor={`user-${user.id}`}>{user.name}</Label>
           </div>
         ))}
-        <div className="mt-auto flex items-center justify-between sticky bottom-0">
-          <span className="text-sm font-medium">{`Total: ${count}`}</span>
+        <div className="mt-auto flex items-center justify-end sticky bottom-0 gap-8 bg-background">
           <Pagination
-            className="pr-0"
+            className="px-0"
             page={page}
             onPageChange={setPage}
             pageSize={pageSize}
             onPageSizeChange={setPageSize}
             total={count}
           />
+          <Button variant="default" onClick={sendEmail}>
+            <RenderIf condition={sending} fallback="Send">
+              <Loader size="sm" className="mr-2"/>
+              Sending...
+            </RenderIf>
+          </Button>
         </div>
       </div>
     </div>
