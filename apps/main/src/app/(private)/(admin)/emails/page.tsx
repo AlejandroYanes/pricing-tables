@@ -17,7 +17,7 @@ const EmailsPage = () => {
         <div className="flex flex-col w-[35%]">
           <InternalEmailForm />
         </div>
-        <div className="flex flex-col gap-6 mx-auto min-w-[700px]">
+        <div className="flex flex-col items-center gap-6 mx-auto min-w-[740px]">
           <iframe srcDoc={markup} className="w-full h-[calc(100vh_-_88px_-_32px)]"/>
         </div>
       </div>

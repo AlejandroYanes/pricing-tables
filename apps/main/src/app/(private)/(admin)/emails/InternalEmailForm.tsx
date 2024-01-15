@@ -22,9 +22,7 @@ import { trpc } from 'utils/trpc';
 
 const InternalEmailForm = () => {
   const [subject, setSubject] = useState('');
-  const [from, setFrom] = useState('');
   const [selectedUsers, setSelectedUsers] = useState<string[]>([]);
-  const [isAllSelected, setIsAllSelected] = useState(false);
 
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | undefined>();
@@ -80,17 +78,22 @@ const InternalEmailForm = () => {
     return 'none';
   };
 
+  const handleToggleAll = () => {
+    if (selectedUsers.length === results.length) {
+      setSelectedUsers([]);
+    } else {
+      setSelectedUsers(results.map((user) => user.id));
+    }
+  }
+
   const handleToggleUser = (userId: string) => {
-    if (isAllSelected) return;
     setSelectedUsers((prev) => prev.includes(userId) ? prev.filter((id) => id !== userId) : [...prev, userId]);
   }
 
   const sendEmail = async () => {
-    if (sending || !subject || !from || (!selectedUsers.length && !isAllSelected)) {
+    if (sending || !subject || !selectedUsers.length) {
       return;
     }
-
-    const users = isAllSelected ? results.map((user) => user.id) : selectedUsers;
 
     try {
       setSending(true);
@@ -98,9 +101,8 @@ const InternalEmailForm = () => {
         url: '/api/email/send/internal',
         method: 'POST',
         body: {
-          from,
-          to: users,
           subject,
+          to: selectedUsers,
         },
       });
       setSending(false);
@@ -120,12 +122,11 @@ const InternalEmailForm = () => {
         value={subject}
         onChange={(e) => setSubject(e.target.value)}
       />
-      <InputWithLabel label="From" value={from} onChange={(e) => setFrom(e.target.value)} />
       <div className="flex items-end gap-2">
         <InputWithLabel className="flex-1" label="To" onChange={(e) => handleSearch(e.target.value)} />
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="ghost">
+            <Button variant="outline">
               <IconAdjustments />
             </Button>
           </PopoverTrigger>
@@ -161,26 +162,19 @@ const InternalEmailForm = () => {
             </div>
           </PopoverContent>
         </Popover>
+        <Button variant="outline" onClick={handleToggleAll}>
+          Toggle All
+        </Button>
       </div>
       <RenderIf condition={!!error}>
         <span className="text-red-500">{error}</span>
       </RenderIf>
       <div className="flex-1 flex flex-col gap-4 overflow-auto">
-        <RenderIf condition={results.length > 0}>
-          <div className="flex items-center gap-2">
-            <Checkbox
-              id={`all-users`}
-              checked={isAllSelected}
-              onClick={() => setIsAllSelected(!isAllSelected)}
-            />
-            <Label htmlFor={`all-users`}>Select All</Label>
-          </div>
-        </RenderIf>
         {results.map((user) => (
           <div key={user.id} className="flex items-center gap-2 pl-6">
             <Checkbox
               id={`user-${user.id}`}
-              checked={isAllSelected || selectedUsers.includes(user.id)}
+              checked={selectedUsers.includes(user.id)}
               onClick={() => handleToggleUser(user.id)}
             />
             <Label htmlFor={`user-${user.id}`}>{user.name}</Label>
@@ -198,7 +192,7 @@ const InternalEmailForm = () => {
           />
           <Button variant="default" onClick={sendEmail}>
             <RenderIf condition={sending} fallback="Send">
-              <Loader size="sm" className="mr-2" color="white" />
+              <Loader size="xs" className="mr-2" color="white" />
               Sending...
             </RenderIf>
           </Button>

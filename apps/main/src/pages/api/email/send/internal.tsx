@@ -9,7 +9,6 @@ import initDb from 'utils/planet-scale';
 import { sendEmail } from 'utils/resend';
 
 const schema = z.object({
-  from: z.string(),
   to: z.array(z.string()),
   subject: z.string(),
 });
@@ -25,7 +24,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     return;
   }
 
-  const { from, to, subject } = parseResult.data;
+  const { to, subject } = parseResult.data;
 
   const db = initDb();
   const users = (
@@ -34,9 +33,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   users.forEach((user) => {
     sendEmail({
-      from,
-      to: user.email,
       subject,
+      to: user.email,
+      from: 'Alejandro from Dealo<alejandro@dealo.app>',
       body: <NewReleaseEmail logoImage={logoImage} name={user.name} />,
     });
   });
