@@ -17,6 +17,7 @@ import { postQuery } from './actions';
 const ContactForm = () => {
 
   return (
+    // @ts-ignore
     <form action={postQuery}>
       <div className="flex flex-col gap-8 p-6 rounded-sm border border-gray-200 dark:border-gray-600">
         <div className="grid grid-cols-2 gap-x-4 gap-y-8">
