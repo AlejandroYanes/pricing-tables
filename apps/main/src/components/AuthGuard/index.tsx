@@ -1,6 +1,4 @@
 'use client'
-
-import type { ReactNode } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import { ROLES } from '@dealo/models';
@@ -9,7 +7,7 @@ import SetupModal from '../SetupModal';
 
 interface Props {
   isAdmin?: boolean;
-  children: ReactNode;
+  children: any;
 }
 
 const AuthGuard = (props: Props) => {

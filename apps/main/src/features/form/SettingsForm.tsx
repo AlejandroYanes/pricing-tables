@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { IconInfoCircle, IconTrash } from '@tabler/icons-react';

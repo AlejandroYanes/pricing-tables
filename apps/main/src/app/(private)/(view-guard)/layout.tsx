@@ -1,9 +1,7 @@
-import type { ReactNode } from 'react';
-
 import ViewSizeGuard from 'components/ViewSizeGuard';
 
 interface Props {
-    children: ReactNode;
+    children: any;
 }
 
 const PrivateLayout = (props: Props) => {

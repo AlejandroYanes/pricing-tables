@@ -1,16 +1,14 @@
 /* eslint-disable max-len */
 'use client'
-
-import type { ReactNode } from 'react';
-import { IconClipboard } from '@tabler/icons-react';
 import { useState } from 'react';
+import { IconClipboard } from '@tabler/icons-react';
 
 import { Button } from './button';
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from './tooltip';
 import { cn } from './helpers';
 
 interface Props {
-  children: ReactNode;
+  children: any;
   className?: string;
 }
 

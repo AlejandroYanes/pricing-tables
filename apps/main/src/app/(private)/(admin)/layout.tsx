@@ -1,16 +1,15 @@
-import type { ReactNode } from 'react';
 import { Toaster } from '@dealo/ui';
 
 import AuthGuard from 'components/AuthGuard';
 
 interface Props {
-    children: ReactNode;
+    children: any;
 }
 
 const AdminsLayout = (props: Props) => {
   return (
     <AuthGuard isAdmin>
-      {props.children}
+      <>{props.children}</>
       <Toaster />
     </AuthGuard>
   );

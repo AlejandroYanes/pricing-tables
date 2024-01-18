@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+
 import { RenderIf, Separator } from '@dealo/ui';
 
 interface Props {
