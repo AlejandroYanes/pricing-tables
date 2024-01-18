@@ -1,6 +1,6 @@
 'use client';
-
 import { useEffect } from 'react';
+import { TEMPLATE_IDS } from '@dealo/templates';
 
 import { env as clientEnv } from 'env/client.mjs';
 
@@ -26,7 +26,7 @@ const PricingWidget = () => {
   return (
     <>
       {/* @ts-ignore */}
-      <pricing-cards widget={widget} internal="true" />
+      <pricing-cards widget={widget} internal="true" template={TEMPLATE_IDS.SECOND} items={2} />
     </>
   );
 }

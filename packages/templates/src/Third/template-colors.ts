@@ -1,7 +1,7 @@
 /* eslint-disable max-len */
 import { type Colors } from '@dealo/helpers';
 
-export const PRODUCT_BUTTON_COLORS: Record<Colors, string> = {
+export const PRODUCT_BUTTON_COLORS: Partial<Record<Colors, string>> = {
   'red': 'border-gray-200 dark:border-gray-800 data-[active=true]:border-red-500 dark:data-[active=true]:border-red-500 data-[active=true]:text-red-500 data-[selected=true]:bg-red-600 dark:data-[selected=true]:bg-red-600 data-[selected=true]:text-white dark:data-[selected=true]:text-white',
   'orange': 'border-gray-200 dark:border-gray-800 data-[active=true]:border-orange-500 dark:data-[active=true]:border-orange-500 data-[active=true]:text-orange-500 data-[selected=true]:bg-orange-600 dark:data-[selected=true]:bg-orange-600 data-[selected=true]:text-white dark:data-[selected=true]:text-white',
   'amber': 'border-gray-200 dark:border-gray-800 data-[active=true]:border-amber-500 dark:data-[active=true]:border-amber-500 data-[active=true]:text-amber-500 data-[selected=true]:bg-amber-600 dark:data-[selected=true]:bg-amber-600 data-[selected=true]:text-white dark:data-[selected=true]:text-white',
@@ -21,7 +21,7 @@ export const PRODUCT_BUTTON_COLORS: Record<Colors, string> = {
   'rose': 'border-gray-200 dark:border-gray-800 data-[active=true]:border-rose-500 dark:data-[active=true]:border-rose-500 data-[active=true]:text-rose-500 data-[selected=true]:bg-rose-600 dark:data-[selected=true]:bg-rose-600 data-[selected=true]:text-white dark:data-[selected=true]:text-white',
 };
 
-export const CHECK_ICON_COLORS: Record<Colors, string> = {
+export const CHECK_ICON_COLORS: Partial<Record<Colors, string>> = {
   'red': 'fill-red-500 stroke-slate-50 dark:stroke-slate-800',
   'orange': 'fill-orange-500 stroke-slate-50 dark:stroke-slate-800',
   'amber': 'fill-amber-500 stroke-slate-50 dark:stroke-slate-800',
@@ -41,7 +41,7 @@ export const CHECK_ICON_COLORS: Record<Colors, string> = {
   'rose': 'fill-rose-500 stroke-slate-50 dark:stroke-slate-800',
 };
 
-export const BUTTON_STYLES: Record<Colors, string> = {
+export const BUTTON_STYLES: Partial<Record<Colors, string>> = {
   'red': 'text-white bg-red-600 hover:bg-red-600/90 dark:bg-red-600 dark:hover:bg-red-600/90',
   'orange': 'text-white bg-orange-600 hover:bg-orange-600/90 dark:bg-orange-600 dark:hover:bg-orange-600/90',
   'amber': 'text-white bg-amber-600 hover:bg-amber-600/90 dark:bg-amber-600 dark:hover:bg-amber-600/90',
@@ -61,7 +61,7 @@ export const BUTTON_STYLES: Record<Colors, string> = {
   'rose': 'text-white bg-rose-600 hover:bg-rose-600/90 dark:bg-rose-600 dark:hover:bg-rose-600/90',
 }
 
-export const OUTLINE_BUTTON_STYLES: Record<Colors, string> = {
+export const OUTLINE_BUTTON_STYLES: Partial<Record<Colors, string>> = {
   'red': 'border text-red-600 border-red-600 hover:border-red-600/90 hover:bg-red-600/5 dark:text-red-400 dark:border-red-400 dark:hover:border-red-400/90 dark:hover:text-red-400 dark:hover:bg-red-400/5',
   'orange': 'border text-orange-600 border-orange-600 hover:border-orange-600/90 hover:bg-orange-600/5 dark:text-orange-400 dark:border-orange-400 dark:hover:border-orange-400/90 dark:hover:text-orange-400 dark:hover:bg-orange-400/5',
   'amber': 'border text-amber-600 border-amber-600 hover:border-amber-600/90 hover:bg-amber-600/5 dark:text-amber-400 dark:border-amber-400 dark:hover:border-amber-400/90 dark:hover:text-amber-400 dark:hover:bg-amber-400/5',
@@ -81,7 +81,7 @@ export const OUTLINE_BUTTON_STYLES: Record<Colors, string> = {
   'rose': 'border text-rose-600 border-rose-600 hover:border-rose-600/90 hover:bg-rose-600/5 dark:text-rose-400 dark:border-rose-400 dark:hover:border-rose-400/90 dark:hover:text-rose-400 dark:hover:bg-rose-400/5',
 }
 
-export const MOBILE_FILLED_BUTTON_STYLES: Record<string, string> = {
+export const MOBILE_FILLED_BUTTON_STYLES: Partial<Record<Colors, string>> = {
   'red': 'bg-red-600 hover:bg-red-700 dark:hover:bg-red-500 text-white',
   'orange': 'bg-orange-600 hover:bg-orange-700 dark:hover:bg-orange-500 text-white',
   'amber': 'bg-amber-600 hover:bg-amber-700 dark:hover:bg-amber-500 text-white',
@@ -101,7 +101,7 @@ export const MOBILE_FILLED_BUTTON_STYLES: Record<string, string> = {
   'rose': 'bg-rose-600 hover:bg-rose-700 dark:hover:bg-rose-500 text-white',
 }
 
-export const ACCORDION_HEADER_STYLES: Record<string, string> = {
+export const ACCORDION_HEADER_STYLES: Partial<Record<Colors, string>> = {
   'red': 'data-[recommended=true]:text-red-500',
   'orange': 'data-[recommended=true]:text-orange-500',
   'amber': 'data-[recommended=true]:text-amber-500',
