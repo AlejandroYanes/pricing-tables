@@ -12,12 +12,12 @@ interface Props extends InputProps {
 }
 
 function InputWithLabel(props: Props) {
-  const { label, id, error, className, inputClassName, labelClassName, ...rest } = props;
+  const { label, id, error, className, inputClassName, labelClassName, required, ...rest } = props;
 
   return (
     <div className={cn('flex flex-col gap-2', className)}>
-      <Label htmlFor={id} className={labelClassName}>{label}</Label>
-      <Input id={id} className={cn(!!error ? 'border-destructive' : null, inputClassName)} {...rest} />
+      <Label htmlFor={id} className={labelClassName}>{label} {required ? <span>*</span> : null}</Label>
+      <Input id={id} className={cn(!!error ? 'border-destructive' : null, inputClassName)} required={required} {...rest} />
       <RenderIf condition={!!error && typeof error === 'string'}>
         <span className="text-sm text-destructive-foreground">{error}</span>
       </RenderIf>
