@@ -13,9 +13,11 @@ import {
 } from '@dealo/ui';
 
 import { postQuery } from './actions';
+import SubmitQueryButton from './SubmitQueryButton';
+
+const SubmitButton = () => {};
 
 const ContactForm = () => {
-
   return (
     // @ts-ignore
     <form action={postQuery}>
@@ -57,7 +59,7 @@ const ContactForm = () => {
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <Button className="w-full">Submit</Button>
+          <SubmitQueryButton onSubmit={postQuery} />
           <p className="text-sm text-gray-500">
             By clicking submit, you agree to the processing of your personal information by
             Dealo as described in the Privacy Policy.
