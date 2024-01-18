@@ -93,7 +93,7 @@ export default function SigninPage(props: Props) {
         <title>Dealo | Signin</title>
       </Head>
       <BaseLayout showBackButton backRoute="/" hideUserControls>
-        <div data-el="hero-section" className="flex flex-col justify-center items-center py-24 px-4 gap-[72px]">
+        <div data-el="hero-section" className="flex flex-col justify-center items-center px-4 gap-[72px] h-[calc(100vh_-_88px_-_32px)]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>

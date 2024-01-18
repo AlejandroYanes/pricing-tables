@@ -1,17 +1,19 @@
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client';
-import { mockTemplate, templatesMap } from '@dealo/templates';
+import { mockTemplate, templatesMap, skeletonMap } from '@dealo/templates';
 import { callAPI } from '@dealo/helpers';
 import type { WidgetInfo } from '@dealo/models';
 
-import { fixedStyles } from './fixed-styles';
+import { resolveDomain } from './helpers';
 
 interface Props {
   widget?: string;
   env?: string;
-  useDarkTheme?: boolean;
+  template?: string;
+  items?: string;
   currency?: string;
+  useDarkTheme?: boolean;
   internal?: boolean;
 }
 
@@ -21,10 +23,8 @@ const PricingCards = (props: Props) => {
 
   useEffect(() => {
     if (window) {
-      const currentUrl = new URL(window.location.href);
-      const fetchUrl = internal
-        ? `${currentUrl.origin}/api/client/widget/${widget}`
-        : `https://www.dealo.app/api/client/widget/${widget}`;
+      const domain = resolveDomain(!!internal);
+      const fetchUrl = `${domain}/api/client/widget/${widget}`;
 
       if (widget) {
         callAPI({
@@ -41,40 +41,50 @@ const PricingCards = (props: Props) => {
     }
   }, [widget]);
 
-  if (!widgetInfo) return null;
+  if (!widgetInfo) {
+    const { template, items } = props;
+    console.log('no widget info', { template, items });
+    const Skeleton = template && items ? skeletonMap[template]! : () => null;
+    return (
+      <>
+        <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32b.css`}/>
+        <Skeleton items={Number(items)} color={useDarkTheme ? 'slate' : 'gray'} />
+      </>
+    );
+  }
 
-  const { render: Template, calculateIsMobile } = widgetInfo.template
-    ? templatesMap[widgetInfo.template]!
-    : mockTemplate;
+  const templateInfo = widgetInfo.template ? templatesMap[widgetInfo.template]! : mockTemplate;
+  const { render: Template, calculateIsMobile } = templateInfo;
 
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
 
   return (
-    <div id="dealo-root" className={useDarkTheme ? 'dark' : undefined}>
-      <style>
-        {fixedStyles}
-      </style>
-      <Template
-        widget={widget}
-        features={features}
-        products={products}
-        recommended={recommended}
-        color={color}
-        currency={currency}
-        unitLabel={unitLabel}
-        subscribeLabel={subscribeLabel}
-        freeTrialLabel={freeTrialLabel}
-        callbacks={callbacks}
-        environment={selectedEnv}
-        internal={internal}
-        isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
-      />
-    </div>
+    <>
+      <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32b.css`} />
+      <div id="dealo-root" className={useDarkTheme ? 'dark' : undefined}>
+        <Template
+          widget={widget}
+          features={features}
+          products={products}
+          recommended={recommended}
+          color={color}
+          currency={currency}
+          unitLabel={unitLabel}
+          subscribeLabel={subscribeLabel}
+          freeTrialLabel={freeTrialLabel}
+          callbacks={callbacks}
+          environment={selectedEnv}
+          internal={internal}
+          isMobile={calculateIsMobile(widgetInfo, window.innerWidth)}
+        />
+      </div>
+    </>
   );
 };
 
 const DARK_THEME_MEDIA_QUERY = '(prefers-color-scheme: dark)';
+
 class Wrapper extends HTMLElement {
   domRoot: ReactDOM.Root;
   mediaQuery: MediaQueryList;
@@ -95,14 +105,17 @@ class Wrapper extends HTMLElement {
     this.props = {
       env: this.getAttribute('env') || undefined,
       widget: this.getAttribute('widget') || undefined,
+      template: this.getAttribute('template') || undefined,
+      items: this.getAttribute('items') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
       useDarkTheme: false,
     };
+    // this.shadowRoot!.styleSheets = [{ href: `${resolveDomain(!!this.props.internal)}/styles/pricing-cards.css` }];
   }
 
   static get observedAttributes() {
-    return ['theme', 'currency', 'widget', 'env', 'internal'];
+    return ['theme', 'currency', 'widget', 'env', 'internal', 'template', 'items'];
   }
 
   resolveTheme() {

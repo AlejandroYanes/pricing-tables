@@ -56,7 +56,7 @@ const DashboardPage = () => {
                   className="flex flex-col items-center h-[260px] w-[330px] p-4 rounded-sm border-2 border-dashed border-neutral-300"
                 >
                   {/* @ts-ignore */}
-                  <Skeleton scale={0.3} />
+                  <Skeleton scale={0.3} color="emerald" />
                   <span className="text-sm mt-auto">{name}</span>
                 </Button>
               </Link>
