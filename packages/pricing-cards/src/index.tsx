@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 // eslint-disable-next-line import/default
 import ReactDOM from 'react-dom/client';
-import { mockTemplate, templatesMap } from '@dealo/templates';
+import { mockTemplate, templatesMap, skeletonMap } from '@dealo/templates';
 import { callAPI } from '@dealo/helpers';
 import type { WidgetInfo } from '@dealo/models';
 
@@ -10,8 +10,10 @@ import { resolveDomain } from './helpers';
 interface Props {
   widget?: string;
   env?: string;
-  useDarkTheme?: boolean;
+  template?: string;
+  items?: string;
   currency?: string;
+  useDarkTheme?: boolean;
   internal?: boolean;
 }
 
@@ -39,11 +41,20 @@ const PricingCards = (props: Props) => {
     }
   }, [widget]);
 
-  if (!widgetInfo) return null;
+  if (!widgetInfo) {
+    const { template, items } = props;
+    console.log('no widget info', { template, items });
+    const Skeleton = template && items ? skeletonMap[template]! : () => null;
+    return (
+      <>
+        <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32b.css`}/>
+        <Skeleton items={Number(items)} color={useDarkTheme ? 'slate' : 'gray'} />
+      </>
+    );
+  }
 
-  const { render: Template, calculateIsMobile } = widgetInfo.template
-    ? templatesMap[widgetInfo.template]!
-    : mockTemplate;
+  const templateInfo = widgetInfo.template ? templatesMap[widgetInfo.template]! : mockTemplate;
+  const { render: Template, calculateIsMobile } = templateInfo;
 
   const { products, features, recommended, color, unitLabel, subscribeLabel, freeTrialLabel, callbacks } = widgetInfo;
   const selectedEnv = callbacks.some((cb) => cb.env === env) ? env : undefined;
@@ -94,6 +105,8 @@ class Wrapper extends HTMLElement {
     this.props = {
       env: this.getAttribute('env') || undefined,
       widget: this.getAttribute('widget') || undefined,
+      template: this.getAttribute('template') || undefined,
+      items: this.getAttribute('items') || undefined,
       currency: this.getAttribute('currency') || undefined,
       internal: !!this.getAttribute('internal'),
       useDarkTheme: false,
@@ -102,7 +115,7 @@ class Wrapper extends HTMLElement {
   }
 
   static get observedAttributes() {
-    return ['theme', 'currency', 'widget', 'env', 'internal'];
+    return ['theme', 'currency', 'widget', 'env', 'internal', 'template', 'items'];
   }
 
   resolveTheme() {

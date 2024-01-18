@@ -1,4 +1,5 @@
 import type { Templates, WidgetInfo } from '@dealo/models';
+import type { Colors } from '@dealo/helpers';
 
 import BasicTemplate, { BasicSkeleton } from '../Basic';
 import SecondTemplate, { SecondSkeleton } from '../Second';
