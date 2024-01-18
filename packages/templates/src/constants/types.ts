@@ -21,7 +21,7 @@ export interface TemplateProps {
 export interface SkeletonProps {
   items: number;
   scale?: number;
-  color?: Colors;
+  color?: Colors | 'slate' | 'gray';
 }
 
 export type Interval = undefined | 'one_time' | Stripe.Price.Recurring.Interval | `month_${number}`;

@@ -1,6 +1,6 @@
 import type { Colors } from '@dealo/helpers';
 
-export const SKELETON_COLOURS: Record<Colors, string> = {
+export const SKELETON_COLOURS: Record<Colors | 'slate' | 'gray', string> = {
   'red': 'bg-red-500 dark:bg-red-500',
   'orange': 'bg-orange-500 dark:bg-orange-500',
   'amber': 'bg-amber-500 dark:bg-amber-500',
