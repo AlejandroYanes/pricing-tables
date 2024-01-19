@@ -2,7 +2,7 @@
 import { Client } from '@notionhq/client';
 
 import { env } from 'env/server.mjs';
-import { notifyOfCustomerQuery } from '../../utils/slack';
+import { notifyOfCustomerQuery } from 'utils/slack';
 
 const notion = new Client({ auth: env.NOTION_API_KEY });
 
@@ -20,7 +20,7 @@ export async function postQuery(data: Query) {
     await notion.pages.create({
       parent: {
         type: 'database_id',
-        database_id: env.NOTION_DATABASE_ID,
+        database_id: env.NOTION_QUERY_DATABASE,
       },
       properties: {
         'Name': {

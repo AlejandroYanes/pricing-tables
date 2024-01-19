@@ -41,11 +41,10 @@ export const serverSchema = z.object({
   PLATFORM_URL: z.string().url().nullish(),
   // Resend
   RESEND_API_KEY: z.string(),
-  // Linear
-  LINEAR_API_KEY: z.string(),
   // Notion
   NOTION_API_KEY: z.string(),
-  NOTION_DATABASE_ID: z.string(),
+  NOTION_QUERY_DATABASE: z.string(),
+  NOTION_REPORT_DATABASE: z.string(),
 });
 
 /**
@@ -83,11 +82,10 @@ export const serverEnv = {
   PLATFORM_URL: process.env.PLATFORM_URL,
   // Resend
   RESEND_API_KEY: process.env.RESEND_API_KEY,
-  // Linear
-  LINEAR_API_KEY: process.env.LINEAR_API_KEY,
   // Notion
   NOTION_API_KEY: process.env.NOTION_API_KEY,
-  NOTION_DATABASE_ID: process.env.NOTION_DATABASE_ID,
+  NOTION_QUERY_DATABASE: process.env.NOTION_QUERY_DATABASE,
+  NOTION_REPORT_DATABASE: process.env.NOTION_REPORT_DATABASE,
 };
 
 /**

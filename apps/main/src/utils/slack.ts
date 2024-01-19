@@ -188,3 +188,12 @@ export function notifyOfCustomerQuery(data: Payload) {
     },
   );
 }
+
+export function notifyOfCustomerReport(data: Payload) {
+  return sendNotification(
+    env.SLACK_CUSTOMERS_CHANNEL,
+    {
+      text: `Someone posted a new report:\n*${data.name}*\n*${data.email}*`,
+    },
+  );
+}
