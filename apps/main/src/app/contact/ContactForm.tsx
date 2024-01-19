@@ -1,5 +1,4 @@
 import {
-  Button,
   Checkbox,
   InputWithLabel,
   Label,
@@ -12,10 +11,8 @@ import {
   TextareaWithLabel
 } from '@dealo/ui';
 
-import { postQuery } from './actions';
+import { postQuery } from './query-actions';
 import SubmitQueryButton from './SubmitQueryButton';
-
-const SubmitButton = () => {};
 
 const ContactForm = () => {
   return (

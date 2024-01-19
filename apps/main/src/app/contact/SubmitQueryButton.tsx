@@ -2,7 +2,7 @@
 import { useState } from 'react';
 import { Button, Loader, RenderIf } from '@dealo/ui';
 
-import { type Query } from './actions';
+import { type Query } from './query-actions';
 
 interface Props {
   onSubmit: (formData: Query) => Promise<void>;
