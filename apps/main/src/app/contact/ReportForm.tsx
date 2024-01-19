@@ -1,10 +1,12 @@
 import {
-  Button,
   Checkbox,
   InputWithLabel,
   Label,
   TextareaWithLabel
 } from '@dealo/ui';
+
+import SubmitReportButton from './SubmitReportButton';
+import { postQuery } from './report-actions';
 
 const ReportForm = () => {
   return (
@@ -29,7 +31,7 @@ const ReportForm = () => {
           </div>
         </div>
         <div className="flex flex-col gap-4">
-          <Button className="w-full">Submit</Button>
+          <SubmitReportButton onSubmit={postQuery} />
           <p className="text-sm text-gray-500">
             By clicking submit, you agree to the processing of your personal information by
             Dealo as described in the Privacy Policy.

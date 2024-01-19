@@ -7,15 +7,13 @@ const linear = new LinearClient({
   apiKey: env.LINEAR_API_KEY,
 });
 
-export interface Query {
+export interface Report {
   name: string;
   email: string;
-  company: string;
-  source: string;
   message: string;
   consent: boolean;
 }
 
-export async function postQuery(data: Query) {
+export async function postQuery(data: Report) {
   console.log('query', data);
 }
