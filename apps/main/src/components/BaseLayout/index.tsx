@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { RenderIf, cn, Button } from '@dealo/ui';
 
@@ -14,7 +13,7 @@ interface Props {
   className?: string;
   navBarClassName?: string;
   footerClassName?: string;
-  children: ReactNode;
+  children: any;
 }
 
 const BaseLayout = (props: Props) => {

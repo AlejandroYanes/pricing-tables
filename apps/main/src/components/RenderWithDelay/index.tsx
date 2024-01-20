@@ -1,10 +1,9 @@
 'use client';
-import type { ReactNode} from 'react';
 import { useEffect, useState } from 'react';
 
 interface Props {
   delay: number;
-  children: ReactNode;
+  children: any;
 }
 
 const RenderWithDelay = (props: Props) => {

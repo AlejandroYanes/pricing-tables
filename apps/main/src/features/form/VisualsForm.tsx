@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { type ReactNode } from 'react';
 import { IconCheck } from '@tabler/icons-react';
 import { RenderIf, TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@dealo/ui';
 
