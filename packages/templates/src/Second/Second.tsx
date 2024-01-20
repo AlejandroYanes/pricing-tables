@@ -1,5 +1,4 @@
 /* eslint-disable max-len */
-import type { ReactNode } from 'react';
 import { useEffect, useMemo, useState } from 'react';
 import { IconCircleCheck, IconCircleX } from '@tabler/icons-react';
 import {
@@ -498,7 +497,7 @@ export default function SecondTemplate(props: TemplateProps) {
         default: {
           const feature = features[index - 1]!;
           const value = feature.products.find(({ id }) => id === prod.id)?.value;
-          let label: ReactNode = '-';
+          let label: any = '-';
 
           if (!!value) {
             switch (feature.type) {

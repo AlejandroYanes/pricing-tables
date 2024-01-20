@@ -1,6 +1,4 @@
 'use client'
-
-import { type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@dealo/ui';
@@ -9,7 +7,7 @@ import { useMediaQuery } from 'utils/hooks/useMediaQuery';
 import BaseLayout from '../BaseLayout';
 
 interface Props {
-  children: ReactNode;
+  children: any;
 }
 
 const query = '(max-width: 1280px)';

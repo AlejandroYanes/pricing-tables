@@ -27,6 +27,7 @@
     "@dealo/templates": "*",
     "@dealo/ui": "*",
     "@next-auth/prisma-adapter": "1.0.7",
+    "@notionhq/client": "2.2.14",
     "@paralleldrive/cuid2": "2.2.1",
     "@planetscale/database": "1.7.0",
     "@prisma/client": "5.8.0",

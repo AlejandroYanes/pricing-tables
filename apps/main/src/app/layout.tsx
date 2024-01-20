@@ -1,4 +1,3 @@
-import { type ReactNode } from 'react';
 import Script from 'next/script';
 import { getServerSession } from 'next-auth';
 import { Analytics } from '@vercel/analytics/react';
@@ -10,7 +9,7 @@ import ClientProviders from 'components/ClientProviders';
 import 'styles/globals.css';
 
 interface Props {
-  children: ReactNode;
+  children: any;
 }
 
 const RootLayout = async ({ children }: Props) => {

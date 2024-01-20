@@ -1,4 +1,3 @@
-import type { ReactNode } from 'react';
 import {
   Body,
   Column,
@@ -122,7 +121,7 @@ export const NewReleaseEmail = (props: Props) => {
 
 interface NewFeatureProps {
   title: string;
-  children: ReactNode;
+  children: any;
 }
 const NewFeature = (props: NewFeatureProps) => (
   <Section className="mb-8">

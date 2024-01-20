@@ -1,8 +1,6 @@
-import type { ReactNode } from 'react';
-
 interface Props {
   condition: boolean;
-  children: ReactNode;
+  children: any;
   fallback?: any;
 }
 

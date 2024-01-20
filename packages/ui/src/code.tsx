@@ -1,7 +1,5 @@
-import type { ReactNode } from 'react';
-
 interface Props {
-  children: ReactNode;
+  children: any;
 }
 
 function Code(props: Props) {

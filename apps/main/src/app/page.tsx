@@ -68,9 +68,12 @@ const HomePage = () => {
       className="px-0"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
-      <header className="h-16 flex justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
         <Link href="/pricing">
           <NavbarLink label="Pricing"/>
+        </Link>
+        <Link href="/contact">
+          <NavbarLink label="Contact Us"/>
         </Link>
         <Link href="/signin">
           <NavbarLink label="Sign in"/>
@@ -138,7 +141,7 @@ const HomePage = () => {
 
         <div
           data-el="benefits-section"
-          className="flex flex-col gap-8 rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
+          className="flex flex-col gap-8 xl:rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
         >
           <h1 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h1>
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">

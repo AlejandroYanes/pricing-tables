@@ -179,3 +179,21 @@ export function notifyOfFailedEmail(data: EmailPayload) {
     },
   );
 }
+
+export function notifyOfCustomerQuery(data: Payload) {
+  return sendNotification(
+    env.SLACK_CUSTOMERS_CHANNEL,
+    {
+      text: `Someone posted a new query:\n*${data.name}*\n*${data.email}*`,
+    },
+  );
+}
+
+export function notifyOfCustomerReport(data: Payload) {
+  return sendNotification(
+    env.SLACK_CUSTOMERS_CHANNEL,
+    {
+      text: `Someone posted a new report:\n*${data.name}*\n*${data.email}*`,
+    },
+  );
+}
