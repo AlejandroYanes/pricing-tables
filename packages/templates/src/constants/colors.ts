@@ -1,6 +1,6 @@
 import type { Colors } from '@dealo/helpers';
 
-export const SKELETON_COLOURS: Record<Colors | 'slate' | 'gray', string> = {
+export const SKELETON_BLOCK_COLOURS: Record<Colors | 'slate' | 'gray', string> = {
   'red': 'bg-red-500 dark:bg-red-500',
   'orange': 'bg-orange-500 dark:bg-orange-500',
   'amber': 'bg-amber-500 dark:bg-amber-500',
@@ -20,4 +20,26 @@ export const SKELETON_COLOURS: Record<Colors | 'slate' | 'gray', string> = {
   'rose': 'bg-rose-500 dark:bg-rose-500',
   'slate': 'bg-slate-700 dark:bg-slate-700',
   'gray': 'bg-gray-300 dark:bg-gray-300',
+};
+
+export const SKELETON_BORDER_COLOURS: Record<Colors | 'slate' | 'gray', string> = {
+  'red': 'border-red-500 dark:border-red-500',
+  'orange': 'border-orange-500 dark:border-orange-500',
+  'amber': 'border-amber-500 dark:border-amber-500',
+  'yellow': 'border-yellow-500 dark:border-yellow-500',
+  'lime': 'border-lime-500 dark:border-lime-500',
+  'green': 'border-green-500 dark:border-green-500',
+  'emerald': 'border-emerald-500 dark:border-emerald-500',
+  'teal': 'border-teal-500 dark:border-teal-500',
+  'cyan': 'border-cyan-500 dark:border-cyan-500',
+  'sky': 'border-sky-500 dark:border-sky-500',
+  'blue': 'border-blue-500 dark:border-blue-500',
+  'indigo': 'border-indigo-500 dark:border-indigo-500',
+  'violet': 'border-violet-500 dark:border-violet-500',
+  'purple': 'border-purple-500 dark:border-purple-500',
+  'fuchsia': 'border-fuchsia-500 dark:border-fuchsia-500',
+  'pink': 'border-pink-500 dark:border-pink-500',
+  'rose': 'border-rose-500 dark:border-rose-500',
+  'slate': 'border-slate-700 dark:border-slate-700',
+  'gray': 'border-gray-300 dark:border-gray-300',
 };
