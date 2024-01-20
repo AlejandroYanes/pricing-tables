@@ -15,8 +15,8 @@ const ContactUsPage = (props: Props) => {
   const section = searchParams.section || 'contact';
 
   return (
-    <BaseLayout showBackButton backRoute="/dashboard" title="Contact Us">
-      <div className="flex justify-center gap-14 mx-auto mt-10 max-w-[980px]">
+    <BaseLayout showBackButton backRoute="/dashboard" title="Contact Us" className="px-4 md:px-12">
+      <div className="flex flex-col md:flex-row justify-center gap-14 mx-auto mt-10 md:max-w-[980px]">
         <div className="flex flex-col gap-10">
           <Card
             active={section === 'contact'}

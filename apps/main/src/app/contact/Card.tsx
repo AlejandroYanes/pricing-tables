@@ -16,7 +16,7 @@ const Card = ({ active, title, text, icon, to, className }: CardProps) => {
       <div
         data-active={active}
         className={cn(
-          'flex flex-col flex-grow-0 gap-4 p-6 flex-1 rounded-sm w-[320px]',
+          'flex flex-col flex-grow-0 gap-4 p-6 flex-1 rounded-sm md:w-[320px]',
           'border border-gray-200 dark:border-gray-600',
           'bg-white dark:bg-gray-950',
           'data-[active=true]:border-emerald-500 dark:data-[active=true]:border-emerald-400',

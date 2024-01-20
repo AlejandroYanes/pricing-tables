@@ -141,7 +141,7 @@ const HomePage = () => {
 
         <div
           data-el="benefits-section"
-          className="flex flex-col gap-8 rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
+          className="flex flex-col gap-8 xl:rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
         >
           <h1 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h1>
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">
