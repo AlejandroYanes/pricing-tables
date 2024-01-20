@@ -29,6 +29,7 @@ import {
   TEXT_STYLES,
   MOBILE_FILLED_BUTTON_STYLES,
   ACCORDION_HEADER_STYLES,
+  CHECK_ICON_COLORS
 } from './template-colors';
 import { intervalsMap } from '../constants/intervals';
 
@@ -362,7 +363,7 @@ export default function BasicTemplate(props: TemplateProps) {
           </TabsList>
         </Tabs>
       </RenderIf>
-      <div data-el="template__content" className="grid justify-items-center box-border gap-4 p-1 pl-9" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
+      <div data-el="template__content" className="grid justify-items-center box-border gap-x-4 p-1 pl-9" style={{ gridTemplateColumns: `repeat(${visibleProducts.length}, 1fr)` }}>
         {visibleProducts.map((prod, index) => {
           const isFirst = index === 0;
 
@@ -375,8 +376,7 @@ export default function BasicTemplate(props: TemplateProps) {
           return (
             <div
               data-active={isRecommended}
-              data-wide={!!unitLabel}
-              className={`flex flex-col items-center relative box-border border border-slate-200 dark:border-slate-800 pt-16 px-8 pb-8 rounded-md w-[300px] data-[wide=true]:w-auto ${BORDER_STYLES[color]}`}
+              className={`flex flex-col items-center pt-16 px-8 pb-8 relative box-border rounded-t-md border-t border-l border-r border-slate-200 dark:border-slate-800 w-[300px] ${BORDER_STYLES[color]}`}
               key={prod.id}
             >
               <span
@@ -432,12 +432,20 @@ export default function BasicTemplate(props: TemplateProps) {
           )
         })}
         {visibleProducts.map((prod) => {
+          const isRecommended = visibleProducts.length === 1 || prod.id === recommended;
           const featureList = resolveFeaturesForProduct(features, prod.id);
 
           return (
-            <ul key={`prod-${prod.id}-features`} className="list-disc ml-8 mr-auto">
+            <ul
+              key={`prod-${prod.id}-features`}
+              data-active={isRecommended}
+              className={`w-[300px] flex flex-col gap-2 p-4 rounded-b-md border-b border-l border-r border-slate-200 dark:border-slate-800 ${BORDER_STYLES[color]}`}
+            >
               {featureList.map((feat, index) => (
-                <li key={index}><span className="text text-left">{feat}</span></li>
+                <li key={index} className="flex items-center gap-2">
+                  <IconCircleCheck className={CHECK_ICON_COLORS[color]} />
+                  <span className="text text-left">{feat}</span>
+                </li>
               ))}
             </ul>
           );

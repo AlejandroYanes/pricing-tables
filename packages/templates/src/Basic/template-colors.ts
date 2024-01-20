@@ -81,6 +81,26 @@ export const OUTLINE_BUTTON_STYLES: Partial<Record<Colors, string>> = {
   'rose': 'border text-rose-600 border-rose-600 hover:border-rose-600/90 hover:bg-rose-600/5 dark:text-rose-400 dark:border-rose-400 dark:hover:border-rose-400/90 dark:hover:text-rose-400 dark:hover:bg-rose-400/5',
 }
 
+export const CHECK_ICON_COLORS: Partial<Record<Colors, string>> = {
+  'red': 'fill-red-500 stroke-slate-50 dark:stroke-slate-800',
+  'orange': 'fill-orange-500 stroke-slate-50 dark:stroke-slate-800',
+  'amber': 'fill-amber-500 stroke-slate-50 dark:stroke-slate-800',
+  'yellow': 'fill-yellow-500 stroke-slate-50 dark:stroke-slate-800',
+  'lime': 'fill-lime-500 stroke-slate-50 dark:stroke-slate-800',
+  'green': 'fill-green-500 stroke-slate-50 dark:stroke-slate-800',
+  'emerald': 'fill-emerald-500 stroke-slate-50 dark:stroke-slate-800',
+  'teal': 'fill-teal-500 stroke-slate-50 dark:stroke-slate-800',
+  'cyan': 'fill-cyan-500 stroke-slate-50 dark:stroke-slate-800',
+  'sky': 'fill-sky-500 stroke-slate-50 dark:stroke-slate-800',
+  'blue': 'fill-blue-500 stroke-slate-50 dark:stroke-slate-800',
+  'indigo': 'fill-indigo-500 stroke-slate-50 dark:stroke-slate-800',
+  'violet': 'fill-violet-500 stroke-slate-50 dark:stroke-slate-800',
+  'purple': 'fill-purple-500 stroke-slate-50 dark:stroke-slate-800',
+  'fuchsia': 'fill-fuchsia-500 stroke-slate-50 dark:stroke-slate-800',
+  'pink': 'fill-pink-500 stroke-slate-50 dark:stroke-slate-800',
+  'rose': 'fill-rose-500 stroke-slate-50 dark:stroke-slate-800',
+};
+
 export const MOBILE_FILLED_BUTTON_STYLES: Partial<Record<Colors, string>> = {
   'red': 'bg-red-600 hover:bg-red-700 dark:hover:bg-red-500 text-white',
   'orange': 'bg-orange-600 hover:bg-orange-700 dark:hover:bg-orange-500 text-white',
