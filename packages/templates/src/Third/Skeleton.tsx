@@ -1,5 +1,5 @@
 import type { SkeletonProps } from '../constants/types';
-import { SKELETON_COLOURS } from '../constants/colors';
+import { SKELETON_BLOCK_COLOURS } from '../constants/colors';
 
 export function ThirdSkeleton(props: SkeletonProps) {
   const { items = 4, scale = 1, color = 'emerald' } = props;
@@ -10,13 +10,13 @@ export function ThirdSkeleton(props: SkeletonProps) {
         {arr.map((_, index) => (
           <div
             key={index}
-            className={`rounded-sm ${SKELETON_COLOURS[color]}`}
+            className={`rounded-sm ${SKELETON_BLOCK_COLOURS[color]}`}
             style={{ height: 80 * scale, width: 300 * scale }}
           />
         ))}
       </div>
       <div
-        className={`rounded-sm ${SKELETON_COLOURS[color]}`}
+        className={`rounded-sm ${SKELETON_BLOCK_COLOURS[color]}`}
         style={{ height: 600 * scale, width: 380 * scale }}
       />
     </div>
