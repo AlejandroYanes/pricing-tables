@@ -14,7 +14,7 @@ import {
   IconTrendingUp,
   IconUser,
 } from '@tabler/icons-react';
-import { cn } from '@dealo/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
 
 import BaseLayout from 'components/BaseLayout';
 import PricingWidget from 'components/PricingWidget';
@@ -53,7 +53,13 @@ interface CardProps {
 
 const Card = ({ title, text, icon, className }: CardProps) => {
   return (
-    <div className={cn('flex flex-col gap-4 p-6 flex-1 rounded-sm border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-950', className)}>
+    <div
+      className={cn(
+        'flex flex-col gap-4 p-6 flex-1 rounded-sm',
+        'border border-gray-200 dark:border-gray-600 bg-white dark:bg-gray-950',
+        className,
+      )}
+    >
       {icon}
       <h3 className="text-lg font-bold">{title}</h3>
       <span>{text}</span>
@@ -71,6 +77,9 @@ const HomePage = () => {
       <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
         <Link href="/pricing">
           <NavbarLink label="Pricing"/>
+        </Link>
+        <Link href="/#faq-section">
+          <NavbarLink label="FAQ"/>
         </Link>
         <Link href="/contact">
           <NavbarLink label="Contact Us"/>
@@ -255,10 +264,81 @@ const HomePage = () => {
           />
         </div>
 
-        <div data-el="bottom-section" className="flex flex-col items-center justify-center mt-6 w-full">
+        <div data-el="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
           <h1 className="text text-xl mb-4">Get started now.</h1>
           <PricingWidget/>
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
+        </div>
+
+        <div id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center mt-14 w-full max-w-[700px]">
+          <h3 className="text-center text-3xl mb-8">FAQ</h3>
+          <Accordion type="single" className="w-full">
+            <AccordionItem value="use-case" title="What can I use this for?">
+              <AccordionTrigger>What can I use this for?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  Our platform is aimed at reducing the friction of implementing pricing into your website.
+                  We integrate with Stripe to read your products and prices, so you {`don't`} have to do anything new.
+                  We also aim to add more features to our platform to help you find that pricing sweet spot.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="security" title="How secure is the integration with Stripe?">
+              <AccordionTrigger>How secure is the integration with Stripe?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  The security of your data is of great importance to us. Our integration with Stripe Connect means
+                  you {`don't`} have to provide your API keys. We use webhooks to receive data from Stripe, but we do not
+                  store any sensitive data related to your transactions on our servers.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="customisation" title="Can I customize the generated UI to match my brand's identity?">
+              <AccordionTrigger>Can I customize the generated UI to match my {`brand's`} identity?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  Absolutely! We understand the importance of brand consistency.
+                  Our platform allows you to customize the generated UI in lots of ways.
+                  If you find that you need more customization options, please reach out to us at{' '}
+                  <a href="mailto:support@dealo.app" className="underline hover:text-emerald-500">support@dealo.app</a>.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="implementation" title="What if I encounter issues during the setup process?">
+              <AccordionTrigger>What if I encounter issues during the setup process?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  Our setup process is designed to be as simple as possible. Once you connect your Stripe account,
+                  you can start creating pricing widgets immediately. When it comes to embedding the generated UI
+                  into your website, we provide you with code snippets that you can copy and paste into your website.
+                  If you encounter any issues, please reach out to us at{' '}
+                  <a href="mailto:support@dealo.app" className="underline hover:text-emerald-500">support@dealo.app</a>.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="trials" title="Can I test the platform before committing?">
+              <AccordionTrigger>Can I test the platform before committing?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  Absolutely! We offer a risk-free trial period for you to explore the full capabilities of our platform.
+                  Take your time to test features, experience the seamless integration with Stripe,
+                  and ensure that our platform aligns with your business goals.
+                  No commitment required during the trial.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+            <AccordionItem value="deletion" title="Can I delete my account?">
+              <AccordionTrigger>Can I delete my account?</AccordionTrigger>
+              <AccordionContent>
+                <p className="py-4">
+                  Yes, at any point in time, you can delete your account. Please note that this action is irreversible
+                  and we will delete all information related yo you on our database.
+                  If you want a refund, please reach out to us at{' '}
+                  <a href="mailto:support@dealo.app" className="underline hover:text-emerald-500">support@dealo.app</a>.
+                </p>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
       </div>
     </BaseLayout>
