@@ -111,7 +111,6 @@ class Wrapper extends HTMLElement {
       internal: !!this.getAttribute('internal'),
       useDarkTheme: false,
     };
-    // this.shadowRoot!.styleSheets = [{ href: `${resolveDomain(!!this.props.internal)}/styles/pricing-cards.css` }];
   }
 
   static get observedAttributes() {

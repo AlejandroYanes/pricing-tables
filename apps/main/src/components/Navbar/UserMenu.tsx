@@ -3,12 +3,12 @@ import { useState } from 'react';
 import Link from 'next/link';
 import type { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
+import { useTheme } from 'next-themes';
 import {
   IconDeviceDesktop,
   IconLogout,
   IconMoon, IconPaint,
   IconReceipt,
-  IconSettings,
   IconSun,
   IconTrash,
   IconUser,
@@ -26,8 +26,13 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel, DropdownMenuPortal,
-  DropdownMenuSeparator, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger,
+  DropdownMenuCheckboxItem,
+  DropdownMenuLabel,
+  DropdownMenuPortal,
+  DropdownMenuSeparator,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
   DropdownMenuTrigger,
   RenderIf
 } from '@dealo/ui';
@@ -61,6 +66,8 @@ const resolveStatusLabel = (user: Session['user']) => {
 
 export default function UserMenu(props: Props) {
   const { hasSubscription, user } = props;
+
+  const { theme, setTheme } = useTheme();
 
   const [showDeleteAccountModal, setShowModal] = useState(false);
 
@@ -105,18 +112,18 @@ export default function UserMenu(props: Props) {
             </DropdownMenuSubTrigger>
             <DropdownMenuPortal>
               <DropdownMenuSubContent>
-                <DropdownMenuItem>
-                  <IconSun size={16} className="mr-2" />
-                  <span>Light</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
-                  <IconMoon size={16} className="mr-2" />
-                  <span>Dark</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem>
+                <DropdownMenuCheckboxItem checked={theme === 'system'} onCheckedChange={() => setTheme('system')}>
                   <IconDeviceDesktop size={16} className="mr-2" />
                   <span>System</span>
-                </DropdownMenuItem>
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={theme === 'light'} onCheckedChange={() => setTheme('light')}>
+                  <IconSun size={16} className="mr-2" />
+                  <span>Light</span>
+                </DropdownMenuCheckboxItem>
+                <DropdownMenuCheckboxItem checked={theme === 'dark'} onCheckedChange={() => setTheme('dark')}>
+                  <IconMoon size={16} className="mr-2" />
+                  <span>Dark</span>
+                </DropdownMenuCheckboxItem>
               </DropdownMenuSubContent>
             </DropdownMenuPortal>
           </DropdownMenuSub>
@@ -138,10 +145,6 @@ export default function UserMenu(props: Props) {
               </DropdownMenuItem>
             </Link>
           </RenderIf>
-          {/*<DropdownMenuItem>*/}
-          {/*  <IconSettings size={16} className="mr-2"/>*/}
-          {/*  Settings*/}
-          {/*</DropdownMenuItem>*/}
           <DropdownMenuItem onClick={handleLogout}>
             <IconLogout size={16} className="mr-2" />
             Logout
