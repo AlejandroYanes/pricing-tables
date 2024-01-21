@@ -159,13 +159,17 @@ export default function UserMenu(props: Props) {
       </DropdownMenu>
       <RenderIf condition={showDeleteAccountModal}>
         <AlertDialog open>
-          <AlertDialogContent>
+          <AlertDialogContent className="md:min-w-[700px]">
             <AlertDialogHeader>
               <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
-              <AlertDialogDescription className="pb-4">
-                Are you sure you want to delete your account?
-                We promise we {`won't`} keep any data about you but you will also loose everything {`you've`} created with us,
-                and this action is irreversible.
+              <AlertDialogDescription className="pb-8">
+                We will disconnect your Stripe account from our platform and delete all information regarding your widgets.
+                <br/>
+                <br/>
+                We will not however delete your personal information (eg: name and email) from our database,
+                this is to prevent abuse of our free trial or refund policy.
+                <br/>
+                Your information will not be used for any other purpose.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

@@ -93,14 +93,14 @@ export const userRouter = createTRPCRouter({
 
       const subscription = (
         await db.execute(`
-          SELECT SUB.id, US1.stripeCustomerId, US1.email, US2.stripeAccount
+          SELECT SUB.id, US1.email, US2.stripeAccount
           FROM Subscription SUB
               JOIN User US1 ON SUB.userId = US1.id
               JOIN PriceWidget PW ON SUB.widgetId = PW.id
               JOIN User US2 ON PW.userId = US2.id
           WHERE SUB.status = ? AND US1.id = ?
         `, ['active' as Stripe.Subscription.Status, user.id])
-      ).rows[0] as { id?: string; email: string; stripeCustomerId?: string; stripeAccount?: string } | undefined;
+      ).rows[0] as { id?: string; email: string; stripeAccount?: string } | undefined;
 
       if (!subscription) {
         throw new TRPCError({
@@ -109,14 +109,10 @@ export const userRouter = createTRPCRouter({
         });
       }
 
-      const { id, email, stripeCustomerId, stripeAccount: checkoutAccount } = subscription;
+      const { id, email, stripeAccount: checkoutAccount } = subscription;
 
       if (id) {
         await ctx.stripe.subscriptions.cancel(id, { stripeAccount: checkoutAccount! });
-      }
-
-      if (stripeCustomerId) {
-        await ctx.stripe.customers.del(stripeCustomerId, { stripeAccount: checkoutAccount! });
       }
 
       await ctx.stripe.accounts.del(checkoutAccount!);
@@ -126,10 +122,24 @@ export const userRouter = createTRPCRouter({
           'UPDATE Subscription SET status = ?, userId = ? WHERE userId = ?',
           ['canceled' as Stripe.Subscription.Status, 'N/A', user.id],
         );
-        await tx.execute('UPDATE PriceWidget SET userId = ? WHERE userId = ?', ['N/A', user.id]);
-        await tx.execute('DELETE FROM User WHERE id = ?', [user.id]);
+        await tx.execute(
+          'UPDATE User SET isActive = FALSE, updatedAt = ?, email = ? WHERE id = ?',
+          [new Date(), `deleted-${email}-${user.id}`, user.id],
+        );
         await tx.execute('DELETE FROM Account WHERE id = ?', [user.id]);
         await tx.execute('DELETE FROM Session WHERE id = ?', [user.id]);
+
+        const widgets = (
+          await tx.execute('SELECT id FROM PriceWidget WHERE userId = ?', [ user.id])
+        ).rows as { id: string }[];
+
+        const widgetIds = widgets.map((w) => w.id);
+
+        await tx.execute('DELETE FROM PriceWidget WHERE id IN (?)', [widgetIds]);
+        await tx.execute('DELETE FROM Product WHERE widgetId IN (?)', [widgetIds]);
+        await tx.execute('DELETE FROM Price WHERE widgetId IN (?)', [widgetIds]);
+        await tx.execute('DELETE FROM Feature WHERE widgetId IN (?)', [widgetIds]);
+        await tx.execute('DELETE FROM Callback WHERE widgetId IN (?)', [widgetIds]);
       });
 
       await notifyOfDeletedAccount({ name: user.name!, email, hadSubscription: !!id });

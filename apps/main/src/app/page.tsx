@@ -331,8 +331,11 @@ const HomePage = () => {
               <AccordionTrigger>Can I delete my account?</AccordionTrigger>
               <AccordionContent>
                 <p className="py-4">
-                  Yes, at any point in time, you can delete your account. Please note that this action is irreversible
-                  and we will delete all information related yo you on our database.
+                  Yes, at any point in time, you can delete your account.
+                  We will disconnect your Stripe account from our platform and delete all information regarding your widgets.
+                  We do not however delete your personal information (eg: name and email) from our database,
+                  this is to prevent abuse of our free trial or refund policy.
+                  Your information will not be used for any other purpose.
                   If you want a refund, please reach out to us at{' '}
                   <a href="mailto:support@dealo.app" className="underline hover:text-emerald-500">support@dealo.app</a>.
                 </p>
