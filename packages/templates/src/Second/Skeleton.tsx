@@ -7,15 +7,16 @@ export function SecondSkeleton(props: SkeletonProps) {
   return (
     <div className={`flex flex-row gap-1 rounded border-2 ${SKELETON_BORDER_COLOURS[color]} p-1`}>
       {arr.map((_, index) => (
-        <div className="flex flex-col items-center gap-1" key={index}>
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 80 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]} mb-2`} style={{ height: 100 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]} mb-2`} style={{ height: 40 * scale, width: 300 * scale }} />
-          <div className={`rounded-smj ${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
-        </div>
+        // <div className="flex flex-col items-center gap-1" key={index}>
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 80 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]} mb-2`} style={{ height: 100 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]} mb-2`} style={{ height: 40 * scale, width: 300 * scale }} />
+        //   <div className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ height: 40 * scale, width: 300 * scale }} />
+        // </div>
+        <div key={index} className={`${SKELETON_BLOCK_COLOURS[color]}`} style={{ width: 300 * scale, height: 380 * scale }} />
       ))}
     </div>
   );

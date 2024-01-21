@@ -376,12 +376,12 @@ export default function BasicTemplate(props: TemplateProps) {
           return (
             <div
               data-active={isRecommended}
-              className={`flex flex-col items-center pt-16 px-8 pb-8 relative box-border rounded-t-md border-t border-l border-r border-slate-200 dark:border-slate-800 w-[300px] ${BORDER_STYLES[color]}`}
+              className={`flex flex-col items-center pt-8 px-8 pb-8 relative box-border rounded-t-md border-t border-l border-r border-slate-200 dark:border-slate-800 w-[300px] ${BORDER_STYLES[color]}`}
               key={prod.id}
             >
               <span
                 data-active={isRecommended}
-                className={`mb-4 text text-xl slate-900 dark:text-slate-100 font-bold ${TEXT_STYLES[color]}`}
+                className={`mb-4 text text-3xl slate-900 dark:text-slate-100 font-bold ${TEXT_STYLES[color]}`}
               >
                 {prod.name}
               </span>
@@ -439,7 +439,7 @@ export default function BasicTemplate(props: TemplateProps) {
             <ul
               key={`prod-${prod.id}-features`}
               data-active={isRecommended}
-              className={`w-[300px] flex flex-col gap-2 p-4 rounded-b-md border-b border-l border-r border-slate-200 dark:border-slate-800 ${BORDER_STYLES[color]}`}
+              className={`w-[300px] flex flex-col gap-2 p-4 pb-7 rounded-b-md border-b border-l border-r border-slate-200 dark:border-slate-800 ${BORDER_STYLES[color]}`}
             >
               {featureList.map((feat, index) => (
                 <li key={index} className="flex items-center gap-2">
