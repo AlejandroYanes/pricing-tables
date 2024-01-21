@@ -123,8 +123,8 @@ export const userRouter = createTRPCRouter({
           ['canceled' as Stripe.Subscription.Status, 'N/A', user.id],
         );
         await tx.execute(
-          'UPDATE User SET isActive = FALSE, updatedAt = ?, email = ? WHERE id = ?',
-          [new Date(), `deleted-${email}-${user.id}`, user.id],
+          'UPDATE User SET isActive = FALSE, updatedAt = NOW(), email = ? WHERE id = ?',
+          [`deleted-${email}-${user.id}`, user.id],
         );
         await tx.execute('DELETE FROM Account WHERE id = ?', [user.id]);
         await tx.execute('DELETE FROM Session WHERE id = ?', [user.id]);
