@@ -6,9 +6,9 @@
     "tailwind-merge": "1.13.2"
   },
   "devDependencies": {
-    "autoprefixer": "10.4.14",
-    "postcss": "8.4.24",
-    "tailwindcss": "3.3.2",
-    "tailwindcss-animate": "1.0.6"
+    "autoprefixer": "10.4.17",
+    "postcss": "8.4.33",
+    "tailwindcss": "3.4.1",
+    "tailwindcss-animate": "1.0.7"
   }
 }
