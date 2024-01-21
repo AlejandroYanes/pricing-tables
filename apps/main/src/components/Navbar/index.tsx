@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+'use client'
 import { useRouter } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { IconArrowLeft, IconInfoCircle } from '@tabler/icons-react';

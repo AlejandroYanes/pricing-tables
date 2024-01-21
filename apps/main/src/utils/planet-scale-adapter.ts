@@ -92,7 +92,7 @@ export default function PlanetScaleAdapter(): Adapter {
             SELECT US.id, US.name, US.email, US.image, US.emailVerified, US.role, US.stripeConnected, US.stripeKey, US.stripeCustomerId, SE.userId, SE.expires, SE.sessionToken
             FROM User US
               INNER JOIN Session SE ON US.id = SE.userId
-            WHERE SE.sessionToken = ?
+            WHERE SE.sessionToken = ? AND US.isActive = TRUE
           `,
           [sessionToken],
         )
