@@ -3,18 +3,28 @@ import { Code, CodeBlock, Separator } from '@dealo/ui';
 
 interface Props {
   widgetId: string;
+  templateId: string;
+  productCount: number;
 }
 
 const scriptCode = `<script src="https://scripts.dealo.app/v0.0.1/pricing-cards.js"></script>`;
-const widgetCode = (widgetId: string) => `<pricing-cards widget="${widgetId}"></pricing-cards>`;
-const wrappedWidgetCode = (widgetId: string) => `
+const widgetCode = ({ widgetId, templateId, productCount }: Props) => (
+  `<pricing-cards widget="${widgetId}" template="${templateId}" items="${productCount}"></pricing-cards>`
+);
+const wrappedWidgetCode = ({ widgetId, templateId, productCount }: Props) => `
 <div class="pricing-widget__container">
-    <pricing-cards widget="${widgetId}"></script>
+    <pricing-cards widget="${widgetId}" template="${templateId}" items="${productCount}"></script>
 </div>
 `;
-const widgetWithThemeCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" theme="light"></script>`;
-const widgetWithCurrencyCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" currency="eur"></script>`;
-const widgetWithEnvCode = (widgetId: string) => `<pricing-cards widget="${widgetId}" env="development"></script>`;
+const widgetWithThemeCode = ({ widgetId, templateId, productCount }: Props) => (
+  `<pricing-cards widget="${widgetId}" theme="light" template="${templateId}" items="${productCount}"></script>`
+);
+const widgetWithCurrencyCode = ({ widgetId, templateId, productCount }: Props) => (
+  `<pricing-cards widget="${widgetId}" currency="eur" template="${templateId}" items="${productCount}"></script>`
+);
+const widgetWithEnvCode = ({ widgetId, templateId, productCount }: Props) => (
+  `<pricing-cards widget="${widgetId}" env="development" template="${templateId}" items="${productCount}"></script>`
+);
 
 // eslint-disable-next-line max-len
 const curlCommand = (apiKey: string) => `
@@ -40,7 +50,6 @@ fetch(url, {
 `;
 
 export default function IntegrationPanel(props: Props) {
-  const { widgetId } = props;
   const { data } = useSession();
 
   return (
@@ -54,13 +63,25 @@ export default function IntegrationPanel(props: Props) {
       <CodeBlock className="mt-6">{scriptCode}</CodeBlock>
 
       <p className="mt-6 mb-0 mx-0">
-        then, add this custom tag to your code wherever you want the widget to show
-        (these examples use this {`widget's`} id but you can use any id you want)
+        then, add this custom tag to your code wherever you want the widget to show,
+        these examples are using this {`widget's`} real id, so you can just copy and paste them:
       </p>
-      <CodeBlock className="mt-6">{widgetCode(widgetId)}</CodeBlock>
+      <CodeBlock className="mt-6">{widgetCode(props)}</CodeBlock>
 
       <p className="mt-6 mb-0 mx-0">We recommend wrapping the widget in a container to make positioning easier</p>
-      <CodeBlock className="mt-6">{wrappedWidgetCode(widgetId)}</CodeBlock>
+      <CodeBlock className="mt-6">{wrappedWidgetCode(props)}</CodeBlock>
+      <p className="mt-6">
+        You can see that we also add a <Code>template</Code> and <Code>items</Code> attributes,
+        these are optional, but we recommend adding them as they will help the{' '}
+        <a
+          href="https://web.dev/articles/cls"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="underline hover:text-emerald-500"
+        >
+          Cumulative Layout Shift (CLS)
+        </a> score of your page.
+      </p>
 
       <h3 className="text text-xl font-semibold mt-6 mb-2">Other configurations</h3>
 
@@ -71,14 +92,14 @@ export default function IntegrationPanel(props: Props) {
 
       <span className="text font-semibold mt-6">Theme</span>
       <p className="m-0">The theme attribute expects one of three values: <Code>system | light | dark</Code></p>
-      <CodeBlock className="mt-6">{widgetWithThemeCode(widgetId)}</CodeBlock>
+      <CodeBlock className="mt-6">{widgetWithThemeCode(props)}</CodeBlock>
 
       <span className="text font-semibold mt-6">Currency</span>
       <p className="m-0">
         If your prices are setup with more than one currency you can specify which one to use.
         If you {`don't`} specify a currency it will use the default currency of your Stripe account.
       </p>
-      <CodeBlock className="mt-6">{widgetWithCurrencyCode(widgetId)}</CodeBlock>
+      <CodeBlock className="mt-6">{widgetWithCurrencyCode(props)}</CodeBlock>
 
       <span className="text font-semibold mt-6">Environment</span>
       <p className="m-0">
@@ -90,7 +111,7 @@ export default function IntegrationPanel(props: Props) {
         The value of this attribute should be the name of the environment you want to use.
         By default it will use the <Code>production</Code> environment.
       </p>
-      <CodeBlock className="mt-6">{widgetWithEnvCode(widgetId)}</CodeBlock>
+      <CodeBlock className="mt-6">{widgetWithEnvCode(props)}</CodeBlock>
 
       <Separator className="my-6" />
 

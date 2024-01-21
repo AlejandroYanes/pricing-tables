@@ -20,9 +20,9 @@ export type WidgetFormState = {
   products: FormProduct[];
   features: FormFeature[];
   callbacks: FormCallback[];
-  id: string | null;
+  id: string;
   name: string;
-  template: string | null;
+  template: string;
   color: string;
   recommended: string | null;
   subscribeLabel: string;
