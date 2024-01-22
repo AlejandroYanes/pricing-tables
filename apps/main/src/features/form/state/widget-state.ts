@@ -2,13 +2,13 @@ import { create } from 'zustand'
 import type { WidgetFormState } from '@dealo/models';
 
 export const useWidgetFormStore = create<WidgetFormState>(() => ({
+  id: '',
+  name: '',
+  template: '',
+  color: 'emerald',
   products: [],
   features: [],
   callbacks: [],
-  id: null,
-  name: '',
-  color: 'teal',
-  template: null,
   recommended: null,
   subscribeLabel: 'Subscribe',
   freeTrialLabel: 'Free Trial',
@@ -20,10 +20,11 @@ export const useWidgetFormStore = create<WidgetFormState>(() => ({
 
 export const useFormPageStates = () => useWidgetFormStore(
   (state) => ({
-    color: state.color,
     name: state.name,
+    template: state.template,
+    productCount: state.products.length,
   }),
-  (old, next) => old.color === next.color && old.name === next.name,
+  (old, next) => old.template === next.template && old.name === next.name && old.productCount === next.productCount,
 );
 
 export const useVisualPanelStates = () => useWidgetFormStore((state) => ({

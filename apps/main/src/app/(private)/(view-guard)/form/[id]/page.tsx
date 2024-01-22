@@ -77,7 +77,7 @@ const FormPage = (props: Props) => {
   const [selectedEnv, setSelectedEnv] = useState<string>('development');
   const [selectedCurrency, setSelectedCurrency] = useState<string | null>(null);
 
-  const { name } = useFormPageStates();
+  const { name, template, productCount } = useFormPageStates();
 
   useEffect(() => {
     if (widgetId && !startedFirstCall.current) {
@@ -147,7 +147,7 @@ const FormPage = (props: Props) => {
             <SettingsForm showPanel={showPanel} template={templateNode} widgetId={widgetId} />
           </RenderIf>
           <RenderIf condition={currentTab === 'integration'}>
-            <IntegrationPanel widgetId={widgetId} />
+            <IntegrationPanel widgetId={widgetId} templateId={template} productCount={productCount} />
           </RenderIf>
         </div>
       </BaseLayout>

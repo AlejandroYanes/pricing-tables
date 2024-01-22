@@ -133,16 +133,19 @@ model Session {
 }
 
 model User {
-    id                    String    @id @default(cuid())
+    id                    String      @id @default(cuid())
     name                  String?
-    email                 String?   @unique
+    email                 String?     @unique
     emailVerified         DateTime?
     image                 String?
     stripeKey             String?
     stripeAccount         String?
-    stripeConnected       Boolean   @default(false)
+    stripeConnected       Boolean     @default(false)
     stripeCustomerId      String?
-    role                  String?    @default("USER")
+    role                  String?     @default("USER")
+    isActive              Boolean     @default(true)
+    createdAt             DateTime    @default(now())
+    updatedAt             DateTime?
     accounts              Account[]
     sessions              Session[]
     widgets               PriceWidget[]
