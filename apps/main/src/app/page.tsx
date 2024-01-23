@@ -270,7 +270,7 @@ const HomePage = () => {
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
         </div>
 
-        <div id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center mt-14 w-full max-w-[700px]">
+        <div id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
           <h3 className="text-center text-3xl mb-8">FAQ</h3>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
