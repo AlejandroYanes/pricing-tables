@@ -69,7 +69,11 @@ export default function SigninPage(props: Props) {
         <Head>
           <title>Dealo | Signin</title>
         </Head>
-        <BaseLayout hideUserControls>
+        <BaseLayout
+          hideUserControls
+          className="px-0"
+          footerClassName="w-full max-w-[1200px] mx-auto"
+        >
           <div className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
             <Alert>
               <IconAlertCircle size={16} />
@@ -92,8 +96,14 @@ export default function SigninPage(props: Props) {
       <Head>
         <title>Dealo | Signin</title>
       </Head>
-      <BaseLayout showBackButton backRoute="/" hideUserControls>
-        <div data-el="hero-section" className="flex flex-col justify-center items-center px-4 gap-[72px] h-[calc(100vh_-_88px_-_32px)]">
+      <BaseLayout
+        hideUserControls
+        showBackButton
+        backRoute="/"
+        className="px-0 md:px-12"
+        footerClassName="w-full max-w-[1200px] mx-auto"
+      >
+        <div data-el="hero-section" className="flex flex-col items-center justify-center md:justify-start md:pt-24 px-4 gap-[72px] h-[calc(100vh_-_88px_-_32px)]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>

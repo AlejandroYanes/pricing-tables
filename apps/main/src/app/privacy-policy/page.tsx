@@ -2,9 +2,13 @@ import BaseLayout from 'components/BaseLayout';
 
 const PrivacyPolicyPage = () => {
   return (
-    <BaseLayout showBackButton hideUserControls footerClassName="w-full max-w-[700px] mx-auto">
-
-      <div className="flex flex-col max-w-[700px] mx-auto">
+    <BaseLayout
+      showBackButton
+      hideUserControls
+      className="px-0 md:px-12"
+      footerClassName="w-full max-w-[1200px] mx-auto"
+    >
+      <div className="flex flex-col max-w-[700px] mx-auto px-4">
         <div className="flex flex-col mb-12">
           <h1 className="text text-3xl">Privacy Policy for Dealo</h1>
           <span className="text">Last Updated: Friday, 29 Dec, 2023</span>
