@@ -274,9 +274,11 @@ const HomePage = () => {
           <h3 className="text-center text-3xl mb-8">FAQ</h3>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
-              <AccordionTrigger>What can I use this for?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                What can I use this for?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   Our platform is aimed at reducing the friction of implementing pricing into your website.
                   We integrate with Stripe to read your products and prices, so you {`don't`} have to do anything new.
                   We also aim to add more features to our platform to help you find that pricing sweet spot.
@@ -284,9 +286,11 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="security" title="How secure is the integration with Stripe?">
-              <AccordionTrigger>How secure is the integration with Stripe?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                How secure is the integration with Stripe?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   The security of your data is of great importance to us. Our integration with Stripe Connect means
                   you {`don't`} have to provide your API keys. We use webhooks to receive data from Stripe, but we do not
                   store any sensitive data related to your transactions on our servers.
@@ -294,9 +298,11 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="customisation" title="Can I customize the generated UI to match my brand's identity?">
-              <AccordionTrigger>Can I customize the generated UI to match my {`brand's`} identity?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                Can I customize the generated UI to match my {`brand's`} identity?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   Absolutely! We understand the importance of brand consistency.
                   Our platform allows you to customize the generated UI in lots of ways.
                   If you find that you need more customization options, please reach out to us at{' '}
@@ -305,9 +311,11 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="implementation" title="What if I encounter issues during the setup process?">
-              <AccordionTrigger>What if I encounter issues during the setup process?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                What if I encounter issues during the setup process?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   Our setup process is designed to be as simple as possible. Once you connect your Stripe account,
                   you can start creating pricing widgets immediately. When it comes to embedding the generated UI
                   into your website, we provide you with code snippets that you can copy and paste into your website.
@@ -317,9 +325,11 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="trials" title="Can I test the platform before committing?">
-              <AccordionTrigger>Can I test the platform before committing?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                Can I test the platform before committing?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   Absolutely! We offer a risk-free trial period for you to explore the full capabilities of our platform.
                   Take your time to test features, experience the seamless integration with Stripe,
                   and ensure that our platform aligns with your business goals.
@@ -328,9 +338,11 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
             <AccordionItem value="deletion" title="Can I delete my account?">
-              <AccordionTrigger>Can I delete my account?</AccordionTrigger>
+              <AccordionTrigger className="text-lg">
+                Can I delete my account?
+              </AccordionTrigger>
               <AccordionContent>
-                <p className="py-4">
+                <p className="py-4 text-base">
                   Yes, at any point in time, you can delete your account.
                   We will disconnect your Stripe account from our platform and delete all information regarding your widgets.
                   We do not however delete your personal information (eg: name and email) from our database,
