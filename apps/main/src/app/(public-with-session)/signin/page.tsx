@@ -81,7 +81,7 @@ export default function SigninPage(props: Props) {
               <AlertDescription>{errorMessage}</AlertDescription>
             </Alert>
             <div className="flex flex-row items-center justify-end mt-6">
-              <Link href="/">
+              <Link href="/apps/main/public">
                 <Button color="gray">Get back</Button>
               </Link>
             </div>

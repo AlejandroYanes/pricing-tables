@@ -13,6 +13,7 @@
     "dev:main": "turbo run dev --filter main",
     "dev:cards": "turbo run dev --filter cards-widget",
     "dev:emails": "turbo run dev --filter emails",
+    "start:main": "turbo run start --filter main",
     "lint": "turbo run lint",
     "lint:main": "turbo run lint --filter main"
   },

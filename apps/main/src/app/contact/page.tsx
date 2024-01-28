@@ -6,6 +6,8 @@ import ContactForm from './ContactForm';
 import ReportForm from './ReportForm';
 import Card from './Card';
 
+export const runtime = 'edge';
+
 interface Props {
   searchParams: Record<string, string | undefined>;
 }
@@ -15,7 +17,7 @@ const ContactUsPage = (props: Props) => {
   const section = searchParams.section || 'contact';
 
   return (
-    <BaseLayout showBackButton backRoute="/dashboard" title="Contact Us" className="px-4 md:px-12">
+    <BaseLayout hideNavbar backRoute="/dashboard" title="Contact Us" className="px-4 md:px-12">
       <div className="flex flex-col md:flex-row justify-center gap-14 mx-auto mt-10 md:max-w-[980px]">
         <div className="flex flex-col gap-10">
           <Card
