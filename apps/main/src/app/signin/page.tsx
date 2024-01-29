@@ -113,7 +113,7 @@ export default async function SigninPage(props: Props) {
         data-el="hero-section"
         className={cn(
           'flex flex-col items-center justify-center',
-          'md:justify-start md:pt-24 px-4 gap-[72px] h-[calc(100vh_-_88px_-_32px)]',
+          'md:justify-start md:pt-24 px-4 gap-[72px]',
         )}
       >
         <div className="flex flex-col items-stretch max-w-[30rem]">

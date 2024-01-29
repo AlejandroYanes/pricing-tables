@@ -42,7 +42,7 @@ export default async function PricingPage() {
             <NavbarLink label="Sign in"/>
           </Link>
         </header>
-        <div className="flex flex-col items-center justify-center mx-auto h-[calc(100vh - 88px)]">
+        <div className="flex flex-col items-center justify-center mx-auto">
           <div className="flex flex-row items-center justify-center">
             <div className="flex flex-row">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
