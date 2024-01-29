@@ -1,6 +1,5 @@
-'use client'
 import type { Session } from 'next-auth';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { ROLES } from '@dealo/models';
 
 import SetupModal from '../setup-modal';
@@ -13,16 +12,13 @@ interface Props {
 
 const AuthGuard = (props: Props) => {
   const { isAdmin, session, children } = props;
-  const router = useRouter();
 
   if (!session?.user) {
-    router.push('/');
-    return null;
+    redirect('/');
   }
 
   if (isAdmin && session.user.role !== ROLES.ADMIN) {
-    router.push('/dashboard');
-    return null;
+    redirect('/dashboard');
   }
 
   if (!session.user.isSetup) {

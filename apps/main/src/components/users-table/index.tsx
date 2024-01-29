@@ -140,7 +140,7 @@ const UsersTable = () => {
           <TableRow>
             <TableHead>User</TableHead>
             <TableHead style={{ width: '100px' }}>Is Setup</TableHead>
-            <TableHead style={{ width: '100px' }}>LEgacy</TableHead>
+            <TableHead style={{ width: '100px' }}>Legacy</TableHead>
             <TableHead style={{ width: '130px' }}>Widgets</TableHead>
           </TableRow>
         </TableHeader>
@@ -188,7 +188,7 @@ const UsersTable = () => {
           ))}
         </TableBody>
       </Table>
-      <div className="flex items-center justify-between py-6 sticky bottom-0">
+      <div className="flex items-center justify-between py-6 sticky bottom-0 bg-background">
         <span className="text-sm font-medium">{`Total: ${count}`}</span>
         <Pagination
           page={page}

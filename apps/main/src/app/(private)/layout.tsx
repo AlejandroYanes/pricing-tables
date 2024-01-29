@@ -9,7 +9,7 @@ interface Props {
     children: any;
 }
 
-const PrivateLayout = async (props: Props) => {
+export default async function PrivateLayout(props: Props) {
   const session = await getServerSession(authOptions);
   return (
     <AuthGuard session={session}>
@@ -19,6 +19,4 @@ const PrivateLayout = async (props: Props) => {
       <Toaster />
     </AuthGuard>
   );
-};
-
-export default PrivateLayout;
+}
