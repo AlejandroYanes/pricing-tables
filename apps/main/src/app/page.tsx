@@ -16,9 +16,9 @@ import {
 } from '@tabler/icons-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
 
-import BaseLayout from 'components/BaseLayout';
-import PricingWidget from 'components/PricingWidget';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import PricingWidget from 'components/pricing-widget';
+import { NavbarLink } from 'components/navbar';
 
 export const metadata = {
   title: 'Dealo',

@@ -9,9 +9,9 @@ import { Alert, AlertDescription, AlertTitle, Button, cn } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
 import { authOptions } from 'utils/auth';
-import BaseLayout from 'components/BaseLayout';
-import SignInForm from 'components/SignInForm';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import SignInForm from 'components/signin-form';
+import { NavbarLink } from 'components/navbar';
 
 export const metadata: Metadata = {
   title: 'Dealo | Signin',

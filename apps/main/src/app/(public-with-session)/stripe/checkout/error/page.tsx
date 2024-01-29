@@ -3,7 +3,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Button, RenderIf } from '@dealo/ui';
 
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 
 interface Props {
   searchParams: Record<string, string | string[]>;

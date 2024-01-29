@@ -23,7 +23,7 @@ import {
 
 import { trpc } from 'utils/trpc';
 import { useDebounce } from 'utils/hooks/useDebounce';
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';
 import CustomProductBlock from './CustomProductBlock';

@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { Button } from '@dealo/ui';
 
 import { useMediaQuery } from 'utils/hooks/useMediaQuery';
-import BaseLayout from '../BaseLayout';
+import BaseLayout from '../base-layout';
 
 interface Props {
   children: any;

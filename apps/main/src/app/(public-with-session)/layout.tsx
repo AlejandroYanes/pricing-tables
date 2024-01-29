@@ -1,7 +1,7 @@
 import { getServerSession } from 'next-auth';
 
 import { authOptions } from 'utils/auth';
-import ClientProviders from 'components/ClientProviders';
+import ClientProviders from 'components/client-providers';
 
 interface Props {
     children: any;

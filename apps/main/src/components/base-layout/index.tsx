@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { RenderIf, cn, Button } from '@dealo/ui';
 
-import Navbar from 'components/Navbar';
+import Navbar from 'components/navbar';
 
 interface Props {
   hideNavbar?: boolean;

@@ -5,9 +5,9 @@ import { getServerSession } from 'next-auth';
 import { Button } from '@dealo/ui';
 
 import { authOptions } from 'utils/auth';
-import BaseLayout from 'components/BaseLayout';
-import PricingWidget from 'components/PricingWidget';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import PricingWidget from 'components/pricing-widget';
+import { NavbarLink } from 'components/navbar';
 
 export const metadata: Metadata = {
   title: 'Dealo | Pricing',

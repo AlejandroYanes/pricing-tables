@@ -4,8 +4,8 @@ import { IconArrowLeft } from '@tabler/icons-react';
 import { Button, RenderIf } from '@dealo/ui';
 
 import { authOptions } from 'utils/auth';
-import BaseLayout from 'components/BaseLayout';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import { NavbarLink } from 'components/navbar';
 
 export default async function PrivacyPolicyPage() {
   const session = await getServerSession(authOptions);

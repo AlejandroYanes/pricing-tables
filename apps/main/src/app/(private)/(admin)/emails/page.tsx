@@ -2,7 +2,7 @@ import { render } from '@react-email/render';
 import { NewReleaseEmail } from '@dealo/email-templates';
 
 import { env } from 'env/server.mjs';
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 import InternalEmailForm from './InternalEmailForm';
 
 const URL = env.PLATFORM_URL || `https://${process.env.VERCEL_URL}`;

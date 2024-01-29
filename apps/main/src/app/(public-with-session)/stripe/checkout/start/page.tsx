@@ -6,7 +6,7 @@ import Head from 'next/head';
 import { Loader } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 
 interface Props {
   searchParams: Record<string, string | string[]>;

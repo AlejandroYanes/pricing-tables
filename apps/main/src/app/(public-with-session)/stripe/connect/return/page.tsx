@@ -6,7 +6,7 @@ import Link from 'next/link';
 import { useSession } from 'next-auth/react';
 import { RenderIf, Loader, Button } from '@dealo/ui';
 
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 
 type Status = 'pending' | 'success' | 'incomplete' | 'failed';
 

@@ -1,23 +1,19 @@
 'use client'
-import { useSession } from 'next-auth/react';
+import type { Session } from 'next-auth';
 import { useRouter } from 'next/navigation';
 import { ROLES } from '@dealo/models';
 
-import SetupModal from '../SetupModal';
+import SetupModal from '../setup-modal';
 
 interface Props {
   isAdmin?: boolean;
+  session: Session | null;
   children: any;
 }
 
 const AuthGuard = (props: Props) => {
-  const { isAdmin, children } = props;
-  const { status, data: session } = useSession();
+  const { isAdmin, session, children } = props;
   const router = useRouter();
-
-  if (status === 'loading') {
-    return null;
-  }
 
   if (!session?.user) {
     router.push('/');

@@ -2,8 +2,8 @@
 import Link from 'next/link';
 import { IconBug, IconHelp } from '@tabler/icons-react';
 
-import BaseLayout from 'components/BaseLayout';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import { NavbarLink } from 'components/navbar';
 import Card from './Card';
 
 interface Props {

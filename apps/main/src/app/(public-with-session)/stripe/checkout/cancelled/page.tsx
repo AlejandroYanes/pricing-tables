@@ -1,6 +1,6 @@
 import { IconMoodConfuzed } from '@tabler/icons-react';
 
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 
 export default function CheckoutError() {
   return (

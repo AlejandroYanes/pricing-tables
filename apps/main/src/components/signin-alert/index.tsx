@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { IconAlertCircle } from '@tabler/icons-react';
 import { Alert, AlertTitle, AlertDescription, Button } from '@dealo/ui';
 
-import BaseLayout from '../BaseLayout';
+import BaseLayout from '../base-layout';
 
 interface Props {
   asPage?: boolean;

@@ -1,6 +1,6 @@
 import { Toaster } from '@dealo/ui';
 
-import AuthGuard from 'components/AuthGuard';
+import AuthGuard from 'components/auth-guard';
 
 interface Props {
     children: any;

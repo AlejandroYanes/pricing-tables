@@ -25,7 +25,7 @@ import {
 
 import { trpc } from 'utils/trpc';
 import { useDebounce } from 'utils/hooks/useDebounce';
-import UserAvatar from 'components/UserAvatar';
+import UserAvatar from 'components/user-avatar';
 
 const UsersTable = () => {
   const [page, setPage] = useState(1);

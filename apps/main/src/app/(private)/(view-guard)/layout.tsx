@@ -1,4 +1,4 @@
-import ViewSizeGuard from 'components/ViewSizeGuard';
+import ViewSizeGuard from 'components/view-size-guard';
 
 interface Props {
     children: any;
