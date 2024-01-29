@@ -81,7 +81,7 @@ const HomePage = () => {
         <Link href="/#faq-section">
           <NavbarLink label="FAQ"/>
         </Link>
-        <Link href="/contact">
+        <Link href="/contact/query">
           <NavbarLink label="Contact Us"/>
         </Link>
         <Link href="/signin">
@@ -152,7 +152,7 @@ const HomePage = () => {
           data-el="benefits-section"
           className="flex flex-col gap-8 xl:rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
         >
-          <h1 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h1>
+          <h2 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h2>
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">
             <Card
               icon={<IconMathOff/>}
@@ -265,13 +265,13 @@ const HomePage = () => {
         </section>
 
         <section data-el="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
-          <h1 className="text text-xl mb-4">Get started now.</h1>
+          <h2 className="text text-xl mb-4">Get started now.</h2>
           <PricingWidget/>
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
         </section>
 
         <section id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
-          <h3 className="text-center text-3xl mb-8">FAQ</h3>
+          <h2 className="text-center text-3xl mb-8">FAQ</h2>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
               <AccordionTrigger className="text-lg">
