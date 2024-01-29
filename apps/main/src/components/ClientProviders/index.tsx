@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { type Session } from 'next-auth';
 import { SessionProvider } from 'next-auth/react';
-import { ThemeProvider as NextThemesProvider } from 'next-themes';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { httpBatchLink, loggerLink } from '@trpc/client';
 import superjson from 'superjson';
@@ -54,12 +53,9 @@ const ClientProviders = (props: Props) => {
     <SessionProvider session={session}>
       <trpc.Provider client={trpcClient} queryClient={queryClient}>
         <QueryClientProvider client={queryClient}>
-          <NextThemesProvider attribute="class" defaultTheme="system" enableSystem>
-            {children}
-          </NextThemesProvider>
+          {children}
         </QueryClientProvider>
       </trpc.Provider>
-
     </SessionProvider>
   );
 };

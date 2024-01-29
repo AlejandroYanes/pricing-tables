@@ -1,8 +1,9 @@
+'use client'
 import Link from 'next/link';
 import { cn } from '@dealo/ui';
+import { usePathname } from 'next/navigation';
 
 interface CardProps {
-  active?: boolean;
   title: string;
   text: string;
   to: string;
@@ -10,11 +11,14 @@ interface CardProps {
   className?: string;
 }
 
-const Card = ({ active, title, text, icon, to, className }: CardProps) => {
+const Card = ({ title, text, icon, to, className }: CardProps) => {
+  const pathname = usePathname();
+  const activePath = pathname === to;
+
   return (
     <Link href={to}>
       <div
-        data-active={active}
+        data-active={activePath}
         className={cn(
           'flex flex-col flex-grow-0 gap-4 p-6 flex-1 rounded-sm md:w-[320px]',
           'border border-gray-200 dark:border-gray-600',

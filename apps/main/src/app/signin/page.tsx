@@ -1,18 +1,22 @@
 /* eslint-disable max-len */
-'use client';
-import { useEffect } from 'react';
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
-import Head from 'next/head';
 import Image from 'next/image';
-import { useSession } from 'next-auth/react';
+import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth';
 import { IconAlertCircle } from '@tabler/icons-react';
-import { Alert, AlertDescription, AlertTitle, Button, Loader } from '@dealo/ui';
+import { Alert, AlertDescription, AlertTitle, Button, cn } from '@dealo/ui';
 import { generateQueryString } from '@dealo/helpers';
 
+import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from 'components/SignInForm';
-import RenderWithDelay from 'components/RenderWithDelay';
+import { NavbarLink } from 'components/Navbar';
+
+export const metadata: Metadata = {
+  title: 'Dealo | Signin',
+  description: 'Signin to Dealo to start using our platform.',
+}
 
 const errorsMap: { [error: string]: string } = {
   fallback: "Seems something went wrong but we can't point to what, please contact the developers and send the url you have right now.",
@@ -23,10 +27,10 @@ interface Props {
   searchParams: Record<string, string | null>;
 }
 
-export default function SigninPage(props: Props) {
+export default async function SigninPage(props: Props) {
   const { searchParams } = props;
-  const { status } = useSession();
-  const router = useRouter();
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
 
   const hasErrors = !!searchParams.error;
   const errorMessage = errorsMap[searchParams.error as string] || errorsMap.fallback;
@@ -37,91 +41,98 @@ export default function SigninPage(props: Props) {
     return `${checkoutPageRoute}?${queryParams}`;
   }
 
-  useEffect(() => {
-    if (status === 'authenticated') {
-      const url = searchParams.internal_flow === 'true' ? buildCheckoutUrl() : '/dashboard';
-      router.push(url);
-    }
-  }, [status]);
-
-  if (status === 'loading') {
-    return (
-      <>
-        <Head>
-          <title>Dealo | Signin</title>
-        </Head>
-        <BaseLayout hideUserControls>
-          <RenderWithDelay delay={1000}>
-            <div className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
-              <Loader />
-            </div>
-          </RenderWithDelay>
-        </BaseLayout>
-      </>
-    );
+  if (user) {
+    const url = searchParams.internal_flow === 'true' ? buildCheckoutUrl() : '/dashboard';
+    redirect(url);
   }
-
-  if (status === 'authenticated') return null;
 
   if (hasErrors) {
     return (
-      <>
-        <Head>
-          <title>Dealo | Signin</title>
-        </Head>
-        <BaseLayout
-          hideUserControls
-          className="px-0"
-          footerClassName="w-full max-w-[1200px] mx-auto"
-        >
-          <div className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
-            <Alert>
-              <IconAlertCircle size={16} />
-              <AlertTitle>Hm...</AlertTitle>
-              <AlertDescription>{errorMessage}</AlertDescription>
-            </Alert>
-            <div className="flex flex-row items-center justify-end mt-6">
-              <Link href="/">
-                <Button color="gray">Get back</Button>
-              </Link>
-            </div>
+      <BaseLayout
+        hideNavbar
+        className="px-0"
+        footerClassName="w-full max-w-[1200px] mx-auto"
+      >
+        <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+          <Link href="/">
+            <NavbarLink label="Home"/>
+          </Link>
+          <Link href="/pricing">
+            <NavbarLink label="Pricing"/>
+          </Link>
+          <Link href="/#faq-section">
+            <NavbarLink label="FAQ"/>
+          </Link>
+          <Link href="/contact/query">
+            <NavbarLink label="Contact Us"/>
+          </Link>
+          <Link href="/signin">
+            <NavbarLink label="Sign in"/>
+          </Link>
+        </header>
+        <main className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
+          <Alert>
+            <IconAlertCircle size={16}/>
+            <AlertTitle>Hm...</AlertTitle>
+            <AlertDescription>{errorMessage}</AlertDescription>
+          </Alert>
+          <div className="flex flex-row items-center justify-end mt-6">
+            <Link href="/apps/main/public">
+              <Button color="gray">Get back</Button>
+            </Link>
           </div>
-        </BaseLayout>
-      </>
+        </main>
+      </BaseLayout>
     );
   }
 
   return (
-    <>
-      <Head>
-        <title>Dealo | Signin</title>
-      </Head>
-      <BaseLayout
-        hideUserControls
-        showBackButton
-        backRoute="/"
-        className="px-0 md:px-12"
-        footerClassName="w-full max-w-[1200px] mx-auto"
+    <BaseLayout
+      hideNavbar
+      className="px-0 md:px-12"
+      footerClassName="w-full max-w-[1200px] mx-auto"
+    >
+      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+        <Link href="/">
+          <NavbarLink label="Home"/>
+        </Link>
+        <Link href="/pricing">
+          <NavbarLink label="Pricing"/>
+        </Link>
+        <Link href="/#faq-section">
+          <NavbarLink label="FAQ"/>
+        </Link>
+        <Link href="/contact/query">
+          <NavbarLink label="Contact Us"/>
+        </Link>
+        <Link href="/signin">
+          <NavbarLink label="Sign in"/>
+        </Link>
+      </header>
+      <main
+        data-el="hero-section"
+        className={cn(
+          'flex flex-col items-center justify-center',
+          'md:justify-start md:pt-24 px-4 gap-[72px]',
+        )}
       >
-        <div data-el="hero-section" className="flex flex-col items-center justify-center md:justify-start md:pt-24 px-4 gap-[72px] h-[calc(100vh_-_88px_-_32px)]">
-          <div className="flex flex-col items-stretch max-w-[30rem]">
-            <div className="flex items-center gap-0">
-              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
-              <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
-            </div>
-            <h2 className="text-[40px] leading-[1.2] font-bold">
-              A platform to streamline <br/>
-              <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing</span>
-              <br/>
-              into your website.
-            </h2>
-            <span className="mt-4 text-gray-500">
-              Build fully functional pricing widgets in minutes using our set of templates.
-            </span>
+        <div className="flex flex-col items-stretch max-w-[30rem]">
+          <div className="flex items-center gap-0">
+            <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64}/>
+            <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
           </div>
-          <SignInForm searchParams={searchParams} />
+          <h2 className="text-[40px] leading-[1.2] font-bold">
+            A platform to streamline <br/>
+            <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing</span>
+            <br/>
+            into your website.
+          </h2>
+          <span className="mt-4 text-gray-500">
+            Build fully functional pricing widgets in minutes using our set of templates.
+          </span>
         </div>
-      </BaseLayout>
-    </>
+        <SignInForm searchParams={searchParams} session={session}/>
+      </main>
+    </BaseLayout>
   );
 }

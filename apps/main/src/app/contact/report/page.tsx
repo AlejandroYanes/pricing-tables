@@ -8,7 +8,7 @@ import {
 import SubmitReportButton from './SubmitReportButton';
 import { postQuery } from './report-actions';
 
-const ReportForm = () => {
+export default function BugReportPage() {
   return (
     <form>
       <div className="flex flex-col gap-8 p-6 rounded-sm border border-gray-200 dark:border-gray-600">
@@ -33,6 +33,4 @@ const ReportForm = () => {
       </div>
     </form>
   );
-};
-
-export default ReportForm;
+}

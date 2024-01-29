@@ -14,10 +14,9 @@ import {
 import { postQuery } from './query-actions';
 import SubmitQueryButton from './SubmitQueryButton';
 
-const ContactForm = () => {
+export default function ContactUsPage() {
   return (
-    // @ts-ignore
-    <form action={postQuery}>
+    <form>
       <div className="flex flex-col gap-8 p-6 rounded-sm border border-gray-200 dark:border-gray-600">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-8">
           <InputWithLabel name="name" label="First Name" required/>
@@ -58,6 +57,4 @@ const ContactForm = () => {
       </div>
     </form>
   );
-};
-
-export default ContactForm;
+}

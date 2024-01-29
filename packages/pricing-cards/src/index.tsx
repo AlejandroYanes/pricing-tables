@@ -43,7 +43,6 @@ const PricingCards = (props: Props) => {
 
   if (!widgetInfo) {
     const { template, items } = props;
-    console.log('no widget info', { template, items });
     const Skeleton = template && items ? skeletonMap[template]! : () => null;
     return (
       <>
