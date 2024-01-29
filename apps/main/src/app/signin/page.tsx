@@ -70,17 +70,17 @@ export default async function SigninPage(props: Props) {
             <NavbarLink label="Sign in"/>
           </Link>
         </header>
-        <main className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
+        <main className="flex flex-col items-center justify-center max-w-[700px] mt-[180px] mx-auto mb-0">
           <Alert>
             <IconAlertCircle size={16}/>
-            <AlertTitle>Hm...</AlertTitle>
+            <AlertTitle>Hmm...</AlertTitle>
             <AlertDescription>{errorMessage}</AlertDescription>
+            <div className="flex flex-row items-center justify-end mt-6">
+              <Link href="/">
+                <Button variant="outline">Get back</Button>
+              </Link>
+            </div>
           </Alert>
-          <div className="flex flex-row items-center justify-end mt-6">
-            <Link href="/apps/main/public">
-              <Button color="gray">Get back</Button>
-            </Link>
-          </div>
         </main>
       </BaseLayout>
     );
