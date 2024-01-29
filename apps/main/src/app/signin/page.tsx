@@ -11,6 +11,7 @@ import { generateQueryString } from '@dealo/helpers';
 import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/BaseLayout';
 import SignInForm from 'components/SignInForm';
+import { NavbarLink } from 'components/Navbar';
 
 export const metadata: Metadata = {
   title: 'Dealo | Signin',
@@ -48,13 +49,30 @@ export default async function SigninPage(props: Props) {
   if (hasErrors) {
     return (
       <BaseLayout
-        hideUserControls
+        hideNavbar
         className="px-0"
         footerClassName="w-full max-w-[1200px] mx-auto"
       >
-        <div className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
+        <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+          <Link href="/">
+            <NavbarLink label="Home"/>
+          </Link>
+          <Link href="/pricing">
+            <NavbarLink label="Pricing"/>
+          </Link>
+          <Link href="/#faq-section">
+            <NavbarLink label="FAQ"/>
+          </Link>
+          <Link href="/contact/query">
+            <NavbarLink label="Contact Us"/>
+          </Link>
+          <Link href="/signin">
+            <NavbarLink label="Sign in"/>
+          </Link>
+        </header>
+        <main className="flex flex-col items-center justify-center max-w-[700px] mt-6 mx-auto mb-0">
           <Alert>
-            <IconAlertCircle size={16} />
+            <IconAlertCircle size={16}/>
             <AlertTitle>Hm...</AlertTitle>
             <AlertDescription>{errorMessage}</AlertDescription>
           </Alert>
@@ -63,20 +81,35 @@ export default async function SigninPage(props: Props) {
               <Button color="gray">Get back</Button>
             </Link>
           </div>
-        </div>
+        </main>
       </BaseLayout>
     );
   }
 
   return (
     <BaseLayout
-      hideUserControls
-      showBackButton
-      backRoute="/"
+      hideNavbar
       className="px-0 md:px-12"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
-      <div
+      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+        <Link href="/">
+          <NavbarLink label="Home"/>
+        </Link>
+        <Link href="/pricing">
+          <NavbarLink label="Pricing"/>
+        </Link>
+        <Link href="/#faq-section">
+          <NavbarLink label="FAQ"/>
+        </Link>
+        <Link href="/contact/query">
+          <NavbarLink label="Contact Us"/>
+        </Link>
+        <Link href="/signin">
+          <NavbarLink label="Sign in"/>
+        </Link>
+      </header>
+      <main
         data-el="hero-section"
         className={cn(
           'flex flex-col items-center justify-center',
@@ -98,8 +131,8 @@ export default async function SigninPage(props: Props) {
             Build fully functional pricing widgets in minutes using our set of templates.
           </span>
         </div>
-        <SignInForm searchParams={searchParams} session={session} />
-      </div>
+        <SignInForm searchParams={searchParams} session={session}/>
+      </main>
     </BaseLayout>
   );
 }
