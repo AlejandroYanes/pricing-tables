@@ -1,13 +1,52 @@
-import BaseLayout from 'components/BaseLayout';
+import Link from 'next/link';
+import { getServerSession } from 'next-auth';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Button, RenderIf } from '@dealo/ui';
 
-const PrivacyPolicyPage = () => {
+import { authOptions } from 'utils/auth';
+import BaseLayout from 'components/base-layout';
+import { NavbarLink } from 'components/navbar';
+
+export default async function PrivacyPolicyPage() {
+  const session = await getServerSession(authOptions);
+  const user = session?.user;
+
   return (
     <BaseLayout
-      showBackButton
-      hideUserControls
+      hideNavbar
       className="px-0 md:px-12"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
+      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
+        <RenderIf condition={!!user}>
+          <Link href="/dashboard" className="mr-auto">
+            <Button
+              component="span"
+              variant="ghost"
+              className="flex justify-center items-center rounded-lg"
+            >
+              <IconArrowLeft size={24} stroke={1.5} />
+            </Button>
+          </Link>
+        </RenderIf>
+        <RenderIf condition={!user}>
+          <Link href="/">
+            <NavbarLink label="Home"/>
+          </Link>
+          <Link href="/pricing">
+            <NavbarLink label="Pricing"/>
+          </Link>
+          <Link href="/#faq-section">
+            <NavbarLink label="FAQ"/>
+          </Link>
+          <Link href="/contact/query">
+            <NavbarLink label="Contact Us"/>
+          </Link>
+          <Link href="/signin">
+            <NavbarLink label="Sign in"/>
+          </Link>
+        </RenderIf>
+      </header>
       <div className="flex flex-col max-w-[700px] mx-auto px-4">
         <div className="flex flex-col mb-12">
           <h1 className="text text-3xl">Privacy Policy for Dealo</h1>
@@ -122,5 +161,3 @@ const PrivacyPolicyPage = () => {
     </BaseLayout>
   );
 }
-
-export default PrivacyPolicyPage;

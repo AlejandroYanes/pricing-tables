@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { RenderIf, Alert, AlertTitle, AlertDescription, Tabs, TabsList, TabsTrigger, Loader } from '@dealo/ui';
 import { IconAlertCircle } from '@tabler/icons-react';
 
-import BaseLayout from 'components/BaseLayout';
+import BaseLayout from 'components/base-layout';
 import ProductsForm from 'features/form/ProductsForm';
 import VisualsForm from 'features/form/VisualsForm';
 import SettingsForm from 'features/form/SettingsForm';

@@ -1,18 +1,19 @@
+import { getServerSession } from 'next-auth';
 import { Toaster } from '@dealo/ui';
 
-import AuthGuard from 'components/AuthGuard';
+import AuthGuard from 'components/auth-guard';
+import { authOptions } from 'utils/auth';
 
 interface Props {
-    children: any;
+  children: any;
 }
 
-const AdminsLayout = (props: Props) => {
+export default async function AdminsLayout(props: Props) {
+  const session = await getServerSession(authOptions);
   return (
-    <AuthGuard isAdmin>
+    <AuthGuard session={session} isAdmin>
       <>{props.children}</>
       <Toaster />
     </AuthGuard>
   );
-};
-
-export default AdminsLayout;
+}

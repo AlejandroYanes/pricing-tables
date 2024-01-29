@@ -1,10 +1,8 @@
 import Script from 'next/script';
-import { getServerSession } from 'next-auth';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
-import { authOptions } from 'utils/auth';
-import ClientProviders from 'components/ClientProviders';
+import ThemeProvider from 'components/theme-provider';
 
 import 'styles/globals.css';
 
@@ -13,7 +11,6 @@ interface Props {
 }
 
 const RootLayout = async ({ children }: Props) => {
-  const session = await getServerSession(authOptions);
   return (
     <html id="dealo-root" suppressHydrationWarning>
       <head>
@@ -25,9 +22,9 @@ const RootLayout = async ({ children }: Props) => {
         <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5"/>
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-4TJCMV7DEC"
-          strategy="afterInteractive"
+          strategy="lazyOnload"
         />
-        <Script id="google-analytics" strategy="afterInteractive">
+        <Script id="google-analytics" strategy="lazyOnload">
           {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){window.dataLayer.push(arguments);}
@@ -38,9 +35,9 @@ const RootLayout = async ({ children }: Props) => {
         </Script>
       </head>
       <body>
-        <ClientProviders session={session}>
+        <ThemeProvider>
           {children}
-        </ClientProviders>
+        </ThemeProvider>
         <Analytics />
         <SpeedInsights />
       </body>

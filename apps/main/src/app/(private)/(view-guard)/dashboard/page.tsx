@@ -8,8 +8,8 @@ import { Button, Loader } from '@dealo/ui';
 import { skeletonMap } from '@dealo/templates';
 
 import { trpc } from 'utils/trpc';
-import BaseLayout from 'components/BaseLayout';
-import TemplatesModal from 'components/TemplatesModal';
+import BaseLayout from 'components/base-layout';
+import TemplatesModal from 'components/templates-modal';
 import AddBlock from './AddBlock';
 
 const DashboardPage = () => {

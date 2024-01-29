@@ -16,9 +16,9 @@ import {
 } from '@tabler/icons-react';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
 
-import BaseLayout from 'components/BaseLayout';
-import PricingWidget from 'components/PricingWidget';
-import { NavbarLink } from 'components/Navbar';
+import BaseLayout from 'components/base-layout';
+import PricingWidget from 'components/pricing-widget';
+import { NavbarLink } from 'components/navbar';
 
 export const metadata = {
   title: 'Dealo',
@@ -81,15 +81,15 @@ const HomePage = () => {
         <Link href="/#faq-section">
           <NavbarLink label="FAQ"/>
         </Link>
-        <Link href="/contact">
+        <Link href="/contact/query">
           <NavbarLink label="Contact Us"/>
         </Link>
         <Link href="/signin">
           <NavbarLink label="Sign in"/>
         </Link>
       </header>
-      <div className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
-        <div data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
+      <main className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
+        <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
               <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]" />
@@ -146,13 +146,13 @@ const HomePage = () => {
             className="flex-1 hidden lg:block w-[380px] h-[400px]"
             priority
           />
-        </div>
+        </section>
 
-        <div
+        <section
           data-el="benefits-section"
           className="flex flex-col gap-8 xl:rounded bg-gray-100 dark:bg-gray-900 px-2 lg:px-6 pt-6 pb-10 mb-16 md:mb-24 lg:mb-[140px]"
         >
-          <h1 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h1>
+          <h2 className="text text-center text-3xl font-bold text-black dark:text-white">Unleash Your Potential</h2>
           <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">
             <Card
               icon={<IconMathOff/>}
@@ -175,9 +175,9 @@ const HomePage = () => {
               text="Maintain consistency effortlessly by embedding the generated UI directly into your website."
             />
           </div>
-        </div>
+        </section>
 
-        <div data-el="description-section__grid" className="hidden md:grid grid-cols-2 gap-6 px-4 mb-24 lg:mb-[140px] max-w-[1000px]">
+        <section data-el="description-section__grid" className="hidden md:grid grid-cols-2 gap-6 px-4 mb-24 lg:mb-[140px] max-w-[1000px]">
           <h2 className="text text-2xl font-bold ml-12">How it works</h2>
           <h2 className="text text-2xl font-bold ml-12">Why Choose Us?</h2>
 
@@ -218,9 +218,9 @@ const HomePage = () => {
             title="Comprehensive Support"
             text="We're more than a tool, we're your dedicated partner."
           />
-        </div>
+        </section>
 
-        <div data-el="description-section__columns" className="md:hidden flex flex-col px-4 mb-24 lg:mb-[140px]">
+        <section data-el="description-section__columns" className="md:hidden flex flex-col px-4 mb-24 lg:mb-[140px]">
           <h2 className="text text-2xl font-bold mt-8 md:mt-0 mb-6 md:mb-0 md:ml-12 order-1">How it works</h2>
           <h2 className="text text-2xl font-bold mt-8 md:mt-0 mb-6 md:mb-0 md:ml-12 order-5">Why Choose Us?</h2>
 
@@ -262,16 +262,16 @@ const HomePage = () => {
             title="Comprehensive Support"
             text="We're more than a tool, we're your dedicated partner."
           />
-        </div>
+        </section>
 
-        <div data-el="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
-          <h1 className="text text-xl mb-4">Get started now.</h1>
+        <section data-el="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
+          <h2 className="text text-xl mb-4">Get started now.</h2>
           <PricingWidget/>
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
-        </div>
+        </section>
 
-        <div id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
-          <h3 className="text-center text-3xl mb-8">FAQ</h3>
+        <section id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
+          <h2 className="text-center text-3xl mb-8">FAQ</h2>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
               <AccordionTrigger className="text-lg">
@@ -354,8 +354,8 @@ const HomePage = () => {
               </AccordionContent>
             </AccordionItem>
           </Accordion>
-        </div>
-      </div>
+        </section>
+      </main>
     </BaseLayout>
   );
 };
