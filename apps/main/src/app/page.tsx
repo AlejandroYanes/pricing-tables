@@ -20,11 +20,6 @@ import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
 import { NavbarLink } from 'components/navbar';
 
-export const metadata = {
-  title: 'Dealo',
-  description: 'A platform to streamline pricing cards and checkouts',
-}
-
 interface IconListItemProps {
   icon: JSX.Element;
   title: string;

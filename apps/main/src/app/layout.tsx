@@ -2,6 +2,7 @@ import Script from 'next/script';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 
+import { env } from 'env/server.mjs';
 import ThemeProvider from 'components/theme-provider';
 
 import 'styles/globals.css';
@@ -15,6 +16,7 @@ const RootLayout = async ({ children }: Props) => {
     <html id="dealo-root" suppressHydrationWarning>
       <head>
         <title>Dealo</title>
+        <link rel="canonical" href={env.NEXT_PUBLIC_PLATFORM_URL!}/>
         <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-touch-icon.png"/>
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
