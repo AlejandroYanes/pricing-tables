@@ -1,0 +1,337 @@
+# Integrating with Stripe to collect payment
+
+Integrating with Stripe to start collecting payments it’s basically composed of three steps:
+
+1. Create an Stripe account, products and prices that describe your offering
+2. Design your pricing UI, e.g the cards with the products and features
+3. Setup web-hooks to listen to Stripe events and update the tables related to users and subscriptions
+
+In this article we will cover the implementation, for simplicity sake, we will use Stripe Checkout to handle collecting your user’s payment information. If you stick around till the end I will share an alternative that will help make this process faster.
+
+All the code examples I will show here are using Next.js on the server, but the information that you need to send and receive from Stripe is the same.
+
+If you stay till the end I have a bonus for you, or you might just skip all of this and go to the end, it might save you a lot of time.
+
+## Part 1: The easy part
+
+Creating your Stripe account is pretty straight forward process where you provide your credentials and set up your own payment information, where Stripe will deposit user’s payments.
+
+After that you will create your product offering, that is the product and prices you’re planing to show on your pricing page later on.
+
+One common way is to follow the Good-Better-Best Approach where you present your users with three options to choose from. These will vary in terms of offering, eg: more features as it gets better. The TLDR of this model is that the edge offers (the “good” and the “best”) act as anchor for the middle one (the “better”). This approach is based on behavioural patterns that draw on principles of consumer psychology. For a more in depth check this article ([https://hbr.org/2018/09/the-good-better-best-approach-to-pricing](https://hbr.org/2018/09/the-good-better-best-approach-to-pricing)).
+
+An optional last step inside Stripe is to update the branding of your Stripe pages, if you go to [https://dashboard.stripe.com/settings/branding](https://dashboard.stripe.com/settings/branding) you will see a preview of how the Checkout page will look, there you can change a few options to make the page look a bit more on brand. Granted, the amount of options is very limited but it will work as a nice first step.
+
+Next comes the design, here you will put together a pricing page or pricing section to show your users, these need to have some connection to the Stripe’s products and prices, the easiest is to use the IDs directly in a URL redirect or API call to your server.
+
+## Part 2: The not so easy part
+
+Now we move to the server side, where most of the actual implementation takes place. The integration is composed of two parts, the API call to Stripe to generate a Checkout Session and the web-hooks that will handle all the events coming from Stripe (in advance: they are more than you think).
+
+### The initial API call
+
+The first call we will see is the one to generate a Stripe Checkout Session, for this you will need the product and price IDs from Stripe
+
+```jsx
+try {
+    const stripe = initStripe();
+
+    const checkoutSession = await stripe.checkout.sessions.create({
+      line_items: [
+        {
+          price: 'pri_83j7d9x67nf3cr34h384x', // your price id
+          quantity: 1, // this could change if you are using a per sit pricing model
+        },
+      ],
+      mode: 'subscription', // payment | subscription
+      customer_email: customer_id ? undefined : email,
+      customer: customer_id,
+      currency: 'gbp',
+      success_url: 'https://your-domain/payment/success',
+      cancel_url: 'https://your-domain/payment/fail',
+      metadata: {
+        // here you can add more information to indetify the purchase or the customer
+      },
+    }, { stripeAccount: user.stripeAccount });
+
+    if (!checkoutSession.url) {
+      res.redirect(303, `${platformUrl}/checkout/error?status=checkout_session_url_not_found`);
+      return;
+    }
+
+    res.redirect(303, checkoutSession.url);
+  } catch (err) {
+    console.log('❌ Stripe Checkout error:', err);
+    res.redirect(303, `${platformUrl}/checkout/error?status=internal_error`);
+  }
+```
+
+Let’s break this down. The first section is the `line_items` , here you will specify which price the user is paying for, notice that you don’t need to send a product as products and prices have a direct relationship. In the most basic model the `quantity` would always be one as a user pays for one subscription, if you’re using a “per sits” model where you charge by the amount of users that will use your product (this is usually products that work by organisations), the `quantity` will be the amount of users.
+
+The `mode: payment` is used when charging for a one time payment, usually when you sell an info product or a course.
+
+When it comes to the `customer_email` and `customer` I recommend sending only one, with the `customer` as the preferred one. What do I say this? Stripe uses the `customer` to identify and tie the new subscription to an existing customer, whereas the `customer_email` is only used to autocomplete the email field on the Checkout page (the `customer` will also autocomplete the email), so the difference between these two fields is that with `customer_emial` Stripe will create a new customer, even if the email already exists, because Stripe does not identify customers by email. This could cause problems when it comes to trace the payments of a user.
+
+If you want to offer a free trial, you need to add these attributes
+
+```jsx
+subscription_data: {
+  trial_settings: {
+    end_behavior: {
+      missing_payment_method: 'pause', // pause | cancel
+    },
+  },
+  trial_period_days: free_trial_days, // number of days that will last
+},
+payment_method_collection: 'if_required',
+```
+
+Again, I’ll explain what these represent. The `end_behavior.missing_payment_method` establishes what will happen when the trial period ends. After the checkout, Stripe will create a subscription no matter what, if the behaviour is set to `cancel` Stripe will cancel the subscription, if it’s set to `pause` the subscription will stay paused, with no new invoices being created for it. The difference here is that if a user would enter the Stripe Customer Portal when the behaviour is `pause`, they would see their subscription created but paused, and a CTA to add payment information, after which the subscription will start collecting payments in the set interval.
+
+The `payment_method_collection` sets whether Stripe asks the user for his payment information even if there will be a trial period before actually start collecting. I recommend setting it to `if_required` , this will reduce the friction for a user going for a free trial.
+
+### The webhooks
+
+First let me add some notes about Stripe webhooks in general. All webhook requests are made by POST, with the event object as the body. All webhooks, regardless of the result your endpoint should send a response to Stripe to acknowledge receipt of the event. Responding with any status code other than `200` will cause Stripe to retry the event delivery
+
+Stripe provides a cli to use locally and test your webhooks, in this scenario you can directly extract the event from the body. However when you deploy your webhook to a staging or production environment, it should be using the signed event pattern, this is to securely validate that the event comes from Stripe. When implementing it, you need to make sure your endpoint do not parse the body to JSON and instead pass it directly to Stripe. It would look as follows.
+
+To disable the parsing of the body:
+
+```jsx
+export const config = {
+  api: {
+    bodyParser: false,
+  },
+};
+```
+
+To check the signing of the event:
+
+```jsx
+try {
+		const secret = 'whsec_clpy4e5qo0000soptbhsgcx64';
+		const signature = req.headers['stripe-signature']!;
+	  const stripe = initStripe();
+    const payload = await buffer(req);
+    const event = stripe.webhooks.constructEvent(payload, signature, secret);
+    // proccess the event
+  } catch (err: any) {
+    console.log(`❌ Webhook Error: ${err.message}`);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+```
+
+#### The checkout
+
+The first webhook needed is to receive the checkout information. After a user submits the Stripe Checkout form Stripe will call your webhook to provide you with the information about the new subscription, the event for this is `checkout.session.completed` . You will need the `subscription` and `customer` information, these do not come in the checkout object and need to be fetched:
+
+```jsx
+const { data } = event as Stripe.Event;
+const { id: sessionId } = data.object as Stripe.Checkout.Session;
+const session = await stripe.checkout.sessions.retrieve(
+  sessionId,
+  { expand: ['customer', 'subscription'] },
+);
+```
+
+After that you can access them like this:
+
+```jsx
+const customer = session.customer as Stripe.Customer;
+const subscription = session.subscription as Stripe.Subscription;
+```
+
+Next, make sure the payment was successful:
+
+```jsx
+if (session.payment_status !== 'paid') {
+  console.log(`❌ Webhook Error: payment failed`);
+  res.status(200).json({ source: 'Dealo', received: true });
+  return;
+}
+```
+
+Here you could notify the user by email, though unless the payment method used is one that takes days to process they will probably know instantly, in any case it’s a good idea to notify yourself about it. After this check it only remains to update your DB with the information you need, I advice to store a record of the subscription, not necessarily the entire object but the                `id, current_period_start, current_period_end, trial_start, trial_end, status` are good fields to have, since it will help when checking if a user has access to the features guarded by a plan.
+
+Remember to finish the endpoint handler with a `200` response to Stripe.
+
+#### The invoices
+
+Next is the webhook for the invoices. This on is useful for a couple of reasons. Let’s discuss them one by one.
+
+To start, let me give an overview of the steps Stripe takes when collecting payment. First it creates an invoice and dispatches an event of type `invoice.created`, when you receive this event you need to call
+
+```jsx
+const { data } = event as Stripe.Event;
+const { id: invoiceId } = data.object as Stripe.Invoice;
+
+await stripe.invoices.finalizeInvoice(invoiceId);
+```
+
+Before finalising you could add more items to the invoice, for instance if you offer add-ons. If this event is not handled Stripe will wait 72 hours before attempting to finalise and send the invoice. It will also wait 1 hour after a successful response before attempting payment. You can read more about [invoice finalisation here](https://stripe.com/docs/billing/subscriptions/webhooks#successful-invoice-finalization).
+
+After finalisation two things can happen, either the invoice is paid successfully or it fails to finalise, both scenarios trigger a webhook event, one for `invoice.paid` and the other for `invoice.finalization_failed`.
+
+There’s one more scenario that can occur before the invoice is paid, this is the `invoice.payment_action_required` event which means the customer need authentication.
+
+When you receive an event of type `invoice.paid` means everything went well and the subscription is valid for the new period, in this scenario you would need to update your record of the subscription to capture the new period.
+
+#### The subscriptions
+
+Lastly there the subscription related events. Some if these will overlap with other events because of the way Stripe does things. For instance, when an invoice is paid you get the `invoice.paid` and you can get the new subscription values there, but you will also get the `customer.subscription.updated` because the subscription was updated. It’s really up to you where do you get the information from. In any case, let’s go through the subscriptions events that you should handle, from easiest to more complex.
+
+First is the `customer.subscription.trial_will_end`, this will be fired a 3 days (it might be affected by the values you have on your “[Subscriptions and emails](https://dashboard.stripe.com/settings/billing/automatic)” settings). Here the most important check is for the payment method to be ready.
+
+```jsx
+const { data } = event as Stripe.Event;
+const subscription = data.object as Stripe.Subscription;
+const { default_payment_method } = subscription;
+
+if (!default_payment_method) {
+  console.log(`⚠️ Subscriptions: User's subscription trial is ending but they have no payment method set up.`);
+  // 👇 this is an example of a Slack notification from my own implementation
+	await notifyOfSubscriptionMissingPaymentMethod({ email: 'user@email', name: 'User Name' });
+}
+```
+
+The other event is `customer.subscription.paused`, this one will be fired if the trial period comes to an end, the subscription was created with `missing_payment_method: pause` and there is no payment method associated with it. Here you would update your DB subscription record `status`  attribute to `pause` and any other modification you need to prevent the user from accessing the features offered in the free trial. You don’t necessarily need to send an email to the user, Stripe can send it for you. You can configure it in the page I linked before.
+
+After a user adds a payment method you will receive an event of type `customer.subscription.resumed`, here you would update your subscription record again and allow the user to use the features again. This one will also coincide with the `customer.subscription.updated` that we will discuss in a moment, as this one is a broader event.
+
+If the subscription was created with `missing_payment_method: cancel` and it reaches the end of the trial period you will receive an event for `customer.subscription.deleted`. Here you would delete the subscription record or if you’re interested in keeping historic records then update the status to `delete` or similar. From Stripe point of view, a canceled subscription can not be made active again so it’s effectively just a historic record.
+
+You can also handle the `customer.subscription.resumed` event. This will happen when, by [Stripe’s own words](https://stripe.com/docs/api/events/types#event_types-customer.subscription.resumed):
+
+> **customer.subscription.resumed**
+>
+>
+> Occurs whenever a customer’s subscription is no longer paused. Only applies when a **`status=paused`** subscription is **[resumed](https://stripe.com/docs/api/subscriptions/resume)**, not when **[payment collection](https://stripe.com/docs/billing/subscriptions/pause)** is resumed.
+>
+
+Now for the last and more complex of the events, `customer.subscription.updated`. As I said before there are multiple conditions that will trigger this event. In my case I prefer to use it as a fallback of the other events, so it handles the updates that don’t have a specific event.
+
+This can be when a user cancels a subscription, as in that case it’s a soft cancel, meaning the subscription is still active and they should still have access to the features, but the subscription it’s updated with a cancelation date after which it will automatically be deleted. This scenario is not required to be handled but I find it useful to know as soon as a user intents to cancel the subscription, instead of finding out once it’s all done.
+
+Since this modification does not have a specific `status` the way to know when it happened is with a clever use of the  `previousAttributes` values that Stripe adds to the event data.
+
+It would look like this:
+
+```jsx
+const isCancelling = cancel_at && !previousAttributes.cancel_at;
+
+if (isCancelling) {
+  const { name, email } = dbInfo;
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE id = ?',
+      [cancel_at, canceled_at, JSON.stringify(cancellation_details), subsId],
+    );
+  });
+
+  await notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
+  await sendSubscriptionCancelledEmail({ name, to: email });
+}
+```
+
+You can see that I also store the `cancellation_details` . When a user cancels the subscription Stripe presents him with a feedback form with a few options. This can provide insights into why the user cancelled and help improve the product.
+
+The other scenario is the reverse of the one I just described, a user that had previously soft canceled a subscription decides to renew it, again no specific status so we go to the `previousAttributes` check.
+
+In this case the check would be:
+
+```jsx
+const isRenewing = !canceled_at && previousAttributes.canceled_at;
+if (isRenewing) {
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE id = ?',
+      [subsId],
+    );
+  });
+
+  await notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
+}
+```
+
+Lastly, there is the scenario where the subscription starts actually collecting payments (see the point about the resumed event), here you need to do this check in order to know if it happened:
+
+```jsx
+const isResuming = status === 'active' && previousAttributes.status === 'trialing';
+if (isResuming) {
+  await db.transaction(async (tx) => {
+    await tx.execute(
+      'UPDATE Subscription SET status = ? WHERE id = ?',
+      [status, subsId],
+    );
+  });
+}
+```
+
+Then you can be sure that the subscription is `active`.
+
+Here is the full code for the `customer.subscription.updated` event
+
+```jsx
+if (event.type === 'customer.subscription.updated') {
+    const { cancel_at, canceled_at, cancellation_details, status } = subscription;
+    const previousAttributes = event.data.previous_attributes as Partial<Stripe.Subscription>;
+
+    const isResuming = status === 'active' && previousAttributes.status === 'trialing';
+    const isCancelling = cancel_at && !previousAttributes.cancel_at;
+    const isRenewing = !canceled_at && previousAttributes.canceled_at;
+
+    if (isCancelling) {
+      const { name, email } = dbInfo;
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE id = ?',
+          [cancel_at, canceled_at, JSON.stringify(cancellation_details), subsId],
+        );
+      });
+
+      await notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
+      await sendSubscriptionCancelledEmail({ name, to: email });
+    }
+
+    if (isRenewing) {
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE id = ?',
+          [subsId],
+        );
+      });
+
+      await notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
+    }
+
+    if (isResuming) {
+      await db.transaction(async (tx) => {
+        await tx.execute(
+          'UPDATE Subscription SET status = ? WHERE id = ?',
+          [status, subsId],
+        );
+      });
+    }
+  }
+```
+
+## The End
+
+And tada 🎉, you now have all the information you need in a single place to be able to setup your billing with Stripe.
+
+## The bonus
+
+What if I tell you that you might not need any of this? Interested? When hear me out one las time.
+
+Here at Dealo we are working to make this process a lot easier. We currently handle the easy bits, we connect to your Stripe account and allow you to build a pricing cards widget in minutes, using our templates and customising them to match your brand. Then you only need to copy two lines of code and it will just work.
+
+We believe we can improve the the experience even more and are looking for users interested in helping us breach the gap to complete the flow, so you and anyone that comes after will be able to fully setup the billing flow in minutes and with a lot less hassle.
+
+We are also working on adding A/B testing to help you find the right pricing model that benefits your users and you. We think this could accelerate your growth rate by allowing you to get more revenue quickly.
+
+If any of this sounds interesting, get started at [https://dealo.app](https://dealo.app).
+
+Thanks for sticking through to the end.
+
+Cheers and happy coding.
