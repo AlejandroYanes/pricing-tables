@@ -9,7 +9,15 @@ import initAnalyzer from '@next/bundle-analyzer';
 import { withAxiom } from 'next-axiom';
 
 import configMDX from '@next/mdx';
-const withMDX = configMDX();
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+
+const withMDX = configMDX({
+  options: {
+    remarkPlugins: [remarkGfm, remarkBreaks],
+    rehypePlugins: [],
+  },
+});
 
 const withBundleAnalyzer = initAnalyzer({
   enabled: process.env.ANALYZE === 'true',

@@ -54,6 +54,8 @@
     "react-beautiful-dnd": "13.1.1",
     "react-csv": "2.2.2",
     "react-dom": "18.2.0",
+    "remark-breaks": "4.0.0",
+    "remark-gfm": "4.0.0",
     "resend": "2.1.0",
     "stripe": "14.10.0",
     "superjson": "1.9.1",
