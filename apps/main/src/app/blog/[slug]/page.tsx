@@ -1,14 +1,72 @@
 /* eslint-disable max-len */
+import type { Metadata } from 'next';
+import Link from 'next/link';
+import { notFound } from 'next/navigation';
 import { Client } from '@notionhq/client';
-import type { BlockObjectResponse } from '@notionhq/client/build/src/api-endpoints';
-import { cn } from '@dealo/ui';
+import type {
+  BlockObjectResponse,
+  BulletedListItemBlockObjectResponse,
+  DatabaseObjectResponse,
+  NumberedListItemBlockObjectResponse
+} from '@notionhq/client/build/src/api-endpoints';
+import { IconArrowLeft } from '@tabler/icons-react';
+import { Button, cn, Code } from '@dealo/ui';
+import { formatDate } from '@dealo/helpers';
 
 import { env } from 'env/server.mjs';
+import { buildSlug } from 'utils/notion';
 
 const notion = new Client({ auth: env.NOTION_API_KEY });
 
-// const ARTICLE_LIST_ID = '7cd0d638f20c45c6a0b73df60ac0a303';
-const INTEGRATION_ARTICLE_ID = 'a5932473fb1849dc8bc8e544303df35f';
+interface Props {
+  params: {
+    slug: string;
+  };
+}
+
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const { params: { slug } } = props;
+  const articleId = slug.split('-').pop();
+
+  if (!articleId) {
+    return {};
+  }
+
+  const blog: any = await notion.pages.retrieve({
+    page_id: articleId,
+  });
+  const title = blog.properties.Name.title[0].plain_text;
+
+  return {
+    title,
+    description: blog.properties.tagline.rich_text[0].plain_text,
+    keywords: blog.properties.keywords.multi_select.map((tag: any) => tag.name),
+  };
+}
+
+export async function generateStaticParams() {
+  const blogs = (
+    await notion.databases.query({
+      database_id: env.NOTION_BLOG_DATABASE,
+      filter: {
+        property: 'status',
+        status: {
+          equals: 'Done'
+        }
+      },
+      sorts: [
+        {
+          property: 'created_at',
+          direction: 'ascending',
+        },
+      ],
+    })
+  ).results as DatabaseObjectResponse[];
+
+  return blogs.map((blog) => ({
+    slug: buildSlug(blog),
+  }))
+}
 
 async function processNotionBlocks(blocks: BlockObjectResponse[]) {
   const elements = [];
@@ -116,18 +174,40 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
     }
 
     if (block.type === 'bulleted_list_item') {
+      const bulletItems = [block];
+      let j = i + 1;
+      while (blocks[j] && blocks[j]!.type === 'bulleted_list_item') {
+        bulletItems.push(blocks[j]! as BulletedListItemBlockObjectResponse);
+        j++;
+      }
+      i = j - 1;
       elements.push(
-        <li key={block.id}>
-          {block.bulleted_list_item.rich_text.map((text) => text.plain_text).join('')}
-        </li>
+        <ul key={block.id} className="list-disc list-outside pl-6 mb-2">
+          {bulletItems.map((item) => (
+            <li key={item.id}>
+              {item.bulleted_list_item.rich_text.map((text) => text.plain_text).join('')}
+            </li>
+          ))}
+        </ul>
       );
     }
 
     if (block.type === 'numbered_list_item') {
+      const bulletItems = [block];
+      let j = i + 1;
+      while (blocks[j] && blocks[j]!.type === 'numbered_list_item') {
+        bulletItems.push(blocks[j]! as NumberedListItemBlockObjectResponse);
+        j++;
+      }
+      i = j - 1;
       elements.push(
-        <li key={block.id}>
-          {block.numbered_list_item.rich_text.map((text) => text.plain_text).join('')}
-        </li>
+        <ol key={block.id} className="list-decimal list-outside pl-6 mb-2">
+          {bulletItems.map((item) => (
+            <li key={item.id}>
+              {item.numbered_list_item.rich_text.map((text) => text.plain_text).join('')}
+            </li>
+          ))}
+        </ol>
       );
     }
   }
@@ -135,9 +215,16 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
   return elements;
 }
 
-export default async function NotionTest() {
-  const page = await notion.pages.retrieve({
-    page_id: INTEGRATION_ARTICLE_ID,
+export default async function BlogDetailPage(props: Props) {
+  const { params: { slug } } = props;
+  const articleId = slug.split('-').pop();
+
+  if (!articleId) {
+    return notFound();
+  }
+
+  const page: any = await notion.pages.retrieve({
+    page_id: articleId,
   });
 
   const blocks = [];
@@ -145,7 +232,7 @@ export default async function NotionTest() {
 
   do {
     const response = await notion.blocks.children.list({
-      block_id: INTEGRATION_ARTICLE_ID,
+      block_id: articleId,
       start_cursor: cursor,
     });
     blocks.push(...response.results);
@@ -155,14 +242,25 @@ export default async function NotionTest() {
   const elements = await processNotionBlocks(blocks as BlockObjectResponse[]);
 
   return (
-    <>
-      <h1 className="text-5xl my-24">
-        {(page as any).properties.Name.title[0].plain_text}
-      </h1>
-      {/*<pre>{JSON.stringify(page, null, 2)}</pre>*/}
-      <div className="max-w-[700px]">
-        {elements}
+    <main className="max-w-[780px] mx-auto">
+      <div className="mb-24">
+        <Link href="/blog">
+          <Button variant="outline">
+            <IconArrowLeft size={14} className="mr-2"/>
+            Back to blog
+          </Button>
+        </Link>
       </div>
-    </>
+      <h1 className="text-5xl mb-6 mt-4">
+        {page.properties.Name.title[0].plain_text}
+      </h1>
+      <div className="flex flex-row gap-2 mb-3">
+        {page.properties.keywords.multi_select.map((tag: any) => (
+          <Code key={tag.id}>{tag.name}</Code>
+        ))}
+      </div>
+      <p className="mb-24">{formatDate(page.properties.created_at.created_time)}</p>
+      {elements}
+    </main>
   )
 }

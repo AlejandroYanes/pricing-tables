@@ -45,6 +45,7 @@ export const serverSchema = z.object({
   NOTION_API_KEY: z.string(),
   NOTION_QUERY_DATABASE: z.string(),
   NOTION_REPORT_DATABASE: z.string(),
+  NOTION_BLOG_DATABASE: z.string(),
 });
 
 /**
@@ -86,6 +87,7 @@ export const serverEnv = {
   NOTION_API_KEY: process.env.NOTION_API_KEY,
   NOTION_QUERY_DATABASE: process.env.NOTION_QUERY_DATABASE,
   NOTION_REPORT_DATABASE: process.env.NOTION_REPORT_DATABASE,
+  NOTION_BLOG_DATABASE: process.env.NOTION_BLOG_DATABASE,
 };
 
 /**
