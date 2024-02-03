@@ -13,9 +13,12 @@ interface Props {
 
 const RootLayout = async ({ children }: Props) => {
   return (
-    <html id="dealo-root" suppressHydrationWarning>
+    <html id="dealo-root" lang="en" suppressHydrationWarning>
       <head>
         <title>Dealo</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1"/>
+        {/* eslint-disable-next-line max-len */}
+        <meta name="description" content="A platform that simplifies the integration of pricing cards into your website. We connect to your Stripe account and enable you to create pricing cards in minutes."/>
         <link rel="canonical" href={env.NEXT_PUBLIC_PLATFORM_URL!}/>
         <link rel="apple-touch-icon" sizes="120x120" href="/favicon/apple-touch-icon.png"/>
         <link rel="icon" type="image/png" sizes="32x32" href="/favicon/favicon-32x32.png"/>
