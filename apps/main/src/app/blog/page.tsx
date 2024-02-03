@@ -37,7 +37,7 @@ export default async function RootBlogPage() {
             <div
               key={blog.id}
               className={cn(
-                'flex flex-col p-6 h-full rounded border border-neutral-100 dark:border-slate-800',
+                'flex flex-col p-6 h-full rounded border border-neutral-200 dark:border-slate-800',
                 'hover:border-emerald-600 dark:hover:border-emerald-500 transition-border duration-200',
               )}
             >
