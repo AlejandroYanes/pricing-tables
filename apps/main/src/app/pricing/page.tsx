@@ -7,8 +7,8 @@ import { Button } from '@dealo/ui';
 import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
-import { NavbarLink } from 'components/navbar';
 import ClientProviders from 'components/client-providers';
+import PublicNavbar from 'components/public-navbar';
 
 export const metadata: Metadata = {
   title: 'Dealo | Pricing',
@@ -26,23 +26,7 @@ export default async function PricingPage() {
         className="px-4 md:px-12"
         footerClassName="w-full max-w-[1200px] mx-auto"
       >
-        <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
-          <Link href="/">
-            <NavbarLink label="Home"/>
-          </Link>
-          <Link href="/pricing">
-            <NavbarLink label="Pricing"/>
-          </Link>
-          <Link href="/#faq-section">
-            <NavbarLink label="FAQ"/>
-          </Link>
-          <Link href="/contact/query">
-            <NavbarLink label="Contact Us"/>
-          </Link>
-          <Link href="/signin">
-            <NavbarLink label="Sign in"/>
-          </Link>
-        </header>
+        <PublicNavbar showHome />
         <div className="flex flex-col items-center justify-center mx-auto">
           <div className="flex flex-row items-center justify-center">
             <div className="flex flex-row">
