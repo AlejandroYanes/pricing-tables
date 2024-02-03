@@ -131,6 +131,7 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
                   key={`${block.id}-${index}`}
                   href={text.href}
                   target="_blank"
+                  rel="noreferrer"
                   className={cn(
                     'text-emerald-700 dark:text-emerald-300 underline hover:text-emerald-500 dark:hover:text-emerald-400',
                     {
@@ -181,7 +182,9 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
         bulletItems.push(blocks[j]! as BulletedListItemBlockObjectResponse);
         j++;
       }
+
       i = j - 1;
+
       elements.push(
         <ul key={block.id} className="list-disc list-outside pl-6 mb-2">
           {bulletItems.map((item) => (
@@ -200,7 +203,9 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
         bulletItems.push(blocks[j]! as NumberedListItemBlockObjectResponse);
         j++;
       }
+
       i = j - 1;
+
       elements.push(
         <ol key={block.id} className="list-decimal list-outside pl-6 mb-2">
           {bulletItems.map((item) => (
