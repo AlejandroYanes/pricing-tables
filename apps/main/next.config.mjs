@@ -8,6 +8,16 @@ import initAnalyzer from '@next/bundle-analyzer';
 !process.env.SKIP_ENV_VALIDATION && (await import("./src/env/server.mjs"));
 import { withAxiom } from 'next-axiom';
 
+import configMDX from '@next/mdx';
+import remarkGfm from 'remark-gfm';
+import remarkBreaks from 'remark-breaks';
+
+const withMDX = configMDX({
+  options: {
+    remarkPlugins: [remarkGfm, remarkBreaks],
+    rehypePlugins: [],
+  },
+});
 
 const withBundleAnalyzer = initAnalyzer({
   enabled: process.env.ANALYZE === 'true',
@@ -22,6 +32,7 @@ const config = {
   //   locales: ["en"],
   //   defaultLocale: "en",
   // },
-  transpilePackages: ["@dealo/ui", "@dealo/templates", "@dealo/helpers", "@dealo/models"],
+  pageExtensions: ['mdx', 'ts', 'tsx'],
+  transpilePackages: ["@dealo/ui", "@dealo/templates", "@dealo/helpers", "@dealo/models", "@dealo/email-templates"],
 };
-export default withBundleAnalyzer(withAxiom(config));
+export default withBundleAnalyzer(withAxiom(withMDX(config)));

@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   IconBrush,
   IconCheck,
@@ -18,12 +17,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from
 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
-import { NavbarLink } from 'components/navbar';
-
-export const metadata = {
-  title: 'Dealo',
-  description: 'A platform to streamline pricing cards and checkouts',
-}
+import PublicNavbar from 'components/public-navbar';
 
 interface IconListItemProps {
   icon: JSX.Element;
@@ -74,20 +68,7 @@ const HomePage = () => {
       className="px-0"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
-      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
-        <Link href="/pricing">
-          <NavbarLink label="Pricing"/>
-        </Link>
-        <Link href="/#faq-section">
-          <NavbarLink label="FAQ"/>
-        </Link>
-        <Link href="/contact/query">
-          <NavbarLink label="Contact Us"/>
-        </Link>
-        <Link href="/signin">
-          <NavbarLink label="Sign in"/>
-        </Link>
-      </header>
+      <PublicNavbar />
       <main className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
         <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">

@@ -1,4 +1,4 @@
-export function formatDate(date: Date | string | number, locale = 'default'): string {
+export function formatDate(date: Date | string | number, locale = 'en-gb'): string {
   const dateFormatter = new Intl.DateTimeFormat(locale, {
     day: 'numeric',
     month: 'short',
@@ -7,6 +7,6 @@ export function formatDate(date: Date | string | number, locale = 'default'): st
   return date ? dateFormatter.format(new Date(date)) : '';
 }
 
-export function formatStripeDate(date: number, locale = 'default'): string {
+export function formatStripeDate(date: number, locale = 'en-gb'): string {
   return formatDate(new Date(date * 1000), locale);
 }

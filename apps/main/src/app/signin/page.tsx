@@ -11,7 +11,7 @@ import { generateQueryString } from '@dealo/helpers';
 import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/base-layout';
 import SignInForm from 'components/signin-form';
-import { NavbarLink } from 'components/navbar';
+import PublicNavbar from 'components/public-navbar';
 
 export const metadata: Metadata = {
   title: 'Dealo | Signin',
@@ -53,23 +53,7 @@ export default async function SigninPage(props: Props) {
         className="px-0"
         footerClassName="w-full max-w-[1200px] mx-auto"
       >
-        <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
-          <Link href="/">
-            <NavbarLink label="Home"/>
-          </Link>
-          <Link href="/pricing">
-            <NavbarLink label="Pricing"/>
-          </Link>
-          <Link href="/#faq-section">
-            <NavbarLink label="FAQ"/>
-          </Link>
-          <Link href="/contact/query">
-            <NavbarLink label="Contact Us"/>
-          </Link>
-          <Link href="/signin">
-            <NavbarLink label="Sign in"/>
-          </Link>
-        </header>
+        <PublicNavbar showHome />
         <main className="flex flex-col items-center justify-center max-w-[700px] mt-[180px] mx-auto mb-0">
           <Alert>
             <IconAlertCircle size={16}/>
@@ -92,23 +76,7 @@ export default async function SigninPage(props: Props) {
       className="px-0 md:px-12"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
-      <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 md:px-0 w-full max-w-[1200px] mx-auto">
-        <Link href="/">
-          <NavbarLink label="Home"/>
-        </Link>
-        <Link href="/pricing">
-          <NavbarLink label="Pricing"/>
-        </Link>
-        <Link href="/#faq-section">
-          <NavbarLink label="FAQ"/>
-        </Link>
-        <Link href="/contact/query">
-          <NavbarLink label="Contact Us"/>
-        </Link>
-        <Link href="/signin">
-          <NavbarLink label="Sign in"/>
-        </Link>
-      </header>
+      <PublicNavbar showHome />
       <main
         data-el="hero-section"
         className={cn(
