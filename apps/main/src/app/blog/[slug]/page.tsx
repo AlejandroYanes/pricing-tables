@@ -130,6 +130,7 @@ async function processNotionBlocks(blocks: BlockObjectResponse[]) {
                 <a
                   key={`${block.id}-${index}`}
                   href={text.href}
+                  target="_blank"
                   className={cn(
                     'text-emerald-700 dark:text-emerald-300 underline hover:text-emerald-500 dark:hover:text-emerald-400',
                     {
