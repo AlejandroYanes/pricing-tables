@@ -1,6 +1,5 @@
 /* eslint-disable max-len */
 import Image from 'next/image';
-import Link from 'next/link';
 import {
   IconBrush,
   IconCheck,
@@ -18,8 +17,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from
 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
-import { NavbarLink } from 'components/navbar';
-import PublicNavbar from '../components/public-navbar';
+import PublicNavbar from 'components/public-navbar';
 
 interface IconListItemProps {
   icon: JSX.Element;
