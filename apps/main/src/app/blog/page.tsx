@@ -30,7 +30,7 @@ export default async function RootBlogPage() {
 
   return (
     <main className="max-w-[980px] mx-auto">
-      <h1 className="text-5xl my-24">Blog</h1>
+      <h1 className="text-5xl my-24">Articles</h1>
       <div className="grid grid-cols-2 gap-24">
         {blogs.map((blog: any) => (
           <Link key={blog.id} href={`/blog/${(buildSlug(blog))}`}>

@@ -247,7 +247,7 @@ export default async function BlogDetailPage(props: Props) {
         <Link href="/blog">
           <Button variant="outline">
             <IconArrowLeft size={14} className="mr-2"/>
-            Back to blog
+            Back to articles
           </Button>
         </Link>
       </div>
