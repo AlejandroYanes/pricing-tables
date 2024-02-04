@@ -248,7 +248,7 @@ export default async function BlogDetailPage(props: Props) {
   const elements = await processNotionBlocks(blocks as BlockObjectResponse[]);
 
   return (
-    <main className="max-w-[780px] mx-auto">
+    <main className="max-w-[780px] w-full mx-auto px-4 md:px-0">
       <div className="mb-24">
         <Link href="/blog">
           <Button variant="outline">

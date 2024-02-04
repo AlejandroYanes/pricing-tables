@@ -22,7 +22,7 @@ import {
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
-import { useDebounce } from 'utils/hooks/useDebounce';
+import { useDebounce } from 'utils/hooks/use-debounce';
 import BaseLayout from 'components/base-layout';
 import ProductBlock from './ProductBlock';
 import TwoColumnsLayout from './TwoColumnsLayout';

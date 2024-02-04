@@ -3,7 +3,7 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { Button } from '@dealo/ui';
 
-import { useMediaQuery } from 'utils/hooks/useMediaQuery';
+import { useMediaQuery } from 'utils/hooks/use-media-query';
 import BaseLayout from '../base-layout';
 
 interface Props {

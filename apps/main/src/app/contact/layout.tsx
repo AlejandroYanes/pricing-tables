@@ -14,11 +14,11 @@ export default function ContactPageLayout(props: Props) {
   return (
     <BaseLayout
       hideNavbar
-      className="px-4 md:px-12"
+      className="px-0"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
       <PublicNavbar showHome />
-      <main className="flex flex-col md:flex-row justify-center gap-14 mx-auto mt-10 md:max-w-[980px]">
+      <main className="flex flex-col md:flex-row justify-center gap-14 px-4 md:px-0 mx-auto mt-10 md:max-w-[980px]">
         <aside className="flex flex-col gap-10">
           <h1 className="text-4xl text-left mb-4">Get in touch</h1>
           <Card

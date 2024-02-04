@@ -29,9 +29,9 @@ export default async function RootBlogPage() {
   ).results as DatabaseObjectResponse[];
 
   return (
-    <main className="max-w-[980px] mx-auto">
+    <main className="max-w-[980px] mx-auto px-4 xl:px-0">
       <h1 className="text-5xl my-24">Articles</h1>
-      <div className="grid grid-cols-2 gap-24">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-12 xl:gap-24">
         {blogs.map((blog: any) => (
           <Link key={blog.id} href={`/blog/${(buildSlug(blog))}`}>
             <div
