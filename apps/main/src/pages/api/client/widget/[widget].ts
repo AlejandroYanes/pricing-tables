@@ -22,6 +22,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   try {
     const widgetData = await getWidgetData(widgetId);
+    const seconds = 60;
+    res.setHeader('Cache-Control', `s-maxage=${seconds}, stale-while-revalidate=360`);
     res.status(200).json(widgetData);
   } catch (e: any) {
     console.error(`❌ Error fetching data for widget: ${widgetId}`, e.message);
