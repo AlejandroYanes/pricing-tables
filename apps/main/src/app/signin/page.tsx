@@ -73,7 +73,7 @@ export default async function SigninPage(props: Props) {
   return (
     <BaseLayout
       hideNavbar
-      className="px-0 md:px-12"
+      className="px-0"
       footerClassName="w-full max-w-[1200px] mx-auto"
     >
       <PublicNavbar showHome />

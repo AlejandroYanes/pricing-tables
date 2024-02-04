@@ -12,6 +12,7 @@ export * from './code';
 export * from './code-block';
 export * from './command';
 export * from './dialog';
+export * from './drawer';
 export * from './dropdown-menu';
 export * from './hover-card';
 export * from './input';

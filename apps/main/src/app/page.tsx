@@ -66,7 +66,7 @@ const HomePage = () => {
     <BaseLayout
       hideNavbar
       className="px-0"
-      footerClassName="w-full max-w-[1200px] mx-auto"
+      footerClassName="w-full max-w-[1200px] mx-auto px-4 xl:px-0"
     >
       <PublicNavbar />
       <main className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
@@ -245,7 +245,7 @@ const HomePage = () => {
           />
         </section>
 
-        <section data-el="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
+        <section data-el="pricing-section" id="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
           <h2 className="text text-xl mb-4">Get started now.</h2>
           <PricingWidget/>
           <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
