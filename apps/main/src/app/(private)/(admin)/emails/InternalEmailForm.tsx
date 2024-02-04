@@ -17,7 +17,7 @@ import {
 } from '@dealo/ui';
 import { callAPI } from '@dealo/helpers';
 
-import { useDebounce } from 'utils/hooks/useDebounce';
+import { useDebounce } from 'utils/hooks/use-debounce';
 import { trpc } from 'utils/trpc';
 
 const InternalEmailForm = () => {

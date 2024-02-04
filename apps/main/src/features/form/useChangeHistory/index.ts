@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { WidgetFormState } from '@dealo/models';
 
-import { useDebounce } from 'utils/hooks/useDebounce';
+import { useDebounce } from 'utils/hooks/use-debounce';
 import { useWidgetFormStore } from '../state';
 
 const deepClone = (obj: any) => JSON.parse(JSON.stringify(obj));

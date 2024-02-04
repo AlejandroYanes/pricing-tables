@@ -24,7 +24,7 @@ import {
 } from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
-import { useDebounce } from 'utils/hooks/useDebounce';
+import { useDebounce } from 'utils/hooks/use-debounce';
 import UserAvatar from 'components/user-avatar';
 
 const UsersTable = () => {
