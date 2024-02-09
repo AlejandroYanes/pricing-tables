@@ -37,6 +37,7 @@ export const serverSchema = z.object({
   STRIPE_CHECKOUT_WEBHOOK_SECRET: z.string(),
   STRIPE_SUBSCRIPTION_WEBHOOK_SECRET: z.string(),
   STRIPE_INVOICE_WEBHOOK_SECRET: z.string(),
+  STRIPE_DEALO_ACCOUNT: z.string(),
   // Platform URL
   PLATFORM_URL: z.string().url().nullish(),
   // Resend
@@ -79,6 +80,7 @@ export const serverEnv = {
   STRIPE_CHECKOUT_WEBHOOK_SECRET: process.env.STRIPE_CHECKOUT_WEBHOOK_SECRET,
   STRIPE_SUBSCRIPTION_WEBHOOK_SECRET: process.env.STRIPE_SUBSCRIPTION_WEBHOOK_SECRET,
   STRIPE_INVOICE_WEBHOOK_SECRET: process.env.STRIPE_INVOICE_WEBHOOK_SECRET,
+  STRIPE_DEALO_ACCOUNT: process.env.STRIPE_DEALO_ACCOUNT,
   // Platform
   PLATFORM_URL: process.env.PLATFORM_URL,
   // Resend
