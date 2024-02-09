@@ -300,6 +300,7 @@ export default function BasicTemplate(props: TemplateProps) {
                 freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
                 freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
+              {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
             >
               <Button
                 data-spaced={priceToShow.hasFreeTrial}
@@ -412,6 +413,7 @@ export default function BasicTemplate(props: TemplateProps) {
                     freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
                     freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
                   })}
+                  {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
                 >
                   <Button variant="undecorated" className={isRecommended ? BUTTON_STYLES[color] : OUTLINE_BUTTON_STYLES[color]}>
                     {resolveBtnLabel({

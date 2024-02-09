@@ -25,6 +25,13 @@ const RootLayout = async ({ children }: Props) => {
         <link rel="icon" type="image/png" sizes="16x16" href="/favicon/favicon-16x16.png"/>
         <link rel="manifest" href="/favicon/site.webmanifest"/>
         <link rel="mask-icon" href="/favicon/safari-pinned-tab.svg" color="#5bbad5"/>
+      </head>
+      <body data-scroll="allow" className="data-[scroll=blocked]:overflow-hidden">
+        <ThemeProvider>
+          {children}
+        </ThemeProvider>
+        <Analytics />
+        <SpeedInsights />
         <Script
           src="https://www.googletagmanager.com/gtag/js?id=G-4TJCMV7DEC"
           strategy="lazyOnload"
@@ -38,13 +45,6 @@ const RootLayout = async ({ children }: Props) => {
               gtag('config', 'G-4TJCMV7DEC');
           `}
         </Script>
-      </head>
-      <body>
-        <ThemeProvider>
-          {children}
-        </ThemeProvider>
-        <Analytics />
-        <SpeedInsights />
       </body>
     </html>
   )
