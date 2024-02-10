@@ -47,6 +47,8 @@ export const serverSchema = z.object({
   NOTION_QUERY_DATABASE: z.string(),
   NOTION_REPORT_DATABASE: z.string(),
   NOTION_BLOG_DATABASE: z.string(),
+  // Vercel
+  EDGE_CONFIG: z.string(),
 });
 
 /**
@@ -90,6 +92,8 @@ export const serverEnv = {
   NOTION_QUERY_DATABASE: process.env.NOTION_QUERY_DATABASE,
   NOTION_REPORT_DATABASE: process.env.NOTION_REPORT_DATABASE,
   NOTION_BLOG_DATABASE: process.env.NOTION_BLOG_DATABASE,
+  // Vercel
+  EDGE_CONFIG: process.env.EDGE_CONFIG,
 };
 
 /**
