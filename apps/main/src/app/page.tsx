@@ -120,7 +120,7 @@ const HomePage = () => {
               </li>
             </ul>
 
-            <div className="mt-10 flex flex-row gap-2">
+            <div className="mt-10 ml-8 flex flex-row gap-2">
               <Link href="/#pricing-section">
                 <Button>Get started now</Button>
               </Link>
