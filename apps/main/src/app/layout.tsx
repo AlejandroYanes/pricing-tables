@@ -13,7 +13,12 @@ interface Props {
 
 const RootLayout = async ({ children }: Props) => {
   return (
-    <html id="dealo-root" lang="en" suppressHydrationWarning>
+    <html
+      id="dealo-root"
+      lang="en"
+      className="scroll-smooth selection:bg-emerald-500 selection:text-neutral-900"
+      suppressHydrationWarning
+    >
       <head>
         <title>Dealo</title>
         <meta name="viewport" content="width=device-width, initial-scale=1"/>

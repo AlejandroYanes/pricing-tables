@@ -6,10 +6,7 @@ import type { Role } from '@dealo/models';
 import { env as serverEnv } from 'env/server.mjs';
 import { authOptions } from './auth';
 import initStripe from './stripe';
-
-function isLocalServer() {
-  return serverEnv.PLATFORM_URL === 'http://localhost:3000';
-}
+import { isLocalServer } from './environments';
 
 export type AuthenticatedHandler = (req: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) => Promise<void>;
 
