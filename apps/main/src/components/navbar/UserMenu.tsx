@@ -5,7 +5,7 @@ import type { Session } from 'next-auth';
 import { signOut } from 'next-auth/react';
 import { useTheme } from 'next-themes';
 import {
-  IconDeviceDesktop,
+  IconDeviceDesktop, IconFlask,
   IconLogout,
   IconMoon, IconPaint,
   IconReceipt,
@@ -101,6 +101,12 @@ export default function UserMenu(props: Props) {
               <DropdownMenuItem>
                 <IconUsers size={16} className="mr-2"/>
                 Manage Users
+              </DropdownMenuItem>
+            </Link>
+            <Link href="/experiments">
+              <DropdownMenuItem>
+                <IconFlask size={16} className="mr-2"/>
+                Experiments
               </DropdownMenuItem>
             </Link>
             <DropdownMenuSeparator />
