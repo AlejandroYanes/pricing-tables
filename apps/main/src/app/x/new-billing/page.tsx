@@ -1,6 +1,7 @@
 /* eslint-disable max-len */
+import Link from 'next/link';
 import Image from 'next/image';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@dealo/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
@@ -15,14 +16,20 @@ export default function NewBillingPage() {
     >
       <PublicNavbar showLogo />
       <main className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
-        <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
-          <div className="flex flex-col items-center">
-            <h1 className="text-center text-5xl leading-[1.2] font-bold">
-              Start billing your customers in minutes
-            </h1>
-            <span className="mt-6 text-[24px] text-neutral-600 dark:text-gray-300 text-center">
-              Effortless setup, seamless integration, rapid growth.
-            </span>
+        <section data-el="hero-section" className="flex flex-col items-center py-24 px-4">
+          <h1 className="text-center text-5xl leading-[1.2] font-bold">
+            Start billing your customers in minutes
+          </h1>
+          <span className="mt-4 text-[24px] text-neutral-600 dark:text-gray-300 text-center">
+            Effortless setup, seamless integration, rapid growth.
+          </span>
+          <div className="mt-10 flex flex-row gap-2">
+            <Link href="#pricing-section">
+              <Button>Get started now</Button>
+            </Link>
+            <Link href="/contact/query">
+              <Button variant="outline">Get in touch</Button>
+            </Link>
           </div>
         </section>
 

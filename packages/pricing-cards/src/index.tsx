@@ -46,7 +46,7 @@ const PricingCards = (props: Props) => {
     const Skeleton = template && items ? skeletonMap[template]! : () => null;
     return (
       <>
-        <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32b.css`}/>
+        <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32c.css`}/>
         <Skeleton items={Number(items)} color={useDarkTheme ? 'slate' : 'gray'} />
       </>
     );
@@ -60,7 +60,7 @@ const PricingCards = (props: Props) => {
 
   return (
     <>
-      <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32b.css`} />
+      <link rel="stylesheet" href={`${resolveDomain(!!internal)}/styles/pricing-cards-52e0a32c.css`} />
       <div id="dealo-root" className={useDarkTheme ? 'dark' : undefined}>
         <Template
           widget={widget}

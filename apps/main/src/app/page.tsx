@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+import Link from 'next/link';
 import Image from 'next/image';
 import {
   IconBrush,
@@ -13,7 +14,7 @@ import {
   IconTrendingUp,
   IconUser,
 } from '@tabler/icons-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, cn } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
@@ -73,7 +74,7 @@ const HomePage = () => {
         <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
-              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]" />
+              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]"/>
               <span className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</span>
             </div>
             <h1 className="text-[40px] leading-[1.2] font-bold">
@@ -118,6 +119,15 @@ const HomePage = () => {
                 </span>
               </li>
             </ul>
+
+            <div className="mt-10 flex flex-row gap-2">
+              <Link href="/#pricing-section">
+                <Button>Get started now</Button>
+              </Link>
+              <Link href="/contact/query">
+                <Button variant="outline">Get in touch</Button>
+              </Link>
+            </div>
           </div>
           <Image
             width={380}
