@@ -36,4 +36,22 @@ export const experimentsRouter = createTRPCRouter({
       }
     ]);
   }),
+
+  updateStatus: adminProcedure.input(z.object({
+    slug: z.string(),
+    experiment: z.any(),
+    running: z.boolean(),
+  })).mutation(async ({ input }) => {
+    const { slug, experiment, running } = input;
+    await updateStore([
+      {
+        operation: 'update',
+        key: slug,
+        value: {
+          ...experiment,
+          running,
+        },
+      }
+    ]);
+  }),
 });
