@@ -1,14 +1,14 @@
 /* eslint-disable max-len */
+import Link from 'next/link';
 import { IconBrush, IconFlask, IconMathOff, IconPower, IconStar, IconUser, } from '@tabler/icons-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, cn } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
-import PricingWidget from 'components/pricing-widget';
 import PublicNavbar from 'components/public-navbar';
 
 interface CardProps {
   title: string;
-  text: string;
+  text: string | JSX.Element;
   icon: JSX.Element;
   className?: string;
 }
@@ -36,18 +36,27 @@ export default function ABTestingPage() {
       className="px-0"
       footerClassName="w-full max-w-[1200px] mx-auto px-4 xl:px-0"
     >
-      <PublicNavbar showLogo />
+      <PublicNavbar showLogo hidePricing />
       <main className="w-full max-w-[1200px] mx-auto my-o flex flex-col items-center">
-        <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
-          <div className="flex flex-col items-center">
-            <h1 className="text-5xl leading-[1.2] font-bold">
-              Find the perfect pricing model
-            </h1>
-            <span className="mt-6 text-center text-[24px] text-neutral-600 dark:text-gray-300">
+        <section data-el="hero-section" className="flex flex-col items-center py-24 px-4">
+          <h1 className="text-5xl leading-[1.2] font-bold text-center">
+            Find the perfect pricing model
+          </h1>
+          <div className="flex flex-col mt-6 text-center text-[24px] text-slate-700 dark:text-neutral-300">
+            <span>
               Our platform allows you to create and customize pricing widgets in minutes.
-              <br/>
+            </span>
+            <span className="mt-3 md:mt-0">
               Use our <strong>A/B testing</strong> and <strong>Insights</strong> to find the best pricing combination for your business.
             </span>
+          </div>
+          <div className="mt-10 flex flex-row gap-2">
+            <Link href="/signin">
+              <Button>Get started now</Button>
+            </Link>
+            <Link href="/contact/query">
+              <Button variant="outline">Get in touch</Button>
+            </Link>
           </div>
         </section>
 
@@ -62,16 +71,24 @@ export default function ABTestingPage() {
               title="Goodbye to Headaches"
               text="No more wrangling with code to set up pricing pages and bill your customers."
             />
-            <Card icon={<IconPower/>} title="Empowerment" text="Create and customize sleek, professional pricing cards effortlessly."/>
-            <Card icon={<IconFlask/>} title="Innovate" text="Use our A/B testing and Insights to find the best pricing combination."/>
+            <Card icon={<IconUser/>} title="Dynamic Experience" text="Create a dynamic and user-friendly checkout experience."/>
+            <Card
+              icon={<IconFlask/>}
+              title="Innovate"
+              text={
+                <>
+                  Use our <strong>A/B testing</strong> and <strong>Insights</strong> to find the best pricing combination.
+                </>
+              }
+            />
           </div>
-          <div className="flex flex-col md:flex-row md:items-stretch justify-between gap-4 xl:gap-8">
+          <div className="hidden md:flex md:items-stretch justify-between gap-4 xl:gap-8">
             <Card
               icon={<IconStar/>}
               title="Frictionless Journey"
               text="Provide your customers with a frictionless checkout experience while you focus on scaling your business."
             />
-            <Card icon={<IconUser/>} title="Dynamic Experience" text="Create a dynamic and user-friendly checkout experience."/>
+            <Card icon={<IconPower/>} title="Empowerment" text="Create and customize sleek, professional pricing cards effortlessly."/>
             <Card
               icon={<IconBrush/>}
               title="Your brand is your identity"
@@ -80,13 +97,11 @@ export default function ABTestingPage() {
           </div>
         </section>
 
-        <section data-el="pricing-section" id="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
-          <h2 className="text-3xl font-bold mb-4">Get started now.</h2>
-          <PricingWidget/>
-          <span className="text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
-        </section>
-
-        <section id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
+        <section
+          id="faq-section"
+          data-el="faq-section"
+          className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]"
+        >
           <h2 className="text-center text-3xl font-bold mb-8">FAQ</h2>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
