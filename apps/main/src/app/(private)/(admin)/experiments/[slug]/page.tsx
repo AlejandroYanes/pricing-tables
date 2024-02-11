@@ -1,12 +1,10 @@
+'use client';
 import { notFound } from 'next/navigation';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@dealo/ui';
-import type { Experiment } from '@dealo/models';
+import { Loader, Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@dealo/ui';
 
-import { getStoreItem } from 'utils/vercel-edge-config';
+import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/base-layout';
 import Distributions from './Distributions';
-
-export const dynamic = 'force-dynamic';
 
 interface Props {
   params: {
@@ -14,9 +12,21 @@ interface Props {
   };
 }
 
-export default async function ExperimentDetailsPage(props: Props) {
+export default function ExperimentDetailsPage(props: Props) {
   const { params } = props;
-  const experiment = await getStoreItem<Experiment>(params.slug, [`experiment/slug/${params.slug}`]);
+
+  const { data: experiment, isLoading } = trpc.experiments.getExperiment.useQuery(params.slug);
+
+  if (isLoading) {
+    return (
+      <BaseLayout showBackButton>
+        <div className="w-full h-full flex flex-col items-center justify-center gap-8">
+          <Loader size="md" />
+          <p>Loading experiment...</p>
+        </div>
+      </BaseLayout>
+    );
+  }
 
   if (!experiment) {
     return notFound();

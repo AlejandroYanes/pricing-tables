@@ -1,4 +1,3 @@
-'use client';
 import { useRef, useState } from 'react';
 import {
   Button, cn,
@@ -15,7 +14,7 @@ import {
 } from '@dealo/ui';
 import type { Experiment } from '@dealo/models';
 
-import { updateDistributions } from './action';
+import { trpc } from 'utils/trpc';
 
 interface Props {
   slug: string;
@@ -30,6 +29,9 @@ export default function Distributions(props: Props) {
     Object.values(experiment.distribution).reduce((acc, value) => acc + (value * 100), 0)
   );
   const [loading, setLoading] = useState(false);
+
+  const utils = trpc.useContext();
+  const { mutateAsync: updateDistributions } = trpc.experiments.updateDistributions.useMutation();
 
   const resolveCurrentTotalDistribution = () => {
     let total;
@@ -58,7 +60,8 @@ export default function Distributions(props: Props) {
         return { ...acc, [variant]: value / 100 };
       }, {} as Experiment['distribution']);
 
-      await updateDistributions(slug, experiment, values);
+      await updateDistributions({ slug, experiment, newDistribution: values });
+      utils.experiments.getExperiment.setData(slug, { ...experiment, distribution: values });
       setLoading(false);
       setShowModal(false);
     } catch (e) {
