@@ -52,6 +52,7 @@ export const serverSchema = z.object({
   VERCEL_API_TOKEN: z.string(),
   EDGE_CONFIG: z.string(),
   EDGE_CONFIG_ID: z.string(),
+  EDGE_CONFIG_TOKEN: z.string(),
 });
 
 /**
@@ -100,6 +101,7 @@ export const serverEnv = {
   VERCEL_API_TOKEN: process.env.VERCEL_API_TOKEN,
   EDGE_CONFIG: process.env.EDGE_CONFIG,
   EDGE_CONFIG_ID: process.env.EDGE_CONFIG_ID,
+  EDGE_CONFIG_TOKEN: process.env.EDGE_CONFIG_TOKEN,
 };
 
 /**

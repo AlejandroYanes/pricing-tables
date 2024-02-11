@@ -1,3 +1,5 @@
+import type { EdgeConfigValue } from '@vercel/edge-config';
+
 import { env } from 'env/server.mjs';
 
 export interface Update {
@@ -27,5 +29,25 @@ export async function updateStore(items: Update[]) {
     }
   } catch (error: any) {
     console.error('❌ Error updating edge config:', error.message);
+  }
+}
+
+export async function getStoreItem<T = EdgeConfigValue>(key: string, tags?: string[]): Promise<T | undefined> {
+  try {
+    const response = await fetch(
+      `https://edge-config.vercel.com/${env.EDGE_CONFIG_ID}/item/${key}?token=${env.EDGE_CONFIG_TOKEN}`,
+      {
+        next: { tags }
+      },
+    );
+    const data = await response.json();
+
+    if ('error' in data) {
+      // noinspection ExceptionCaughtLocallyJS
+      throw new Error(data.error.message);
+    }
+    return data;
+  } catch (error) {
+    console.log(error);
   }
 }
