@@ -42,7 +42,7 @@ export default function ABTestingPage() {
           <h1 className="text-5xl leading-[1.2] font-bold text-center">
             Find the perfect pricing model
           </h1>
-          <div className="flex flex-col mt-6 text-center text-[24px] text-neutral-600 dark:text-gray-300">
+          <div className="flex flex-col mt-6 text-center text-[24px] text-slate-700 dark:text-neutral-300">
             <span>
               Our platform allows you to create and customize pricing widgets in minutes.
             </span>
@@ -77,7 +77,7 @@ export default function ABTestingPage() {
               title="Innovate"
               text={
                 <>
-                Use our <strong>A/B testing</strong> and <strong>Insights</strong> to find the best pricing combination.
+                  Use our <strong>A/B testing</strong> and <strong>Insights</strong> to find the best pricing combination.
                 </>
               }
             />
@@ -97,7 +97,11 @@ export default function ABTestingPage() {
           </div>
         </section>
 
-        <section id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
+        <section
+          id="faq-section"
+          data-el="faq-section"
+          className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]"
+        >
           <h2 className="text-center text-3xl font-bold mb-8">FAQ</h2>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">

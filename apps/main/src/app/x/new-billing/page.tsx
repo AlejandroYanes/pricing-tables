@@ -20,7 +20,7 @@ export default function NewBillingPage() {
           <h1 className="text-center text-5xl leading-[1.2] font-bold">
             Start billing your customers in minutes
           </h1>
-          <span className="mt-4 text-[24px] text-neutral-600 dark:text-gray-300 text-center">
+          <span className="mt-4 text-[24px] text-slate-700 dark:text-neutral-300 text-center">
             Effortless setup, seamless integration, rapid growth.
           </span>
           <div className="mt-10 flex flex-row gap-2">
