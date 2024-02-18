@@ -31,7 +31,7 @@ export default function ExperimentDetailsPage(props: Props) {
       toast({
         variant: 'destructive',
         title: 'Failed to update running status',
-        description: 'The Edge store could not be updated.',
+        description: 'The Vercel Edge store could not be updated.',
       });
       utils.experiments.getExperiment.setData(params.slug, (prev) => {
         if (!prev) return prev;

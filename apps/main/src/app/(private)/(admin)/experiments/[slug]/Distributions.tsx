@@ -23,12 +23,16 @@ interface Props {
 
 export default function Distributions(props: Props) {
   const { slug, experiment } = props;
+
   const formRef = useRef<HTMLFormElement>(null);
+
   const [showModal, setShowModal] = useState(false);
+
+  const [loading, setLoading] = useState(false);
+
   const [currentTotalDistribution, setCurrentTotalDistribution] = useState<number>(
     Object.values(experiment.distribution).reduce((acc, value) => acc + (value * 100), 0)
   );
-  const [loading, setLoading] = useState(false);
 
   const utils = trpc.useContext();
   const { mutateAsync: updateDistributions } = trpc.experiments.updateDistributions.useMutation();

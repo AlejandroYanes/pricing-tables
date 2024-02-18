@@ -5,7 +5,7 @@ import { createId } from '@paralleldrive/cuid2';
 import { pickRandomIndexWithDistribution } from '@dealo/helpers';
 import { type Experiment, LANDING_PAGE_EXPERIMENT, LANDING_PAGE_EXPERIMENT_COOKIE } from '@dealo/models';
 
-import { isProductionServer } from 'utils/environments';
+import { isNotStableServer } from 'utils/environments';
 import { recordEvent } from 'utils/analytics';
 
 export const config = {
@@ -25,7 +25,7 @@ export async function middleware(req: NextRequest) {
     const experiment = edgeConfigNode as unknown as Experiment;
     const { running } = experiment;
 
-    if (!running) {
+    if (!running || isNotStableServer()) {
       return NextResponse.next();
     }
 
