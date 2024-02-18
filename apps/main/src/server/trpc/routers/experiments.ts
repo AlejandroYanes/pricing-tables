@@ -4,6 +4,7 @@ import type { Experiment } from '@dealo/models';
 
 import { getStoreItem, updateStore } from 'utils/vercel-edge-config';
 import { adminProcedure, createTRPCRouter } from '../trpc';
+import initDb from '../../../utils/planet-scale';
 
 export const experimentsRouter = createTRPCRouter({
   getExperiment: adminProcedure.input(z.string()).query(async ({ input }) => {
@@ -16,7 +17,28 @@ export const experimentsRouter = createTRPCRouter({
       });
     }
 
-    return experiment;
+    const db = initDb();
+
+    const results = (
+      await db.execute(
+        `SELECT
+            variant,
+            SUM(IF(event = 'view', events, 0)) AS views,
+            SUM(IF(event = 'signup', events, 0)) AS signups
+        FROM (
+                 SELECT
+                    variant,
+                     event,
+                     COUNT(*) AS events
+                 FROM Analytic
+                 GROUP BY variant, event
+             ) AS subquery
+        GROUP BY variant;`,
+        [],
+      )
+    ).rows as { variant: string; views: number; signups: number }[];
+
+    return { experiment, results };
   }),
 
   updateDistributions: adminProcedure.input(z.object({
