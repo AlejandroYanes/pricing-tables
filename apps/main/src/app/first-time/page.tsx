@@ -3,12 +3,12 @@ import { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import { useSession } from 'next-auth/react';
 import { Alert, AlertDescription, AlertTitle, Button, Loader, RenderIf } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
 import { recordSignup } from './action';
-import Image from 'next/image';
 
 interface Props {
   searchParams: Record<string, string | null>;
