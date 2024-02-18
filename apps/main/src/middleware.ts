@@ -3,7 +3,7 @@ import type { NextRequest } from 'next/server'
 import * as edgeConfig from '@vercel/edge-config';
 import { createId } from '@paralleldrive/cuid2';
 import { pickRandomIndexWithDistribution } from '@dealo/helpers';
-import { type Experiment, LANDING_PAGE_EXPERIMENT, LANDING_PAGE_EXPERIMENT_COOKIE } from '@dealo/models';
+import { type Experiment, LANDING_PAGE_EXPERIMENT, LANDING_PAGE_EXPERIMENT_COOKIE, VISITOR_ID_COOKIE } from '@dealo/models';
 
 import { isNotStableServer } from 'utils/environments';
 import { recordEvent } from 'utils/analytics';
@@ -25,12 +25,15 @@ export async function middleware(req: NextRequest) {
     const experiment = edgeConfigNode as unknown as Experiment;
     const { running } = experiment;
 
-    if (!running || isNotStableServer()) {
+    if (!running) {
       return NextResponse.next();
     }
 
-    const cookie = req.cookies.get(LANDING_PAGE_EXPERIMENT_COOKIE);
-    const variant = cookie?.value || getNewVariant(experiment);
+    const visitorCookie = req.cookies.get(VISITOR_ID_COOKIE);
+    const visitorId = visitorCookie?.value || createId();
+
+    const variantCookie = req.cookies.get(LANDING_PAGE_EXPERIMENT_COOKIE);
+    const variant = variantCookie?.value || getNewVariant(experiment);
 
     if (variant) {
       await recordEvent({
@@ -38,6 +41,7 @@ export async function middleware(req: NextRequest) {
         experiment: LANDING_PAGE_EXPERIMENT,
         variant,
         event: 'view',
+        visitorId,
         country: req.geo?.country,
         region: req.geo?.region,
       });
@@ -50,8 +54,14 @@ export async function middleware(req: NextRequest) {
 
       const res = NextResponse.rewrite(url);
 
-      if (!cookie) {
+      if (!variantCookie) {
         res.cookies.set(LANDING_PAGE_EXPERIMENT_COOKIE, variant, {
+          sameSite: 'strict',
+        });
+      }
+
+      if (!visitorCookie) {
+        res.cookies.set(VISITOR_ID_COOKIE, visitorId, {
           sameSite: 'strict',
         });
       }

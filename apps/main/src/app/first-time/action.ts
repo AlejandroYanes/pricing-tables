@@ -9,8 +9,8 @@ export async function recordSignup() {
   const sessionCookies = cookies();
   return await recordEvent({
     id: createId(),
+    event: 'signup',
     experiment: LANDING_PAGE_EXPERIMENT,
     variant: sessionCookies.get(LANDING_PAGE_EXPERIMENT_COOKIE)?.value,
-    event: 'signup',
   });
 }

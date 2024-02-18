@@ -82,7 +82,8 @@ export default function ExperimentDetailsPage(props: Props) {
             <TableRow>
               <TableHead style={{ width: '100px' }}>Variant</TableHead>
               <TableHead style={{ width: '100px' }}>Distribution</TableHead>
-              <TableHead style={{ width: '100px' }}>Visits</TableHead>
+              <TableHead style={{ width: '100px' }}>Views</TableHead>
+              <TableHead style={{ width: '100px' }}>Visitors</TableHead>
               <TableHead style={{ width: '130px' }}>Signups</TableHead>
             </TableRow>
           </TableHeader>
@@ -101,6 +102,10 @@ export default function ExperimentDetailsPage(props: Props) {
 
                   <TableCell>
                     {entry?.views ?? 0}
+                  </TableCell>
+
+                  <TableCell>
+                    {entry?.visitors ?? 0}
                   </TableCell>
 
                   <TableCell>

@@ -3,8 +3,8 @@ import { TRPCError } from '@trpc/server';
 import type { Experiment } from '@dealo/models';
 
 import { getStoreItem, updateStore } from 'utils/vercel-edge-config';
+import initDb from 'utils/planet-scale';
 import { adminProcedure, createTRPCRouter } from '../trpc';
-import initDb from '../../../utils/planet-scale';
 
 export const experimentsRouter = createTRPCRouter({
   getExperiment: adminProcedure.input(z.string()).query(async ({ input }) => {
@@ -23,20 +23,14 @@ export const experimentsRouter = createTRPCRouter({
       await db.execute(
         `SELECT
             variant,
-            SUM(IF(event = 'view', events, 0)) AS views,
-            SUM(IF(event = 'signup', events, 0)) AS signups
-        FROM (
-                 SELECT
-                    variant,
-                     event,
-                     COUNT(*) AS events
-                 FROM Analytic
-                 GROUP BY variant, event
-             ) AS subquery
+            SUM(IF(event = 'view', 1, 0)) AS views,
+            SUM(IF(event = 'signup', 1, 0)) AS signups,
+            COUNT(DISTINCT CASE WHEN event = 'view' THEN visitorId END) AS visitors
+        FROM Analytic
         GROUP BY variant;`,
         [],
       )
-    ).rows as { variant: string; views: number; signups: number }[];
+    ).rows as { variant: string; views: number; visitors: number; signups: number }[];
 
     return { experiment, results };
   }),

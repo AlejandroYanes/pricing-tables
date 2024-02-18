@@ -5,6 +5,7 @@ export interface Analytic {
   experiment: string;
   variant: string;
   event: Event;
+  visitorId?: string;
   country?: string;
   region?: string;
   createdAt: Date;
