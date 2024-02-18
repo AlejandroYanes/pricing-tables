@@ -52,7 +52,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
 
   if (event.type === 'invoice.paid') {
     await db.execute(
-      'UPDATE Subscription SET currrentPeriodStart = ?, currentPeriodEnd = ? WHERE id = ?',
+      'UPDATE Subscription SET currentPeriodStart = ?, currentPeriodEnd = ? WHERE id = ?',
       [subscription.current_period_start, subscription.current_period_end, subscriptionId],
     );
   }

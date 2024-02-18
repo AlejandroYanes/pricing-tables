@@ -1,52 +1,31 @@
-'use client'
-import { useRouter } from 'next/navigation';
-import type { Session } from 'next-auth';
+'use client';
 import { signIn } from 'next-auth/react';
-import { generateQueryString } from '@dealo/helpers';
+import { IconBrandDiscordFilled, IconBrandGithubFilled } from '@tabler/icons-react';
+import { Button } from '@dealo/ui';
 
-import GithubButton from './GitHubButton';
-import DiscordButton from './DiscordButton';
-import GoogleButton from './GoogleButton';
+import { GoogleIcon } from './GoogleIcon';
 
-interface Props {
-  searchParams: Record<string, string | null>;
-  session: Session | null;
-}
-
-const SignInForm = (props: Props) => {
-  const { searchParams, session } = props;
-  const router = useRouter();
-
-  const buildCheckoutUrl = () => {
-    const checkoutPageRoute = '/stripe/checkout/start';
-    const queryParams = generateQueryString(searchParams);
-    return `${checkoutPageRoute}?${queryParams}`;
-  }
+const SignInForm = () => {
 
   const handleSignIn = (provider: string) => {
-    if (!!session) {
-      if (searchParams.internal_flow === 'true') {
-        router.push(buildCheckoutUrl());
-      } else {
-        router.push('/dashboard');
-      }
-      return;
-    }
-
-    if (searchParams.internal_flow === 'true') {
-      const checkoutUrl = buildCheckoutUrl();
-      signIn(provider, { callbackUrl: checkoutUrl });
-    } else {
-      signIn(provider, { callbackUrl: '/dashboard' });
-    }
-  }
+    return signIn(provider, { redirect: false });
+  };
 
   return (
     <div className="w-[320px] flex flex-col gap-4">
       <h3 className="text-center">Get started now.</h3>
-      <GithubButton onClick={() => handleSignIn('github')} />
-      <DiscordButton onClick={() => handleSignIn('discord')} />
-      <GoogleButton onClick={() => handleSignIn('google')} />
+      <Button className="bg-primary text-primary-foreground hover:bg-primary/90" onClick={() => handleSignIn('github')}>
+        <IconBrandGithubFilled size={16} className="mr-2" />
+        Continue with GitHub
+      </Button>
+      <Button className="bg-violet-600 text-white hover:bg-violet-600/90" onClick={() => handleSignIn('discord')}>
+        <IconBrandDiscordFilled size={16} className="mr-2" />
+        Continue with Discord
+      </Button>
+      <Button variant="outline" onClick={() => handleSignIn('google')}>
+        <GoogleIcon className="mr-2" />
+        Continue with Google
+      </Button>
     </div>
   );
 };

@@ -61,9 +61,9 @@ export default function Navbar(props: Props) {
               <HoverCardContent align="end" className="w-[280px] mt-3">
                 <p className="text text-black dark:text-white">
                   This platform is still an alpha version, so if you find any bugs or have any suggestions,
-                  please let me know at
+                  please let us know at
                   {' '}
-                  <a href="mailto:alejandro@dealo.app" className="text-emerald-500">
+                  <a href="mailto:support@dealo.app" className="text-emerald-500">
                     support@dealo.app
                   </a>
                   !

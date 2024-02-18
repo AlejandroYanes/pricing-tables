@@ -46,7 +46,7 @@ export default function PlanetScaleAdapter(): Adapter {
         );
       });
       return (
-        await db.execute('SELECT * FROM User WHERE id = ?', [id])
+        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [id])
       ).rows[0] as AdapterUser;
     },
     deleteUser: async (id) => {
@@ -202,7 +202,7 @@ export default function PlanetScaleAdapter(): Adapter {
         ])
       });
 
-      return { ...session, expires: new Date(session.expires) };
+      return session ? { ...session, expires: new Date(session.expires) } : undefined;
     },
     createVerificationToken: async (data) => {
       await db.transaction(async (tx) => {

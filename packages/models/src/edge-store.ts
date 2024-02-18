@@ -4,10 +4,7 @@ export interface Experiment {
   running: boolean;
   variants: string[];
   distribution: { [key: string]: number };
-  results: {
-    [key: string]: {
-      visits: number;
-      signups: number;
-    };
-  };
 }
+
+export const LANDING_PAGE_EXPERIMENT = 'landing_page';
+export const LANDING_PAGE_EXPERIMENT_COOKIE = 'dealo_x_landing_page';

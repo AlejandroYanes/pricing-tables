@@ -34,13 +34,19 @@ interface Props {
   template: ReactNode;
 }
 
-const callbackHelp = `
-Callbacks are used to construct the URL that the CTA (Call To Action) button will redirect to.
-We add params like widget_id, product_id, price_id and currency to the URL
-so that you and we can identify the elements.
-This can be useful as you will most likely want to insert your sign up flow before collecting the payment.
-These URLs can be relative (eg: /api/product) or absolute (eg: https://your.server.com/api/product).
-`;
+const callbackHelp = (
+  <>
+    {`Callbacks are used to construct the URL that the CTA (Call To Action) button will redirect to.`}
+    <br/>
+    {`We add params like widget_id, product_id, price_id and currency to the URL
+      so that you and we can identify the elements.
+      This can be useful as you will most likely want to insert your sign up flow before collecting the payment.
+      `}
+    <br/>
+    <br/>
+    {`These URLs can be relative (eg: /api/product) or absolute (eg: https://your.server.com/api/product).`}
+  </>
+);
 
 const checkoutHelp = (
   <>
