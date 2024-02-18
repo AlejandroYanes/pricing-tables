@@ -25,7 +25,7 @@ export async function middleware(req: NextRequest) {
     const experiment = edgeConfigNode as unknown as Experiment;
     const { running } = experiment;
 
-    if (!running) {
+    if (!running || isNotStableServer()) {
       return NextResponse.next();
     }
 
