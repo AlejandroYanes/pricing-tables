@@ -1,4 +1,5 @@
-'use client';
+'use client'
+
 import { notFound } from 'next/navigation';
 import { Label, Loader, Switch, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useToast } from '@dealo/ui';
 
@@ -16,7 +17,7 @@ export default function ExperimentDetailsPage(props: Props) {
   const { params } = props;
 
   const { toast } = useToast();
-  const { data: experiment, isLoading } = trpc.experiments.getExperiment.useQuery(params.slug);
+  const { data: response, isLoading } = trpc.experiments.getExperiment.useQuery(params.slug);
 
   const utils = trpc.useContext();
   const { mutateAsync: updateRunningStatus } = trpc.experiments.updateStatus.useMutation({
@@ -40,10 +41,13 @@ export default function ExperimentDetailsPage(props: Props) {
   });
 
   const handleRunningStatusChange = async (running: boolean) => {
-    if (!experiment) return;
+    if (!response?.experiment) return;
 
-    await updateRunningStatus({ slug: params.slug, experiment, running });
-    utils.experiments.getExperiment.setData(params.slug, { ...experiment, running });
+    await updateRunningStatus({ slug: params.slug, experiment: response.experiment, running });
+    utils.experiments.getExperiment.setData(params.slug, {
+      results: response.results,
+      experiment: { ...response.experiment, running },
+    });
   }
 
   if (isLoading) {
@@ -57,9 +61,11 @@ export default function ExperimentDetailsPage(props: Props) {
     );
   }
 
-  if (!experiment) {
+  if (!response?.experiment) {
     return notFound();
   }
+
+  const { experiment, results } = response;
 
   return (
     <BaseLayout title={experiment.title} showBackButton>
@@ -81,25 +87,28 @@ export default function ExperimentDetailsPage(props: Props) {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {experiment.variants.map((variant) => (
-              <TableRow key={variant}>
-                <TableCell>
-                  <span className="text-lg">{variant}</span>
-                </TableCell>
+            {experiment.variants.map((variant) => {
+              const entry = results.find((result) => result.variant === variant);
+              return (
+                <TableRow key={variant}>
+                  <TableCell>
+                    <span className="text-lg">{variant}</span>
+                  </TableCell>
 
-                <TableCell>
-                  {experiment.distribution[variant]! * 100}%
-                </TableCell>
+                  <TableCell>
+                    {experiment.distribution[variant]! * 100}%
+                  </TableCell>
 
-                <TableCell>
-                  {experiment.results[variant]!.visits}
-                </TableCell>
+                  <TableCell>
+                    {entry?.views ?? 0}
+                  </TableCell>
 
-                <TableCell>
-                  {experiment.results[variant]!.signups}
-                </TableCell>
-              </TableRow>
-            ))}
+                  <TableCell>
+                    {entry?.signups ?? 0}
+                  </TableCell>
+                </TableRow>
+              )
+            })}
           </TableBody>
         </Table>
       </section>
