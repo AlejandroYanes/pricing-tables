@@ -84,7 +84,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
       await tx.execute(
         // eslint-disable-next-line max-len
-        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currrentPeriodStart, currentPeriodEnd, trialStart, trialEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currentPeriodStart, currentPeriodEnd, trialStart, trialEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         // eslint-disable-next-line max-len
         [subscriptionId, userId, widgetId, productId, priceId, current_period_start, current_period_end, trial_start, trial_end, status],
       );

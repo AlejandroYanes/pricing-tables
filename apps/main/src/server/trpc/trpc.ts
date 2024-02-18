@@ -126,7 +126,7 @@ export const protectedProcedure = t.procedure.use(enforceUserIsAuthed);
 
 export const adminProcedure = protectedProcedure.use(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user || ctx.session.user.role !== ROLES.ADMIN) {
-    throw new TRPCError({ code: 'UNAUTHORIZED' });
+    throw new TRPCError({ code: 'UNAUTHORIZED', message: 'The user does not have the appropriate permissions.' });
   }
   return next({
     ctx: {
@@ -142,7 +142,7 @@ export const stripeProcedure = protectedProcedure.use(async ({ ctx, next }) => {
     select: { stripeAccount: true },
   });
   if (!data || !data.stripeAccount) {
-    throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR' });
+    throw new TRPCError({ code: 'BAD_REQUEST', message: 'The user has no Stripe account associated.' });
   }
 
   return next({

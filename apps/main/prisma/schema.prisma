@@ -95,7 +95,7 @@ model Subscription {
     widgetId              String
     productId             String
     priceId               String
-    currrentPeriodStart   Int
+    currentPeriodStart   Int
     currentPeriodEnd      Int
     cancelAt              Int?
     cancelledAt           Int?
@@ -103,6 +103,17 @@ model Subscription {
     trialStart            Int?
     trialEnd              Int?
     createdAt             DateTime        @default(now())
+}
+
+model Analytic {
+    id              String      @id
+    experiment      String
+    variant         String      @default("default")
+    event           String
+    visitorId       String?
+    country         String?
+    region          String?
+    createdAt       DateTime    @default(now())
 }
 
 // Necessary for Next auth

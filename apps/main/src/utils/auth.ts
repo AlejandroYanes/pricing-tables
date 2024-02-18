@@ -17,7 +17,8 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/signin'
+    signIn: '/signin',
+    newUser: '/first-time?signup=true',
   },
   adapter: PlanetScaleAdapter(),
   // Configure one or more authentication providers

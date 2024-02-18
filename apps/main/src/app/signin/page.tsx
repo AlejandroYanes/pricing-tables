@@ -99,7 +99,7 @@ export default async function SigninPage(props: Props) {
             Build fully functional pricing widgets in minutes using our set of templates.
           </span>
         </div>
-        <SignInForm searchParams={searchParams} session={session}/>
+        <SignInForm />
       </main>
     </BaseLayout>
   );
