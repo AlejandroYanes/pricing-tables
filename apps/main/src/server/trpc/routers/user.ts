@@ -118,8 +118,7 @@ export const userRouter = createTRPCRouter({
 
         // the second check is to prevent deleting the main stripe account
         if (dbUser.stripeAccount && dbUser.stripeAccount !== env.STRIPE_DEALO_ACCOUNT) {
-
-          await stripe.accounts.del(dbUser.stripeAccount, { stripeAccount: env.STRIPE_DEALO_ACCOUNT });
+          await stripe.accounts.del(dbUser.stripeAccount);
         }
 
         await db.transaction(async (tx) => {
