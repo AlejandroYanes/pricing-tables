@@ -365,6 +365,7 @@ const resolveCTA = (options: CTAProps) => {
         freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
         freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
       })}
+      {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
       className="w-full px-8"
     >
       <Button variant="undecorated" className={`w-full ${BUTTON_STYLES[color]}`}>{resolveBtnLabel({
@@ -498,6 +499,7 @@ export default function ThirdTemplate(props: TemplateProps) {
                 freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
                 freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
+              {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
             >
               <Button
                 data-spaced={priceToShow.hasFreeTrial}

@@ -375,6 +375,7 @@ export default function SecondTemplate(props: TemplateProps) {
                 freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
                 freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
               })}
+              {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
             >
               <Button
                 data-spaced={priceToShow.hasFreeTrial}
@@ -469,6 +470,7 @@ export default function SecondTemplate(props: TemplateProps) {
                     freTrialDays: priceToShow.hasFreeTrial ? priceToShow.freeTrialDays : undefined,
                     freeTrialEndAction: priceToShow.hasFreeTrial ? priceToShow.freeTrialEndAction : undefined,
                   })}
+                  {...(dev ? { rel: 'noreferrer', target: '_blank' } : {})}
                   data-spaced={hasFreeTrial}
                   className="h-10 mt-8 mb-8 cursor-pointer data-[spaced=true]:mb-4"
                 >

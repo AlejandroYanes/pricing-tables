@@ -2,8 +2,6 @@ import type { Session } from 'next-auth';
 import { redirect } from 'next/navigation';
 import { ROLES } from '@dealo/models';
 
-import SetupModal from '../setup-modal';
-
 interface Props {
   isAdmin?: boolean;
   session: Session | null;
@@ -22,12 +20,7 @@ const AuthGuard = (props: Props) => {
   }
 
   if (!session.user.isSetup) {
-    return (
-      <>
-        <SetupModal />
-        {children}
-      </>
-    );
+    redirect('/first-time');
   }
 
   return (

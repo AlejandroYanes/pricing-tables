@@ -43,3 +43,26 @@ export function getCurrencySymbol(currencyCode: string) {
   const parts = formatter.formatToParts(0);
   return parts.find(part => part.type === 'currency')!.value;
 }
+
+export function pickRandomIndexWithDistribution(distributions: number[]) {
+  // Calculate total weight
+  const totalWeight = distributions.reduce((acc, weight) => acc + weight, 0);
+
+  // Generate a random number between 0 and totalWeight
+  const random = Math.random() * totalWeight;
+
+  // Iterate through distributions to find where the random value falls
+  let cumulativeWeight = 0;
+  for (let i = 0; i < distributions.length; i++) {
+    cumulativeWeight += distributions[i]!;
+
+    // If the random value is less than the cumulative weight,
+    // return the index
+    if (random < cumulativeWeight) {
+      return i;
+    }
+  }
+
+  // In case of unexpected circumstances, return 0
+  return 0;
+}

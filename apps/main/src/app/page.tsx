@@ -1,4 +1,5 @@
 /* eslint-disable max-len */
+import Link from 'next/link';
 import Image from 'next/image';
 import {
   IconBrush,
@@ -13,7 +14,7 @@ import {
   IconTrendingUp,
   IconUser,
 } from '@tabler/icons-react';
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, cn } from '@dealo/ui';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, cn } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
@@ -73,15 +74,15 @@ const HomePage = () => {
         <section data-el="hero-section" className="flex justify-center items-center py-24 px-4 gap-[72px]">
           <div className="flex flex-col items-stretch max-w-[30rem]">
             <div className="flex items-center gap-0">
-              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]" />
-              <h1 className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+              <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={64} height={64} className="w-[64px] h-[64px]"/>
+              <span className="mb-4 text-[64px] leading-[1.2] font-black text-emerald-500">ealo</span>
             </div>
-            <h2 className="text-[40px] leading-[1.2] font-bold">
+            <h1 className="text-[40px] leading-[1.2] font-bold">
               A platform to streamline <br/>
               <span className="relative py-1 px-3 bg-emerald-500/[.15]">pricing</span>
               <br/>
               into your website.
-            </h2>
+            </h1>
             <span className="mt-4 text-gray-500">
               Build fully functional pricing widgets in minutes using our set of templates.
             </span>
@@ -118,6 +119,15 @@ const HomePage = () => {
                 </span>
               </li>
             </ul>
+
+            <div className="mt-10 ml-8 flex flex-row gap-2">
+              <Link href="/#pricing-section">
+                <Button>Get started now</Button>
+              </Link>
+              <Link href="/contact/query">
+                <Button variant="outline">Get in touch</Button>
+              </Link>
+            </div>
           </div>
           <Image
             width={380}
@@ -246,13 +256,13 @@ const HomePage = () => {
         </section>
 
         <section data-el="pricing-section" id="pricing-section" className="flex flex-col items-center justify-center mt-6 w-full">
-          <h2 className="text text-xl mb-4">Get started now.</h2>
+          <h2 className="text-3xl font-bold mb-4">Get started now.</h2>
           <PricingWidget/>
-          <span className="text text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
+          <span className="text-slate-600 dark:text-slate-300 mt-4">This is a working example of a pricing widget.</span>
         </section>
 
         <section id="faq-section" data-el="faq-section" className="flex flex-col items-center justify-center px-2 mt-14 w-full max-w-[700px]">
-          <h2 className="text-center text-3xl mb-8">FAQ</h2>
+          <h2 className="text-center text-3xl font-bold mb-8">FAQ</h2>
           <Accordion type="single" className="w-full">
             <AccordionItem value="use-case" title="What can I use this for?">
               <AccordionTrigger className="text-lg">
@@ -284,7 +294,7 @@ const HomePage = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <p className="py-4 text-base">
-                  Absolutely! We understand the importance of brand consistency.
+                  We understand the importance of brand consistency.
                   Our platform allows you to customize the generated UI in lots of ways.
                   If you find that you need more customization options, please reach out to us at{' '}
                   <a href="mailto:support@dealo.app" className="underline hover:text-emerald-500">support@dealo.app</a>.
@@ -311,7 +321,7 @@ const HomePage = () => {
               </AccordionTrigger>
               <AccordionContent>
                 <p className="py-4 text-base">
-                  Absolutely! We offer a risk-free trial period for you to explore the full capabilities of our platform.
+                  We offer a risk-free trial period for you to explore the full capabilities of our platform.
                   Take your time to test features, experience the seamless integration with Stripe,
                   and ensure that our platform aligns with your business goals.
                   No commitment required during the trial.

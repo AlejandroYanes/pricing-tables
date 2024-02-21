@@ -14,59 +14,46 @@ export const config = {
 };
 
 async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe.Event) {
-  const { data } = event as Stripe.Event;
+  const { data, account } = event as Stripe.Event;
   const { id: invoiceId, subscription: subscriptionId } = data.object as Stripe.Invoice;
 
-  const stripe = initStripe();
-  const db = initDb();
-
-  const dbInfo = (
-    await db.execute(`
-      SELECT US1.id, US1.name, US1.email, US2.stripeAccount
-      FROM Subscription SUB
-          JOIN User US1 ON SUB.userId = US1.id
-          JOIN PriceWidget PW ON SUB.widgetId = PW.id
-          JOIN User US2 ON PW.userId = US2.id
-      WHERE SUB.id = ?
-      `, [subscriptionId])
-  ).rows[0] as { id: string; name: string; email: string; stripeAccount: string } | undefined;
-
-  if (!dbInfo) {
+  if (account !== env.STRIPE_DEALO_ACCOUNT) {
     res.status(200).json({ source: 'Dealo', received: true });
     return;
   }
 
-  const { stripeAccount } = dbInfo;
-  const invoice = await stripe.invoices.retrieve(invoiceId, { expand: ['subscription'] }, { stripeAccount });
+  const stripe = initStripe();
+  const db = initDb();
+
+  const invoice = await stripe.invoices.retrieve(invoiceId, { expand: ['subscription'] }, { stripeAccount: account });
   const subscription = invoice.subscription as Stripe.Subscription;
 
-  if (event.type === 'invoice.created') {
-    // TODO: might need to do more checks here
-    await stripe.invoices.finalizeInvoice(invoiceId, { stripeAccount });
+  if (event.type === 'invoice.created' && invoice.status === 'draft') {
+    await stripe.invoices.finalizeInvoice(invoiceId, { stripeAccount: account });
   }
 
   if (event.type === 'invoice.finalization_failed') {
     await notifyOfInvoiceFailedToFinalize({
-      name: dbInfo.name,
-      email: dbInfo.email,
       invoiceId,
       subscriptionId: subscription.id,
+      name: invoice.customer_name || 'Unknown',
+      email: invoice.customer_email || 'Unknown',
     });
   }
 
   if (event.type === 'invoice.payment_action_required') {
     await notifyOfInvoicePaymentActionRequired({
-      name: dbInfo.name,
-      email: dbInfo.email,
       invoiceId,
       subscriptionId: subscription.id,
+      name: invoice.customer_name || 'Unknown',
+      email: invoice.customer_email || 'Unknown',
     });
   }
 
   if (event.type === 'invoice.paid') {
     await db.execute(
-      'UPDATE Subscription SET currrentPeriodStart = ?, currentPeriodEnd = ? WHERE status = ? AND id = ?',
-      [subscription.current_period_start, subscription.current_period_end, 'active' as Stripe.Subscription.Status, subscriptionId],
+      'UPDATE Subscription SET currentPeriodStart = ?, currentPeriodEnd = ? WHERE id = ?',
+      [subscription.current_period_start, subscription.current_period_end, subscriptionId],
     );
   }
 

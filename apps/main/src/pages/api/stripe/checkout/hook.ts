@@ -42,7 +42,11 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
         missingCustomer: !session.customer,
         missingSubscription: !session.subscription,
       });
-      return res.status(400).send(`Webhook Error: missing params`);
+      return res.status(200).json({
+        source: 'Dealo',
+        received: true,
+        message: 'Missing params.',
+      });
     }
 
     const customer = session.customer as Stripe.Customer;
@@ -63,7 +67,11 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
         subscriptionId: subscriptionId,
       });
       await sendFailedPaymentEmail({ to: email, name });
-      res.status(200).json({ source: 'Dealo', received: true });
+      res.status(200).json({
+        source: 'Dealo',
+        received: true,
+        message: 'Payment failed.',
+      });
       return;
     }
 
@@ -76,7 +84,7 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
       );
       await tx.execute(
         // eslint-disable-next-line max-len
-        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currrentPeriodStart, currentPeriodEnd, trialStart, trialEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
+        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currentPeriodStart, currentPeriodEnd, trialStart, trialEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
         // eslint-disable-next-line max-len
         [subscriptionId, userId, widgetId, productId, priceId, current_period_start, current_period_end, trial_start, trial_end, status],
       );

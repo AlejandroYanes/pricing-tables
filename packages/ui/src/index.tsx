@@ -25,6 +25,8 @@ export * from './radio-group';
 export * from './select';
 export * from './select-with-options';
 export * from './separator';
+export * from './slider';
+export * from './switch';
 export * from './table';
 export * from './tabs';
 export * from './textarea';

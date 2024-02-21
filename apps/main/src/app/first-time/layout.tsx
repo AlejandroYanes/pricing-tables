@@ -1,22 +1,26 @@
 import { getServerSession } from 'next-auth';
-import { Toaster } from '@dealo/ui';
+import { redirect } from 'next/navigation';
 
 import { authOptions } from 'utils/auth';
-import AuthGuard from 'components/auth-guard';
+import ViewSizeGuard from 'components/view-size-guard';
 import ClientProviders from 'components/client-providers';
 
 interface Props {
   children: any;
 }
 
-export default async function PrivateLayout(props: Props) {
+export default async function FirstTimeLayout(props: Props) {
   const session = await getServerSession(authOptions);
+
+  if (!session?.user) {
+    redirect('/');
+  }
+
   return (
-    <AuthGuard session={session}>
+    <ViewSizeGuard>
       <ClientProviders session={session}>
         {props.children}
       </ClientProviders>
-      <Toaster />
-    </AuthGuard>
+    </ViewSizeGuard>
   );
 }
