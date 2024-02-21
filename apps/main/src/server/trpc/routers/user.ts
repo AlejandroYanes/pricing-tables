@@ -116,7 +116,7 @@ export const userRouter = createTRPCRouter({
           await stripe.subscriptions.cancel(subscription.id, { stripeAccount: env.STRIPE_DEALO_ACCOUNT });
         }
 
-        // the second check is to prevent deleting the main stripe account
+        // the second check is to prevent deleting the billing stripe account
         if (dbUser.stripeAccount && dbUser.stripeAccount !== env.STRIPE_DEALO_ACCOUNT) {
           await stripe.accounts.del(dbUser.stripeAccount);
         }
