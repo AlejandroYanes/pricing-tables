@@ -78,7 +78,6 @@ export const userRouter = createTRPCRouter({
         select: selectQuery,
         orderBy: [
           { createdAt: 'asc' },
-          { name: 'asc' },
         ],
       })).map((res) => ({
         ...res,
