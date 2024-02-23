@@ -76,6 +76,9 @@ export const userRouter = createTRPCRouter({
         skip: page === 1 ? 0 : pageSize * (page - 1),
         where: whereQuery,
         select: selectQuery,
+        orderBy: {
+          createdAt: 'asc',
+        }
       })).map((res) => ({
         ...res,
         stripeKey: undefined,
