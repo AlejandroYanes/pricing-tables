@@ -113,6 +113,7 @@ model Analytic {
     visitorId       String?
     country         String?
     region          String?
+    device          String?
     createdAt       DateTime    @default(now())
 }
 

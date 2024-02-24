@@ -8,5 +8,6 @@ export interface Analytic {
   visitorId?: string;
   country?: string;
   region?: string;
+  device?: string;
   createdAt: Date;
 }
