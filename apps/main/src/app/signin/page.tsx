@@ -12,6 +12,7 @@ import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/base-layout';
 import SignInForm from 'components/signin-form';
 import PublicNavbar from 'components/public-navbar';
+import CookiesBanner from 'components/cookies-banner';
 
 export const metadata: Metadata = {
   title: 'Dealo | Signin',
@@ -101,6 +102,7 @@ export default async function SigninPage(props: Props) {
         </div>
         <SignInForm />
       </main>
+      <CookiesBanner />
     </BaseLayout>
   );
 }
