@@ -76,7 +76,7 @@ const ReturnPage = () => {
             <span className="text text-center">
               Something is wrong with your session, please go back and make sure you are signed in.
             </span>
-            <Link href="/apps/main/public">
+            <Link href="/">
               <Button>Go back</Button>
             </Link>
           </div>
@@ -112,7 +112,7 @@ const ReturnPage = () => {
             <span className="text text-center">
               Something went wrong, please try again later.
             </span>
-            <Link href="/dashboard">
+            <Link href="/first-time">
               <Button>Go back</Button>
             </Link>
           </RenderIf>
