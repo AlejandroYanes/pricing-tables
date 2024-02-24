@@ -6,6 +6,7 @@ import { Button, RenderIf } from '@dealo/ui';
 import { authOptions } from 'utils/auth';
 import BaseLayout from 'components/base-layout';
 import PublicNavbar from 'components/public-navbar';
+import CookiesBanner from 'components/cookies-banner';
 
 export default async function PrivacyPolicyPage() {
   const session = await getServerSession(authOptions);
@@ -146,6 +147,7 @@ export default async function PrivacyPolicyPage() {
           <a href="mailto:support@dealo.app">support@dealo.app</a>
         </div>
       </div>
+      <CookiesBanner />
     </BaseLayout>
   );
 }

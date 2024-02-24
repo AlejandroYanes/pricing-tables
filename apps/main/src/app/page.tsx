@@ -19,6 +19,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, c
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
 import PublicNavbar from 'components/public-navbar';
+import CookiesBanner from 'components/cookies-banner';
 
 interface IconListItemProps {
   icon: JSX.Element;
@@ -347,6 +348,7 @@ const HomePage = () => {
           </Accordion>
         </section>
       </main>
+      <CookiesBanner />
     </BaseLayout>
   );
 };
