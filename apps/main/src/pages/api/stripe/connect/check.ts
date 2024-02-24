@@ -38,7 +38,6 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
     ).rows[0] as { id: string; status: Stripe.Subscription.Status; trialEnd: number } | undefined;
 
     await db.transaction(async (tx) => {
-      // eslint-disable-next-line max-len
       await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
     });
 

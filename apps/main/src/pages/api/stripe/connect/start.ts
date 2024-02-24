@@ -22,7 +22,7 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
     });
 
     await db.transaction(async (tx) => {
-      await tx.execute( 'UPDATE User SET stripeAccount = ? WHERE id = ?', [newAccount.id, session.user!.id]);
+      await tx.execute( 'UPDATE User SET stripeAccount = ? WHERE id = ?', [newAccount.id, session.user.id]);
     });
 
     const accountLinkUrl = await generateStripeAccountLink(stripe, newAccount.id, platformUrl);
@@ -38,6 +38,9 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
   const account = await stripe.accounts.retrieve(stripeAccount);
 
   if (account.charges_enabled) {
+    await db.transaction(async (tx) => {
+      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
+    });
     res.redirect(303, `${platformUrl}/dashboard`);
     return;
   }
