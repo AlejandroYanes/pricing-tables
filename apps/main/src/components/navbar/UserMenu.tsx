@@ -34,7 +34,8 @@ import {
   DropdownMenuSubContent,
   DropdownMenuSubTrigger,
   DropdownMenuTrigger,
-  RenderIf
+  RenderIf,
+  useToast,
 } from '@dealo/ui';
 import { ROLES } from '@dealo/models';
 import { formatStripeDate } from '@dealo/helpers';
@@ -69,10 +70,19 @@ export default function UserMenu(props: Props) {
 
   const { theme, setTheme } = useTheme();
 
+  const { toast } = useToast();
+
   const [showDeleteAccountModal, setShowModal] = useState(false);
 
   const { mutate: deleteAccount } = trpc.user.deleteAccount.useMutation({
     onSuccess: () => handleLogout(),
+    onError: (error) => {
+      toast({
+        title: 'Error',
+        description: error.message,
+        variant: 'destructive',
+      });
+    }
   });
 
   const handleLogout = async () => {
