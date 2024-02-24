@@ -47,7 +47,13 @@ const UsersTable = () => {
     { keepPreviousData: true },
   );
 
-  const csvData: string[][] = [['name', 'email']].concat(results.map((user) => ([user.name || '-', user.email || '-'])));
+  const csvData: string[][] = [['name', 'email', 'started_on']].concat(
+    results.map((user) => ([
+      user.name || '-',
+      user.email || '-',
+      user.createdAt ? formatDate(user.createdAt) : '-',
+    ]))
+  );
 
   const handleSearch = (value: string) => {
     debounceCall(() => setQuery(value));
