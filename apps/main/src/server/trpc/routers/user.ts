@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import type Stripe from 'stripe';
 import { TRPCError } from '@trpc/server';
+import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
 import initDb from 'utils/planet-scale';
@@ -88,20 +89,29 @@ export const userRouter = createTRPCRouter({
 
   deleteAccount: protectedProcedure
     .mutation(async ({ ctx }) => {
+      const { session: { user } } = ctx;
+      const db = initDb();
+      const stripe = initStripe();
+
+      const dbUser = (
+        await db.execute('SELECT email, stripeAccount, role FROM User WHERE id = ?', [user.id])
+      ).rows[0] as { email: string; stripeAccount?: string; role: string } | undefined;
+
+      if (!dbUser) {
+        throw new TRPCError({
+          code: 'NOT_FOUND',
+          message: 'User not found',
+        });
+      }
+
+      if (dbUser.role === ROLES.ADMIN) {
+        return new TRPCError({
+          code: 'FORBIDDEN',
+          message: 'Admin accounts cannot be deleted',
+        });
+      }
+
       try {
-        const { session: { user } } = ctx;
-        const db = initDb();
-        const stripe = initStripe();
-
-        const dbUser = (
-          await db.execute('SELECT email, stripeAccount FROM User WHERE id = ?', [user.id])
-        ).rows[0] as { email: string; stripeAccount?: string } | undefined;
-
-        if (!dbUser) {
-          // noinspection ExceptionCaughtLocallyJS
-          throw new Error('DB_USER_NOT_FOUND');
-        }
-
         const subscription = (
           await db.execute(`
           SELECT id
@@ -149,15 +159,7 @@ export const userRouter = createTRPCRouter({
         await notifyOfDeletedAccount({ name: user.name!, email: dbUser.email, hadSubscription: !!subscription });
         await sendAccountDeletedEmail({ to: dbUser.email, name: user.name! });
       } catch (e: any) {
-        console.error('Error deleting account', e);
-
-        if (e.message === 'DB_USER_NOT_FOUND') {
-          throw new TRPCError({
-            code: 'NOT_FOUND',
-            message: 'User not found',
-          });
-        }
-
+        console.error('❌ Error deleting account', e);
         throw new TRPCError({
           code: 'INTERNAL_SERVER_ERROR',
           message: 'Error deleting account',
