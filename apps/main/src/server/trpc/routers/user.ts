@@ -15,33 +15,26 @@ export const userRouter = createTRPCRouter({
       page: z.number().min(1),
       pageSize: z.number(),
       query: z.string().nullish(),
-      isSetup: z.enum(['yes', 'no']).nullish(),
-      hasLegacy: z.enum(['yes', 'no']).nullish(),
+      status: z.enum(['setup', 'legacy', 'none', 'all']),
     }))
     .query(async ({ ctx, input }) => {
-      const { page, pageSize, query, isSetup, hasLegacy } = input;
+      const { page, pageSize, query, status } = input;
 
       let setupQuery = {};
       let searchQuery = {};
 
-      if (isSetup === 'yes') {
-        setupQuery = {
-          stripeConnected: true,
-        };
-      } else if (isSetup === 'no') {
-        setupQuery = {
-          stripeConnected: false,
-        };
-      }
-
-      if (hasLegacy === 'yes') {
-        setupQuery = {
-          stripeKey: { not: null },
-        };
-      } else if (hasLegacy === 'no') {
-        setupQuery = {
-          stripeKey: null,
-        };
+      switch (status) {
+        case 'setup':
+          setupQuery = { stripeConnected: true };
+          break;
+        case 'legacy':
+          setupQuery = { stripeKey: { not: null } };
+          break;
+        case 'none':
+          setupQuery = { stripeConnected: false, stripeKey: null };
+          break;
+        default:
+          break;
       }
 
       if (query) {
@@ -64,6 +57,7 @@ export const userRouter = createTRPCRouter({
         image: true,
         stripeKey: true,
         stripeConnected: true,
+        createdAt: true,
         _count: {
           select: {
             widgets: true,
@@ -72,13 +66,14 @@ export const userRouter = createTRPCRouter({
       };
 
       const results = (await ctx.prisma.user.findMany({
+        orderBy: [
+          { createdAt: 'asc' },
+          { id: 'asc' },
+        ],
         take: pageSize,
         skip: page === 1 ? 0 : pageSize * (page - 1),
         where: whereQuery,
         select: selectQuery,
-        orderBy: [
-          { createdAt: 'asc' },
-        ],
       })).map((res) => ({
         ...res,
         stripeKey: undefined,
