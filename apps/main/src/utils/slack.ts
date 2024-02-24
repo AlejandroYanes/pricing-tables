@@ -17,6 +17,14 @@ interface Payload {
   email: string;
 }
 
+export function notifyOfNewSignup(data: Payload) {
+  return sendNotification(
+    env.SLACK_USERS_CHANNEL,
+    // eslint-disable-next-line max-len
+    { text: `A user just signed up:\n*${data.name}*\n*${data.email}*` }
+  );
+}
+
 interface NewSetupPayload extends Payload {
   hasSubscription: boolean;
   hasTrial: boolean;
