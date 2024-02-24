@@ -2,7 +2,7 @@ import type { NextPage } from 'next';
 import Head from 'next/head';
 
 import BaseLayout from 'components/base-layout';
-import UsersTable from 'components/users-table';
+import UsersTable from './users-table';
 
 const UsersPage: NextPage = () => {
   return (
