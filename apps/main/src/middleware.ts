@@ -1,4 +1,4 @@
-import { NextResponse } from 'next/server'
+import { NextResponse, userAgent } from 'next/server';
 import type { NextRequest } from 'next/server'
 import * as edgeConfig from '@vercel/edge-config';
 import { createId } from '@paralleldrive/cuid2';
@@ -35,16 +35,21 @@ export async function middleware(req: NextRequest) {
     const variantCookie = req.cookies.get(LANDING_PAGE_EXPERIMENT_COOKIE);
     const variant = variantCookie?.value || getNewVariant(experiment);
 
+    const { isBot, device } = userAgent(req);
+
     if (variant) {
-      await recordEvent({
-        id: createId(),
-        experiment: LANDING_PAGE_EXPERIMENT,
-        variant,
-        event: 'view',
-        visitorId,
-        country: req.geo?.country,
-        region: req.geo?.region,
-      });
+      if (!isBot) {
+        await recordEvent({
+          id: createId(),
+          experiment: LANDING_PAGE_EXPERIMENT,
+          variant,
+          event: 'view',
+          visitorId,
+          country: req.geo?.country,
+          region: req.geo?.region,
+          device: device.type,
+        });
+      }
 
       const url = req.nextUrl.clone();
 

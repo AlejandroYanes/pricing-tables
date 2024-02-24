@@ -8,8 +8,17 @@ export async function recordEvent(analytic: Omit<Analytic, 'createdAt' | 'varian
 
   await db.transaction(async (tx) => {
     await tx.execute(
-      'INSERT INTO Analytic (id, experiment, variant, event, visitorId, country, region, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
-      [analytic.id, analytic.experiment, analytic.variant ?? 'default', analytic.event, analytic.visitorId ?? null, analytic.country ?? null, analytic.region ?? null]
+      'INSERT INTO Analytic (id, experiment, variant, event, visitorId, country, region, device, createdAt) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+      [
+        analytic.id,
+        analytic.experiment,
+        analytic.variant ?? 'default',
+        analytic.event,
+        analytic.visitorId ?? null,
+        analytic.country ?? null,
+        analytic.region ?? null,
+        analytic.device ?? null,
+      ]
     );
   });
 }
