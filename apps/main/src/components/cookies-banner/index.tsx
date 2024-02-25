@@ -34,7 +34,7 @@ export default function CookiesBanner() {
         <DialogDescription className="flex flex-col gap-4">
           <IconCookie size={80} className="text-emerald-600" />
           <h3 className="text-2xl font-bold">We use cookies</h3>
-          <p className="text-base text-black">
+          <p className="text-base">
             We use cookies to provide you with the best possible experience.
             <br/>
             These are not third-party cookies and are used only for the functionality of the site.
