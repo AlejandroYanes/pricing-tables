@@ -6,6 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button } 
 import BaseLayout from 'components/base-layout';
 import PricingWidget from 'components/pricing-widget';
 import PublicNavbar from 'components/public-navbar';
+import CookiesBanner from 'components/cookies-banner';
 
 export default function NewBillingPage() {
   return (
@@ -139,6 +140,7 @@ export default function NewBillingPage() {
           </Accordion>
         </section>
       </main>
+      <CookiesBanner />
     </BaseLayout>
   );
 }
