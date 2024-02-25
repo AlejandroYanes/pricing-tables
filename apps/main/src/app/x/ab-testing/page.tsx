@@ -5,6 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button, c
 
 import BaseLayout from 'components/base-layout';
 import PublicNavbar from 'components/public-navbar';
+import CookiesBanner from 'components/cookies-banner';
 
 interface CardProps {
   title: string;
@@ -187,6 +188,7 @@ export default function ABTestingPage() {
           </Accordion>
         </section>
       </main>
+      <CookiesBanner />
     </BaseLayout>
   );
 }
