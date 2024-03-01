@@ -86,7 +86,9 @@ export async function postQuery(data: Query) {
       name: data.name,
       email: data.email,
     });
+    return { success: true };
   } catch (error) {
     console.error('❌ Error posting query to Notion', error);
+    return { success: false };
   }
 }
