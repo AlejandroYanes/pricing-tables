@@ -5,22 +5,29 @@ import { Button, Loader, RenderIf } from '@dealo/ui';
 import type { Report } from './report-actions';
 
 interface Props {
-  onSubmit: (formData: Report) => Promise<void>;
+  onSubmit: (formData: Report) => Promise<{ success: boolean }>;
 }
 const SubmitQueryButton = (props: Props) => {
   const { onSubmit } = props;
   const [loading, setLoading] = useState(false);
 
   const handleClick = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    const form = e.currentTarget?.form;
+
+    if (!form) {
+      return;
+    }
+
     try {
       setLoading(true);
       const data: Report = {
-        name: (e.currentTarget?.form?.elements as any).name.value,
-        email: (e.currentTarget?.form?.elements as any).email.value,
-        message: (e.currentTarget?.form?.elements as any).message.value,
-        consent: (e.currentTarget?.form?.elements as any).consent.checked,
+        name: (form.elements as any).name.value,
+        email: (form.elements as any).email.value,
+        message: (form.elements as any).message.value,
+        consent: (form.elements as any).consent.checked,
       };
       await onSubmit(data);
+      form.reset();
       setLoading(false);
     } catch (e) {
       console.error(e);
