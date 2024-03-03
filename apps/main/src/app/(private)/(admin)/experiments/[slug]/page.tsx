@@ -1,11 +1,27 @@
-'use client'
-
+'use client';
 import { notFound } from 'next/navigation';
-import { Label, Loader, Switch, Table, TableBody, TableCell, TableHead, TableHeader, TableRow, useToast } from '@dealo/ui';
+import {
+  Label,
+  Loader,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+  Switch,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+  useToast
+} from '@dealo/ui';
 
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/base-layout';
-import Distributions from './Distributions';
+import Distributions from './distributions';
+import { useState } from 'react';
 
 interface Props {
   params: {
@@ -15,9 +31,11 @@ interface Props {
 
 export default function ExperimentDetailsPage(props: Props) {
   const { params } = props;
-
+  const  [dateFilter, setDateFilter] = useState<string>('24h');
   const { toast } = useToast();
-  const { data: response, isLoading } = trpc.experiments.getExperiment.useQuery(params.slug);
+
+  const { data: experiment, isLoading } = trpc.experiments.getExperiment.useQuery(params.slug);
+  const { data: results = [] } = trpc.experiments.getRecords.useQuery(dateFilter as any, { keepPreviousData: true });
 
   const utils = trpc.useContext();
   const { mutateAsync: updateRunningStatus } = trpc.experiments.updateStatus.useMutation({
@@ -41,13 +59,10 @@ export default function ExperimentDetailsPage(props: Props) {
   });
 
   const handleRunningStatusChange = async (running: boolean) => {
-    if (!response?.experiment) return;
+    if (!experiment) return;
 
-    await updateRunningStatus({ slug: params.slug, experiment: response.experiment, running });
-    utils.experiments.getExperiment.setData(params.slug, {
-      results: response.results,
-      experiment: { ...response.experiment, running },
-    });
+    await updateRunningStatus({ slug: params.slug, experiment, running });
+    utils.experiments.getExperiment.setData(params.slug, { ...experiment, running });
   }
 
   if (isLoading) {
@@ -61,21 +76,32 @@ export default function ExperimentDetailsPage(props: Props) {
     );
   }
 
-  if (!response?.experiment) {
+  if (!experiment) {
     return notFound();
   }
-
-  const { experiment, results } = response;
 
   return (
     <BaseLayout title={experiment.title} showBackButton>
       <section className="w-full max-w-[900px] mx-auto flex flex-col items-stretch">
         <div className="flex flex-row items-center justify-between mt-8 mb-16">
           <div className="flex items-center space-x-2">
-            <Switch id="airplane-mode" checked={experiment.running} onCheckedChange={handleRunningStatusChange} />
             <Label htmlFor="airplane-mode">Running</Label>
+            <Switch id="airplane-mode" checked={experiment.running} onCheckedChange={handleRunningStatusChange} />
           </div>
-          <Distributions slug={params.slug} experiment={experiment}/>
+          <div className="flex flex-row gap-4">
+            <Distributions slug={params.slug} experiment={experiment}/>
+            <Select value={dateFilter} onValueChange={setDateFilter}>
+              <SelectTrigger className="w-48">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24h">Last 24 hours</SelectItem>
+                <SelectItem value="7d">Last 7 days</SelectItem>
+                <SelectItem value="30d">Last 30 days</SelectItem>
+                <SelectItem value="all">All time</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
         <Table>
           <TableHeader>

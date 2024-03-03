@@ -17,7 +17,25 @@ export const experimentsRouter = createTRPCRouter({
       });
     }
 
+    return experiment;
+  }),
+
+  getRecords: adminProcedure.input(z.enum(['24h', '7d', '30d', 'all'])).query(async ({ input }) => {
     const db = initDb();
+
+    let dateQuery = '';
+
+    switch (input) {
+      case '24h':
+        dateQuery = 'DATE_SUB(NOW(), INTERVAL 1 DAY)';
+        break;
+      case '7d':
+        dateQuery = 'DATE_SUB(NOW(), INTERVAL 7 DAY)';
+        break;
+      case '30d':
+        dateQuery = 'DATE_SUB(NOW(), INTERVAL 30 DAY)';
+        break;
+    }
 
     const results = (
       await db.execute(
@@ -27,12 +45,13 @@ export const experimentsRouter = createTRPCRouter({
             SUM(IF(event = 'signup', 1, 0)) AS signups,
             COUNT(DISTINCT CASE WHEN event = 'view' THEN visitorId END) AS visitors
         FROM Analytic
-        GROUP BY variant;`,
+        ${dateQuery ? `WHERE createdAt > ${dateQuery}` : ''}
+        GROUP BY variant`,
         [],
       )
     ).rows as { variant: string; views: number; visitors: number; signups: number }[];
 
-    return { experiment, results };
+    return results;
   }),
 
   updateDistributions: adminProcedure.input(z.object({
