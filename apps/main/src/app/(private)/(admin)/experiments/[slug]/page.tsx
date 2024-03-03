@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { notFound } from 'next/navigation';
 import {
   Label,
@@ -21,7 +22,6 @@ import {
 import { trpc } from 'utils/trpc';
 import BaseLayout from 'components/base-layout';
 import Distributions from './distributions';
-import { useState } from 'react';
 
 interface Props {
   params: {
