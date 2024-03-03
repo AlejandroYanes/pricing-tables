@@ -1,6 +1,6 @@
 'use client'
 import { useState } from 'react';
-import Image from 'next/image';
+// import Image from 'next/image';
 import Link from 'next/link';
 import {
   RenderIf,
@@ -29,8 +29,8 @@ function DesktopNavbar(props: Props) {
     <header className="h-16 flex gap-2 justify-end items-center mb-6 z-10 px-4 xl:px-0 w-full max-w-[1200px] mx-auto">
       <RenderIf condition={!!showLogo}>
         <div className="flex items-center gap-0 mr-auto">
-          <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={32} height={32} className="w-[32px] h-[32px]"/>
-          <h1 className="text-[32px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+          {/*<Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={32} height={32} className="w-[32px] h-[32px]"/>*/}
+          <h1 className="text-[32px] leading-[1.2] font-black text-emerald-500">Dealo</h1>
         </div>
       </RenderIf>
       <RenderIf condition={!!showHome}>
@@ -67,8 +67,8 @@ function MobileNavbar(props: Props) {
     <header className="flex items-center justify-between pl-2">
       <RenderIf condition={!!showLogo}>
         <div className="flex items-center gap-0 mr-auto">
-          <Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={32} height={32} className="w-[32px] h-[32px]"/>
-          <h1 className="text-[32px] leading-[1.2] font-black text-emerald-500">ealo</h1>
+          {/*<Image src="/logo/dealo_logo_letter.svg" alt="Dealo" width={32} height={32} className="w-[32px] h-[32px]"/>*/}
+          <h1 className="text-[32px] leading-[1.2] font-black text-emerald-500">Dealo</h1>
         </div>
       </RenderIf>
       <Drawer direction="top" open={isOpen} onOpenChange={setIsOpen}>

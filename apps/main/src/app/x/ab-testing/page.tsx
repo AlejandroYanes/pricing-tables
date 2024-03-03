@@ -51,6 +51,9 @@ export default function ABTestingPage() {
               Use our <strong>A/B testing</strong> and <strong>Insights</strong> to find the best pricing combination for your business.
             </span>
           </div>
+          <span className="mt-4 text-xl text-slate-700 dark:text-neutral-200 text-center">
+            Powered by Stripe.
+          </span>
           <div className="mt-10 flex flex-row gap-2">
             <Link href="/signin">
               <Button>Get started now</Button>
