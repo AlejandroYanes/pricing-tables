@@ -1,19 +1,20 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { type AuthenticatedSession } from 'next-auth';
+import { sql } from '@vercel/postgres';
 import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import { authMiddleware } from 'utils/api';
 import initStripe from 'utils/stripe';
-import initDb from 'utils/planet-scale';
 
 async function handler(_: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) {
   const stripe = initStripe();
-  const db = initDb();
+  const client = await sql.connect();
+
   const platformUrl = process.env.PLATFORM_URL ?? env.NEXTAUTH_URL;
 
   const { stripeAccount, stripeConnected } = (
-    await db.execute('SELECT stripeAccount, stripeConnected FROM User WHERE id = ?', [session.user.id])
+    await client.sql`SELECT "stripeAccount", "stripeConnected" FROM "User" WHERE id = ${session.user.id}`
   ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
   if (!stripeAccount) {
@@ -21,9 +22,9 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
       type: 'standard',
     });
 
-    await db.transaction(async (tx) => {
-      await tx.execute( 'UPDATE User SET stripeAccount = ? WHERE id = ?', [newAccount.id, session.user.id]);
-    });
+    await client.sql`UPDATE "User" SET "stripeAccount" = ${newAccount.id} WHERE id = ${session.user.id}`;
+
+    client.release();
 
     const accountLinkUrl = await generateStripeAccountLink(stripe, newAccount.id, platformUrl);
     res.redirect(303, accountLinkUrl);
@@ -31,6 +32,7 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
   }
 
   if (stripeConnected) {
+    client.release();
     res.redirect(303, `${platformUrl}/dashboard`);
     return;
   }
@@ -38,12 +40,14 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
   const account = await stripe.accounts.retrieve(stripeAccount);
 
   if (account.charges_enabled) {
-    await db.transaction(async (tx) => {
-      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
-    });
+    await client.sql`UPDATE "User" SET "stripeConnected" = true, stripeKey = null WHERE id = ${session.user.id}`;
+
+    client.release();
     res.redirect(303, `${platformUrl}/dashboard`);
     return;
   }
+
+  client.release();
 
   const accountLinkUrl = await generateStripeAccountLink(stripe, stripeAccount, platformUrl);
   res.redirect(303, accountLinkUrl);

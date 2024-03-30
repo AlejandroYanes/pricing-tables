@@ -1,9 +1,9 @@
 import { z } from 'zod';
 import { TRPCError } from '@trpc/server';
+import { sql } from '@vercel/postgres';
 import type { Experiment } from '@dealo/models';
 
 import { getStoreItem, updateStore } from 'utils/vercel-edge-config';
-import initDb from 'utils/planet-scale';
 import { adminProcedure, createTRPCRouter } from '../trpc';
 
 export const experimentsRouter = createTRPCRouter({
@@ -21,8 +21,6 @@ export const experimentsRouter = createTRPCRouter({
   }),
 
   getRecords: adminProcedure.input(z.enum(['24h', '7d', '30d', 'all'])).query(async ({ input }) => {
-    const db = initDb();
-
     let dateQuery = '';
 
     switch (input) {
@@ -37,21 +35,16 @@ export const experimentsRouter = createTRPCRouter({
         break;
     }
 
-    const results = (
-      await db.execute(
-        `SELECT
-            variant,
-            SUM(IF(event = 'view', 1, 0)) AS views,
-            SUM(IF(event = 'signup', 1, 0)) AS signups,
-            COUNT(DISTINCT CASE WHEN event = 'view' THEN visitorId END) AS visitors
-        FROM Analytic
-        ${dateQuery ? `WHERE createdAt > ${dateQuery}` : ''}
-        GROUP BY variant`,
-        [],
-      )
-    ).rows as { variant: string; views: number; visitors: number; signups: number }[];
-
-    return results;
+    return (
+      await sql<{ variant: string; views: number; visitors: number; signups: number }>`
+      SELECT
+            "variant",
+            SUM(CASE WHEN event = 'view' THEN 1 ELSE 0 END) AS views,
+            SUM(CASE WHEN event = 'signup' THEN 1 ELSE 0 END) AS signups,
+            COUNT(DISTINCT CASE WHEN event = 'view' THEN "visitorId" END) AS visitors
+        FROM "Analytic" WHERE "createdAt" > ${dateQuery}
+        GROUP BY "variant"`
+    ).rows;
   }),
 
   updateDistributions: adminProcedure.input(z.object({

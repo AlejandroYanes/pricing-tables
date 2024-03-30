@@ -1,10 +1,11 @@
+/* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
 import type Stripe from 'stripe';
+import { sql } from '@vercel/postgres';
 import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
 import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
-import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfNewSubscription, notifyOfSubscriptionMissingParams, notifyOfSubscriptionPaymentFailed, } from 'utils/slack';
 import { sendFailedPaymentEmail, sendSubscriptionCreatedEmail } from 'utils/resend';
@@ -52,14 +53,17 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
     const customer = session.customer as Stripe.Customer;
     const { id: subscriptionId } = session.subscription as Stripe.Subscription;
     const { widgetId, productId, priceId } = session.metadata!;
-    const db = initDb();
+
+    const client = await sql.connect();
 
     const { id: userId, name, email } = (
-      await db.execute('SELECT id, name, email FROM User WHERE email = ?', [customer.email])
-    ).rows[0] as { id: string; name: string; email: string };
+      await client.sql<{ id: string; name: string; email: string }>`
+        SELECT id, name, email FROM User WHERE email = ${customer.email}`
+    ).rows[0]!;
 
     if (session.payment_status !== 'paid') {
       console.log(`❌ Webhook Error: payment failed`);
+      client.release();
 
       await notifyOfSubscriptionPaymentFailed({
         name,
@@ -77,19 +81,12 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
 
     const { status, current_period_start, current_period_end, trial_start, trial_end } = session.subscription as Stripe.Subscription;
 
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        'UPDATE User SET stripeCustomerId = ?, role = ? WHERE id = ?',
-        [customer.id, ROLES.PAID, userId],
-      );
-      await tx.execute(
-        // eslint-disable-next-line max-len
-        'INSERT INTO Subscription(id, userId, widgetId, productId, priceId, currentPeriodStart, currentPeriodEnd, trialStart, trialEnd, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)',
-        // eslint-disable-next-line max-len
-        [subscriptionId, userId, widgetId, productId, priceId, current_period_start, current_period_end, trial_start, trial_end, status],
-      );
-    });
+    await client.sql`'UPDATE "User" SET "stripeCustomerId" = ${customer.id}, role = ${ROLES.PAID} WHERE id = ${userId}`;
+    await client.sql`
+      INSERT INTO "Subscription"(id, "userId", "widgetId", "productId", "priceId", "currentPeriodStart", "currentPeriodEnd", "trialStart", "trialEnd", status)
+      VALUES (${subscriptionId}, ${userId}, ${widgetId}, ${productId}, ${priceId}, ${current_period_start}, ${current_period_end}, ${trial_start}, ${trial_end}, ${status})`;
 
+    client.release();
     await notifyOfNewSubscription({ name, email });
     await sendSubscriptionCreatedEmail({ name, to: email });
   }

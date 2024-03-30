@@ -1,10 +1,10 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import type Stripe from 'stripe';
 import { z } from 'zod';
 import type { FeatureType, FormFeature, FormProduct, WidgetInfo } from '@dealo/models';
 
-import initDb from 'utils/planet-scale';
 import { authMiddleware } from 'utils/api';
 import initStripe, { reduceStripePrice, reduceStripeProduct } from 'utils/stripe';
 
@@ -27,51 +27,59 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 export default authMiddleware(handler);
 
 async function getWidgetData(widgetId: string) {
-  const db = initDb();
-
   const widgetFields = [
-    'PriceWidget.id',
-    'PriceWidget.template',
-    'PriceWidget.name',
-    'PriceWidget.recommended',
-    'PriceWidget.color',
-    'PriceWidget.unitLabel',
-    'PriceWidget.subscribeLabel',
-    'PriceWidget.freeTrialLabel',
-    'PriceWidget.userId',
-    'PriceWidget.checkoutSuccessUrl',
-    'PriceWidget.checkoutCancelUrl',
+    'id',
+    'template',
+    'name',
+    'recommended',
+    'color',
+    '"unitLabel"',
+    '"subscribeLabel"',
+    '"freeTrialLabel"',
+    '"userId"',
+    '"checkoutSuccessUrl"',
+    '"checkoutCancelUrl"',
   ];
-  const widgetQuery = `SELECT ${widgetFields.join(', ')} FROM PriceWidget WHERE id = ?`;
 
   const widget = (
-    await db.execute(widgetQuery, [widgetId])
+    await sql`SELECT ${widgetFields.join(', ')} FROM "PriceWidget" WHERE id = ${widgetId}`
   ).rows[0] as Widget;
 
-  const callbacksQuery = 'SELECT Callback.id, Callback.env, Callback.url, Callback.order FROM Callback WHERE Callback.widgetId = ? ORDER BY Callback.order, Callback.createdAt';
-
   const callbacks = (
-    await db.execute(callbacksQuery, [widgetId])
-  ).rows as Callback[];
+    await sql<Callback>`
+      SELECT id, env, url, "order"
+      FROM "Callback"
+      WHERE "widgetId" = ${widgetId} ORDER BY "order", "createdAt"`
+  ).rows;
 
   const features = (
-    await db.execute('SELECT Feature.id, Feature.name, Feature.type, Feature.value, Feature.productId, Feature.order FROM Feature WHERE Feature.widgetId = ? ORDER BY Feature.order, Feature.createdAt', [widgetId])
-  ).rows as Feature[];
+    await sql<Feature>`
+      SELECT id, name, type, value, "productId", "order"
+      FROM "Feature" WHERE "widgetId" = ${widgetId} ORDER BY "order", "createdAt"`
+  ).rows;
 
   const products = (
-    await db.execute('SELECT Product.id, Product.isCustom, Product.name, Product.description, Product.ctaLabel, Product.ctaUrl, Product.mask, Product.order FROM Product WHERE Product.widgetId = ? ORDER BY Product.order, Product.createdAt', [widgetId])
-  ).rows as Product[];
+    await sql<Product>`
+      SELECT id, "isCustom", name, description, "ctaLabel", "ctaUrl", mask, "order"
+      FROM "Product" WHERE "widgetId" = ? ORDER BY "order", "createdAt"`
+  ).rows;
 
   const prodIds = products.map((p) => p.id);
-  const prices = prodIds.length > 0
-    ? (
-      await db.execute('SELECT Price.id, Price.hasFreeTrial, Price.freeTrialDays, Price.freeTrialEndAction, Price.productId, Price.mask, Price.order FROM Price WHERE Price.widgetId = ? AND Price.productId IN (?) ORDER BY Price.order, Price.createdAt', [widgetId, prodIds])
-    ).rows as Price[]
-    : [];
+  let prices: Price[] = [];
+
+  if (prodIds.length) {
+    const prodIdsStr = prodIds.map((id) => `'${id}'`).join(',');
+    prices = (
+      await sql<Price>`
+        SELECT id, "hasFreeTrial", "freeTrialDays", "freeTrialEndAction", "productId", mask, "order"
+        FROM "Price" WHERE "widgetId" = ? AND "productId" IN ('{${prodIdsStr}}')
+        ORDER BY "order", "createdAt"`
+    ).rows;
+  }
 
   const widgetUser = (
-    await db.execute('SELECT User.stripeAccount FROM User WHERE User.id = ?', [widget.userId])
-  ).rows[0] as { stripeAccount: string };
+    await sql<{ stripeAccount: string }>`SELECT "stripeAccount" FROM "User" WHERE id = ${widget.userId}`
+  ).rows[0]!;
 
   const stripe = initStripe();
 
