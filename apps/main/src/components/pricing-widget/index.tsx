@@ -4,7 +4,7 @@ import { TEMPLATE_IDS } from '@dealo/templates';
 
 import { env as clientEnv } from 'env/client.mjs';
 
-const PRODUCTION_WIDGET = 'clqfkamjv0001121ffzdylrd3';
+const PRODUCTION_WIDGET = 'cluef3tpo0001wy61gaj0tz99';
 const DEVELOPMENT_WIDGET = 'clueevzsv0003vblzv1t88uim';
 
 export function isLocalhost () {
