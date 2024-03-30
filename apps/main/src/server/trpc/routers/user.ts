@@ -1,5 +1,4 @@
 import { z } from 'zod';
-import type Stripe from 'stripe';
 import { TRPCError } from '@trpc/server';
 import { sql } from '@vercel/postgres';
 import { ROLES } from '@dealo/models';
@@ -96,7 +95,7 @@ export const userRouter = createTRPCRouter({
 
       const dbUser = (
         await client.sql<{ email: string; stripeAccount?: string; role: string }>`
-          SELECT email, "stripeAccount", role FROM "User" WHERE id = ?`
+          SELECT email, "stripeAccount", role FROM "User" WHERE id = ${user.id}`
       ).rows[0];
 
       if (!dbUser) {
@@ -108,8 +107,9 @@ export const userRouter = createTRPCRouter({
       }
 
       if (dbUser.role === ROLES.ADMIN) {
+        console.log('user is an admin and cannot be deleted');
         client.release();
-        return new TRPCError({
+        throw new TRPCError({
           code: 'FORBIDDEN',
           message: 'Admin accounts cannot be deleted',
         });
@@ -130,9 +130,10 @@ export const userRouter = createTRPCRouter({
         }
 
         await client.sql`UPDATE "Subscription" SET status = 'canceled' WHERE "userId" = ${user.id}`;
-        await client.sql`
-          UPDATE "User" SET "isActive" = FALSE, "updatedAt" = NOW(), email = 'deleted-${user.email}-${user.id}'
-          WHERE id = ${user.id}`;
+        await client.query(
+          `UPDATE "User" SET "isActive" = FALSE, "updatedAt" = NOW(), email = $1 WHERE id = $2`,
+          [`deleted-${user.email}-${user.id}`, user.id],
+        );
         await client.sql`DELETE FROM "Account" WHERE "userId" = ${user.id}`;
         await client.sql`DELETE FROM "Session" WHERE "userId" = ${user.id}`;
 
@@ -143,13 +144,15 @@ export const userRouter = createTRPCRouter({
         const widgetIds = widgets.map((w) => w.id);
 
         if (widgetIds.length) {
-          const widgetIdsStr = widgetIds.map((id) => `"${id}"`).join(',');
-          client.sql`DELETE FROM "PriceWidget" WHERE id IN ('{${widgetIdsStr}}')`;
-          client.sql`DELETE FROM "Product" WHERE "widgetId" IN ('{${widgetIdsStr}}')`;
-          client.sql`DELETE FROM "Price" WHERE "widgetId" IN ('{${widgetIdsStr}}')`;
-          client.sql`DELETE FROM "Feature" WHERE "widgetId" IN ('{${widgetIdsStr}}')`;
-          client.sql`DELETE FROM "Callback" WHERE "widgetId" IN ('{${widgetIdsStr}}')`;
+          const widgetIdsStr = `${widgetIds.map((_, i) => `$${i + 1}`).join(',')}`;
+          await client.query(`DELETE FROM "PriceWidget" WHERE id IN (${widgetIdsStr})`, [...widgetIds]);
+          await client.query(`DELETE FROM "Product" WHERE "widgetId" IN (${widgetIdsStr})`, [...widgetIds]);
+          await client.query(`DELETE FROM "Price" WHERE "widgetId" IN (${widgetIdsStr})`, [...widgetIds]);
+          await client.query(`DELETE FROM "Feature" WHERE "widgetId" IN (${widgetIdsStr})`, [...widgetIds]);
+          await client.query(`DELETE FROM "Callback" WHERE "widgetId" IN (${widgetIdsStr})`, [...widgetIds]);
         }
+
+        client.release();
 
         await notifyOfDeletedAccount({ name: user.name!, email: dbUser.email, hadSubscription: !!subscription });
         await sendAccountDeletedEmail({ to: dbUser.email, name: user.name! });

@@ -27,22 +27,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 export default authMiddleware(handler);
 
 async function getWidgetData(widgetId: string) {
-  const widgetFields = [
-    'id',
-    'template',
-    'name',
-    'recommended',
-    'color',
-    '"unitLabel"',
-    '"subscribeLabel"',
-    '"freeTrialLabel"',
-    '"userId"',
-    '"checkoutSuccessUrl"',
-    '"checkoutCancelUrl"',
-  ];
-
   const widget = (
-    await sql`SELECT ${widgetFields.join(', ')} FROM "PriceWidget" WHERE id = ${widgetId}`
+    await sql`
+        SELECT id, template, name, recommended, color, "unitLabel", "subscribeLabel", "freeTrialLabel", "userId", "checkoutSuccessUrl", "checkoutCancelUrl"
+        FROM "PriceWidget" WHERE id = ${widgetId}`
   ).rows[0] as Widget;
 
   const callbacks = (
@@ -61,19 +49,19 @@ async function getWidgetData(widgetId: string) {
   const products = (
     await sql<Product>`
       SELECT id, "isCustom", name, description, "ctaLabel", "ctaUrl", mask, "order"
-      FROM "Product" WHERE "widgetId" = ? ORDER BY "order", "createdAt"`
+      FROM "Product" WHERE "widgetId" = ${widgetId} ORDER BY "order", "createdAt"`
   ).rows;
 
   const prodIds = products.map((p) => p.id);
   let prices: Price[] = [];
 
   if (prodIds.length) {
-    const prodIdsStr = prodIds.map((id) => `'${id}'`).join(',');
+    const prodIdsStr = `${prodIds.map((_, i) => `$${i + 1}`).join(',')}`;
     prices = (
-      await sql<Price>`
+      await sql.query<Price>(`
         SELECT id, "hasFreeTrial", "freeTrialDays", "freeTrialEndAction", "productId", mask, "order"
-        FROM "Price" WHERE "widgetId" = ? AND "productId" IN ('{${prodIdsStr}}')
-        ORDER BY "order", "createdAt"`
+        FROM "Price" WHERE "widgetId" = $${prodIds.length + 1} AND "productId" IN (${prodIdsStr})
+        ORDER BY "order", "createdAt"`, [...prodIds, widgetId])
     ).rows;
   }
 

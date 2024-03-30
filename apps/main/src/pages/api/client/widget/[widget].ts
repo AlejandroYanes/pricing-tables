@@ -30,7 +30,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     res.status(200).json(widgetData);
   } catch (e: any) {
     client.release();
-    console.error(`❌ Error fetching data for widget: ${widgetId}`, e.message);
+    console.error(`❌ Error fetching data for widget: ${widgetId}`, e);
     res.status(400).json({ error: `❌ Error fetching data for widget: ${widgetId}` });
   }
 }
@@ -38,22 +38,13 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 export default corsMiddleware(handler);
 
 async function getWidgetData(client: VercelPoolClient, widgetId: string): Promise<WidgetInfo> {
-  const widgetFields = [
-    'id',
-    'template',
-    'recommended',
-    'color',
-    '"unitLabel"',
-    '"subscribeLabel"',
-    '"freeTrialLabel"',
-    '"userId"',
-  ];
   const widget = (
-    await client.sql<Widget>`SELECT ${widgetFields.join(', ')} FROM "PriceWidget" WHERE id = ${widgetId}`
+    await client.sql<Widget>`
+      SELECT id, template, recommended, color, "unitLabel", "subscribeLabel", "freeTrialLabel", "userId"
+      FROM "PriceWidget" WHERE id = ${widgetId}`
   ).rows[0];
 
   if (!widget) {
-    client.release();
     throw new Error('Widget not found');
   }
 
@@ -70,21 +61,21 @@ async function getWidgetData(client: VercelPoolClient, widgetId: string): Promis
   const products = (
     await client.sql<Product>`
       SELECT id, "isCustom", name, description, "ctaLabel", "ctaUrl", mask
-      FROM Product WHERE "widgetId" = ${widgetId} ORDER BY "order", "createdAt"`
+      FROM "Product" WHERE "widgetId" = ${widgetId} ORDER BY "order", "createdAt"`
   ).rows;
 
-  const prodIds = products.map((p) => `"${p.id}"`).join(',');
+  const prodIds = products.map((p) => p.id);
+  const prodIdsStr = `${prodIds.map((_, i) => `$${i + 1}`).join(',')}`;
   const prices = (
-    await client.sql<Price>`
+    await client.query<Price>(`
       SELECT id, "hasFreeTrial", "freeTrialDays", "freeTrialEndAction", "productId", mask
-      FROM Price WHERE "widgetId" = ${widgetId} AND productId IN ('{${prodIds}}') ORDER BY "order", "createdAt"`
+      FROM "Price" WHERE "widgetId" = $${prodIds.length + 1} AND "productId" IN (${prodIdsStr})
+      ORDER BY "order", "createdAt"`, [...prodIds, widgetId])
   ).rows;
 
   const widgetUser = (
     await client.sql`SELECT "stripeAccount" FROM "User" WHERE id = ${widget.userId}`
   ).rows[0] as { stripeAccount: string; role: string };
-
-  client.release();
 
   const stripe = initStripe();
   const maskedRecommended = products.find((p) => p.id === widget.recommended)?.mask;

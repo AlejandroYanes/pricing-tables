@@ -1,6 +1,6 @@
 /* eslint-disable max-len */
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession } from 'next-auth/adapters';
-import { db, sql } from '@vercel/postgres';
+import { sql } from '@vercel/postgres';
 import { createId } from '@paralleldrive/cuid2';
 import type Stripe from 'stripe';
 
@@ -12,7 +12,7 @@ export default function PlanetScaleAdapter(): Adapter {
 
       await client.sql`
         INSERT INTO "User" (id, name, email, image, "emailVerified")
-        VALUES (${userId}, ${data.name}, ${data.email}, ${data.image}, ${data.emailVerified ? data.emailVerified.toString() : null})`;
+        VALUES (${userId}, ${data.name}, ${data.email}, ${data.image}, ${data.emailVerified ? data.emailVerified.toDateString() : null})`;
 
       const user = await client.sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE id = ${userId}`;
 
@@ -40,7 +40,13 @@ export default function PlanetScaleAdapter(): Adapter {
     updateUser: async ({ id, ...data }) => {
       const client = await sql.connect();
 
-      await client.sql`UPDATE "User" SET name = ${data.name}, email = ${data.email}, image = ${data.image}, "emailVerified" = ${data.emailVerified ? data.emailVerified.toString() : null} WHERE id = ${id}`;
+      await client.sql`
+        UPDATE "User" SET
+          name = ${data.name},
+          email = ${data.email},
+          image = ${data.image},
+          "emailVerified" = ${data.emailVerified ? data.emailVerified.toDateString() : null}
+        WHERE id = ${id}`;
       const user = await client.sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE id = ${id}`;
 
       client.release();
@@ -56,7 +62,7 @@ export default function PlanetScaleAdapter(): Adapter {
         INSERT INTO "Account" (id, type, provider, "providerAccountId", "userId", refresh_token, access_token, expires_at)
         VALUES (${createId()}, ${data.type}, ${data.provider}, ${data.providerAccountId}, ${data.userId}, ${data.refresh_token}, ${data.access_token}, ${data.expires_at})`;
 
-      const user = await client.sql`SELECT * FROM "Account" WHERE provider = ${data.provider} AND providerAccountId = ${data.providerAccountId}`;
+      const user = await client.sql`SELECT * FROM "Account" WHERE provider = ${data.provider} AND "providerAccountId" = ${data.providerAccountId}`;
 
       client.release();
       return user.rows[0] as AdapterAccount;
@@ -143,7 +149,7 @@ export default function PlanetScaleAdapter(): Adapter {
 
       await client.sql`
         INSERT INTO "Session" (id, "sessionToken", "userId", expires)
-        VALUES (${createId()}, ${data.sessionToken}, ${data.userId}, ${data.expires.toString()})`;
+        VALUES (${createId()}, ${data.sessionToken}, ${data.userId}, ${data.expires.toDateString()})`;
       const sessionQuery = await client.sql`SELECT * FROM "Session" WHERE "sessionToken" = ${data.sessionToken}`;
       const session =  sessionQuery.rows[0] as AdapterSession;
 
@@ -176,7 +182,7 @@ export default function PlanetScaleAdapter(): Adapter {
 
       await client.sql`
         INSERT INTO "VerificationToken" (id, token, identifier, expires)
-        VALUES (${createId()}, ${data.token}, ${data.identifier}, ${data.expires.toString()})`;
+        VALUES (${createId()}, ${data.token}, ${data.identifier}, ${data.expires.toDateString()})`;
       const verificationTokenQuery = await client.sql`
         SELECT * FROM "VerificationToken"
         WHERE token = ${data.token} AND identifier = ${data.identifier}`;
