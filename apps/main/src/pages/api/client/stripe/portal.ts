@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import { z } from 'zod';
 
 import initStripe from 'utils/stripe';
-import initDb from 'utils/planet-scale';
 import { corsMiddleware } from 'utils/api';
 
 const inputSchema = z.object({
@@ -27,10 +27,9 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { customer_id } = parsedBody.data;
 
   const stripe = initStripe();
-  const db = initDb();
 
   const { stripeAccount } = (
-    await db.execute('SELECT stripeAccount FROM User WHERE id = ?', [userId])
+    await sql`SELECT "stripeAccount" FROM "User" WHERE id = ${userId}`
   ).rows[0] as { stripeAccount: string };
 
   if (!customer_id) {

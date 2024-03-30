@@ -1,102 +1,85 @@
 /* eslint-disable max-len */
 import type { Adapter, AdapterUser, AdapterAccount, AdapterSession } from 'next-auth/adapters';
+import { sql } from '@vercel/postgres';
 import { createId } from '@paralleldrive/cuid2';
 import type Stripe from 'stripe';
 
-import initDb from './planet-scale';
-
 export default function PlanetScaleAdapter(): Adapter {
-  const db = initDb();
   return {
     createUser: async (data) => {
       const userId = createId();
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'INSERT INTO User (id, name, email, image, emailVerified) VALUES (?, ?, ?, ?, ?)',
-          [userId, data.name, data.email, data.image, data.emailVerified],
-        );
-      });
-      return (
-        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [userId])
-      ).rows[0] as AdapterUser;
+      const client = await sql.connect();
+
+      await client.sql`
+        INSERT INTO "User" (id, name, email, image, "emailVerified")
+        VALUES (${userId}, ${data.name}, ${data.email}, ${data.image}, ${data.emailVerified ? data.emailVerified.toDateString() : null})`;
+
+      const user = await client.sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE id = ${userId}`;
+
+      client.release();
+      return user.rows[0] as AdapterUser;
     },
     getUser: async (id) => {
       return (
-        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [id])
+        await sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE id = ${id}`
       ).rows[0] as AdapterUser;
     },
     getUserByEmail: async (email) => {
       return (
-        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE email = ?', [email])
+        await sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE email = ${email}`
       ).rows[0] as AdapterUser;
     },
     getUserByAccount: async (provider) => {
       return (
-        await db.execute(
-          'SELECT US.id, US.name, US.email, US.image, US.role FROM User US INNER JOIN Account AC ON US.id = AC.userId WHERE AC.providerAccountId = ? AND AC.provider = ?',
-          [provider.providerAccountId, provider.provider],
-        )
+        await sql`
+          SELECT US.id, US.name, US.email, US.image, US.role
+          FROM "User" US INNER JOIN "Account" AC ON US.id = AC."userId"
+          WHERE AC."providerAccountId" = ${provider.providerAccountId} AND AC.provider = ${provider.provider}`
       ).rows[0] as AdapterUser ?? null;
     },
     updateUser: async ({ id, ...data }) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'UPDATE User SET name = ?, email = ?, image = ?, emailVerified = ? WHERE id = ?',
-          [data.name, data.email, data.image, data.emailVerified, id],
-        );
-      });
-      return (
-        await db.execute('SELECT id, email, emailVerified, name, image, role FROM User WHERE id = ?', [id])
-      ).rows[0] as AdapterUser;
+      const client = await sql.connect();
+
+      await client.sql`
+        UPDATE "User" SET
+          name = ${data.name},
+          email = ${data.email},
+          image = ${data.image},
+          "emailVerified" = ${data.emailVerified ? data.emailVerified.toDateString() : null}
+        WHERE id = ${id}`;
+      const user = await client.sql`SELECT id, email, "emailVerified", name, image, role FROM "User" WHERE id = ${id}`;
+
+      client.release();
+      return user.rows[0] as AdapterUser;
     },
     deleteUser: async (id) => {
-      await db.transaction(async (tx) => {
-        await tx.execute('DELETE FROM User WHERE id = ?', [id])
-      });
+      await sql`DELETE FROM User WHERE id = ${id}`;
     },
     linkAccount: async (data) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'INSERT INTO Account (id, type, provider, providerAccountId, userId, refresh_token, access_token, expires_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?)',
-          [
-            createId(),
-            data.type,
-            data.provider,
-            data.providerAccountId,
-            data.userId,
-            data.refresh_token,
-            data.access_token,
-            data.expires_at,
-          ],
-        );
-      });
-      return (
-        await db.execute(
-          'SELECT * FROM Account WHERE provider = ? AND providerAccountId = ?',
-          [data.provider, data.providerAccountId],
-        )
-      ).rows[0] as AdapterAccount;
+      const client = await sql.connect();
+
+      await client.sql`
+        INSERT INTO "Account" (id, type, provider, "providerAccountId", "userId", refresh_token, access_token, expires_at)
+        VALUES (${createId()}, ${data.type}, ${data.provider}, ${data.providerAccountId}, ${data.userId}, ${data.refresh_token}, ${data.access_token}, ${data.expires_at})`;
+
+      const user = await client.sql`SELECT * FROM "Account" WHERE provider = ${data.provider} AND "providerAccountId" = ${data.providerAccountId}`;
+
+      client.release();
+      return user.rows[0] as AdapterAccount;
     },
     unlinkAccount: async (data) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'DELETE FROM Account WHERE provider = ? AND providerAccountId = ?',
-          [data.provider, data.providerAccountId],
-        );
-      });
+      await sql`DELETE FROM "Account" WHERE provider = ${data.provider} AND "providerAccountId" = ${data.providerAccountId}`;
     },
     getSessionAndUser: async (sessionToken) => {
-      const userAndSession = (
-        await db.execute(
-          `
-            SELECT US.id, US.name, US.email, US.image, US.emailVerified, US.role, US.stripeConnected, US.stripeKey, US.stripeCustomerId, SE.userId, SE.expires, SE.sessionToken
-            FROM User US
-              INNER JOIN Session SE ON US.id = SE.userId
-            WHERE SE.sessionToken = ? AND US.isActive = TRUE
-          `,
-          [sessionToken],
-        )
-      ).rows[0] as {
+      const client = await sql.connect();
+
+      const sessionQuery = await client.sql`
+        SELECT US.id, US.name, US.email, US.image, US."emailVerified", US.role, US."stripeConnected", US."stripeKey", US."stripeCustomerId", SE."userId", SE.expires, SE."sessionToken"
+        FROM "User" US
+          INNER JOIN "Session" SE ON US.id = SE."userId"
+        WHERE SE."sessionToken" = ${sessionToken} AND US."isActive" = TRUE`;
+
+      const userAndSession = sessionQuery.rows[0] as {
         id: string;
         name: string;
         email: string | null;
@@ -111,19 +94,24 @@ export default function PlanetScaleAdapter(): Adapter {
         sessionToken: string;
       } | null;
 
-      if (!userAndSession) return null;
+      if (!userAndSession) {
+        client.release();
+        return null;
+      }
 
-      const subscription = (
-        await db.execute(
-          'SELECT id, status, trialEnd, cancelAt FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
-          [userAndSession.userId],
-        )
-      ).rows[0] as {
+      const subscriptionQuery = await client.sql`
+        SELECT id, status, "trialEnd", "cancelAt"
+        FROM "Subscription"
+        WHERE "userId" = ${userAndSession.userId} ORDER BY "createdAt" DESC LIMIT 1`;
+
+      const subscription = subscriptionQuery.rows[0] as {
         id: string;
         status: Stripe.Subscription.Status;
         trialEnd: number;
         cancelAt: number;
       } | undefined;
+
+      client.release();
 
       const {
         id,
@@ -157,83 +145,65 @@ export default function PlanetScaleAdapter(): Adapter {
       };
     },
     createSession: async (data) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'INSERT INTO Session (id, sessionToken, userId, expires) VALUES (?, ?, ?, ?)',
-          [createId(), data.sessionToken, data.userId, data.expires],
-        );
-      });
-      const session =  (
-        await db.execute(
-          'SELECT * FROM Session WHERE sessionToken = ?',
-          [data.sessionToken],
-        )
-      ).rows[0] as AdapterSession;
+      const client = await sql.connect();
 
+      await client.sql`
+        INSERT INTO "Session" (id, "sessionToken", "userId", expires)
+        VALUES (${createId()}, ${data.sessionToken}, ${data.userId}, ${data.expires.toDateString()})`;
+      const sessionQuery = await client.sql`SELECT * FROM "Session" WHERE "sessionToken" = ${data.sessionToken}`;
+      const session =  sessionQuery.rows[0] as AdapterSession;
+
+      client.release();
       return { ...session, expires: new Date(session.expires) };
     },
     updateSession: async (data) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'UPDATE Session SET expires = ? WHERE sessionToken = ?',
-          [data.expires, data.sessionToken],
-        );
-      });
-      const session =  (
-        await db.execute(
-          'SELECT * FROM Session WHERE sessionToken = ?',
-          [data.sessionToken],
-        )
-      ).rows[0] as AdapterSession;
+      const client = await sql.connect();
 
+      await client.sql`
+        UPDATE "Session" SET expires = ${data.expires ? data.expires.toString() : null}
+        WHERE "sessionToken" = ${data.sessionToken}`;
+      const sessionQuery = await client.sql`SELECT * FROM "Session" WHERE "sessionToken" = ${data.sessionToken}`;
+      const session =  sessionQuery.rows[0] as AdapterSession;
+
+      client.release();
       return { ...session, expires: new Date(session.expires) };
     },
     deleteSession: async (sessionToken) => {
-      const session =  (
-        await db.execute(
-          'SELECT * FROM Session WHERE sessionToken = ?',
-          [sessionToken],
-        )
-      ).rows[0] as AdapterSession;
+      const client = await sql.connect();
+      const sessionQuery = await client.sql`SELECT * FROM "Session" WHERE "sessionToken" = ${sessionToken}`;
+      const session =  sessionQuery.rows[0] as AdapterSession;
 
-      await db.transaction(async (tx) => {
-        await tx.execute('DELETE FROM Session WHERE sessionToken = ?', [
-          sessionToken,
-        ])
-      });
+      await client.sql`DELETE FROM "Session" WHERE "sessionToken" = ${sessionToken}`;
 
       return session ? { ...session, expires: new Date(session.expires) } : undefined;
     },
     createVerificationToken: async (data) => {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'INSERT INTO VerificationToken (token, identifier, expires) VALUES (?, ?, ?)',
-          [data.token, data.identifier, data.expires],
-        );
-      });
-      return (
-        await db.execute(
-          'SELECT * FROM VerificationToken WHERE token = ? AND identifier = ?',
-          [data.token, data.identifier],
-        )
-      ).rows[0] as any;
+      const client = await sql.connect();
+
+      await client.sql`
+        INSERT INTO "VerificationToken" (id, token, identifier, expires)
+        VALUES (${createId()}, ${data.token}, ${data.identifier}, ${data.expires.toDateString()})`;
+      const verificationTokenQuery = await client.sql`
+        SELECT * FROM "VerificationToken"
+        WHERE token = ${data.token} AND identifier = ${data.identifier}`;
+
+      client.release();
+      return verificationTokenQuery.rows[0] as any;
     },
     useVerificationToken: async (data) => {
+      const client = await sql.connect();
       const verificationToken = (
-        await db.execute(
-          'SELECT token, identifier, expires FROM VerificationToken WHERE token = ? AND identifier = ?',
-          [data.token, data.identifier],
-        )
-      ).rows[0] as { token: string; identifier: string; expires: Date } | undefined;
+        await client.sql<{ token: string; identifier: string; expires: Date }>`
+          SELECT token, identifier, expires FROM "VerificationToken"
+          WHERE token = ${data.token} AND identifier = ${data.identifier}`
+      ).rows[0];
 
-      if (!verificationToken) return null;
+      if (!verificationToken) {
+        client.release();
+        return null;
+      }
 
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'DELETE FROM VerificationToken WHERE token = ? AND identifier = ?',
-          [data.token, data.identifier],
-        );
-      });
+      await client.sql`DELETE FROM "VerificationToken" WHERE token = ${data.token} AND identifier = ${data.identifier}`;
 
       return verificationToken;
     },

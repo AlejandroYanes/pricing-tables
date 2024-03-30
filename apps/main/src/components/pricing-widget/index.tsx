@@ -4,8 +4,8 @@ import { TEMPLATE_IDS } from '@dealo/templates';
 
 import { env as clientEnv } from 'env/client.mjs';
 
-const PRODUCTION_WIDGET = 'clqfkamjv0001121ffzdylrd3';
-const DEVELOPMENT_WIDGET = 'clsuvhj3d0001m12zkfffk0ty';
+const PRODUCTION_WIDGET = 'cluef3tpo0001wy61gaj0tz99';
+const DEVELOPMENT_WIDGET = 'clueevzsv0003vblzv1t88uim';
 
 export function isLocalhost () {
   return clientEnv.NEXT_PUBLIC_PLATFORM_URL === 'http://localhost:3000';

@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import type { AuthenticatedSession } from 'next-auth';
 import type Stripe from 'stripe';
 
 import initStripe from 'utils/stripe';
-import initDb from 'utils/planet-scale';
 import { notifyOfNewSetup } from 'utils/slack';
 import { sendWelcomeEmail } from 'utils/resend';
 import { authMiddleware } from 'utils/api';
@@ -11,18 +11,20 @@ import { authMiddleware } from 'utils/api';
 async function handler(_: NextApiRequest, res: NextApiResponse, session: AuthenticatedSession) {
 
   const stripe = initStripe();
-  const db = initDb();
+  const client = await sql.connect();
 
   const { stripeAccount, stripeConnected } = (
-    await db.execute('SELECT stripeAccount, stripeConnected FROM User WHERE id = ?', [session.user.id])
+    await client.sql`SELECT "stripeAccount", "stripeConnected" FROM "User" WHERE id = ${session.user.id}`
   ).rows[0] as { stripeAccount: string; stripeConnected: boolean };
 
   if (!stripeAccount) {
+    client.release();
     res.status(200).json({ connected: false });
     return;
   }
 
   if (stripeConnected) {
+    client.release();
     res.status(200).json({ connected: true });
     return;
   }
@@ -31,15 +33,15 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
 
   if (account.charges_enabled) {
     const checkoutRecord = (
-      await db.execute(
-        'SELECT id, status, trialEnd FROM Subscription WHERE userId = ? ORDER BY createdAt DESC LIMIT 1',
-        [session.user.id],
-      )
-    ).rows[0] as { id: string; status: Stripe.Subscription.Status; trialEnd: number } | undefined;
+      await client.sql<{ id: string; status: Stripe.Subscription.Status; trialEnd: number }>`
+        SELECT id, status, "trialEnd"
+        FROM "Subscription"
+        WHERE "userId" = ${session.user.id} ORDER BY "createdAt" DESC LIMIT 1`
+    ).rows[0];
 
-    await db.transaction(async (tx) => {
-      await tx.execute('UPDATE User SET stripeConnected = true, stripeKey = null WHERE id = ?', [session.user.id]);
-    });
+    await sql`UPDATE "User" SET "stripeConnected" = true, "stripeKey" = null WHERE id = ${session.user.id}`;
+
+    client.release();
 
     await notifyOfNewSetup({
       name: session.user.name!,
@@ -55,10 +57,12 @@ async function handler(_: NextApiRequest, res: NextApiResponse, session: Authent
       withTrial: checkoutRecord?.status === 'trialing',
       trialEndsAt: checkoutRecord?.trialEnd,
     });
+
     res.status(200).json({ connected: true });
     return;
   }
 
+  client.release();
   res.status(200).json({ connected: false });
 }
 

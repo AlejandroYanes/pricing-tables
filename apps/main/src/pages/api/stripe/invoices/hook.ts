@@ -1,9 +1,9 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import type Stripe from 'stripe';
 
 import { env } from 'env/server.mjs';
 import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
-import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 import { notifyOfInvoiceFailedToFinalize, notifyOfInvoicePaymentActionRequired } from 'utils/slack';
 
@@ -23,7 +23,6 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   const stripe = initStripe();
-  const db = initDb();
 
   const invoice = await stripe.invoices.retrieve(invoiceId, { expand: ['subscription'] }, { stripeAccount: account });
   const subscription = invoice.subscription as Stripe.Subscription;
@@ -51,10 +50,12 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   if (event.type === 'invoice.paid') {
-    await db.execute(
-      'UPDATE Subscription SET currentPeriodStart = ?, currentPeriodEnd = ? WHERE id = ?',
-      [subscription.current_period_start, subscription.current_period_end, subscriptionId],
-    );
+    await sql`
+      UPDATE "Subscription" SET
+        "currentPeriodStart" = ${subscription.current_period_start},
+        "currentPeriodEnd" = ${subscription.current_period_end}
+      WHERE id = ${subscriptionId as string}`;
+
   }
 
   res.status(200).json({ source: 'Dealo', received: true });

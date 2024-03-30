@@ -1,8 +1,8 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import { z } from 'zod';
 
 import { env } from 'env/server.mjs';
-import initDb from 'utils/planet-scale';
 import initStripe from 'utils/stripe';
 
 type SessionQuery = {
@@ -48,33 +48,30 @@ export default async function createStripeCheckoutSession(req: NextApiRequest, r
     free_trial_end_action,
   } = parsedParams.data;
 
-  const db = initDb();
+  const client = await sql.connect();
 
   try {
     const sessionQuery = (
-      await db.execute(
-        `SELECT
-            PW.checkoutSuccessUrl as successUrl,
-            PW.checkoutCancelUrl as cancelUrl,
-            PW.userId,
+      await client.sql<SessionQuery>`
+      SELECT
+            PW."checkoutSuccessUrl" as successUrl,
+            PW."checkoutCancelUrl" as cancelUrl,
+            PW."userId",
             PROD.id as productId,
             PRI.id as priceId
          FROM
-            PriceWidget PW JOIN Product PROD on PW.id = PROD.widgetId
-                JOIN Price PRI on PRI.widgetId = PW.id
-        WHERE PW.id = ? AND PROD.mask = ? AND PRI.mask = ?`,
-        [widgetId, prodMask, priceMask],
-      )
-    ).rows[0] as SessionQuery;
+            "PriceWidget" PW JOIN "Product" PROD on PW.id = PROD."widgetId"
+                JOIN "Price" PRI on PRI."widgetId" = PW.id
+        WHERE PW.id = ${widgetId} AND PROD.mask = ${prodMask} AND PRI.mask = ${priceMask}`
+    ).rows[0]!;
 
     const { priceId, userId, successUrl, cancelUrl  } = sessionQuery;
 
     const user = (
-      await db.execute(
-        `SELECT stripeAccount FROM User WHERE id = ?`,
-        [userId],
-      )
-    ).rows[0] as { stripeAccount: string };
+      await client.sql<{ stripeAccount: string }>`SELECT "stripeAccount" FROM "User" WHERE id = ${userId}`
+    ).rows[0]!;
+
+    client.release();
 
     const referer = req.headers['referer'];
     let refererSuccessUrl;

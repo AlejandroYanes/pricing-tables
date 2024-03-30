@@ -1,9 +1,9 @@
 /* eslint-disable max-len */
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import { z } from 'zod';
 
 import { corsMiddleware } from 'utils/api';
-import initDb from 'utils/planet-scale';
 
 const inputSchema = z.object({
   widget_id: z.string().cuid(),
@@ -29,14 +29,16 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   const { widget_id, product_id, price_id } = parsedBody.data;
 
   try {
-    const db = initDb();
+    const client = await sql.connect();
 
     const product = (
-      await db.execute('SELECT Product.id FROM Product WHERE mask = ? AND widgetId = ?', [product_id, widget_id])
+      await client.sql`SELECT Product.id FROM Product WHERE mask = ${product_id} AND widgetId = ${widget_id}`
     ).rows as { id: string }[];
     const price = (
-      await db.execute('SELECT Price.id FROM Price WHERE mask = ? AND widgetId = ?', [price_id, widget_id])
+      await client.sql`SELECT id FROM "Price" WHERE mask = ${price_id} AND "widgetId" = ${widget_id}`
     ).rows as { id: string }[];
+
+    client.release();
 
     if (!product[0] || !price[0]) {
       res.status(404).json({ error: 'Not Found' });

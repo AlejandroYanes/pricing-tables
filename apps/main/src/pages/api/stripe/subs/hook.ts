@@ -1,10 +1,10 @@
 import type { NextApiRequest, NextApiResponse } from 'next';
+import { sql } from '@vercel/postgres';
 import type Stripe from 'stripe';
 import { ROLES } from '@dealo/models';
 
 import { env } from 'env/server.mjs';
 import { corsMiddleware, stripeEventMiddleware } from 'utils/api';
-import initDb from 'utils/planet-scale';
 import { sendSubscriptionCancelledEmail } from 'utils/resend';
 import {
   notifyOfRenewedSubscription,
@@ -26,18 +26,19 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   const subscription = data.object as Stripe.Subscription;
   const { id: subsId } = subscription;
 
-  const db = initDb();
+  const client = await sql.connect();
 
   const dbInfo = (
-    await db.execute(`
-        SELECT US1.id, US1.name, US1.email
-        FROM Subscription SUB
-          JOIN User US1 ON SUB.userId = US1.id
-        WHERE SUB.id = ?
-      `, [subsId])
-  ).rows[0] as { id: string; name: string; email: string } | undefined;
+    await client.sql<{ id: string; name: string; email: string }>`
+      SELECT US1.id, US1.name, US1.email
+      FROM "Subscription" SUB
+        JOIN User US1 ON SUB."userId" = US1.id
+      WHERE SUB.id = ${subsId}
+    `
+  ).rows[0];
 
   if (!dbInfo) {
+    client.release();
     res.status(200).json({ source: 'Dealo', received: true });
     return;
   }
@@ -52,25 +53,15 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
   }
 
   if (event.type === 'customer.subscription.paused') {
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE id = ?',
-        [subscription.status, subsId],
-      );
-      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
-    });
+    await client.sql`UPDATE "Subscription" SET status = ${subscription.status} WHERE id = ${subsId}`;
+    await client.sql`UPDATE "User" SET role = ${ROLES.USER} WHERE id = ${dbInfo.id}`;
 
     await notifyOfSubscriptionPaused({ name: dbInfo.name, email: dbInfo.email });
   }
 
   if (event.type === 'customer.subscription.resumed') {
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE id = ?',
-        [subscription.status, subsId],
-      );
-      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.PAID, dbInfo.id]);
-    });
+    await client.sql`UPDATE "Subscription" SET status = ${subscription.status} WHERE id = ${subsId}`;
+    await client.sql`UPDATE "User" SET role = ${ROLES.PAID} WHERE id = ${dbInfo.id}`;
 
     await notifyOfSubscriptionResumed({ name: dbInfo.name, email: dbInfo.email });
   }
@@ -85,49 +76,41 @@ async function handler(_req: NextApiRequest, res: NextApiResponse, event: Stripe
 
     if (isCancelling) {
       const { name, email } = dbInfo;
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'UPDATE Subscription SET cancelAt = ?, cancelledAt = ?, cancellationDetails = ? WHERE id = ?',
-          [cancel_at, canceled_at, JSON.stringify(cancellation_details), subsId],
-        );
-      });
+      await client.sql`
+        UPDATE "Subscription" SET
+          "cancelAt" = ${cancel_at},
+          "cancelledAt" = ${canceled_at},
+          "cancellationDetails" = '${JSON.stringify(cancellation_details)}'
+        WHERE id = '${subsId}'`;
 
       await notifyOfSubscriptionSoftCancellation({ name, email, cancelAt: cancel_at! });
       await sendSubscriptionCancelledEmail({ name, to: email });
     }
 
     if (isRenewing) {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'UPDATE Subscription SET cancelAt = NULL, cancelledAt = NULL, cancellationDetails = NULL WHERE id = ?',
-          [subsId],
-        );
-      });
+      await client.sql`
+        UPDATE "Subscription" SET
+          "cancelAt" = NULL,
+          "cancelledAt" = NULL,
+          "cancellationDetails" = NULL
+        WHERE id = ${subsId}`;
 
       await notifyOfRenewedSubscription({ name: dbInfo.name, email: dbInfo.email });
     }
 
     if (isResuming) {
-      await db.transaction(async (tx) => {
-        await tx.execute(
-          'UPDATE Subscription SET status = ? WHERE id = ?',
-          [status, subsId],
-        );
-      });
+      await client.sql`UPDATE "Subscription" SET status = ${status} WHERE id = ${subsId}`;
     }
   }
 
   if (event.type === 'customer.subscription.deleted') {
-    await db.transaction(async (tx) => {
-      await tx.execute(
-        'UPDATE Subscription SET status = ? WHERE id = ?',
-        [subscription.status, subsId],
-      );
-      await tx.execute('UPDATE User SET role = ? WHERE id = ?', [ROLES.USER, dbInfo.id]);
-    });
+    await client.sql`UPDATE "Subscription" SET status = ${subscription.status} WHERE id = ${subsId}`;
+    await client.sql`UPDATE "User" SET role = ${ROLES.USER} WHERE id = ${dbInfo.id}`;
 
     await notifyOfSubscriptionCancellation({ name: dbInfo.name, email: dbInfo.email });
   }
+
+  client.release();
 
   res.status(200).json({ source: 'Dealo', received: true });
 }
