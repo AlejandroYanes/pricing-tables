@@ -1,5 +1,5 @@
 'use client'
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Button, Loader, RenderIf } from '@dealo/ui';
 
 import { type Query } from './query-actions';
