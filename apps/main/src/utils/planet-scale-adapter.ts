@@ -160,7 +160,7 @@ export default function PlanetScaleAdapter(): Adapter {
       const client = await sql.connect();
 
       await client.sql`
-        UPDATE "Session" SET expires = ${data.expires ? data.expires.toString() : null}
+        UPDATE "Session" SET expires = ${data.expires ? data.expires.toDateString() : null}
         WHERE "sessionToken" = ${data.sessionToken}`;
       const sessionQuery = await client.sql`SELECT * FROM "Session" WHERE "sessionToken" = ${data.sessionToken}`;
       const session =  sessionQuery.rows[0] as AdapterSession;
