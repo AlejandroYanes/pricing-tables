@@ -1,14 +1,14 @@
 'use client'
-import { useEffect } from 'react';
+import React, { useEffect } from 'react';
 import Head from 'next/head';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useSession } from 'next-auth/react';
-import { Button, Loader, RenderIf } from '@dealo/ui';
+import { Button, Loader, RenderIf, Textarea } from '@dealo/ui';
 
 import BaseLayout from 'components/base-layout';
-import { recordSignup } from './action';
+import { recordSignup, submitMessage } from './actions';
 
 interface Props {
   searchParams: Record<string, string | null>;
@@ -45,6 +45,29 @@ export default function FirstTimePage(props: Props) {
     return null;
   }
 
+  const handleProceed = async (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+    const form = event.currentTarget?.form;
+
+    if (!form || !data?.user) {
+      return;
+    }
+
+    const message = (form.elements as any).message.value;
+
+    if (!message) {
+      router.push('/api/stripe/connect/start');
+      return;
+    }
+
+    try {
+      await submitMessage({ name: data.user.name!, email: data.user.email!, message });
+      router.push('/api/stripe/connect/start');
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
   const { hasLegacySetup } = data.user;
 
   return (
@@ -58,24 +81,32 @@ export default function FirstTimePage(props: Props) {
             <div className="flex flex-col gap-10">
               <h1 className="text-5xl font-bold">Welcome!</h1>
               <RenderIf condition={hasLegacySetup}>
-                <span className="text-base">
+                <p className="text-base">
                 We are updating the way we connect to your Stripe account. <br/>
                 We are moving to a more secure way, which basically means that we will no longer require knowing your Stripe key.
                 For this to work we need you to complete a few steps, this time within Stripe.
                   <br/>
                 After you complete the steps, we will remove your Stripe key from our database.
-                </span>
+                </p>
+                <Link href="/api/stripe/connect/start" className="ml-auto">
+                  <Button>Proceed</Button>
+                </Link>
               </RenderIf>
               <RenderIf condition={!hasLegacySetup}>
-                <span className="text-base">
+                <p className="text-base">
                 Welcome, as a final step we need you to connect your Stripe account to our platform.
                 We will redirect you to Stripe, where you will be asked to complete a series of steps.
                 After that you will be free to use our app.
-                </span>
+                </p>
+                <p>
+                  If you have time, please let us know what is the main reason you decided to use Dealo.
+                  We want to understand your goals and help you achieve them.
+                </p>
+                <form className="flex flex-col gap-10">
+                  <Textarea name="message" maxLength={1000} />
+                  <Button className="ml-auto" onClick={handleProceed}>Proceed</Button>
+                </form>
               </RenderIf>
-              <Link href="/api/stripe/connect/start" className="ml-auto">
-                <Button>Proceed</Button>
-              </Link>
             </div>
             <Image
               width={380}
