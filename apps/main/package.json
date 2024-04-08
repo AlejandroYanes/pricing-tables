@@ -33,6 +33,7 @@
     "@notionhq/client": "2.2.14",
     "@paralleldrive/cuid2": "2.2.1",
     "@prisma/client": "5.8.0",
+    "@sejohnson/tql": "2.0.0",
     "@stripe/react-stripe-js": "2.4.0",
     "@stripe/stripe-js": "2.2.2",
     "@tabler/icons-react": "2.22.0",

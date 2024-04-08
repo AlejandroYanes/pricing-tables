@@ -3,6 +3,7 @@ import { TRPCError } from '@trpc/server';
 import { sql } from '@vercel/postgres';
 import type { Experiment } from '@dealo/models';
 
+import { tql } from 'utils/tql';
 import { getStoreItem, updateStore } from 'utils/vercel-edge-config';
 import { adminProcedure, createTRPCRouter } from '../trpc';
 
@@ -21,29 +22,32 @@ export const experimentsRouter = createTRPCRouter({
   }),
 
   getRecords: adminProcedure.input(z.enum(['24h', '7d', '30d', 'all'])).query(async ({ input }) => {
-    let dateQuery = '';
+    let dateQuery;
 
     switch (input) {
       case '24h':
-        dateQuery = 'DATE_SUB(NOW(), INTERVAL 1 DAY)';
+        dateQuery = tql.fragment`CURRENT_DATE - INTERVAL '1 day'`;
         break;
       case '7d':
-        dateQuery = 'DATE_SUB(NOW(), INTERVAL 7 DAY)';
+        dateQuery = tql.fragment`CURRENT_DATE - INTERVAL '7 days'`;
         break;
       case '30d':
-        dateQuery = 'DATE_SUB(NOW(), INTERVAL 30 DAY)';
+        dateQuery = tql.fragment`CURRENT_DATE - INTERVAL '30 days'`;
         break;
     }
 
-    return (
-      await sql<{ variant: string; views: number; visitors: number; signups: number }>`
-      SELECT
+    const whereClause = dateQuery ? tql.fragment`WHERE "createdAt" >= ${dateQuery}` : tql.fragment``;
+    const [query, parameters] = tql.query`
+        SELECT
             "variant",
             SUM(CASE WHEN event = 'view' THEN 1 ELSE 0 END) AS views,
             SUM(CASE WHEN event = 'signup' THEN 1 ELSE 0 END) AS signups,
             COUNT(DISTINCT CASE WHEN event = 'view' THEN "visitorId" END) AS visitors
-        FROM "Analytic" WHERE "createdAt" > ${dateQuery}
-        GROUP BY "variant"`
+        FROM "Analytic" ${whereClause}
+        GROUP BY "variant"`;
+
+    return (
+      await sql.query<{ variant: string; views: number; visitors: number; signups: number }>(query, parameters)
     ).rows;
   }),
 
